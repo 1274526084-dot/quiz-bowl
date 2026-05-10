@@ -15,113 +15,139 @@ body {
 .container { max-width: 500px; width: 100%; }
 
 /* Header */
-.header { text-align: center; margin-bottom: 16px; }
+.header { text-align: center; margin-bottom: 12px; }
 .header .badge {
   display: inline-block; padding: 4px 16px; border-radius: 20px;
   background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
-  letter-spacing: 2px; margin-bottom: 8px;
+  letter-spacing: 2px; margin-bottom: 6px;
 }
-.header h1 { color: #2563EB; font-size: 22px; }
+.header h1 { color: #2563EB; font-size: 21px; }
 .header .sub { color: #64748B; font-size: 12px; }
 
+/* Mode banner */
+.mode-banner {
+  text-align: center; padding: 6px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; margin-bottom: 10px;
+}
+.mode-banner.ai { background: #D1FAE5; color: #065F46; }
+.mode-banner.self { background: #FEF3C7; color: #92400E; }
+
 /* Word selector */
-.word-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+.word-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center; }
 .word-tab {
   padding: 6px 14px; border-radius: 16px; border: 2px solid #E2E8F0;
   background: #fff; font-size: 13px; cursor: pointer; transition: all 0.15s;
-  font-weight: 600; color: #475569;
+  font-weight: 600; color: #475569; -webkit-tap-highlight-color: transparent;
 }
-.word-tab:hover { border-color: #2563EB; }
+.word-tab:active { transform: scale(0.95); }
 .word-tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
 .word-tab.done { border-color: #059669; background: #D1FAE5; color: #065F46; }
 
 /* Card */
 .card {
-  background: #fff; border-radius: 20px; padding: 24px;
+  background: #fff; border-radius: 20px; padding: 20px 20px 16px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  text-align: center; margin-bottom: 12px;
+  text-align: center; margin-bottom: 10px;
 }
 .card .target-word {
-  font-size: 36px; font-weight: 700; color: #1E293B; margin-bottom: 4px;
+  font-size: 32px; font-weight: 700; color: #1E293B; margin-bottom: 2px;
 }
-.card .word-ipa { font-size: 14px; color: #94A3B8; margin-bottom: 8px; }
-.card .word-zh { font-size: 15px; color: #475569; margin-bottom: 14px; }
+.card .word-ipa { font-size: 13px; color: #94A3B8; margin-bottom: 6px; }
+.card .word-zh { font-size: 14px; color: #475569; margin-bottom: 12px; }
 
 /* Model audio */
-.model-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.model-row { margin-bottom: 14px; }
 .btn-model {
   padding: 10px 24px; border-radius: 12px; border: 2px solid #2563EB;
   background: #EFF6FF; color: #2563EB; font-size: 14px; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.btn-model:hover { background: #DBEAFE; }
+.btn-model:active { transform: scale(0.95); }
 .btn-model.playing { background: #2563EB; color: #fff; }
 
-/* Record area */
-.record-area { margin-bottom: 12px; }
+/* Record button */
+.record-area { margin-bottom: 10px; }
 .btn-record {
-  width: 80px; height: 80px; border-radius: 50%; border: 3px solid #DC2626;
-  background: #fff; font-size: 32px; cursor: pointer; transition: all 0.2s;
+  width: 72px; height: 72px; border-radius: 50%; border: 3px solid #DC2626;
+  background: #fff; font-size: 28px; cursor: pointer; transition: all 0.2s;
   box-shadow: 0 4px 16px rgba(220,38,38,0.2);
+  -webkit-tap-highlight-color: transparent;
 }
-.btn-record:hover { transform: scale(1.05); }
+.btn-record:active { transform: scale(0.92); }
 .btn-record.recording {
   background: #DC2626; animation: pulse 1.2s infinite;
   box-shadow: 0 4px 24px rgba(220,38,38,0.4);
 }
 @keyframes pulse {
   0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}
-  50%{box-shadow:0 0 0 16px rgba(220,38,38,0)}
+  50%{box-shadow:0 0 0 14px rgba(220,38,38,0)}
 }
-.record-hint { font-size: 12px; color: #94A3B8; margin-top: 6px; }
+.record-hint { font-size: 12px; color: #94A3B8; margin-top: 4px; }
 
-/* What was heard */
+/* Heard box */
 .heard-box {
-  min-height: 40px; padding: 8px 14px; border-radius: 10px;
-  font-size: 14px; margin-bottom: 10px; display: none;
+  min-height: 36px; padding: 8px 14px; border-radius: 10px;
+  font-size: 14px; margin-bottom: 8px; display: none;
+  word-break: break-all;
 }
 .heard-box.show { display: block; }
 .heard-box.listening { background: #FEF3C7; color: #92400E; }
 
+/* Playback bar */
+.playback-bar {
+  display: none; align-items: center; gap: 10px; justify-content: center;
+  margin-bottom: 10px; padding: 8px 12px; background: #F8FAFC;
+  border-radius: 10px; border: 1px solid #E2E8F0;
+}
+.playback-bar.show { display: flex; }
+.btn-playback {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid #2563EB;
+  background: #EFF6FF; font-size: 16px; cursor: pointer;
+}
+.btn-playback.playing { background: #2563EB; color: #fff; }
+.playback-label { font-size: 13px; color: #475569; }
+
 /* Score panel */
-.score-panel { display: none; margin-bottom: 12px; }
+.score-panel { display: none; margin-bottom: 10px; }
 .score-panel.show { display: block; }
-.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
 .score-item {
-  background: #F8FAFC; border-radius: 12px; padding: 12px 8px;
+  background: #F8FAFC; border-radius: 12px; padding: 10px 6px;
   text-align: center; border: 2px solid #E2E8F0;
 }
-.score-item .score-val { font-size: 28px; font-weight: 700; }
+.score-item .score-val { font-size: 26px; font-weight: 700; }
 .score-item .score-label { font-size: 11px; color: #64748B; margin-top: 2px; }
 .score-item.bad .score-val { color: #DC2626; }
 .score-item.ok .score-val { color: #F59E0B; }
 .score-item.good .score-val { color: #2563EB; }
 .score-item.great .score-val { color: #059669; }
-
 .overall-row {
-  text-align: center; padding: 10px; border-radius: 10px;
-  font-weight: 700; font-size: 15px;
+  text-align: center; padding: 8px; border-radius: 10px;
+  font-weight: 700; font-size: 14px;
 }
 
-/* History / stats */
-.stats-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+/* Stats */
+.stats-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
 .stat-badge {
   padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
   background: #EFF6FF; color: #2563EB;
 }
 
-/* Buttons */
-.btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-.btn-try {
-  padding: 8px 20px; border-radius: 10px; border: 2px solid #E2E8F0;
-  background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
-  color: #475569; transition: all 0.15s;
+/* Links */
+.link-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.link-row a {
+  display: inline-block; padding: 6px 14px; border-radius: 10px;
+  border: 2px solid #E2E8F0; background: #fff; font-size: 12px;
+  font-weight: 600; text-decoration: none; color: #475569;
 }
-.btn-try:hover { border-color: #2563EB; }
+.link-row a.hl { color: #DB2777; border-color: #FBCFE8; }
 
 /* Responsive */
-@media (max-width: 480px) {
-  .card .target-word { font-size: 28px; }
+@media (max-width: 400px) {
+  .card { padding: 14px 12px 12px; }
+  .card .target-word { font-size: 26px; }
+  .score-grid { gap: 6px; }
 }
 </style>
 </head>
@@ -130,13 +156,15 @@ body {
   <div class="header">
     <div class="badge">ECRL VOCABULARY</div>
     <h1>🎙 Pronunciation Check</h1>
-    <p class="sub">Listen → Speak → Get scored</p>
+    <p class="sub">Listen → Speak → Get feedback</p>
   </div>
+
+  <div class="mode-banner" id="modeBanner"></div>
 
   <!-- Stats -->
   <div class="stats-row">
-    <span class="stat-badge">✅ <strong id="doneCount">0</strong>/7 done</span>
-    <span class="stat-badge">⭐ Avg: <strong id="avgScore">-</strong></span>
+    <span class="stat-badge">✅ <strong id="doneCount">0</strong>/8</span>
+    <span class="stat-badge">⭐ <strong id="avgScore">-</strong></span>
   </div>
 
   <!-- Word tabs -->
@@ -148,26 +176,27 @@ body {
     <div class="word-ipa" id="wordIpa"></div>
     <div class="word-zh" id="wordZh"></div>
 
-    <!-- Model audio -->
     <div class="model-row">
-      <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen to Model</button>
+      <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen</button>
     </div>
 
-    <!-- Record -->
     <div class="record-area">
       <button class="btn-record" id="btnRecord" onclick="toggleRecord()">🎤</button>
       <div class="record-hint" id="recordHint">Tap to speak</div>
     </div>
 
-    <!-- Heard -->
     <div class="heard-box" id="heardBox"></div>
 
-    <!-- Score -->
+    <div class="playback-bar" id="playbackBar">
+      <button class="btn-playback" id="btnPlayback" onclick="playMyRecording()">▶</button>
+      <span class="playback-label">Your recording — compare with Model</span>
+    </div>
+
     <div class="score-panel" id="scorePanel">
       <div class="score-grid">
         <div class="score-item" id="scoreMatch">
           <div class="score-val">-</div>
-          <div class="score-label">Word Match<br>单词匹配</div>
+          <div class="score-label">Match<br>单词匹配</div>
         </div>
         <div class="score-item" id="scoreClarity">
           <div class="score-val">-</div>
@@ -175,49 +204,127 @@ body {
         </div>
         <div class="score-item" id="scoreOverall">
           <div class="score-val">-</div>
-          <div class="score-label">Overall<br>综合评分</div>
+          <div class="score-label">Overall<br>综合</div>
         </div>
       </div>
       <div class="overall-row" id="overallMsg"></div>
     </div>
+  </div>
 
-    <!-- Try again -->
-    <div class="btn-row">
-      <button class="btn-try" onclick="resetCurrent()">🔄 Try Again</button>
-      <a href="index.html" style="display:inline-block;padding:8px 20px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;font-size:13px;font-weight:600;color:#DB2777;text-decoration:none;">⬅ Quiz Bowl</a>
-      <a href="flashcards.html" style="display:inline-block;padding:8px 20px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;font-size:13px;font-weight:600;color:#2563EB;text-decoration:none;">📇 Flashcards</a>
-    </div>
+  <div class="link-row">
+    <a href="index.html" class="hl">⬅ Quiz Bowl</a>
+    <a href="flashcards.html">📇 Flashcards</a>
   </div>
 </div>
 
 <script>
-// Word data
 var words = [
-  { word: 'attitude',     slug: 'attitude',     ipa: '/ˈætɪtjuːd/',  zh: '态度；看法' },
-  { word: 'cooperate',    slug: 'cooperate',    ipa: '/kəʊˈɒpəreɪt/', zh: '合作；协作' },
-  { word: 'slogan',       slug: 'slogan',       ipa: '/ˈsləʊɡən/',    zh: '口号；标语' },
-  { word: 'journalist',   slug: 'journalist',   ipa: '/ˈdʒɜːnəlɪst/', zh: '新闻工作者；记者' },
-  { word: 'vacancy',      slug: 'vacancy',      ipa: '/ˈveɪkənsi/',   zh: '（职位）空位；空缺' },
-  { word: 'persistence',  slug: 'persistence',  ipa: '/pərˈsɪstəns/', zh: '坚持不懈；毅力' },
-  { word: 'dress code',   slug: 'dress-code',   ipa: '/dres kəʊd/',   zh: '着装规范' },
-  { word: 'dress down',   slug: 'dress-down',   ipa: '/dres daʊn/',   zh: '穿着随意' }
+  { word: 'attitude',    slug: 'attitude',    ipa: '/ˈætɪtjuːd/',  zh: '态度；看法' },
+  { word: 'cooperate',   slug: 'cooperate',   ipa: '/kəʊˈɒpəreɪt/', zh: '合作；协作' },
+  { word: 'slogan',      slug: 'slogan',      ipa: '/ˈsləʊɡən/',    zh: '口号；标语' },
+  { word: 'journalist',  slug: 'journalist',  ipa: '/ˈdʒɜːnəlɪst/', zh: '新闻工作者；记者' },
+  { word: 'vacancy',     slug: 'vacancy',     ipa: '/ˈveɪkənsi/',   zh: '（职位）空位；空缺' },
+  { word: 'persistence', slug: 'persistence', ipa: '/pərˈsɪstəns/', zh: '坚持不懈；毅力' },
+  { word: 'dress code',  slug: 'dress-code',  ipa: '/dres kəʊd/',   zh: '着装规范' },
+  { word: 'dress down',  slug: 'dress-down',  ipa: '/dres daʊn/',   zh: '穿着随意' }
 ];
 
 var currentIdx = 0;
-var scores = {}; // { word: { match, clarity, overall, attempts } }
-var recognition = null;
+var scores = {};
 var isRecording = false;
 var modelAudio = null;
 
-// Init SpeechRecognition
+// Check capabilities
 var hasSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+var hasMediaRecorder = !!window.MediaRecorder;
+
+var recognition = null;
+var mediaRecorder = null;
+var recordedChunks = [];
+var myRecordingURL = null;
+
+var mode = hasSpeech ? 'ai' : (hasMediaRecorder ? 'self' : 'none');
+
+// Init SpeechRecognition
 if (hasSpeech) {
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = 'en-US';
   recognition.interimResults = false;
   recognition.maxAlternatives = 3;
+
+  recognition.onresult = function(e) {
+    var w = words[currentIdx];
+    var target = w.word.toLowerCase();
+    var alternatives = [];
+    for (var i = 0; i < e.results[0].length; i++) {
+      alternatives.push({
+        text: e.results[0][i].transcript.toLowerCase().trim(),
+        confidence: Math.round(e.results[0][i].confidence * 100)
+      });
+    }
+
+    var best = alternatives[0];
+    var heard = best.text;
+    var confidence = best.confidence;
+
+    // Check match
+    var isMatch = heard === target || heard.indexOf(target) !== -1 || target.indexOf(heard) !== -1;
+    var matchScore = isMatch ? 100 : levenshteinSimilarity(heard, target);
+
+    // Check alternatives
+    for (var j = 0; j < alternatives.length; j++) {
+      var alt = alternatives[j].text;
+      if (alt === target || alt.indexOf(target) !== -1 || target.indexOf(alt) !== -1) {
+        matchScore = Math.max(matchScore, 85 + alternatives[j].confidence / 6);
+        if (alt === target) matchScore = 100;
+        break;
+      }
+    }
+
+    var overall = Math.round(matchScore * 0.5 + confidence * 0.3 + (matchScore >= 80 ? 20 : 0));
+
+    document.getElementById('heardBox').className = 'heard-box show';
+    document.getElementById('heardBox').innerHTML = isMatch
+      ? '✅ Heard: <strong>"' + heard + '"</strong> — Match!'
+      : '⚠ Heard: <strong>"' + heard + '"</strong> | Target: <strong>' + target + '</strong>';
+
+    showScore(matchScore, confidence, overall);
+
+    scores[w.word] = {
+      match: matchScore, clarity: confidence, overall: overall,
+      attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1), heard: heard
+    };
+
+    buildTabs();
+    updateStats();
+  };
+
+  recognition.onerror = function(e) {
+    document.getElementById('heardBox').className = 'heard-box show';
+    document.getElementById('heardBox').innerHTML = '❌ ' + (e.error === 'no-speech' ? 'No speech. Try again.' : e.error === 'not-allowed' ? 'Microphone blocked.' : 'Error: ' + e.error);
+    stopRecordUI();
+  };
+
+  recognition.onend = function() {
+    if (isRecording) stopRecordUI();
+  };
 }
+
+// Show mode info
+(function showMode() {
+  var banner = document.getElementById('modeBanner');
+  if (mode === 'ai') {
+    banner.className = 'mode-banner ai';
+    banner.textContent = '🤖 AI Scoring Mode — Chrome/Edge recommended';
+  } else if (mode === 'self') {
+    banner.className = 'mode-banner self';
+    banner.textContent = '🎧 Self-Practice Mode — Record & compare with model';
+  } else {
+    banner.className = 'mode-banner self';
+    banner.textContent = '⚠ Recording not supported. Use Chrome for full features.';
+  }
+})();
 
 function buildTabs() {
   var html = '';
@@ -230,11 +337,7 @@ function buildTabs() {
   document.getElementById('wordTabs').innerHTML = html;
 }
 
-function switchWord(i) {
-  currentIdx = i;
-  resetUI();
-  buildTabs();
-}
+function switchWord(i) { currentIdx = i; resetUI(); buildTabs(); renderWord(); }
 
 function renderWord() {
   var w = words[currentIdx];
@@ -251,8 +354,13 @@ function resetUI() {
   document.getElementById('scorePanel').classList.remove('show');
   document.getElementById('btnRecord').classList.remove('recording');
   document.getElementById('recordHint').textContent = 'Tap to speak';
+  document.getElementById('playbackBar').classList.remove('show');
+  document.getElementById('btnPlayback').classList.remove('playing');
   isRecording = false;
-  if (recognition) recognition.abort();
+  if (recognition) { try { recognition.abort(); } catch(e){} }
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); }
+  if (myRecordingURL) { URL.revokeObjectURL(myRecordingURL); myRecordingURL = null; }
+  recordedChunks = [];
   document.getElementById('btnModel').classList.remove('playing');
 }
 
@@ -271,14 +379,31 @@ function playModel() {
   var btn = document.getElementById('btnModel');
   btn.classList.add('playing');
   modelAudio.onended = function() { btn.classList.remove('playing'); };
+  modelAudio.onerror = function() { btn.classList.remove('playing'); };
   modelAudio.play();
 }
 
+function playMyRecording() {
+  if (!myRecordingURL) return;
+  var a = new Audio(myRecordingURL);
+  var btn = document.getElementById('btnPlayback');
+  btn.classList.add('playing');
+  a.onended = function() { btn.classList.remove('playing'); };
+  a.play();
+}
+
 function toggleRecord() {
-  if (!hasSpeech) {
-    alert('Speech recognition not supported. Please use Chrome or Edge.');
-    return;
+  if (mode === 'ai') {
+    toggleSpeechRecord();
+  } else if (mode === 'self') {
+    toggleMediaRecord();
+  } else {
+    alert('Recording not supported. Please use Chrome or Edge.');
   }
+}
+
+// --- AI Mode (SpeechRecognition) ---
+function toggleSpeechRecord() {
   if (isRecording) {
     recognition.stop();
   } else {
@@ -292,85 +417,68 @@ function toggleRecord() {
   }
 }
 
-// Recognition results
-if (hasSpeech) { recognition.onresult = function(e) {
-  var w = words[currentIdx];
-  var target = w.word.toLowerCase();
-  var alternatives = [];
-  for (var i = 0; i < e.results[0].length; i++) {
-    alternatives.push({
-      text: e.results[0][i].transcript.toLowerCase().trim(),
-      confidence: Math.round(e.results[0][i].confidence * 100)
+// --- Self Mode (MediaRecorder) ---
+function toggleMediaRecord() {
+  if (isRecording) {
+    mediaRecorder.stop();
+  } else {
+    resetUI();
+    recordedChunks = [];
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      mediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' });
+
+      mediaRecorder.ondataavailable = function(e) {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = function() {
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        var blob = new Blob(recordedChunks, { type: 'audio/webm' });
+        myRecordingURL = URL.createObjectURL(blob);
+
+        document.getElementById('heardBox').className = 'heard-box show';
+        document.getElementById('heardBox').innerHTML = '✅ Recorded! Listen & compare.';
+        document.getElementById('playbackBar').classList.add('show');
+        document.getElementById('recordHint').textContent = 'Tap to re-record';
+        stopRecordUI();
+
+        // Self-evaluation hint
+        document.getElementById('scorePanel').classList.add('show');
+        setScoreItem('scoreMatch', '-');
+        setScoreItem('scoreClarity', '-');
+        setScoreItem('scoreOverall', '-');
+        document.getElementById('overallMsg').innerHTML = '👂 Listen to your recording. Does it sound like the model?';
+        document.getElementById('overallMsg').style.background = '#FEF3C7';
+        document.getElementById('overallMsg').style.color = '#92400E';
+      };
+
+      mediaRecorder.start();
+      document.getElementById('btnRecord').classList.add('recording');
+      document.getElementById('recordHint').textContent = 'Recording... Tap to stop';
+      isRecording = true;
+
+      // Auto-stop after 4 seconds
+      setTimeout(function() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }, 4000);
+    }).catch(function(err) {
+      document.getElementById('heardBox').className = 'heard-box show';
+      document.getElementById('heardBox').innerHTML = '❌ Microphone blocked. Please allow access.';
     });
   }
-
-  var bestMatch = alternatives[0];
-  var heard = bestMatch.text;
-  var confidence = bestMatch.confidence;
-
-  // Check word match
-  var isMatch = heard === target || heard.indexOf(target) !== -1 || target.indexOf(heard) !== -1;
-
-  // Calculate scores
-  var matchScore = isMatch ? 100 : levenshteinSimilarity(heard, target);
-  var clarityScore = confidence;
-
-  // Check if any alternative matches better
-  for (var j = 0; j < alternatives.length; j++) {
-    var alt = alternatives[j].text;
-    if (alt === target || alt.indexOf(target) !== -1 || target.indexOf(alt) !== -1) {
-      matchScore = Math.max(matchScore, 85 + alternatives[j].confidence / 6);
-      if (alt === target) matchScore = 100;
-      break;
-    }
-  }
-
-  var overall = Math.round(matchScore * 0.5 + clarityScore * 0.3 + (matchScore >= 80 ? 20 : 0));
-
-  // Show what was heard
-  document.getElementById('heardBox').className = 'heard-box show';
-  document.getElementById('heardBox').innerHTML = isMatch
-    ? '✅ Heard: <strong>"' + heard + '"</strong> — Match!'
-    : '⚠ Heard: <strong>"' + heard + '"</strong> — Target: <strong>' + target + '</strong>';
-
-  // Show scores
-  showScore(matchScore, clarityScore, overall);
-
-  // Save
-  scores[w.word] = {
-    match: matchScore,
-    clarity: clarityScore,
-    overall: overall,
-    attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1),
-    heard: heard
-  };
-
-  buildTabs();
-  updateStats();
-};
-
-recognition.onerror = function(e) {
-  document.getElementById('heardBox').className = 'heard-box show';
-  document.getElementById('heardBox').innerHTML = '❌ ' + (e.error === 'no-speech' ? 'No speech detected. Try again.' : e.error === 'not-allowed' ? 'Microphone blocked. Please allow access.' : 'Error: ' + e.error);
-  stopRecordUI();
-};
-
-recognition.onend = function() {
-  if (isRecording) stopRecordUI();
-};
-
 }
 
 function stopRecordUI() {
   isRecording = false;
   document.getElementById('btnRecord').classList.remove('recording');
-  document.getElementById('recordHint').textContent = 'Tap to speak';
+  document.getElementById('recordHint').textContent = mode === 'ai' ? 'Tap to speak' : 'Tap to record';
 }
 
+// --- Score display ---
 function showScore(match, clarity, overall) {
-  var panel = document.getElementById('scorePanel');
-  panel.classList.add('show');
-
+  document.getElementById('scorePanel').classList.add('show');
   setScoreItem('scoreMatch', match);
   setScoreItem('scoreClarity', clarity);
   setScoreItem('scoreOverall', overall);
@@ -395,23 +503,26 @@ function setScoreItem(id, val) {
   var el = document.getElementById(id);
   var item = el.closest('.score-item');
   item.classList.remove('bad', 'ok', 'good', 'great');
-  if (val >= 90) item.classList.add('great');
-  else if (val >= 75) item.classList.add('good');
-  else if (val >= 50) item.classList.add('ok');
-  else item.classList.add('bad');
-  el.querySelector('.score-val').textContent = val + '%';
+  if (val === '-' || val === '—') {
+    el.querySelector('.score-val').textContent = '—';
+  } else {
+    if (val >= 90) item.classList.add('great');
+    else if (val >= 75) item.classList.add('good');
+    else if (val >= 50) item.classList.add('ok');
+    else item.classList.add('bad');
+    el.querySelector('.score-val').textContent = val + '%';
+  }
 }
 
 function updateStats() {
   var done = 0, total = 0, count = 0;
   for (var k in scores) {
-    if (scores[k].attempts > 0) { done++; total += scores[k].overall; count++; }
+    if (scores[k].attempts > 0) { done++; count++; total += (scores[k].overall || 0); }
   }
   document.getElementById('doneCount').textContent = done;
   document.getElementById('avgScore').textContent = count > 0 ? Math.round(total / count) + '%' : '-';
 }
 
-// Levenshtein distance for fuzzy matching
 function levenshteinSimilarity(a, b) {
   if (!a || !b) return 0;
   var m = a.length, n = b.length;
@@ -427,7 +538,6 @@ function levenshteinSimilarity(a, b) {
   return Math.round(Math.max(0, (1 - dist / Math.max(m, n)) * 100));
 }
 
-// Init
 renderWord();
 </script>
 </body>
