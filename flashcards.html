@@ -292,7 +292,7 @@ function renderCard() {
     '<img class="word-img" src="' + c.img + '" alt="' + c.word + '">' +
     '<div class="word-row">' +
       '<div class="word-en">' + c.word + '</div>' +
-      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(\'' + c.word + '\', this)" title="🔊 Listen">🔊</button>' +
+      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(\'' + c.word.replace(/\s+/g, '-') + '\', this)" title="🔊 Listen">🔊</button>' +
     '</div>' +
     '<div class="word-ipa">' + c.ipa + '</div>' +
     '<div class="pos-tag">' + c.pos + '</div>' +
@@ -374,57 +374,13 @@ function toggleAuto() {
   }
 }
 
-var voicesLoaded = false;
-
-// Preload voices (Chrome loads them async)
-if ('speechSynthesis' in window) {
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged = function() {
-    voicesLoaded = true;
-    speechSynthesis.getVoices();
-  };
-}
-
-function speakWord(word, btn) {
-  if (!('speechSynthesis' in window)) {
-    alert('Your browser does not support speech.');
-    return;
-  }
-  speechSynthesis.cancel();
-
-  // Ensure voices are loaded
-  var voices = speechSynthesis.getVoices();
-
-  var u = new SpeechSynthesisUtterance(word);
-  u.lang = 'en-US';
-  u.rate = 0.85;
-  u.volume = 1;
-
-  // Pick an English voice if available
-  var enVoice = voices.find(function(v) { return v.lang.indexOf('en') === 0; });
-  if (enVoice) u.voice = enVoice;
-
+function speakWord(slug, btn) {
+  // Use HTML5 Audio with pre-generated WAV file
+  var audio = new Audio('audio/' + slug + '.wav');
   btn.classList.add('speaking');
-
-  var done = false;
-  u.onstart = function() { done = true; };
-  u.onend = function() { btn.classList.remove('speaking'); };
-  u.onerror = function(e) {
-    btn.classList.remove('speaking');
-    if (!done) console.log('Speech error:', e);
-  };
-
-  // Fallback: if speech doesn't start within 2s, show message
-  var tid = setTimeout(function() {
-    if (!done) {
-      btn.classList.remove('speaking');
-      speechSynthesis.cancel();
-      alert('No English voice available on this device. Try using Chrome browser.');
-    }
-  }, 2000);
-
-  u.onstart = function() { done = true; clearTimeout(tid); };
-  speechSynthesis.speak(u);
+  audio.onended = function() { btn.classList.remove('speaking'); };
+  audio.onerror = function() { btn.classList.remove('speaking'); };
+  audio.play();
 }
 
 // Keyboard
