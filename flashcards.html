@@ -191,7 +191,7 @@ body {
 <script>
 var cards = [
   {
-    word: 'attitude',
+    word: 'attitude', slug: 'attitude',
     ipa: '/ˈætɪtjuːd/',
     pos: 'noun',
     img: 'quiz-imgs/1.jpg',
@@ -202,7 +202,7 @@ var cards = [
     wordFamily: '<b>attitude</b> (n.) 态度 — 常用搭配 attitude to/towards sb/sth'
   },
   {
-    word: 'cooperate',
+    word: 'cooperate', slug: 'cooperate',
     ipa: '/kəʊˈɒpəreɪt/',
     pos: 'verb',
     img: 'quiz-imgs/2.jpg',
@@ -213,7 +213,7 @@ var cards = [
     wordFamily: '<b>cooperation</b> (n.) 合作 &nbsp;|&nbsp; <b>cooperative</b> (adj.) 合作的'
   },
   {
-    word: 'slogan',
+    word: 'slogan', slug: 'slogan',
     ipa: '/ˈsləʊɡən/',
     pos: 'noun',
     img: 'quiz-imgs/3.jpg',
@@ -224,7 +224,7 @@ var cards = [
     wordFamily: '<b>slogan</b> (n.) 标语 — 可数名词，复数 slogans'
   },
   {
-    word: 'journalist',
+    word: 'journalist', slug: 'journalist',
     ipa: '/ˈdʒɜːnəlɪst/',
     pos: 'noun',
     img: 'quiz-imgs/4.jpg',
@@ -235,7 +235,7 @@ var cards = [
     wordFamily: '<b>journal</b> (n.) 期刊 &nbsp;|&nbsp; <b>journalism</b> (n.) 新闻业'
   },
   {
-    word: 'vacancy',
+    word: 'vacancy', slug: 'vacancy',
     ipa: '/ˈveɪkənsi/',
     pos: 'noun',
     img: 'quiz-imgs/5.jpg',
@@ -246,7 +246,7 @@ var cards = [
     wordFamily: '<b>vacant</b> (adj.) 空的；空缺的 — a vacant seat / position'
   },
   {
-    word: 'persistence',
+    word: 'persistence', slug: 'persistence',
     ipa: '/pərˈsɪstəns/',
     pos: 'noun',
     img: 'quiz-imgs/6.jpg',
@@ -257,7 +257,7 @@ var cards = [
     wordFamily: '<b>persist</b> (v.) 坚持 &nbsp;|&nbsp; <b>persistent</b> (adj.) 坚持不懈的'
   },
   {
-    word: 'dress code / dress down',
+    word: 'dress code / dress down', slug: ['dress-code','dress-down'],
     ipa: '/dres kəʊd/ & /dres daʊn/',
     pos: 'noun / phrasal verb',
     img: 'quiz-imgs/7.jpg',
@@ -292,7 +292,7 @@ function renderCard() {
     '<img class="word-img" src="' + c.img + '" alt="' + c.word + '">' +
     '<div class="word-row">' +
       '<div class="word-en">' + c.word + '</div>' +
-      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(\'' + c.word.replace(/\s+/g, '-') + '\', this)" title="🔊 Listen">🔊</button>' +
+      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(' + JSON.stringify(c.slug) + ', this)" title="🔊 Listen">🔊</button>' +
     '</div>' +
     '<div class="word-ipa">' + c.ipa + '</div>' +
     '<div class="pos-tag">' + c.pos + '</div>' +
@@ -375,12 +375,18 @@ function toggleAuto() {
 }
 
 function speakWord(slug, btn) {
-  // Use HTML5 Audio with pre-generated WAV file
-  var audio = new Audio('audio/' + slug + '.mp3');
+  var slugs = Array.isArray(slug) ? slug : [slug];
+  var idx = 0;
   btn.classList.add('speaking');
-  audio.onended = function() { btn.classList.remove('speaking'); };
-  audio.onerror = function() { btn.classList.remove('speaking'); };
-  audio.play();
+  function playNext() {
+    if (idx >= slugs.length) { btn.classList.remove('speaking'); return; }
+    var audio = new Audio('audio/' + slugs[idx] + '.mp3');
+    idx++;
+    audio.onended = playNext;
+    audio.onerror = playNext;
+    audio.play();
+  }
+  playNext();
 }
 
 // Keyboard
