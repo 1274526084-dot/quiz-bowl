@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards · 单词闪卡复习</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  user-select: none; -webkit-user-select: none;
+}
+.container {
+  max-width: 500px; width: 100%;
+}
+
+/* Header */
+.header { text-align: center; margin-bottom: 16px; }
+.header .badge {
+  display: inline-block; padding: 4px 16px; border-radius: 20px;
+  background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.header h1 { color: #2563EB; font-size: 22px; }
+.header .sub { color: #64748B; font-size: 12px; }
+
+/* Card count */
+.card-count { text-align: center; color: #64748B; font-size: 13px; margin-bottom: 8px; }
+.card-count strong { color: #2563EB; }
+
+/* Progress dots */
+.dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.dot {
+  width: 28px; height: 4px; border-radius: 2px; background: #E2E8F0;
+  cursor: pointer; transition: all 0.3s;
+}
+.dot.active { background: linear-gradient(90deg, #2563EB, #DB2777); width: 36px; }
+
+/* Card stage */
+.card-stage {
+  perspective: 1000px;
+  height: 460px;
+  position: relative;
+  margin-bottom: 12px;
+}
+.card {
+  width: 100%; height: 100%;
+  position: absolute;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.card.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute; inset: 0;
+  border-radius: 20px; backface-visibility: hidden;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 24px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+.card-front {
+  background: #fff;
+  border: 2px solid #E2E8F0;
+}
+.card-back {
+  background: linear-gradient(135deg, #f8fafc, #f0f9ff);
+  border: 2px solid #BFDBFE;
+  transform: rotateY(180deg);
+  justify-content: flex-start;
+  overflow-y: auto;
+  text-align: left;
+}
+
+/* Front content */
+.card-front .word-img {
+  width: 180px; height: 140px; object-fit: cover; border-radius: 12px;
+  margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.card-front .word-en {
+  font-size: 28px; font-weight: 700; color: #1E293B; margin-bottom: 2px;
+}
+.card-front .word-ipa {
+  font-size: 13px; color: #94A3B8; margin-bottom: 6px;
+}
+.card-front .pos-tag {
+  display: inline-block; padding: 2px 12px; border-radius: 12px;
+  background: #EFF6FF; color: #2563EB; font-size: 12px; font-weight: 600;
+}
+.card-front .tap-hint {
+  position: absolute; bottom: 16px; font-size: 11px; color: #94A3B8;
+}
+
+/* Back content */
+.card-back .section { width: 100%; margin-bottom: 14px; }
+.card-back .section-label {
+  font-size: 11px; font-weight: 700; color: #DB2777;
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+}
+.card-back .zh-meaning {
+  font-size: 20px; font-weight: 700; color: #1E293B; margin-bottom: 4px;
+}
+.card-back .example {
+  font-size: 14px; color: #475569; line-height: 1.6;
+  background: #fff; padding: 10px 14px; border-radius: 10px;
+  border-left: 3px solid #2563EB;
+}
+.card-back .example .en { color: #1E293B; font-weight: 500; }
+.card-back .example .cn { color: #94A3B8; font-size: 12px; display: block; margin-top: 2px; }
+.card-back .colloc {
+  font-size: 13px; color: #475569;
+}
+.card-back .colloc span {
+  display: inline-block; background: #FCE7F3; color: #BE185D;
+  padding: 3px 10px; border-radius: 10px; margin: 2px 4px 2px 0; font-size: 12px;
+}
+.card-back .word-family {
+  font-size: 13px; color: #475569; line-height: 1.6;
+}
+.card-back .tap-hint2 {
+  text-align: center; font-size: 11px; color: #94A3B8; width: 100%; margin-top: auto;
+}
+
+/* Nav buttons */
+.nav-row { display: flex; gap: 10px; align-items: center; justify-content: center; }
+.nav-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: 2px solid #E2E8F0;
+  background: #fff; font-size: 18px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; color: #2563EB;
+}
+.nav-btn:hover { border-color: #2563EB; background: #EFF6FF; }
+.nav-btn:disabled { opacity: 0.3; pointer-events: none; }
+.nav-btn.auto-btn {
+  width: auto; border-radius: 22px; padding: 0 18px;
+  font-size: 13px; font-weight: 600; gap: 4px;
+}
+
+/* Keyboard hint */
+.kb-hint { text-align: center; font-size: 11px; color: #94A3B8; margin-top: 8px; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .card-stage { height: 420px; }
+  .card-front .word-img { width: 150px; height: 120px; }
+  .card-front .word-en { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ECRL VOCABULARY</div>
+    <h1>📇 Word Flashcards</h1>
+    <p class="sub">Tap card to flip · Click arrows to switch</p>
+  </div>
+
+  <div class="card-count"><strong id="cardIdx">1</strong> / 7</div>
+  <div class="dots" id="dots"></div>
+
+  <div class="card-stage">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="card-face card-front" id="cardFront"></div>
+      <div class="card-face card-back" id="cardBack"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="prevCard()" id="btnPrev" title="Previous">◀</button>
+    <button class="nav-btn auto-btn" onclick="toggleAuto()" id="btnAuto">
+      ▶ Auto
+    </button>
+    <button class="nav-btn" onclick="nextCard()" id="btnNext" title="Next">▶</button>
+  </div>
+  <div class="kb-hint">⌨ Keyboard: ← → flip card &nbsp;|&nbsp; Space: flip</div>
+</div>
+
+<script>
+var cards = [
+  {
+    word: 'attitude',
+    ipa: '/ˈætɪtjuːd/',
+    pos: 'noun',
+    img: 'quiz-imgs/1.jpg',
+    zh: '态度；看法',
+    exampleEN: 'A positive <b>attitude</b> helps you overcome difficulties at work.',
+    exampleCN: '积极的态度能帮你克服工作中的困难。',
+    collocations: ['positive attitude', 'negative attitude', 'attitude towards'],
+    wordFamily: '<b>attitude</b> (n.) 态度 — 常用搭配 attitude to/towards sb/sth'
+  },
+  {
+    word: 'cooperate',
+    ipa: '/kəʊˈɒpəreɪt/',
+    pos: 'verb',
+    img: 'quiz-imgs/2.jpg',
+    zh: '合作；协作',
+    exampleEN: 'Train attendants must <b>cooperate</b> with each other to ensure safety.',
+    exampleCN: '列车员必须互相配合以确保安全。',
+    collocations: ['cooperate with', 'closely cooperate', 'cooperate in doing'],
+    wordFamily: '<b>cooperation</b> (n.) 合作 &nbsp;|&nbsp; <b>cooperative</b> (adj.) 合作的'
+  },
+  {
+    word: 'slogan',
+    ipa: '/ˈsləʊɡən/',
+    pos: 'noun',
+    img: 'quiz-imgs/3.jpg',
+    zh: '口号；标语',
+    exampleEN: 'The ECRL project\'s <b>slogan</b> is "Building Connections, Bridging Communities".',
+    exampleCN: '东铁项目的口号是「连接彼此，沟通社区」。',
+    collocations: ['advertising slogan', 'campaign slogan', 'catchy slogan'],
+    wordFamily: '<b>slogan</b> (n.) 标语 — 可数名词，复数 slogans'
+  },
+  {
+    word: 'journalist',
+    ipa: '/ˈdʒɜːnəlɪst/',
+    pos: 'noun',
+    img: 'quiz-imgs/4.jpg',
+    zh: '新闻工作者；记者',
+    exampleEN: 'A <b>journalist</b> from the local newspaper covered the railway opening ceremony.',
+    exampleCN: '一位当地报社的记者报道了铁路开通仪式。',
+    collocations: ['TV journalist', 'freelance journalist', 'sports journalist'],
+    wordFamily: '<b>journal</b> (n.) 期刊 &nbsp;|&nbsp; <b>journalism</b> (n.) 新闻业'
+  },
+  {
+    word: 'vacancy',
+    ipa: '/ˈveɪkənsi/',
+    pos: 'noun',
+    img: 'quiz-imgs/5.jpg',
+    zh: '（职位）空位；空缺',
+    exampleEN: 'There is a <b>vacancy</b> for an experienced train driver at the station.',
+    exampleCN: '车站有一个招聘有经验火车司机的职位空缺。',
+    collocations: ['job vacancy', 'fill a vacancy', 'vacancy rate'],
+    wordFamily: '<b>vacant</b> (adj.) 空的；空缺的 — a vacant seat / position'
+  },
+  {
+    word: 'persistence',
+    ipa: '/pərˈsɪstəns/',
+    pos: 'noun',
+    img: 'quiz-imgs/6.jpg',
+    zh: '坚持不懈；毅力',
+    exampleEN: 'Building the ECRL railway through mountains requires great <b>persistence</b>.',
+    exampleCN: '在群山中修建东铁铁路需要极大的毅力。',
+    collocations: ['with persistence', 'persistence pays off', 'sheer persistence'],
+    wordFamily: '<b>persist</b> (v.) 坚持 &nbsp;|&nbsp; <b>persistent</b> (adj.) 坚持不懈的'
+  },
+  {
+    word: 'dress code / dress down',
+    ipa: '/dres kəʊd/ & /dres daʊn/',
+    pos: 'noun / phrasal verb',
+    img: 'quiz-imgs/7.jpg',
+    zh: '着装规范 / 穿着随意',
+    exampleEN: 'The company has a strict <b>dress code</b>, but on Fridays employees can <b>dress down</b>.',
+    exampleCN: '公司有严格的着装规范，但周五员工可以穿得随意些。',
+    collocations: ['strict dress code', 'casual dress code', 'dress down Friday'],
+    wordFamily: '<b>dress code</b> (n.) 着装要求 &nbsp;|&nbsp; <b>dress down</b> (phr.v.) 穿着随意'
+  }
+];
+
+var currentIdx = 0;
+var isFlipped = false;
+var autoTimer = null;
+
+function buildDots() {
+  var html = '';
+  for (var i = 0; i < cards.length; i++) {
+    html += '<div class="dot' + (i === currentIdx ? ' active' : '') + '" onclick="goTo(' + i + ')"></div>';
+  }
+  document.getElementById('dots').innerHTML = html;
+}
+
+function renderCard() {
+  isFlipped = false;
+  var card = document.getElementById('card');
+  card.classList.remove('flipped');
+
+  var c = cards[currentIdx];
+  var front = document.getElementById('cardFront');
+  front.innerHTML =
+    '<img class="word-img" src="' + c.img + '" alt="' + c.word + '">' +
+    '<div class="word-en">' + c.word + '</div>' +
+    '<div class="word-ipa">' + c.ipa + '</div>' +
+    '<div class="pos-tag">' + c.pos + '</div>' +
+    '<div class="tap-hint">👆 Tap to reveal</div>';
+
+  var back = document.getElementById('cardBack');
+  back.innerHTML =
+    '<div class="section">' +
+      '<div class="section-label">Meaning</div>' +
+      '<div class="zh-meaning">' + c.zh + '</div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">Example</div>' +
+      '<div class="example"><span class="en">' + c.exampleEN + '</span><span class="cn">' + c.exampleCN + '</span></div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">Collocations</div>' +
+      '<div class="colloc">' + c.collocations.map(function(x) { return '<span>' + x + '</span>'; }).join('') + '</div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">Word Family</div>' +
+      '<div class="word-family">' + c.wordFamily + '</div>' +
+    '</div>' +
+    '<div class="tap-hint2">👆 Tap to flip back</div>';
+
+  document.getElementById('cardIdx').textContent = currentIdx + 1;
+  document.getElementById('btnPrev').disabled = currentIdx === 0;
+  document.getElementById('btnNext').disabled = currentIdx === cards.length - 1;
+  buildDots();
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('card').classList.toggle('flipped');
+}
+
+function prevCard() {
+  if (currentIdx > 0) {
+    currentIdx--;
+    renderCard();
+  }
+}
+
+function nextCard() {
+  if (currentIdx < cards.length - 1) {
+    currentIdx++;
+    renderCard();
+  }
+}
+
+function goTo(i) {
+  if (i !== currentIdx) {
+    currentIdx = i;
+    renderCard();
+  }
+}
+
+function toggleAuto() {
+  var btn = document.getElementById('btnAuto');
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    btn.textContent = '▶ Auto';
+    btn.style.background = '#fff';
+    btn.style.color = '#2563EB';
+  } else {
+    btn.textContent = '⏸ Stop';
+    btn.style.background = '#DB2777';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#DB2777';
+    autoTimer = setInterval(function() {
+      if (currentIdx < cards.length - 1) {
+        currentIdx++;
+        renderCard();
+      } else {
+        toggleAuto();
+      }
+    }, 5000);
+  }
+}
+
+// Keyboard
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowRight') { nextCard(); }
+  else if (e.key === 'ArrowLeft') { prevCard(); }
+  else if (e.key === ' ') { e.preventDefault(); flipCard(); }
+});
+
+// Init
+renderCard();
+</script>
+</body>
+</html>
