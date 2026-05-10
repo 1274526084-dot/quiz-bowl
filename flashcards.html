@@ -292,7 +292,7 @@ function renderCard() {
     '<img class="word-img" src="' + c.img + '" alt="' + c.word + '">' +
     '<div class="word-row">' +
       '<div class="word-en">' + c.word + '</div>' +
-      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(' + JSON.stringify(c.slug) + ', this)" title="🔊 Listen">🔊</button>' +
+      '<button class="speak-btn" data-slug="' + (Array.isArray(c.slug) ? c.slug.join(',') : c.slug) + '">🔊</button>' +
     '</div>' +
     '<div class="word-ipa">' + c.ipa + '</div>' +
     '<div class="pos-tag">' + c.pos + '</div>' +
@@ -388,6 +388,16 @@ function speakWord(slug, btn) {
   }
   playNext();
 }
+
+// Delegate speak button clicks (avoids inline quoting issues)
+document.getElementById('card').addEventListener('click', function(e) {
+  var btn = e.target.closest('.speak-btn');
+  if (btn) {
+    e.stopPropagation();
+    var raw = btn.getAttribute('data-slug');
+    speakWord(raw.indexOf(',') > -1 ? raw.split(',') : raw, btn);
+  }
+});
 
 // Keyboard
 document.addEventListener('keydown', function(e) {
