@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECRL Vocabulary · 词汇学习三件套</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
+  padding: 16px;
+}
+.wrap { max-width: 900px; margin: 0 auto; }
+
+.header { text-align: center; margin-bottom: 20px; }
+.header .badge {
+  display: inline-block; padding: 5px 20px; border-radius: 20px;
+  background: #FCE7F3; color: #DB2777; font-size: 13px; font-weight: 700;
+  letter-spacing: 3px; margin-bottom: 10px;
+}
+.header h1 { color: #2563EB; font-size: 26px; }
+.header .sub { color: #64748B; font-size: 14px; margin-top: 4px; }
+
+/* Flow arrow */
+.flow { text-align: center; margin-bottom: 16px; }
+.flow-steps { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.flow-step {
+  padding: 6px 14px; border-radius: 16px; font-size: 12px; font-weight: 700;
+  background: #EFF6FF; color: #2563EB;
+}
+.flow-arrow { color: #DB2777; font-size: 18px; font-weight: 700; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 0; }
+.tab-btn {
+  flex: 1; padding: 12px 8px; border: 2px solid #E2E8F0; border-bottom: none;
+  border-radius: 12px 12px 0 0; background: #F8FAFC; font-size: 14px;
+  font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s;
+  color: #64748B;
+}
+.tab-btn.active {
+  background: #fff; color: #2563EB; border-color: #2563EB;
+}
+.tab-btn .step-num {
+  display: inline-block; width: 20px; height: 20px; line-height: 20px;
+  border-radius: 50%; font-size: 11px; margin-right: 4px;
+  background: #E2E8F0; color: #64748B;
+}
+.tab-btn.active .step-num { background: #2563EB; color: #fff; }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Iframe container */
+.iframe-box {
+  background: #fff; border: 2px solid #2563EB; border-top: none;
+  border-radius: 0 0 16px 16px; overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  height: 80vh; min-height: 500px;
+}
+.iframe-box iframe {
+  width: 100%; height: 100%; border: none;
+}
+
+/* Standalone links */
+.standalone { text-align: center; margin-top: 12px; }
+.standalone span { font-size: 11px; color: #94A3B8; }
+.standalone a {
+  display: inline-block; margin-left: 8px; padding: 4px 12px;
+  border-radius: 8px; border: 1px solid #E2E8F0; font-size: 11px;
+  font-weight: 600; text-decoration: none; color: #2563EB;
+  background: #fff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header h1 { font-size: 20px; }
+  .tab-btn { font-size: 12px; padding: 10px 4px; }
+  .iframe-box { height: 70vh; min-height: 400px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="badge">ECRL VOCABULARY</div>
+    <h1>🚂 东铁英语 · 词汇学习三件套</h1>
+    <p class="sub">三步掌握铁路场景核心词汇</p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-steps">
+      <span class="flow-step">Step 1: 猜词感知</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Step 2: 闪卡巩固</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Step 3: 发音评测</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">
+      <span class="step-num">1</span>🧠 Quiz Bowl
+    </button>
+    <button class="tab-btn" onclick="switchTab(1)">
+      <span class="step-num">2</span>📇 Flashcards
+    </button>
+    <button class="tab-btn" onclick="switchTab(2)">
+      <span class="step-num">3</span>🎙 Pronunciation
+    </button>
+  </div>
+
+  <div class="tab-panel active">
+    <div class="iframe-box"><iframe src="index.html" allow="microphone"></iframe></div>
+  </div>
+  <div class="tab-panel">
+    <div class="iframe-box"><iframe src="flashcards.html"></iframe></div>
+  </div>
+  <div class="tab-panel">
+    <div class="iframe-box"><iframe src="pronounce.html" allow="microphone"></iframe></div>
+  </div>
+
+  <div class="standalone">
+    <span>🔗 单独打开：</span>
+    <a href="index.html" target="_blank">Quiz Bowl</a>
+    <a href="flashcards.html" target="_blank">Flashcards</a>
+    <a href="pronounce.html" target="_blank">Pronunciation</a>
+  </div>
+</div>
+
+<script>
+function switchTab(i) {
+  var btns = document.querySelectorAll('.tab-btn');
+  var panels = document.querySelectorAll('.tab-panel');
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].classList.toggle('active', j === i);
+    panels[j].classList.toggle('active', j === i);
+  }
+}
+</script>
+</body>
+</html>
