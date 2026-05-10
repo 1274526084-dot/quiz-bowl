@@ -54,7 +54,7 @@ body {
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
-/* Iframe container */
+/* Iframe container - panels 1-3 */
 .iframe-box {
   background: #fff; border: 2px solid #2563EB; border-top: none;
   border-radius: 0 0 16px 16px; overflow: hidden;
@@ -64,6 +64,47 @@ body {
 .iframe-box iframe {
   width: 100%; height: 100%; border: none;
 }
+
+/* Panel 4 - inline phonetic analyzer */
+.phonetic-box {
+  background: #fff; border: 2px solid #2563EB; border-top: none;
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  padding: 20px 16px; min-height: 500px; overflow-y: auto;
+}
+.phonetic-box h2 { color: #2563EB; font-size: 18px; text-align: center; margin-bottom: 4px; }
+.phonetic-box .ph-sub { color: #DB2777; font-size: 12px; text-align: center; margin-bottom: 14px; }
+.phonetic-box .ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+.phonetic-box .ph-card {
+  background: #f8fafc; border-radius: 12px; padding: 12px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.2s; text-align: center;
+}
+.phonetic-box .ph-card:hover { border-color: #2563EB; box-shadow: 0 4px 12px rgba(37,99,235,0.12); }
+.phonetic-box .ph-card.sel { border-color: #2563EB; background: #EFF6FF; }
+.phonetic-box .ph-card .en { font-size: 19px; font-weight: 700; color: #2563EB; }
+.phonetic-box .ph-card .ipa { font-size: 13px; color: #DB2777; margin: 3px 0; }
+.phonetic-box .ph-card .syl { font-size: 11px; color: #64748B; }
+.phonetic-box .ph-detail {
+  background: #f8fafc; border-radius: 14px; padding: 18px; display: none;
+  border: 2px solid #2563EB; margin-top: 12px;
+}
+.phonetic-box .ph-detail.show { display: block; }
+.phonetic-box .ph-detail h3 { color: #DB2777; margin-bottom: 8px; font-size: 17px; }
+.phonetic-box .ph-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
+.phonetic-box .ph-row:last-child { border-bottom: none; }
+.phonetic-box .ph-label { color: #64748B; }
+.phonetic-box .ph-val { color: #1E293B; font-weight: 600; }
+.phonetic-box .ph-val.blue { color: #2563EB; }
+.phonetic-box .ph-val.pink { color: #DB2777; }
+.phonetic-box .ph-play {
+  display: inline-block; padding: 8px 18px; background: #2563EB; color: #fff;
+  border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px;
+  transition: all 0.15s;
+}
+.phonetic-box .ph-play:hover { background: #1D4ED8; }
+.phonetic-box .ph-play:active { transform: scale(0.96); }
+.phonetic-box .ph-play.playing { background: #DB2777; animation: pulse2 0.6s infinite; }
+@keyframes pulse2 { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
 /* Standalone links */
 .standalone { text-align: center; margin-top: 12px; }
@@ -80,6 +121,9 @@ body {
   .header h1 { font-size: 20px; }
   .tab-btn { font-size: 11px; padding: 10px 3px; }
   .iframe-box { height: 70vh; min-height: 400px; }
+  .phonetic-box { padding: 14px 10px; min-height: 400px; }
+  .phonetic-box .ph-card { padding: 10px 8px; }
+  .phonetic-box .ph-card .en { font-size: 16px; }
 }
 </style>
 </head>
@@ -118,17 +162,29 @@ body {
     </button>
   </div>
 
+  <!-- Tab 1: Quiz Bowl -->
   <div class="tab-panel active">
     <div class="iframe-box"><iframe src="quiz.html" allow="microphone"></iframe></div>
   </div>
+
+  <!-- Tab 2: Flashcards -->
   <div class="tab-panel">
     <div class="iframe-box"><iframe src="flashcards.html"></iframe></div>
   </div>
+
+  <!-- Tab 3: Pronunciation -->
   <div class="tab-panel">
     <div class="iframe-box"><iframe src="pronounce.html" allow="microphone"></iframe></div>
   </div>
-  <div class="tab-panel">
-    <div class="iframe-box"><iframe src="phonetic-analyzer.html"></iframe></div>
+
+  <!-- Tab 4: Inline Phonetic Analyzer (no iframe, no caching issues) -->
+  <div class="tab-panel" id="phoneticPanel">
+    <div class="phonetic-box">
+      <h2>🔊 AI Phonetic Analyzer</h2>
+      <p class="ph-sub">Click a word to see syllable breakdown & sound change rules · 点击单词查看音变分析</p>
+      <div class="ph-grid" id="phGrid"></div>
+      <div class="ph-detail" id="phDetail"></div>
+    </div>
   </div>
 
   <div class="standalone">
@@ -141,12 +197,117 @@ body {
 </div>
 
 <script>
+// ===== Tab Switching =====
 function switchTab(i) {
   var btns = document.querySelectorAll('.tab-btn');
   var panels = document.querySelectorAll('.tab-panel');
   for (var j = 0; j < btns.length; j++) {
     btns[j].classList.toggle('active', j === i);
     panels[j].classList.toggle('active', j === i);
+  }
+  // Init phonetic analyzer on first visit to tab 3
+  if (i === 3 && !window._phInited) {
+    initPhonetics();
+  }
+}
+
+// ===== Phonetic Analyzer (inline) =====
+var phData = [
+  { en:'allowed', ipa:'/əˈlaʊd/', syllables:'al·lowed', stress:'2nd syllable', link:'silent "w" — "ow" → /aʊ/', weak:'"a" → /ə/ (schwa)', tip:'Sounds like "a-loud". "not allowed" links to "no-tallowed"', ext:'wav' },
+  { en:'permitted', ipa:'/pərˈmɪtɪd/', syllables:'per·mit·ted', stress:'2nd syllable', link:'double "t" shortens vowel', weak:'"ed" → /ɪd/', tip:'Quick /ɪ/ sound before double consonant', ext:'wav' },
+  { en:'dress code', ipa:'/dres kəʊd/', syllables:'dress code', stress:'both stressed', link:'s+c consonant blend', weak:'None — both words clear', tip:'Do NOT pause between words — blend "s" into "c"', ext:'mp3' },
+  { en:'dress down', ipa:'/dres daʊn/', syllables:'dress down', stress:'both stressed', link:'elision: "ss+d" merges', weak:'None', tip:'The "ss" at end of dress merges with "d" of down', ext:'mp3' },
+  { en:'attitude', ipa:'/ˈætɪtjuːd/', syllables:'at·ti·tude', stress:'1st syllable', link:'unstressed "i" → /ɪ/', weak:'final "e" is silent', tip:'Mouth opens wide on first syllable', ext:'mp3' },
+  { en:'persistence', ipa:'/pərˈsɪstəns/', syllables:'per·sis·tence', stress:'2nd syllable', link:'"r" links to next vowel', weak:'"ence" → /əns/', tip:'Hold the /s/ sound on stressed syllable', ext:'mp3' },
+  { en:'cooperate', ipa:'/kəʊˈɒpəreɪt/', syllables:'co·op·er·ate', stress:'2nd syllable', link:'vowel linking: co+op', weak:'"ate" → /eɪt/', tip:'Smooth transition between "o" vowels', ext:'mp3' },
+  { en:'vacancy', ipa:'/ˈveɪkənsi/', syllables:'va·can·cy', stress:'1st syllable', link:'smooth vowel transition', weak:'"a" in 2nd syllable → /ə/', tip:'First syllable sounds like "vay"', ext:'mp3' },
+  { en:'slogan', ipa:'/ˈsləʊɡən/', syllables:'slo·gan', stress:'1st syllable', link:'"s+l" blend at start', weak:'"an" → /ən/', tip:'Start with a clean "sl" consonant cluster', ext:'mp3' },
+  { en:'staff', ipa:'/stɑːf/', syllables:'staff', stress:'single syllable', link:'"s+t" consonant cluster', weak:'final "ff" is soft', tip:'Long /ɑː/ vowel — mouth open wide, jaw dropped', ext:'wav' },
+];
+
+var _phAudio = null;
+var _phSlugMap = {
+  'allowed':'allowed', 'permitted':'permitted', 'staff':'staff',
+  'attitude':'attitude', 'persistence':'persistence', 'cooperate':'cooperate',
+  'vacancy':'vacancy', 'slogan':'slogan', 'journalist':'journalist',
+  'dress code':'dress-code', 'dress down':'dress-down'
+};
+
+function initPhonetics() {
+  window._phInited = true;
+  var grid = document.getElementById('phGrid');
+  if (grid.children.length > 0) return; // already built
+  phData.forEach(function(w, i) {
+    var card = document.createElement('div');
+    card.className = 'ph-card';
+    card.id = 'phCard' + i;
+    card.innerHTML = '<div class="en">' + w.en + '</div><div class="ipa">' + w.ipa + '</div><div class="syl">' + w.syllables + '</div>';
+    card.onclick = function() { showPhDetail(i, card); };
+    grid.appendChild(card);
+  });
+}
+
+function showPhDetail(i, card) {
+  if (_phAudio) { _phAudio.pause(); _phAudio = null; }
+
+  var w = phData[i];
+  var slug = _phSlugMap[w.en] || '';
+  var ext = w.ext;
+  var panel = document.getElementById('phDetail');
+  panel.className = 'ph-detail show';
+  panel.innerHTML =
+    '<h3>📖 ' + w.en + ' <span style="font-size:15px;color:#64748B;">— ' + w.syllables + '</span></h3>' +
+    '<div class="ph-row"><span class="ph-label">IPA</span><span class="ph-val blue">' + w.ipa + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Syllable Count</span><span class="ph-val">' + w.syllables.split('·').length + ' syllables</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Primary Stress</span><span class="ph-val pink">' + w.stress + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Linking Feature</span><span class="ph-val">' + w.link + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Weak Form / Reduction</span><span class="ph-val">' + w.weak + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Pronunciation Tip</span><span class="ph-val blue">' + w.tip + '</span></div>' +
+    '<button class="ph-play" id="phPlayBtn" data-slug="' + slug + '" data-ext="' + ext + '">🔊 Listen</button>';
+
+  // Highlight selected card
+  document.querySelectorAll('.ph-card').forEach(function(c) { c.classList.remove('sel'); });
+  card.classList.add('sel');
+
+  // Attach play handler
+  document.getElementById('phPlayBtn').addEventListener('click', function() {
+    playPhAudio(this.getAttribute('data-slug'), this.getAttribute('data-ext'), this);
+  });
+
+  // Scroll detail into view if needed
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function playPhAudio(slug, ext, btn) {
+  if (_phAudio) { _phAudio.pause(); }
+
+  btn.classList.add('playing');
+  btn.textContent = '🔊 Playing...';
+
+  var audio = new Audio('audio/' + slug + '.' + ext);
+  _phAudio = audio;
+
+  audio.onended = function() {
+    btn.classList.remove('playing');
+    btn.textContent = '🔊 Listen';
+    _phAudio = null;
+  };
+
+  audio.onerror = function() {
+    btn.classList.remove('playing');
+    btn.textContent = '🔊 Retry';
+    btn.style.background = '#DC2626';
+    setTimeout(function() { btn.style.background = '#2563EB'; }, 1500);
+    _phAudio = null;
+  };
+
+  var promise = audio.play();
+  if (promise !== undefined) {
+    promise.catch(function() {
+      btn.classList.remove('playing');
+      btn.textContent = '🔊 Retry';
+      _phAudio = null;
+    });
   }
 }
 </script>
