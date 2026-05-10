@@ -10,145 +10,117 @@ body {
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
   min-height: 100vh;
   background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
 }
 .container { max-width: 500px; width: 100%; }
 
-/* Header */
-.header { text-align: center; margin-bottom: 12px; }
+.header { text-align: center; margin-bottom: 10px; }
 .header .badge {
   display: inline-block; padding: 4px 16px; border-radius: 20px;
   background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
   letter-spacing: 2px; margin-bottom: 6px;
 }
-.header h1 { color: #2563EB; font-size: 21px; }
+.header h1 { color: #2563EB; font-size: 20px; }
 .header .sub { color: #64748B; font-size: 12px; }
 
-/* Mode banner */
-.mode-banner {
-  text-align: center; padding: 6px 12px; border-radius: 8px;
-  font-size: 12px; font-weight: 600; margin-bottom: 10px;
-}
-.mode-banner.ai { background: #D1FAE5; color: #065F46; }
-.mode-banner.self { background: #FEF3C7; color: #92400E; }
-
-/* Word selector */
-.word-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; justify-content: center; }
+.word-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center; }
 .word-tab {
-  padding: 6px 14px; border-radius: 16px; border: 2px solid #E2E8F0;
-  background: #fff; font-size: 13px; cursor: pointer; transition: all 0.15s;
+  padding: 5px 12px; border-radius: 14px; border: 2px solid #E2E8F0;
+  background: #fff; font-size: 12px; cursor: pointer; transition: all 0.15s;
   font-weight: 600; color: #475569; -webkit-tap-highlight-color: transparent;
 }
 .word-tab:active { transform: scale(0.95); }
 .word-tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
 .word-tab.done { border-color: #059669; background: #D1FAE5; color: #065F46; }
 
-/* Card */
 .card {
-  background: #fff; border-radius: 20px; padding: 20px 20px 16px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  text-align: center; margin-bottom: 10px;
+  background: #fff; border-radius: 18px; padding: 18px 16px 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; margin-bottom: 8px;
 }
-.card .target-word {
-  font-size: 32px; font-weight: 700; color: #1E293B; margin-bottom: 2px;
-}
-.card .word-ipa { font-size: 13px; color: #94A3B8; margin-bottom: 6px; }
-.card .word-zh { font-size: 14px; color: #475569; margin-bottom: 12px; }
+.card .target-word { font-size: 30px; font-weight: 700; color: #1E293B; margin-bottom: 2px; }
+.card .word-ipa { font-size: 13px; color: #94A3B8; margin-bottom: 4px; }
+.card .word-zh { font-size: 14px; color: #475569; margin-bottom: 10px; }
 
-/* Model audio */
-.model-row { margin-bottom: 14px; }
 .btn-model {
-  padding: 10px 24px; border-radius: 12px; border: 2px solid #2563EB;
-  background: #EFF6FF; color: #2563EB; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.15s;
-  -webkit-tap-highlight-color: transparent;
+  padding: 8px 20px; border-radius: 10px; border: 2px solid #2563EB;
+  background: #EFF6FF; color: #2563EB; font-size: 13px; font-weight: 600;
+  cursor: pointer; margin-bottom: 10px;
 }
 .btn-model:active { transform: scale(0.95); }
 .btn-model.playing { background: #2563EB; color: #fff; }
 
-/* Record button */
-.record-area { margin-bottom: 10px; }
 .btn-record {
-  width: 72px; height: 72px; border-radius: 50%; border: 3px solid #DC2626;
-  background: #fff; font-size: 28px; cursor: pointer; transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(220,38,38,0.2);
-  -webkit-tap-highlight-color: transparent;
+  width: 68px; height: 68px; border-radius: 50%; border: 3px solid #DC2626;
+  background: #fff; font-size: 26px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.2);
+  margin-bottom: 4px;
 }
 .btn-record:active { transform: scale(0.92); }
 .btn-record.recording {
   background: #DC2626; animation: pulse 1.2s infinite;
-  box-shadow: 0 4px 24px rgba(220,38,38,0.4);
+  box-shadow: 0 4px 20px rgba(220,38,38,0.4);
 }
 @keyframes pulse {
   0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}
-  50%{box-shadow:0 0 0 14px rgba(220,38,38,0)}
+  50%{box-shadow:0 0 0 12px rgba(220,38,38,0)}
 }
-.record-hint { font-size: 12px; color: #94A3B8; margin-top: 4px; }
 
-/* Heard box */
-.heard-box {
-  min-height: 36px; padding: 8px 14px; border-radius: 10px;
-  font-size: 14px; margin-bottom: 8px; display: none;
-  word-break: break-all;
-}
-.heard-box.show { display: block; }
-.heard-box.listening { background: #FEF3C7; color: #92400E; }
-
-/* Playback bar */
-.playback-bar {
-  display: none; align-items: center; gap: 10px; justify-content: center;
-  margin-bottom: 10px; padding: 8px 12px; background: #F8FAFC;
-  border-radius: 10px; border: 1px solid #E2E8F0;
-}
-.playback-bar.show { display: flex; }
-.btn-playback {
-  width: 36px; height: 36px; border-radius: 50%; border: 2px solid #2563EB;
-  background: #EFF6FF; font-size: 16px; cursor: pointer;
-}
-.btn-playback.playing { background: #2563EB; color: #fff; }
-.playback-label { font-size: 13px; color: #475569; }
+.record-hint { font-size: 11px; color: #94A3B8; margin-bottom: 8px; }
 
 /* Score panel */
-.score-panel { display: none; margin-bottom: 10px; }
+.score-panel { display: none; margin-bottom: 6px; }
 .score-panel.show { display: block; }
-.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
 .score-item {
-  background: #F8FAFC; border-radius: 12px; padding: 10px 6px;
+  background: #F8FAFC; border-radius: 10px; padding: 8px 4px;
   text-align: center; border: 2px solid #E2E8F0;
 }
-.score-item .score-val { font-size: 26px; font-weight: 700; }
-.score-item .score-label { font-size: 11px; color: #64748B; margin-top: 2px; }
+.score-item .score-val { font-size: 22px; font-weight: 700; }
+.score-item .score-label { font-size: 10px; color: #64748B; margin-top: 1px; }
 .score-item.bad .score-val { color: #DC2626; }
 .score-item.ok .score-val { color: #F59E0B; }
 .score-item.good .score-val { color: #2563EB; }
 .score-item.great .score-val { color: #059669; }
+
 .overall-row {
-  text-align: center; padding: 8px; border-radius: 10px;
+  text-align: center; padding: 8px; border-radius: 8px;
   font-weight: 700; font-size: 14px;
 }
 
+/* Wave canvas */
+#waveCanvas {
+  width: 100%; height: 48px; border-radius: 8px;
+  background: #F1F5F9; margin-bottom: 8px; display: none;
+}
+#waveCanvas.show { display: block; }
+
+/* Playback */
+.playback-row {
+  display: none; align-items: center; gap: 8px; justify-content: center;
+  margin-bottom: 8px;
+}
+.playback-row.show { display: flex; }
+.btn-play {
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2563EB;
+  background: #EFF6FF; font-size: 14px; cursor: pointer;
+}
+.btn-play.playing { background: #2563EB; color: #fff; }
+
 /* Stats */
-.stats-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.stats-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
 .stat-badge {
-  padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+  padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
   background: #EFF6FF; color: #2563EB;
 }
 
 /* Links */
-.link-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.link-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
 .link-row a {
-  display: inline-block; padding: 6px 14px; border-radius: 10px;
+  display: inline-block; padding: 6px 12px; border-radius: 8px;
   border: 2px solid #E2E8F0; background: #fff; font-size: 12px;
   font-weight: 600; text-decoration: none; color: #475569;
 }
 .link-row a.hl { color: #DB2777; border-color: #FBCFE8; }
-
-/* Responsive */
-@media (max-width: 400px) {
-  .card { padding: 14px 12px 12px; }
-  .card .target-word { font-size: 26px; }
-  .score-grid { gap: 6px; }
-}
 </style>
 </head>
 <body>
@@ -156,51 +128,53 @@ body {
   <div class="header">
     <div class="badge">ECRL VOCABULARY</div>
     <h1>🎙 Pronunciation Check</h1>
-    <p class="sub">Listen → Speak → Get feedback</p>
+    <p class="sub">Listen to model → Record yours → Get multi-dimension score</p>
   </div>
 
-  <div class="mode-banner" id="modeBanner"></div>
-
-  <!-- Stats -->
   <div class="stats-row">
     <span class="stat-badge">✅ <strong id="doneCount">0</strong>/8</span>
-    <span class="stat-badge">⭐ <strong id="avgScore">-</strong></span>
+    <span class="stat-badge">⭐ Avg: <strong id="avgScore">-</strong></span>
   </div>
 
-  <!-- Word tabs -->
   <div class="word-tabs" id="wordTabs"></div>
 
-  <!-- Main card -->
   <div class="card">
     <div class="target-word" id="targetWord"></div>
     <div class="word-ipa" id="wordIpa"></div>
     <div class="word-zh" id="wordZh"></div>
 
-    <div class="model-row">
-      <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen</button>
-    </div>
+    <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen to Model</button>
+    <br>
+    <button class="btn-record" id="btnRecord" onclick="toggleRecord()">🎤</button>
+    <div class="record-hint" id="recordHint">Tap to record (max 4s)</div>
 
-    <div class="record-area">
-      <button class="btn-record" id="btnRecord" onclick="toggleRecord()">🎤</button>
-      <div class="record-hint" id="recordHint">Tap to speak</div>
-    </div>
-
-    <div class="heard-box" id="heardBox"></div>
-
-    <div class="playback-bar" id="playbackBar">
-      <button class="btn-playback" id="btnPlayback" onclick="playMyRecording()">▶</button>
-      <span class="playback-label">Your recording — compare with Model</span>
+    <canvas id="waveCanvas" width="400" height="48"></canvas>
+    <div class="playback-row" id="playbackRow">
+      <button class="btn-play" id="btnPlay" onclick="playMyRecording()">▶</button>
+      <span style="font-size:12px;color:#64748B;">Your recording</span>
     </div>
 
     <div class="score-panel" id="scorePanel">
       <div class="score-grid">
-        <div class="score-item" id="scoreMatch">
+        <div class="score-item" id="scorePitch">
           <div class="score-val">-</div>
-          <div class="score-label">Match<br>单词匹配</div>
+          <div class="score-label">Pitch<br>音调</div>
+        </div>
+        <div class="score-item" id="scoreVolume">
+          <div class="score-val">-</div>
+          <div class="score-label">Volume<br>音量</div>
+        </div>
+        <div class="score-item" id="scoreDuration">
+          <div class="score-val">-</div>
+          <div class="score-label">Pace<br>节奏</div>
         </div>
         <div class="score-item" id="scoreClarity">
           <div class="score-val">-</div>
           <div class="score-label">Clarity<br>清晰度</div>
+        </div>
+        <div class="score-item" id="scoreFluency">
+          <div class="score-val">-</div>
+          <div class="score-label">Fluency<br>流利度</div>
         </div>
         <div class="score-item" id="scoreOverall">
           <div class="score-val">-</div>
@@ -233,109 +207,14 @@ var currentIdx = 0;
 var scores = {};
 var isRecording = false;
 var modelAudio = null;
-
-// Check capabilities
-var hasSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-var hasMediaRecorder = !!window.MediaRecorder;
-
-var recognition = null;
 var mediaRecorder = null;
 var recordedChunks = [];
-var myRecordingURL = null;
+var myBlob = null;
+var myBlobURL = null;
+var audioCtx = null;
 
-var mode = hasSpeech ? 'ai' : (hasMediaRecorder ? 'self' : 'none');
-
-// Init SpeechRecognition
-if (hasSpeech) {
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 3;
-
-  recognition.onresult = function(e) {
-    var w = words[currentIdx];
-    var target = w.word.toLowerCase();
-    var alternatives = [];
-    for (var i = 0; i < e.results[0].length; i++) {
-      alternatives.push({
-        text: e.results[0][i].transcript.toLowerCase().trim(),
-        confidence: Math.round(e.results[0][i].confidence * 100)
-      });
-    }
-
-    var best = alternatives[0];
-    var heard = best.text;
-    var confidence = best.confidence;
-
-    // Check match
-    var isMatch = heard === target || heard.indexOf(target) !== -1 || target.indexOf(heard) !== -1;
-    var matchScore = isMatch ? 100 : levenshteinSimilarity(heard, target);
-
-    // Check alternatives
-    for (var j = 0; j < alternatives.length; j++) {
-      var alt = alternatives[j].text;
-      if (alt === target || alt.indexOf(target) !== -1 || target.indexOf(alt) !== -1) {
-        matchScore = Math.max(matchScore, 85 + alternatives[j].confidence / 6);
-        if (alt === target) matchScore = 100;
-        break;
-      }
-    }
-
-    var overall = Math.round(matchScore * 0.5 + confidence * 0.3 + (matchScore >= 80 ? 20 : 0));
-
-    document.getElementById('heardBox').className = 'heard-box show';
-    document.getElementById('heardBox').innerHTML = isMatch
-      ? '✅ Heard: <strong>"' + heard + '"</strong> — Match!'
-      : '⚠ Heard: <strong>"' + heard + '"</strong> | Target: <strong>' + target + '</strong>';
-
-    showScore(matchScore, confidence, overall);
-
-    scores[w.word] = {
-      match: matchScore, clarity: confidence, overall: overall,
-      attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1), heard: heard
-    };
-
-    buildTabs();
-    updateStats();
-  };
-
-  recognition.onerror = function(e) {
-    // "service-not-allowed" or "network" → Google speech blocked (common in China)
-    if (e.error === 'service-not-allowed' || e.error === 'network') {
-      mode = 'self';
-      hasSpeech = false;
-      recognition = null;
-      document.getElementById('modeBanner').className = 'mode-banner self';
-      document.getElementById('modeBanner').textContent = '🎧 Self-Practice Mode — Google AI blocked, use recording instead';
-      document.getElementById('recordHint').textContent = 'Tap to record';
-      stopRecordUI();
-      return;
-    }
-    document.getElementById('heardBox').className = 'heard-box show';
-    document.getElementById('heardBox').innerHTML = '❌ ' + (e.error === 'no-speech' ? 'No speech. Try again.' : e.error === 'not-allowed' ? 'Microphone blocked.' : 'Error: ' + e.error);
-    stopRecordUI();
-  };
-
-  recognition.onend = function() {
-    if (isRecording) stopRecordUI();
-  };
-}
-
-// Show mode info
-(function showMode() {
-  var banner = document.getElementById('modeBanner');
-  if (mode === 'ai') {
-    banner.className = 'mode-banner ai';
-    banner.textContent = '🤖 AI Scoring Mode — Chrome/Edge recommended';
-  } else if (mode === 'self') {
-    banner.className = 'mode-banner self';
-    banner.textContent = '🎧 Self-Practice Mode — Record & compare with model';
-  } else {
-    banner.className = 'mode-banner self';
-    banner.textContent = '⚠ Recording not supported. Use Chrome for full features.';
-  }
-})();
+// Model analysis cache: { slug: { duration, rms, peaks, pitchEstimate } }
+var modelProfiles = {};
 
 function buildTabs() {
   var html = '';
@@ -360,24 +239,22 @@ function renderWord() {
 }
 
 function resetUI() {
-  document.getElementById('heardBox').className = 'heard-box';
-  document.getElementById('heardBox').innerHTML = '';
   document.getElementById('scorePanel').classList.remove('show');
   document.getElementById('btnRecord').classList.remove('recording');
-  document.getElementById('recordHint').textContent = 'Tap to speak';
-  document.getElementById('playbackBar').classList.remove('show');
-  document.getElementById('btnPlayback').classList.remove('playing');
+  document.getElementById('recordHint').textContent = 'Tap to record (max 4s)';
+  document.getElementById('playbackRow').classList.remove('show');
+  document.getElementById('waveCanvas').classList.remove('show');
+  document.getElementById('btnPlay').classList.remove('playing');
   isRecording = false;
-  if (recognition) { try { recognition.abort(); } catch(e){} }
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); }
-  if (myRecordingURL) { URL.revokeObjectURL(myRecordingURL); myRecordingURL = null; }
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  if (myBlobURL) { URL.revokeObjectURL(myBlobURL); myBlobURL = null; }
+  myBlob = null;
   recordedChunks = [];
   document.getElementById('btnModel').classList.remove('playing');
 }
 
 function resetCurrent() {
-  var w = words[currentIdx];
-  delete scores[w.word];
+  delete scores[words[currentIdx].word];
   resetUI();
   buildTabs();
   updateStats();
@@ -395,48 +272,24 @@ function playModel() {
 }
 
 function playMyRecording() {
-  if (!myRecordingURL) return;
-  var a = new Audio(myRecordingURL);
-  var btn = document.getElementById('btnPlayback');
+  if (!myBlobURL) return;
+  var a = new Audio(myBlobURL);
+  var btn = document.getElementById('btnPlay');
   btn.classList.add('playing');
   a.onended = function() { btn.classList.remove('playing'); };
   a.play();
 }
 
 function toggleRecord() {
-  if (mode === 'ai') {
-    toggleSpeechRecord();
-  } else if (mode === 'self') {
-    toggleMediaRecord();
-  } else {
-    alert('Recording not supported. Please use Chrome or Edge.');
-  }
-}
-
-// --- AI Mode (SpeechRecognition) ---
-function toggleSpeechRecord() {
-  if (isRecording) {
-    recognition.stop();
-  } else {
-    resetUI();
-    document.getElementById('heardBox').className = 'heard-box show listening';
-    document.getElementById('heardBox').innerHTML = '🎧 Listening... Speak now!';
-    document.getElementById('btnRecord').classList.add('recording');
-    document.getElementById('recordHint').textContent = 'Listening...';
-    isRecording = true;
-    recognition.start();
-  }
-}
-
-// --- Self Mode (MediaRecorder) ---
-function toggleMediaRecord() {
   if (isRecording) {
     mediaRecorder.stop();
   } else {
     resetUI();
     recordedChunks = [];
     navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-      mediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm' });
+      var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus' : 'audio/webm';
+      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
 
       mediaRecorder.ondataavailable = function(e) {
         if (e.data.size > 0) recordedChunks.push(e.data);
@@ -444,23 +297,12 @@ function toggleMediaRecord() {
 
       mediaRecorder.onstop = function() {
         stream.getTracks().forEach(function(t) { t.stop(); });
-        var blob = new Blob(recordedChunks, { type: 'audio/webm' });
-        myRecordingURL = URL.createObjectURL(blob);
+        myBlob = new Blob(recordedChunks, { type: mime });
+        myBlobURL = URL.createObjectURL(myBlob);
 
-        document.getElementById('heardBox').className = 'heard-box show';
-        document.getElementById('heardBox').innerHTML = '✅ Recorded! Listen & compare.';
-        document.getElementById('playbackBar').classList.add('show');
-        document.getElementById('recordHint').textContent = 'Tap to re-record';
-        stopRecordUI();
-
-        // Self-evaluation hint
-        document.getElementById('scorePanel').classList.add('show');
-        setScoreItem('scoreMatch', '-');
-        setScoreItem('scoreClarity', '-');
-        setScoreItem('scoreOverall', '-');
-        document.getElementById('overallMsg').innerHTML = '👂 Listen to your recording. Does it sound like the model?';
-        document.getElementById('overallMsg').style.background = '#FEF3C7';
-        document.getElementById('overallMsg').style.color = '#92400E';
+        document.getElementById('playbackRow').classList.add('show');
+        document.getElementById('recordHint').textContent = 'Analyzing...';
+        analyzeRecording();
       };
 
       mediaRecorder.start();
@@ -468,15 +310,13 @@ function toggleMediaRecord() {
       document.getElementById('recordHint').textContent = 'Recording... Tap to stop';
       isRecording = true;
 
-      // Auto-stop after 4 seconds
       setTimeout(function() {
         if (mediaRecorder && mediaRecorder.state === 'recording') {
           mediaRecorder.stop();
         }
       }, 4000);
-    }).catch(function(err) {
-      document.getElementById('heardBox').className = 'heard-box show';
-      document.getElementById('heardBox').innerHTML = '❌ Microphone blocked. Please allow access.';
+    }).catch(function() {
+      document.getElementById('recordHint').textContent = 'Microphone blocked!';
     });
   }
 }
@@ -484,69 +324,272 @@ function toggleMediaRecord() {
 function stopRecordUI() {
   isRecording = false;
   document.getElementById('btnRecord').classList.remove('recording');
-  document.getElementById('recordHint').textContent = mode === 'ai' ? 'Tap to speak' : 'Tap to record';
 }
 
-// --- Score display ---
-function showScore(match, clarity, overall) {
-  document.getElementById('scorePanel').classList.add('show');
-  setScoreItem('scoreMatch', match);
-  setScoreItem('scoreClarity', clarity);
-  setScoreItem('scoreOverall', overall);
+// =========== Audio Analysis Engine ===========
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+// Load and decode an audio blob
+function decodeBlob(blob) {
+  return blob.arrayBuffer().then(function(buf) {
+    return getAudioCtx().decodeAudioData(buf);
+  });
+}
+
+// Extract audio features from an AudioBuffer
+// Returns: { duration, rms, peakCount, zeroCrossRate, spectralCentroid, pitchEstimate, energyEnvelope }
+function extractFeatures(buffer) {
+  var data = buffer.getChannelData(0);
+  var sampleRate = buffer.sampleRate;
+  var len = data.length;
+  var duration = len / sampleRate;
+
+  // RMS (root mean square = loudness)
+  var sumSq = 0;
+  for (var i = 0; i < len; i++) sumSq += data[i] * data[i];
+  var rms = Math.sqrt(sumSq / len);
+
+  // Peak count (number of significant amplitude peaks = syllable/energy bursts)
+  var peaks = 0;
+  var threshold = rms * 1.5;
+  var above = false;
+  for (var i = 0; i < len; i++) {
+    var abs = Math.abs(data[i]);
+    if (abs > threshold && !above) { peaks++; above = true; }
+    if (abs < rms * 0.5) above = false;
+  }
+
+  // Zero crossing rate (related to frequency content = clarity)
+  var zcr = 0;
+  for (var i = 1; i < len; i++) {
+    if ((data[i] >= 0 && data[i-1] < 0) || (data[i] < 0 && data[i-1] >= 0)) zcr++;
+  }
+  zcr = zcr / len;
+
+  // Spectral centroid (brightness/clarity of the sound)
+  // Use FFT-like approximation via zero-crossing + RMS relationship
+  var centroid = zcr * sampleRate / 2;
+
+  // Pitch estimation (simplified autocorrelation)
+  var pitch = estimatePitch(data, sampleRate);
+
+  // Energy envelope (fluency) - measure smoothness of amplitude changes
+  var windowSize = Math.floor(sampleRate * 0.02); // 20ms windows
+  var envelope = [];
+  for (var i = 0; i < len; i += windowSize) {
+    var end = Math.min(i + windowSize, len);
+    var winSum = 0;
+    for (var j = i; j < end; j++) winSum += Math.abs(data[j]);
+    envelope.push(winSum / (end - i));
+  }
+  var envVar = 0;
+  if (envelope.length > 1) {
+    var envMean = envelope.reduce(function(a,b){return a+b;},0) / envelope.length;
+    for (var k = 0; k < envelope.length; k++) envVar += Math.pow(envelope[k] - envMean, 2);
+    envVar = Math.sqrt(envVar / envelope.length) / (envMean || 0.001);
+  }
+
+  return {
+    duration: duration,
+    rms: rms,
+    peaks: peaks,
+    zcr: zcr,
+    centroid: centroid,
+    pitch: pitch,
+    envVar: envVar,
+    envelope: envelope,
+    data: data
+  };
+}
+
+// Simple pitch estimation via autocorrelation
+function estimatePitch(data, sampleRate) {
+  var len = data.length;
+  var minLag = Math.floor(sampleRate / 400);  // ~400 Hz max
+  var maxLag = Math.floor(sampleRate / 60);   // ~60 Hz min
+  if (maxLag >= len) return 0;
+
+  var bestCorr = -1, bestLag = 0;
+  for (var lag = minLag; lag < maxLag; lag++) {
+    var corr = 0;
+    for (var i = 0; i < len - lag; i++) corr += data[i] * data[i + lag];
+    if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+  }
+  return bestLag > 0 ? sampleRate / bestLag : 0;
+}
+
+// Score a single dimension (0-100) based on how close student is to model
+function dimScore(studentVal, modelVal, tolerance, invert) {
+  if (!modelVal || modelVal === 0) return 70; // fallback
+  var ratio = studentVal / modelVal;
+  // Clamp to [1-tolerance, 1+tolerance] range gets full score
+  if (ratio >= 1 - tolerance && ratio <= 1 + tolerance) return 100;
+  if (ratio <= 0) return 10;
+  var dist = Math.abs(Math.log(ratio)); // log scale
+  var score = 100 - dist * (100 / (1 + tolerance));
+  return Math.max(10, Math.min(100, Math.round(score)));
+}
+
+// Main analysis function
+function analyzeRecording() {
+  if (!myBlob) return;
+
+  decodeBlob(myBlob).then(function(studentBuffer) {
+    var studentFeat = extractFeatures(studentBuffer);
+
+    // Draw waveform
+    drawWaveform(studentFeat.data);
+
+    // Get model features (lazy load + cache)
+    var w = words[currentIdx];
+    var modelPath = 'audio/' + w.slug + '.mp3';
+
+    loadModelFeatures(modelPath).then(function(modelFeat) {
+      if (!modelFeat) {
+        // Model failed to load — use heuristic scoring
+        showHeuristicScore(studentFeat);
+        return;
+      }
+
+      // Compare student <-> model features
+      var pitchScore = dimScore(studentFeat.pitch, modelFeat.pitch, 0.3, false);
+      var volumeScore = dimScore(studentFeat.rms, modelFeat.rms, 0.4, false);
+      var durRatio = studentFeat.duration / modelFeat.duration;
+      var paceScore = durRatio >= 0.6 && durRatio <= 1.5 ? Math.round(100 - Math.abs(1 - durRatio) * 80) : Math.max(10, Math.round(50 - Math.abs(1 - durRatio) * 60));
+
+      // Clarity: combine ZCR similarity and centroid similarity
+      var zcrScore = dimScore(studentFeat.zcr, modelFeat.zcr, 0.25, false);
+      var centroidScore = dimScore(studentFeat.centroid, modelFeat.centroid, 0.3, false);
+      var clarityScore = Math.round(zcrScore * 0.5 + centroidScore * 0.5);
+
+      // Fluency: compare envelope variance (lower is smoother)
+      var fluScore = studentFeat.envVar < modelFeat.envVar * 1.5 ? 90 : Math.round(100 - Math.min(80, (studentFeat.envVar - modelFeat.envVar) * 40));
+
+      // Overall
+      var overall = Math.round(
+        pitchScore * 0.2 + volumeScore * 0.15 + paceScore * 0.15 +
+        clarityScore * 0.25 + fluScore * 0.25
+      );
+
+      displayScores(pitchScore, volumeScore, paceScore, clarityScore, fluScore, overall);
+    }).catch(function() {
+      showHeuristicScore(studentFeat);
+    });
+  }).catch(function() {
+    document.getElementById('recordHint').textContent = 'Audio analysis failed. Try again.';
+  });
+}
+
+// Load and cache model audio analysis
+function loadModelFeatures(url) {
+  if (modelProfiles[url]) return Promise.resolve(modelProfiles[url]);
+
+  return fetch(url).then(function(r) { return r.arrayBuffer(); })
+    .then(function(buf) { return getAudioCtx().decodeAudioData(buf); })
+    .then(function(buffer) {
+      var feat = extractFeatures(buffer);
+      modelProfiles[url] = feat;
+      return feat;
+    });
+}
+
+// Heuristic scoring (when model unavailable)
+function showHeuristicScore(feat) {
+  var vol = Math.min(100, Math.round(feat.rms * 800));
+  var clarity = Math.min(100, Math.round(feat.zcr * 8));
+  var flu = Math.min(100, Math.round(100 - feat.envVar * 30));
+  var overall = Math.round(vol * 0.3 + clarity * 0.4 + flu * 0.3);
+  displayScores(70, vol, 70, clarity, flu, overall);
+}
+
+function displayScores(pitch, volume, pace, clarity, fluency, overall) {
+  var panel = document.getElementById('scorePanel');
+  panel.classList.add('show');
+
+  setScore('scorePitch', pitch);
+  setScore('scoreVolume', volume);
+  setScore('scoreDuration', pace);
+  setScore('scoreClarity', clarity);
+  setScore('scoreFluency', fluency);
+  setScore('scoreOverall', overall);
 
   var msg = document.getElementById('overallMsg');
   if (overall >= 90) {
-    msg.innerHTML = '🏆 Excellent! 发音很棒！';
+    msg.innerHTML = '🏆 Excellent! 发音非常标准！';
     msg.style.background = '#D1FAE5'; msg.style.color = '#065F46';
   } else if (overall >= 75) {
-    msg.innerHTML = '👍 Good! 还不错，再练练！';
+    msg.innerHTML = '👍 Good job! 发音不错，再练练更完美！';
+    msg.style.background = '#DBEAFE'; msg.style.color = '#1E40AF';
+  } else if (overall >= 55) {
+    msg.innerHTML = '📚 Not bad! 多听范读，注意模仿语调！';
     msg.style.background = '#FEF3C7'; msg.style.color = '#92400E';
-  } else if (overall >= 50) {
-    msg.innerHTML = '📚 Keep trying! 继续练习！';
-    msg.style.background = '#FEE2E2'; msg.style.color = '#991B1B';
   } else {
-    msg.innerHTML = '🔁 Try again! 再试一次！';
+    msg.innerHTML = '💪 Keep practicing! 再听一遍范读，重新试试！';
     msg.style.background = '#FEE2E2'; msg.style.color = '#991B1B';
   }
+
+  document.getElementById('recordHint').textContent = 'Tap to record again';
+
+  var w = words[currentIdx];
+  scores[w.word] = { overall: overall, attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1) };
+  buildTabs();
+  updateStats();
 }
 
-function setScoreItem(id, val) {
+function setScore(id, val) {
+  val = Math.max(10, Math.min(100, Math.round(val)));
   var el = document.getElementById(id);
   var item = el.closest('.score-item');
   item.classList.remove('bad', 'ok', 'good', 'great');
-  if (val === '-' || val === '—') {
-    el.querySelector('.score-val').textContent = '—';
-  } else {
-    if (val >= 90) item.classList.add('great');
-    else if (val >= 75) item.classList.add('good');
-    else if (val >= 50) item.classList.add('ok');
-    else item.classList.add('bad');
-    el.querySelector('.score-val').textContent = val + '%';
+  if (val >= 90) item.classList.add('great');
+  else if (val >= 70) item.classList.add('good');
+  else if (val >= 45) item.classList.add('ok');
+  else item.classList.add('bad');
+  el.querySelector('.score-val').textContent = val + '%';
+}
+
+// Draw waveform on canvas
+function drawWaveform(data) {
+  var canvas = document.getElementById('waveCanvas');
+  canvas.classList.add('show');
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Downsample
+  var step = Math.max(1, Math.floor(data.length / w));
+  ctx.beginPath();
+  ctx.strokeStyle = '#2563EB';
+  ctx.lineWidth = 1.5;
+  var mid = h / 2;
+  for (var i = 0; i < w; i++) {
+    var idx = i * step;
+    var val = Math.abs(data[Math.min(idx, data.length - 1)]);
+    var y = mid - val * mid * 0.9;
+    if (i === 0) ctx.moveTo(i, y || mid);
+    else ctx.lineTo(i, y || mid);
   }
+  ctx.stroke();
+
+  // Zero line
+  ctx.beginPath();
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 0.5;
+  ctx.moveTo(0, mid); ctx.lineTo(w, mid);
+  ctx.stroke();
 }
 
 function updateStats() {
-  var done = 0, total = 0, count = 0;
+  var done = 0, total = 0;
   for (var k in scores) {
-    if (scores[k].attempts > 0) { done++; count++; total += (scores[k].overall || 0); }
+    if (scores[k].attempts > 0) { done++; total += scores[k].overall; }
   }
   document.getElementById('doneCount').textContent = done;
-  document.getElementById('avgScore').textContent = count > 0 ? Math.round(total / count) + '%' : '-';
-}
-
-function levenshteinSimilarity(a, b) {
-  if (!a || !b) return 0;
-  var m = a.length, n = b.length;
-  var dp = [];
-  for (var i = 0; i <= m; i++) { dp[i] = [i]; }
-  for (var j = 0; j <= n; j++) { dp[0][j] = j; }
-  for (var i = 1; i <= m; i++) {
-    for (var j = 1; j <= n; j++) {
-      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1;
-    }
-  }
-  var dist = dp[m][n];
-  return Math.round(Math.max(0, (1 - dist / Math.max(m, n)) * 100));
+  document.getElementById('avgScore').textContent = done > 0 ? Math.round(total / done) + '%' : '-';
 }
 
 renderWord();
