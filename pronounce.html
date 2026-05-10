@@ -301,6 +301,17 @@ if (hasSpeech) {
   };
 
   recognition.onerror = function(e) {
+    // "service-not-allowed" or "network" → Google speech blocked (common in China)
+    if (e.error === 'service-not-allowed' || e.error === 'network') {
+      mode = 'self';
+      hasSpeech = false;
+      recognition = null;
+      document.getElementById('modeBanner').className = 'mode-banner self';
+      document.getElementById('modeBanner').textContent = '🎧 Self-Practice Mode — Google AI blocked, use recording instead';
+      document.getElementById('recordHint').textContent = 'Tap to record';
+      stopRecordUI();
+      return;
+    }
     document.getElementById('heardBox').className = 'heard-box show';
     document.getElementById('heardBox').innerHTML = '❌ ' + (e.error === 'no-speech' ? 'No speech. Try again.' : e.error === 'not-allowed' ? 'Microphone blocked.' : 'Error: ' + e.error);
     stopRecordUI();
