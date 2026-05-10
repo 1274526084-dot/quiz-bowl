@@ -376,7 +376,7 @@ function toggleAuto() {
 
 function speakWord(slug, btn) {
   // Use HTML5 Audio with pre-generated WAV file
-  var audio = new Audio('audio/' + slug + '.wav');
+  var audio = new Audio('audio/' + slug + '.mp3');
   btn.classList.add('speaking');
   audio.onended = function() { btn.classList.remove('speaking'); };
   audio.onerror = function() { btn.classList.remove('speaking'); };
