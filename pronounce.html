@@ -293,7 +293,7 @@ function toggleRecord() {
 }
 
 // Recognition results
-recognition.onresult = function(e) {
+if (hasSpeech) { recognition.onresult = function(e) {
   var w = words[currentIdx];
   var target = w.word.toLowerCase();
   var alternatives = [];
@@ -358,6 +358,8 @@ recognition.onerror = function(e) {
 recognition.onend = function() {
   if (isRecording) stopRecordUI();
 };
+
+}
 
 function stopRecordUI() {
   isRecording = false;
