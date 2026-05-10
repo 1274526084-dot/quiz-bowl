@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pronunciation Check · 发音评测</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.container { max-width: 500px; width: 100%; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 16px; }
+.header .badge {
+  display: inline-block; padding: 4px 16px; border-radius: 20px;
+  background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.header h1 { color: #2563EB; font-size: 22px; }
+.header .sub { color: #64748B; font-size: 12px; }
+
+/* Word selector */
+.word-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; justify-content: center; }
+.word-tab {
+  padding: 6px 14px; border-radius: 16px; border: 2px solid #E2E8F0;
+  background: #fff; font-size: 13px; cursor: pointer; transition: all 0.15s;
+  font-weight: 600; color: #475569;
+}
+.word-tab:hover { border-color: #2563EB; }
+.word-tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+.word-tab.done { border-color: #059669; background: #D1FAE5; color: #065F46; }
+
+/* Card */
+.card {
+  background: #fff; border-radius: 20px; padding: 24px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  text-align: center; margin-bottom: 12px;
+}
+.card .target-word {
+  font-size: 36px; font-weight: 700; color: #1E293B; margin-bottom: 4px;
+}
+.card .word-ipa { font-size: 14px; color: #94A3B8; margin-bottom: 8px; }
+.card .word-zh { font-size: 15px; color: #475569; margin-bottom: 14px; }
+
+/* Model audio */
+.model-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; }
+.btn-model {
+  padding: 10px 24px; border-radius: 12px; border: 2px solid #2563EB;
+  background: #EFF6FF; color: #2563EB; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-model:hover { background: #DBEAFE; }
+.btn-model.playing { background: #2563EB; color: #fff; }
+
+/* Record area */
+.record-area { margin-bottom: 12px; }
+.btn-record {
+  width: 80px; height: 80px; border-radius: 50%; border: 3px solid #DC2626;
+  background: #fff; font-size: 32px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(220,38,38,0.2);
+}
+.btn-record:hover { transform: scale(1.05); }
+.btn-record.recording {
+  background: #DC2626; animation: pulse 1.2s infinite;
+  box-shadow: 0 4px 24px rgba(220,38,38,0.4);
+}
+@keyframes pulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}
+  50%{box-shadow:0 0 0 16px rgba(220,38,38,0)}
+}
+.record-hint { font-size: 12px; color: #94A3B8; margin-top: 6px; }
+
+/* What was heard */
+.heard-box {
+  min-height: 40px; padding: 8px 14px; border-radius: 10px;
+  font-size: 14px; margin-bottom: 10px; display: none;
+}
+.heard-box.show { display: block; }
+.heard-box.listening { background: #FEF3C7; color: #92400E; }
+
+/* Score panel */
+.score-panel { display: none; margin-bottom: 12px; }
+.score-panel.show { display: block; }
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.score-item {
+  background: #F8FAFC; border-radius: 12px; padding: 12px 8px;
+  text-align: center; border: 2px solid #E2E8F0;
+}
+.score-item .score-val { font-size: 28px; font-weight: 700; }
+.score-item .score-label { font-size: 11px; color: #64748B; margin-top: 2px; }
+.score-item.bad .score-val { color: #DC2626; }
+.score-item.ok .score-val { color: #F59E0B; }
+.score-item.good .score-val { color: #2563EB; }
+.score-item.great .score-val { color: #059669; }
+
+.overall-row {
+  text-align: center; padding: 10px; border-radius: 10px;
+  font-weight: 700; font-size: 15px;
+}
+
+/* History / stats */
+.stats-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+.stat-badge {
+  padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+  background: #EFF6FF; color: #2563EB;
+}
+
+/* Buttons */
+.btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
+.btn-try {
+  padding: 8px 20px; border-radius: 10px; border: 2px solid #E2E8F0;
+  background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  color: #475569; transition: all 0.15s;
+}
+.btn-try:hover { border-color: #2563EB; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .card .target-word { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ECRL VOCABULARY</div>
+    <h1>🎙 Pronunciation Check</h1>
+    <p class="sub">Listen → Speak → Get scored</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <span class="stat-badge">✅ <strong id="doneCount">0</strong>/7 done</span>
+    <span class="stat-badge">⭐ Avg: <strong id="avgScore">-</strong></span>
+  </div>
+
+  <!-- Word tabs -->
+  <div class="word-tabs" id="wordTabs"></div>
+
+  <!-- Main card -->
+  <div class="card">
+    <div class="target-word" id="targetWord"></div>
+    <div class="word-ipa" id="wordIpa"></div>
+    <div class="word-zh" id="wordZh"></div>
+
+    <!-- Model audio -->
+    <div class="model-row">
+      <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen to Model</button>
+    </div>
+
+    <!-- Record -->
+    <div class="record-area">
+      <button class="btn-record" id="btnRecord" onclick="toggleRecord()">🎤</button>
+      <div class="record-hint" id="recordHint">Tap to speak</div>
+    </div>
+
+    <!-- Heard -->
+    <div class="heard-box" id="heardBox"></div>
+
+    <!-- Score -->
+    <div class="score-panel" id="scorePanel">
+      <div class="score-grid">
+        <div class="score-item" id="scoreMatch">
+          <div class="score-val">-</div>
+          <div class="score-label">Word Match<br>单词匹配</div>
+        </div>
+        <div class="score-item" id="scoreClarity">
+          <div class="score-val">-</div>
+          <div class="score-label">Clarity<br>清晰度</div>
+        </div>
+        <div class="score-item" id="scoreOverall">
+          <div class="score-val">-</div>
+          <div class="score-label">Overall<br>综合评分</div>
+        </div>
+      </div>
+      <div class="overall-row" id="overallMsg"></div>
+    </div>
+
+    <!-- Try again -->
+    <div class="btn-row">
+      <button class="btn-try" onclick="resetCurrent()">🔄 Try Again</button>
+      <a href="index.html" style="display:inline-block;padding:8px 20px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;font-size:13px;font-weight:600;color:#DB2777;text-decoration:none;">⬅ Quiz Bowl</a>
+      <a href="flashcards.html" style="display:inline-block;padding:8px 20px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;font-size:13px;font-weight:600;color:#2563EB;text-decoration:none;">📇 Flashcards</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Word data
+var words = [
+  { word: 'attitude',     slug: 'attitude',     ipa: '/ˈætɪtjuːd/',  zh: '态度；看法' },
+  { word: 'cooperate',    slug: 'cooperate',    ipa: '/kəʊˈɒpəreɪt/', zh: '合作；协作' },
+  { word: 'slogan',       slug: 'slogan',       ipa: '/ˈsləʊɡən/',    zh: '口号；标语' },
+  { word: 'journalist',   slug: 'journalist',   ipa: '/ˈdʒɜːnəlɪst/', zh: '新闻工作者；记者' },
+  { word: 'vacancy',      slug: 'vacancy',      ipa: '/ˈveɪkənsi/',   zh: '（职位）空位；空缺' },
+  { word: 'persistence',  slug: 'persistence',  ipa: '/pərˈsɪstəns/', zh: '坚持不懈；毅力' },
+  { word: 'dress code',   slug: 'dress-code',   ipa: '/dres kəʊd/',   zh: '着装规范' },
+  { word: 'dress down',   slug: 'dress-down',   ipa: '/dres daʊn/',   zh: '穿着随意' }
+];
+
+var currentIdx = 0;
+var scores = {}; // { word: { match, clarity, overall, attempts } }
+var recognition = null;
+var isRecording = false;
+var modelAudio = null;
+
+// Init SpeechRecognition
+var hasSpeech = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+if (hasSpeech) {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 3;
+}
+
+function buildTabs() {
+  var html = '';
+  for (var i = 0; i < words.length; i++) {
+    var cls = 'word-tab';
+    if (i === currentIdx) cls += ' active';
+    if (scores[words[i].word] && scores[words[i].word].attempts > 0) cls += ' done';
+    html += '<button class="' + cls + '" onclick="switchWord(' + i + ')">' + words[i].word + '</button>';
+  }
+  document.getElementById('wordTabs').innerHTML = html;
+}
+
+function switchWord(i) {
+  currentIdx = i;
+  resetUI();
+  buildTabs();
+}
+
+function renderWord() {
+  var w = words[currentIdx];
+  document.getElementById('targetWord').textContent = w.word;
+  document.getElementById('wordIpa').textContent = w.ipa;
+  document.getElementById('wordZh').textContent = w.zh;
+  buildTabs();
+  updateStats();
+}
+
+function resetUI() {
+  document.getElementById('heardBox').className = 'heard-box';
+  document.getElementById('heardBox').innerHTML = '';
+  document.getElementById('scorePanel').classList.remove('show');
+  document.getElementById('btnRecord').classList.remove('recording');
+  document.getElementById('recordHint').textContent = 'Tap to speak';
+  isRecording = false;
+  if (recognition) recognition.abort();
+  document.getElementById('btnModel').classList.remove('playing');
+}
+
+function resetCurrent() {
+  var w = words[currentIdx];
+  delete scores[w.word];
+  resetUI();
+  buildTabs();
+  updateStats();
+}
+
+function playModel() {
+  if (modelAudio) { modelAudio.pause(); }
+  var w = words[currentIdx];
+  modelAudio = new Audio('audio/' + w.slug + '.mp3');
+  var btn = document.getElementById('btnModel');
+  btn.classList.add('playing');
+  modelAudio.onended = function() { btn.classList.remove('playing'); };
+  modelAudio.play();
+}
+
+function toggleRecord() {
+  if (!hasSpeech) {
+    alert('Speech recognition not supported. Please use Chrome or Edge.');
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+  } else {
+    resetUI();
+    document.getElementById('heardBox').className = 'heard-box show listening';
+    document.getElementById('heardBox').innerHTML = '🎧 Listening... Speak now!';
+    document.getElementById('btnRecord').classList.add('recording');
+    document.getElementById('recordHint').textContent = 'Listening...';
+    isRecording = true;
+    recognition.start();
+  }
+}
+
+// Recognition results
+recognition.onresult = function(e) {
+  var w = words[currentIdx];
+  var target = w.word.toLowerCase();
+  var alternatives = [];
+  for (var i = 0; i < e.results[0].length; i++) {
+    alternatives.push({
+      text: e.results[0][i].transcript.toLowerCase().trim(),
+      confidence: Math.round(e.results[0][i].confidence * 100)
+    });
+  }
+
+  var bestMatch = alternatives[0];
+  var heard = bestMatch.text;
+  var confidence = bestMatch.confidence;
+
+  // Check word match
+  var isMatch = heard === target || heard.indexOf(target) !== -1 || target.indexOf(heard) !== -1;
+
+  // Calculate scores
+  var matchScore = isMatch ? 100 : levenshteinSimilarity(heard, target);
+  var clarityScore = confidence;
+
+  // Check if any alternative matches better
+  for (var j = 0; j < alternatives.length; j++) {
+    var alt = alternatives[j].text;
+    if (alt === target || alt.indexOf(target) !== -1 || target.indexOf(alt) !== -1) {
+      matchScore = Math.max(matchScore, 85 + alternatives[j].confidence / 6);
+      if (alt === target) matchScore = 100;
+      break;
+    }
+  }
+
+  var overall = Math.round(matchScore * 0.5 + clarityScore * 0.3 + (matchScore >= 80 ? 20 : 0));
+
+  // Show what was heard
+  document.getElementById('heardBox').className = 'heard-box show';
+  document.getElementById('heardBox').innerHTML = isMatch
+    ? '✅ Heard: <strong>"' + heard + '"</strong> — Match!'
+    : '⚠ Heard: <strong>"' + heard + '"</strong> — Target: <strong>' + target + '</strong>';
+
+  // Show scores
+  showScore(matchScore, clarityScore, overall);
+
+  // Save
+  scores[w.word] = {
+    match: matchScore,
+    clarity: clarityScore,
+    overall: overall,
+    attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1),
+    heard: heard
+  };
+
+  buildTabs();
+  updateStats();
+};
+
+recognition.onerror = function(e) {
+  document.getElementById('heardBox').className = 'heard-box show';
+  document.getElementById('heardBox').innerHTML = '❌ ' + (e.error === 'no-speech' ? 'No speech detected. Try again.' : e.error === 'not-allowed' ? 'Microphone blocked. Please allow access.' : 'Error: ' + e.error);
+  stopRecordUI();
+};
+
+recognition.onend = function() {
+  if (isRecording) stopRecordUI();
+};
+
+function stopRecordUI() {
+  isRecording = false;
+  document.getElementById('btnRecord').classList.remove('recording');
+  document.getElementById('recordHint').textContent = 'Tap to speak';
+}
+
+function showScore(match, clarity, overall) {
+  var panel = document.getElementById('scorePanel');
+  panel.classList.add('show');
+
+  setScoreItem('scoreMatch', match);
+  setScoreItem('scoreClarity', clarity);
+  setScoreItem('scoreOverall', overall);
+
+  var msg = document.getElementById('overallMsg');
+  if (overall >= 90) {
+    msg.innerHTML = '🏆 Excellent! 发音很棒！';
+    msg.style.background = '#D1FAE5'; msg.style.color = '#065F46';
+  } else if (overall >= 75) {
+    msg.innerHTML = '👍 Good! 还不错，再练练！';
+    msg.style.background = '#FEF3C7'; msg.style.color = '#92400E';
+  } else if (overall >= 50) {
+    msg.innerHTML = '📚 Keep trying! 继续练习！';
+    msg.style.background = '#FEE2E2'; msg.style.color = '#991B1B';
+  } else {
+    msg.innerHTML = '🔁 Try again! 再试一次！';
+    msg.style.background = '#FEE2E2'; msg.style.color = '#991B1B';
+  }
+}
+
+function setScoreItem(id, val) {
+  var el = document.getElementById(id);
+  var item = el.closest('.score-item');
+  item.classList.remove('bad', 'ok', 'good', 'great');
+  if (val >= 90) item.classList.add('great');
+  else if (val >= 75) item.classList.add('good');
+  else if (val >= 50) item.classList.add('ok');
+  else item.classList.add('bad');
+  el.querySelector('.score-val').textContent = val + '%';
+}
+
+function updateStats() {
+  var done = 0, total = 0, count = 0;
+  for (var k in scores) {
+    if (scores[k].attempts > 0) { done++; total += scores[k].overall; count++; }
+  }
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('avgScore').textContent = count > 0 ? Math.round(total / count) + '%' : '-';
+}
+
+// Levenshtein distance for fuzzy matching
+function levenshteinSimilarity(a, b) {
+  if (!a || !b) return 0;
+  var m = a.length, n = b.length;
+  var dp = [];
+  for (var i = 0; i <= m; i++) { dp[i] = [i]; }
+  for (var j = 0; j <= n; j++) { dp[0][j] = j; }
+  for (var i = 1; i <= m; i++) {
+    for (var j = 1; j <= n; j++) {
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]) + 1;
+    }
+  }
+  var dist = dp[m][n];
+  return Math.round(Math.max(0, (1 - dist / Math.max(m, n)) * 100));
+}
+
+// Init
+renderWord();
+</script>
+</body>
+</html>
