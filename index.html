@@ -413,7 +413,16 @@ function showDone() {
   document.getElementById('doneWrap').classList.add('show');
 }
 
+// Preload all images for fast display
+function preloadImages() {
+  quizData.forEach(function(q) {
+    var img = new Image();
+    img.src = q.img;
+  });
+}
+
 // Init
+preloadImages();
 render();
 </script>
 </body>
