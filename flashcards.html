@@ -82,6 +82,17 @@ body {
 .card-front .word-en {
   font-size: 28px; font-weight: 700; color: #1E293B; margin-bottom: 2px;
 }
+.card-front .word-row { display: flex; align-items: center; gap: 8px; }
+.card-front .speak-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 2px solid #E2E8F0;
+  background: #EFF6FF; font-size: 16px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.card-front .speak-btn:hover { border-color: #2563EB; background: #DBEAFE; }
+.card-front .speak-btn.speaking { background: #DBEAFE; border-color: #2563EB; animation: pulse 0.6s infinite; }
+@keyframes pulse {
+  0%,100%{transform:scale(1)} 50%{transform:scale(1.1)}
+}
 .card-front .word-ipa {
   font-size: 13px; color: #94A3B8; margin-bottom: 6px;
 }
@@ -279,7 +290,10 @@ function renderCard() {
   var front = document.getElementById('cardFront');
   front.innerHTML =
     '<img class="word-img" src="' + c.img + '" alt="' + c.word + '">' +
-    '<div class="word-en">' + c.word + '</div>' +
+    '<div class="word-row">' +
+      '<div class="word-en">' + c.word + '</div>' +
+      '<button class="speak-btn" onclick="event.stopPropagation();speakWord(\'' + c.word + '\', this)" title="🔊 Listen">🔊</button>' +
+    '</div>' +
     '<div class="word-ipa">' + c.ipa + '</div>' +
     '<div class="pos-tag">' + c.pos + '</div>' +
     '<div class="tap-hint">👆 Tap to reveal</div>';
@@ -358,6 +372,18 @@ function toggleAuto() {
       }
     }, 5000);
   }
+}
+
+function speakWord(word, btn) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  btn.classList.add('speaking');
+  u.onend = function() { btn.classList.remove('speaking'); };
+  u.onerror = function() { btn.classList.remove('speaking'); };
+  speechSynthesis.speak(u);
 }
 
 // Keyboard
