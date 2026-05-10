@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Bowl · 词意猜测小游戏</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.container {
+  background: #fff; border-radius: 20px; padding: 32px;
+  max-width: 640px; width: 100%; box-shadow: 0 8px 40px rgba(219,39,119,0.12);
+  position: relative; overflow: hidden;
+}
+
+/* Header */
+.header { text-align: center; margin-bottom: 20px; }
+.header .badge {
+  display: inline-block; padding: 4px 16px; border-radius: 20px;
+  background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 8px;
+}
+.header h1 { color: #2563EB; font-size: 24px; }
+.header .sub { color: #64748B; font-size: 13px; }
+
+/* Progress */
+.progress-wrap {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+}
+.progress-wrap .num { font-size: 13px; font-weight: 700; color: #2563EB; white-space: nowrap; }
+.progress-bar {
+  flex: 1; height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, #2563EB, #DB2777);
+  border-radius: 3px; transition: width 0.4s;
+}
+
+/* Score & streak */
+.mini-stats { display: flex; gap: 14px; justify-content: center; margin-bottom: 16px; }
+.mini-stat { font-size: 13px; color: #64748B; }
+.mini-stat strong { color: #2563EB; }
+
+/* Question card */
+.q-card {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: 2px solid #E2E8F0; border-radius: 16px; padding: 24px 28px;
+  margin-bottom: 18px; text-align: center; transition: all 0.3s;
+}
+.q-card .q-num {
+  display: inline-block; width: 32px; height: 32px; line-height: 32px;
+  border-radius: 50%; background: #2563EB; color: #fff; font-weight: 700;
+  font-size: 14px; margin-bottom: 12px;
+}
+.q-card .q-text {
+  font-size: 18px; color: #1E293B; line-height: 1.7; margin-bottom: 4px;
+}
+.q-card .q-img {
+  display: block; max-width: 100%; max-height: 200px;
+  margin: 0 auto 12px; border-radius: 10px; object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Choices grid */
+.choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.choice-btn {
+  padding: 15px 12px; border: 2px solid #E2E8F0; border-radius: 12px;
+  background: #fff; font-size: 16px; cursor: pointer; text-align: center;
+  transition: all 0.15s; font-family: 'Calibri', 'Segoe UI', sans-serif;
+  font-weight: 600; color: #1E293B;
+}
+.choice-btn:hover { border-color: #2563EB; background: #EFF6FF; transform: translateY(-1px); }
+.choice-btn.chosen-correct { border-color: #059669; background: #D1FAE5; color: #065F46; pointer-events: none; }
+.choice-btn.chosen-wrong { border-color: #DC2626; background: #FEE2E2; color: #991B1B; pointer-events: none; animation: shake 0.4s; }
+.choice-btn:disabled { pointer-events: none; }
+.choice-btn.show-answer { border-color: #059669; border-style: dashed; }
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)}
+}
+
+/* Buttons */
+.btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
+button {
+  padding: 12px 20px; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+}
+.btn-check { flex: 2; background: #2563EB; color: #fff; }
+.btn-check:hover { background: #1D4ED8; }
+.btn-hint { flex: 1; background: #FDF2F8; color: #DB2777; border: 2px solid #FBCFE8; }
+.btn-hint:hover { background: #FCE7F3; }
+.btn-next { background: #DB2777; color: #fff; }
+.btn-next:hover { background: #BE185D; }
+
+/* Feedback */
+.feedback {
+  min-height: 48px; padding: 10px 16px; border-radius: 10px;
+  font-size: 14px; font-weight: 600; text-align: center; line-height: 1.5;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.ok { background: #D1FAE5; color: #065F46; }
+.feedback.no { background: #FEE2E2; color: #991B1B; }
+
+/* Hint box */
+.hint-box {
+  display: none; background: #FEF3C7; border-left: 4px solid #F59E0B;
+  border-radius: 0 10px 10px 0; padding: 12px 16px; margin-bottom: 12px;
+  font-size: 13px; color: #92400E; line-height: 1.6;
+}
+.hint-box.show { display: block; }
+
+/* Done screen */
+.done-wrap { display: none; text-align: center; }
+.done-wrap.show { display: block; }
+.done-wrap .trophy { font-size: 64px; }
+.done-wrap h2 { color: #059669; margin: 8px 0; }
+.done-wrap .big-score { font-size: 48px; font-weight: 700; color: #2563EB; }
+.done-wrap .details { color: #64748B; margin: 8px 0 16px; font-size: 14px; }
+
+/* Review table */
+.review-table { width: 100%; text-align: left; border-collapse: collapse; margin-top: 12px; }
+.review-table th { color: #64748B; font-size: 12px; padding: 8px 6px; border-bottom: 2px solid #E2E8F0; }
+.review-table td { padding: 8px 6px; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
+.review-table .r-ok { color: #059669; }
+.review-table .r-no { color: #DC2626; }
+.review-table .word { font-weight: 700; color: #2563EB; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container { padding: 20px; }
+  .q-card .q-text { font-size: 16px; }
+  .input-wrap { flex-direction: column; }
+  .btn-row { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ECRL VOCABULARY</div>
+    <h1>🧠 Quiz Bowl</h1>
+    <p class="sub">Read the clue → Guess the word → Learn the meaning</p>
+    <a href="flashcards.html" style="display:inline-block;margin-top:6px;color:#DB2777;font-size:12px;text-decoration:none;font-weight:600;">📇 Word Flashcards →</a> &nbsp;
+    <a href="pronounce.html" style="display:inline-block;margin-top:6px;color:#2563EB;font-size:12px;text-decoration:none;font-weight:600;">🎙 Pronunciation →</a>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <span class="num" id="progNum">1 / 7</span>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="mini-stats">
+    <span class="mini-stat">⭐ Score: <strong id="scoreVal">0</strong></span>
+    <span class="mini-stat">🔥 Streak: <strong id="streakVal">0</strong></span>
+    <span class="mini-stat">✅ <strong id="correctVal">0</strong> / 7</span>
+  </div>
+
+  <!-- Question -->
+  <div class="q-card" id="qCard">
+    <img class="q-img" id="qImg" src="" alt="">
+    <div class="q-num" id="qNum">1</div>
+    <div class="q-text" id="qText"></div>
+  </div>
+
+  <!-- Hint -->
+  <div class="hint-box" id="hintBox"></div>
+
+  <!-- Choices -->
+  <div class="choices-grid" id="choicesGrid"></div>
+  <div class="btn-row">
+    <button class="btn-hint" onclick="showHint()">💡 Hint</button>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()" style="display:none">⏭ Next →</button>
+  </div>
+  <div class="feedback" id="feedback"></div>
+
+  <!-- Done -->
+  <div class="done-wrap" id="doneWrap">
+    <div class="trophy">🏆</div>
+    <h2>Quiz Complete!</h2>
+    <div class="big-score" id="doneScore"></div>
+    <p class="details" id="doneMsg"></p>
+    <table class="review-table" id="reviewTable"></table>
+    <button class="btn-check" onclick="location.reload()" style="margin-top:16px;">🔄 Play Again</button>
+  </div>
+</div>
+
+<script>
+var quizData = [
+  {
+    id: 1,
+    img: 'quiz-imgs/1.jpg',
+    question: 'When facing problems on the train, train attendant\'s brain has many ✔️ (positive), student has many ❌ (negative). What\'s the difference between them?',
+    hint: 'noun — related to how you think or feel about something (态度)',
+    answer: 'attitude',
+    zh: '态度；看法',
+    ipa: '/ˈætɪtjuːd/'
+  },
+  {
+    id: 2,
+    img: 'quiz-imgs/2.jpg',
+    question: 'What are these people doing? (work together)',
+    hint: 'verb — means working together as a team (合作)',
+    answer: 'cooperate',
+    zh: '合作；协作',
+    ipa: '/kəʊˈɒpəreɪt/'
+  },
+  {
+    id: 3,
+    img: 'quiz-imgs/3.jpg',
+    question: 'A short, memorable phrase used to promote something. It can be on a banner. What word is it?',
+    hint: 'noun — a short phrase or message, often used in advertising (口号)',
+    answer: 'slogan',
+    zh: '口号；标语',
+    ipa: '/ˈsləʊɡən/'
+  },
+  {
+    id: 4,
+    img: 'quiz-imgs/4.jpg',
+    question: 'Who carries a microphone to report news?',
+    hint: 'noun — a person who reports news for newspapers, TV, or radio (记者)',
+    answer: 'journalist',
+    zh: '新闻工作者；记者',
+    ipa: '/ˈdʒɜːnəlɪst/'
+  },
+  {
+    id: 5,
+    img: 'quiz-imgs/5.jpg',
+    question: 'There is an empty seat at the meeting. It means a job ______?',
+    hint: 'noun — an open position or job that needs to be filled (空缺)',
+    answer: 'vacancy',
+    zh: '（职位）空位；空缺',
+    ipa: '/ˈveɪkənsi/'
+  },
+  {
+    id: 6,
+    img: 'quiz-imgs/6.jpg',
+    question: 'What does these workers need to build the ECRL railway?',
+    hint: 'noun — means not giving up, continuing despite difficulties (坚持)',
+    answer: 'persistence',
+    zh: '坚持不懈；毅力',
+    ipa: '/pərˈsɪstəns/'
+  },
+  {
+    id: 7,
+    img: 'quiz-imgs/7.jpg',
+    question: 'What is the difference between the way people are dressed on the left and on the right?',
+    hint: 'Two answers — ① rules about what to wear (着装规范) ② opposite of dressing formally (穿着随意)',
+    answers: ['dress code', 'dress down'],
+    zh: '着装规范 / 穿着随意',
+    ipa: '/dres kəʊd/ & /dres daʊn/',
+    multi: true
+  },
+];
+
+var idx = 0, score = 0, streak = 0, bestStreak = 0, correctCount = 0;
+var answered = false, hintsUsed = 0;
+var results = [];
+var choices = [];
+
+// Pool of all answers for generating distractors
+var allAnswers = ['attitude','cooperate','slogan','journalist','vacancy','persistence','dress code','dress down'];
+
+function shuffle(a) {
+  var arr = a.slice();
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
+function buildChoices(q) {
+  var corrects = q.multi ? q.answers : [q.answer];
+  // Pick 3 distractors that are NOT correct answers
+  var pool = allAnswers.filter(function(a) { return corrects.indexOf(a) === -1; });
+  var distractors = shuffle(pool).slice(0, q.multi ? 2 : 3);
+  // Combine correct + distractors and shuffle
+  return shuffle(corrects.concat(distractors));
+}
+
+function render() {
+  if (idx >= quizData.length) { showDone(); return; }
+  answered = false;
+  var q = quizData[idx];
+  choices = buildChoices(q);
+
+  document.getElementById('progNum').textContent = (idx + 1) + ' / ' + quizData.length;
+  document.getElementById('progFill').style.width = ((idx) / quizData.length * 100) + '%';
+  document.getElementById('qNum').textContent = q.id;
+  document.getElementById('qImg').src = q.img;
+  document.getElementById('qImg').alt = q.answer || q.answers[0];
+  document.getElementById('qText').textContent = q.question;
+
+  document.getElementById('hintBox').classList.remove('show');
+  document.getElementById('hintBox').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('btnNext').style.display = 'none';
+
+  // Build choice buttons
+  var grid = document.getElementById('choicesGrid');
+  grid.innerHTML = choices.map(function(c, i) {
+    return '<button class="choice-btn" onclick="selectAnswer(' + i + ')">' + c + '</button>';
+  }).join('');
+}
+
+function showHint() {
+  var q = quizData[idx];
+  var box = document.getElementById('hintBox');
+  box.innerHTML = '💡 <strong>Hint:</strong> ' + q.hint;
+  box.classList.add('show');
+  hintsUsed++;
+}
+
+function selectAnswer(ci) {
+  if (answered) return;
+  var q = quizData[idx];
+  var chosenWord = choices[ci];
+  var fb = document.getElementById('feedback');
+  var buttons = document.querySelectorAll('.choice-btn');
+
+  var isCorrect = q.multi
+    ? q.answers.indexOf(chosenWord) !== -1
+    : chosenWord === q.answer;
+
+  // Highlight all buttons
+  buttons.forEach(function(btn, i) {
+    btn.disabled = true;
+    var w = choices[i];
+    var correct = q.multi ? (q.answers.indexOf(w) !== -1) : (w === q.answer);
+    if (correct) btn.classList.add('chosen-correct');
+    if (i === ci && !isCorrect) btn.classList.add('chosen-wrong');
+  });
+
+  if (isCorrect) {
+    fb.className = 'feedback show ok';
+    if (q.multi) {
+      var other = q.answers.find(function(a) { return a !== chosenWord; });
+      fb.innerHTML = '✅ Correct! <strong>' + chosenWord + '</strong><br>Also: <strong>' + other + '</strong> — ' + q.zh + '<br><span style="color:#64748B;font-size:12px;">' + q.ipa + '</span>';
+    } else {
+      fb.innerHTML = '✅ Correct! <strong>' + q.answer + '</strong> — ' + q.zh + '<br><span style="color:#64748B;font-size:12px;">' + q.ipa + '</span>';
+    }
+
+    if (!answered) {
+      score += 10; correctCount++; streak++;
+      if (streak > bestStreak) bestStreak = streak;
+      document.getElementById('scoreVal').textContent = score;
+      document.getElementById('streakVal').textContent = streak;
+      document.getElementById('correctVal').textContent = correctCount;
+      results.push({ id: q.id, word: q.answer, correct: true, userAnswer: chosenWord });
+    }
+    answered = true;
+    document.getElementById('btnNext').style.display = '';
+  } else {
+    fb.className = 'feedback show no';
+    fb.innerHTML = '❌ Not quite. The answer is <strong>' + (q.multi ? q.answers.join(' / ') : q.answer) + '</strong>.';
+    streak = 0;
+    document.getElementById('streakVal').textContent = streak;
+    score = Math.max(0, score - 2);
+    document.getElementById('scoreVal').textContent = score;
+    results.push({ id: q.id, word: q.answer, correct: false, userAnswer: chosenWord });
+    answered = true;
+    document.getElementById('btnNext').style.display = '';
+  }
+}
+
+function nextQuestion() {
+  if (!answered) {
+    // Record as skipped
+    var q = quizData[idx];
+    results.push({ id: q.id, word: q.answer, correct: false, userAnswer: '(skipped)' });
+  }
+  idx++;
+  document.getElementById('progFill').style.width = ((idx) / quizData.length * 100) + '%';
+  render();
+}
+
+function showDone() {
+  document.getElementById('qCard').style.display = 'none';
+  document.getElementById('choicesGrid').style.display = 'none';
+  document.getElementById('btnNext').style.display = 'none';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('hintBox').style.display = 'none';
+  document.getElementById('qCard').parentElement.querySelector('.progress-wrap').style.display = 'none';
+
+  var pct = Math.round((correctCount / quizData.length) * 100);
+  var rank = pct >= 90 ? '🏅 Word Master · 词汇达人' : pct >= 70 ? '🎖 Great Job · 表现出色' : pct >= 50 ? '📚 Good Try · 继续努力' : '💪 Keep Going · 再接再厉';
+
+  document.getElementById('doneScore').textContent = score + ' pts';
+  document.getElementById('doneMsg').innerHTML = rank + '<br>Correct: ' + correctCount + '/' + quizData.length + ' | Streak: ' + bestStreak + ' | Hints: ' + hintsUsed;
+
+  var tableHtml = '<tr><th>#</th><th>Your Answer</th><th>Correct Answer</th><th>Meaning</th></tr>';
+  results.forEach(function(r) {
+    var icon = r.correct ? '✅' : '❌';
+    var cls = r.correct ? 'r-ok' : 'r-no';
+    var q = quizData.find(function(x) { return x.id === r.id; });
+    tableHtml += '<tr>' +
+      '<td>' + icon + '</td>' +
+      '<td class="' + cls + '">' + r.userAnswer + '</td>' +
+      '<td class="word">' + r.word + '</td>' +
+      '<td style="color:#64748B;">' + (q ? q.zh : '') + '</td>' +
+      '</tr>';
+  });
+  document.getElementById('reviewTable').innerHTML = tableHtml;
+
+  document.getElementById('doneWrap').classList.add('show');
+}
+
+// Preload all images for fast display
+function preloadImages() {
+  quizData.forEach(function(q) {
+    var img = new Image();
+    img.src = q.img;
+  });
+}
+
+// Init
+preloadImages();
+render();
+</script>
+</body>
+</html>
