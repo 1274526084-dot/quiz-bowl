@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECRL Vocabulary · 词汇学习三件套</title>
+<title>ECRL Vocabulary · 词汇学习四件套</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -35,8 +35,8 @@ body {
 /* Tabs */
 .tabs { display: flex; gap: 4px; margin-bottom: 0; }
 .tab-btn {
-  flex: 1; padding: 12px 8px; border: 2px solid #E2E8F0; border-bottom: none;
-  border-radius: 12px 12px 0 0; background: #F8FAFC; font-size: 14px;
+  flex: 1; padding: 12px 6px; border: 2px solid #E2E8F0; border-bottom: none;
+  border-radius: 12px 12px 0 0; background: #F8FAFC; font-size: 13px;
   font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s;
   color: #64748B;
 }
@@ -78,7 +78,7 @@ body {
 /* Responsive */
 @media (max-width: 600px) {
   .header h1 { font-size: 20px; }
-  .tab-btn { font-size: 12px; padding: 10px 4px; }
+  .tab-btn { font-size: 11px; padding: 10px 3px; }
   .iframe-box { height: 70vh; min-height: 400px; }
 }
 </style>
@@ -87,8 +87,8 @@ body {
 <div class="wrap">
   <div class="header">
     <div class="badge">ECRL VOCABULARY</div>
-    <h1>🚂 东铁英语 · 词汇学习三件套</h1>
-    <p class="sub">三步掌握铁路场景核心词汇</p>
+    <h1>🚂 东铁英语 · 词汇学习四件套</h1>
+    <p class="sub">四步掌握铁路场景核心词汇</p>
   </div>
 
   <div class="flow">
@@ -98,6 +98,8 @@ body {
       <span class="flow-step">Step 2: 闪卡巩固</span>
       <span class="flow-arrow">→</span>
       <span class="flow-step">Step 3: 发音评测</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Step 4: 音变分析</span>
     </div>
   </div>
 
@@ -111,6 +113,9 @@ body {
     <button class="tab-btn" onclick="switchTab(2)">
       <span class="step-num">3</span>🎙 Pronunciation
     </button>
+    <button class="tab-btn" onclick="switchTab(3)">
+      <span class="step-num">4</span>🔊 Phonetics
+    </button>
   </div>
 
   <div class="tab-panel active">
@@ -122,12 +127,16 @@ body {
   <div class="tab-panel">
     <div class="iframe-box"><iframe src="pronounce.html" allow="microphone"></iframe></div>
   </div>
+  <div class="tab-panel">
+    <div class="iframe-box"><iframe src="phonetic-analyzer.html"></iframe></div>
+  </div>
 
   <div class="standalone">
     <span>🔗 单独打开：</span>
     <a href="quiz.html" target="_blank">Quiz Bowl</a>
     <a href="flashcards.html" target="_blank">Flashcards</a>
     <a href="pronounce.html" target="_blank">Pronunciation</a>
+    <a href="phonetic-analyzer.html" target="_blank">Phonetics</a>
   </div>
 </div>
 
