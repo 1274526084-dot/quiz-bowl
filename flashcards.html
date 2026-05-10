@@ -406,7 +406,16 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === ' ') { e.preventDefault(); flipCard(); }
 });
 
+// Preload all card images
+function preloadImages() {
+  cards.forEach(function(c) {
+    var img = new Image();
+    img.src = c.img;
+  });
+}
+
 // Init
+preloadImages();
 renderCard();
 </script>
 </body>
