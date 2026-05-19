@@ -306,16 +306,16 @@ function resetUI() {
   document.getElementById('btnModel').classList.remove('playing');
 }
 
+var _modelAudio = null;
 function playModel() {
-  if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
-  var utter = new SpeechSynthesisUtterance(words[currentIdx].word);
-  utter.lang = 'en-US';
-  utter.rate = 0.85;
+  if (_modelAudio) { _modelAudio.pause(); }
+  var w = words[currentIdx];
+  _modelAudio = new Audio('audio/' + w.word + '.wav');
   var btn = document.getElementById('btnModel');
   btn.classList.add('playing');
-  utter.onend = function() { btn.classList.remove('playing'); };
-  utter.onerror = function() { btn.classList.remove('playing'); };
-  window.speechSynthesis.speak(utter);
+  _modelAudio.onended = function() { btn.classList.remove('playing'); };
+  _modelAudio.onerror = function() { btn.classList.remove('playing'); };
+  _modelAudio.play();
 }
 
 function playMyRecording() {
@@ -529,8 +529,9 @@ function buildPhonetics() {
   });
 }
 
+var _phListenAudio = null;
 function showPhDetail(i, card) {
-  if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+  if (_phListenAudio) { _phListenAudio.pause(); _phListenAudio = null; }
   var w = words[i];
   var panel = document.getElementById('phDetail');
   panel.className = 'ph-detail show';
@@ -549,15 +550,13 @@ function showPhDetail(i, card) {
 
   document.getElementById('phListenBtn').addEventListener('click', function() {
     var btn = this;
-    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    if (_phListenAudio) { _phListenAudio.pause(); }
     btn.classList.add('playing');
     btn.textContent = '🔊 Playing...';
-    var utter = new SpeechSynthesisUtterance(w.word);
-    utter.lang = 'en-US';
-    utter.rate = 0.85;
-    utter.onend = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Listen'; };
-    utter.onerror = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Retry'; };
-    window.speechSynthesis.speak(utter);
+    _phListenAudio = new Audio('audio/' + w.word + '.wav');
+    _phListenAudio.onended = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Listen'; _phListenAudio = null; };
+    _phListenAudio.onerror = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Retry'; _phListenAudio = null; };
+    _phListenAudio.play();
   });
 
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
