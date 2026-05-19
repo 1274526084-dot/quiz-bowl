@@ -289,6 +289,7 @@ function renderWord() {
   document.getElementById('wordZh').textContent = w.zh;
   buildWordTabs();
   updateStats();
+  preloadModel(w.word);
 }
 
 function resetUI() {
@@ -307,15 +308,53 @@ function resetUI() {
 }
 
 var _modelAudio = null;
+var _preloadedAudio = null;
+function preloadModel(word) {
+  if (_preloadedAudio) { _preloadedAudio.pause(); _preloadedAudio = null; }
+  _preloadedAudio = new Audio('audio/' + word + '.wav');
+  _preloadedAudio.preload = 'auto';
+  _preloadedAudio.load();
+}
+
 function playModel() {
-  if (_modelAudio) { _modelAudio.pause(); }
   var w = words[currentIdx];
-  _modelAudio = new Audio('audio/' + w.word + '.wav');
   var btn = document.getElementById('btnModel');
+
+  // Use preloaded audio or create new one
+  if (_preloadedAudio && _preloadedAudio.src.indexOf(w.word + '.wav') !== -1) {
+    _modelAudio = _preloadedAudio;
+  } else {
+    _modelAudio = new Audio('audio/' + w.word + '.wav');
+    _modelAudio.preload = 'auto';
+  }
+
   btn.classList.add('playing');
-  _modelAudio.onended = function() { btn.classList.remove('playing'); };
-  _modelAudio.onerror = function() { btn.classList.remove('playing'); };
-  _modelAudio.play();
+  btn.textContent = '🔊 Loading...';
+
+  _modelAudio.onended = function() {
+    btn.classList.remove('playing');
+    btn.textContent = '🔊 Listen to Model';
+  };
+  _modelAudio.onerror = function(e) {
+    btn.classList.remove('playing');
+    btn.textContent = '⚠ Retry';
+    btn.style.background = '#DC2626';
+    btn.style.color = '#fff';
+    setTimeout(function() { btn.style.background = '#EFF6FF'; btn.style.color = '#2563EB'; btn.textContent = '🔊 Listen to Model'; }, 2000);
+  };
+
+  var promise = _modelAudio.play();
+  if (promise !== undefined) {
+    promise.then(function() {
+      btn.textContent = '🔊 Playing...';
+    }).catch(function(e) {
+      btn.classList.remove('playing');
+      btn.textContent = '🔊 Tap & Retry';
+      btn.style.background = '#FEF3C7';
+      btn.style.color = '#92400E';
+      setTimeout(function() { btn.style.background = '#EFF6FF'; btn.style.color = '#2563EB'; btn.textContent = '🔊 Listen to Model'; }, 2000);
+    });
+  }
 }
 
 function playMyRecording() {
@@ -552,11 +591,21 @@ function showPhDetail(i, card) {
     var btn = this;
     if (_phListenAudio) { _phListenAudio.pause(); }
     btn.classList.add('playing');
-    btn.textContent = '🔊 Playing...';
+    btn.textContent = '🔊 Loading...';
     _phListenAudio = new Audio('audio/' + w.word + '.wav');
+    _phListenAudio.preload = 'auto';
     _phListenAudio.onended = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Listen'; _phListenAudio = null; };
-    _phListenAudio.onerror = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Retry'; _phListenAudio = null; };
-    _phListenAudio.play();
+    _phListenAudio.onerror = function() { btn.classList.remove('playing'); btn.textContent = '⚠ Retry'; _phListenAudio = null; };
+    var promise = _phListenAudio.play();
+    if (promise !== undefined) {
+      promise.then(function() {
+        btn.textContent = '🔊 Playing...';
+      }).catch(function() {
+        btn.classList.remove('playing');
+        btn.textContent = '🔊 Tap & Retry';
+        _phListenAudio = null;
+      });
+    }
   });
 
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
