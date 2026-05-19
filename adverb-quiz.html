@@ -148,8 +148,8 @@ body{
 <div class="container">
   <div class="header">
     <div class="badge">ADVERB QUIZ</div>
-    <h2>📝 乘务场景 · 副词选择</h2>
-    <p class="sub">Choose the correct adverb · 限时作答</p>
+    <h2>📝 乘务场景 · 副词二选一</h2>
+    <p class="sub">Choose the correct adverb · 3道限时题</p>
   </div>
 
   <!-- Timer -->
@@ -193,68 +193,28 @@ body{
 // ===== QUIZ DATA =====
 var quizData = [
   {
-    context:'On the train, a passenger is asking about ticket prices, discounts, transfer times, seat types, and refund policies one after another...',
+    context:'A passenger keeps asking about ticket prices, discounts, transfer times, seat types, and refund policies...',
     sentence:'When passengers ask <b>many questions</b> about tickets, we should answer them <span class="blank">______</span>.',
-    choices:['patiently','politely','carefully','suddenly'],
+    choices:['patiently','politely'],
     answer:'patiently',
-    explain:'"patiently" = 耐心地 — for handling many repeated questions, patience is the key quality.',
-    zh:'耐心地（面对反复提问，耐心是关键品质）'
+    explain:'"patiently" = 耐心地 — when facing many repeated questions, patience is the key quality for a train attendant.',
+    zh:'耐心地（面对反复提问，耐心是关键）'
   },
   {
-    context:'You see passengers walking toward the platform. It\'s the first interaction they will have with railway staff today.',
+    context:'You are standing at the platform entrance. It\'s the first interaction passengers will have with railway staff today.',
     sentence:'When <b>greeting passengers</b> at the station, we must speak <span class="blank">______</span>.',
-    choices:['politely','carefully','quickly','late'],
+    choices:['politely','carefully'],
     answer:'politely',
-    explain:'"politely" = 礼貌地 — greeting is about showing respect and warmth.',
-    zh:'礼貌地（打招呼的核心是尊重和热情）'
+    explain:'"politely" = 礼貌地 — the first greeting sets the tone; politeness shows respect and warmth toward passengers.',
+    zh:'礼貌地（问候乘客的核心是尊重和礼貌）'
   },
   {
-    context:'The safety of all 600 passengers on this train depends on thorough checks. A single missed item could cause danger.',
+    context:'A full luggage rack could pose a safety risk. Every bag must be checked before departure.',
     sentence:'We need to check passengers\' luggage <span class="blank">______</span> to keep travel safe.',
-    choices:['carefully','patiently','suddenly','surprisingly'],
+    choices:['carefully','patiently'],
     answer:'carefully',
-    explain:'"carefully" = 仔细地 — safety checks require thoroughness and attention to detail.',
-    zh:'仔细地（安全检查需要细致认真）'
-  },
-  {
-    context:'An elderly passenger is walking slowly down the aisle with a cane. Other passengers are waiting behind.',
-    sentence:'When helping elderly passengers board, we should walk <span class="blank">______</span> beside them.',
-    choices:['slowly','quickly','suddenly','surprisingly'],
-    answer:'slowly',
-    explain:'"slowly" = 缓慢地 — match the pace of elderly passengers to ensure their safety.',
-    zh:'缓慢地（配合老人的步伐，确保安全）'
-  },
-  {
-    context:'The train is about to depart in 2 minutes. A passenger is still saying goodbye on the platform.',
-    sentence:'When departure time is near, we must <span class="blank">______</span> guide remaining passengers aboard.',
-    choices:['quickly','slowly','patiently','carefully'],
-    answer:'quickly',
-    explain:'"quickly" = 快速地 — time-sensitive situations require prompt action.',
-    zh:'快速地（时间紧迫需要迅速行动）'
-  },
-  {
-    context:'The train is running smoothly at 250 km/h. Without warning, the emergency brake activates.',
-    sentence:'When the train brakes <span class="blank">______</span>, attendants must hold on and reassure passengers.',
-    choices:['suddenly','slowly','politely','patiently'],
-    answer:'suddenly',
-    explain:'"suddenly" = 突然地 — describes an unexpected, abrupt action. The emergency brake engaged without warning.',
-    zh:'突然地（描述突发、意外的动作）'
-  },
-  {
-    context:'You check the departure board. The 14:30 service to Kunming is showing a 90-minute delay due to severe rain.',
-    sentence:'<span class="blank">______</span>, the train is delayed because of bad weather. We must inform waiting passengers.',
-    choices:['Unfortunately','Surprisingly','Politely','Patiently'],
-    answer:'Unfortunately',
-    explain:'"Unfortunately" = 不幸地；遗憾地 — used to introduce bad news with regret. Capitalized as it starts the sentence.',
-    zh:'不幸地；遗憾地（用于引出坏消息）'
-  },
-  {
-    context:'A new trainee attendant handled a medical emergency on her very first day — and did it perfectly.',
-    sentence:'The new trainee handled the crisis <span class="blank">______</span> well for someone so inexperienced.',
-    choices:['surprisingly','unfortunately','slowly','suddenly'],
-    answer:'surprisingly',
-    explain:'"surprisingly" = 令人惊讶地 — something unexpected in a positive or remarkable way.',
-    zh:'令人惊讶地（出乎意料地好）'
+    explain:'"carefully" = 仔细地 — safety inspections require thoroughness and attention to every detail.',
+    zh:'仔细地（安全检查需要细致彻底）'
   }
 ];
 
