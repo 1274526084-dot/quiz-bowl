@@ -13,25 +13,21 @@ body{
   font-family:'Segoe UI','Microsoft YaHei',sans-serif;
   min-height:100vh;min-height:100dvh;
   background:linear-gradient(135deg,#fdf2f8 0%,#eff6ff 50%,#fdf2f8 100%);
-  padding:8px;
+  padding:6px;
 }
-.container{max-width:720px;margin:0 auto}
+.container{max-width:720px;margin:0 auto;display:flex;flex-direction:column;min-height:100dvh}
 
-.header{text-align:center;margin-bottom:6px}
+.header{text-align:center;margin-bottom:4px}
 .header .badge{
   display:inline-block;padding:3px 14px;border-radius:20px;
   background:#FCE7F3;color:#DB2777;font-size:13px;font-weight:700;
   letter-spacing:2px;margin-bottom:2px;
 }
-.header h2{color:#2563EB;font-size:22px}
+.header h2{color:#2563EB;font-size:20px}
 
-/* BIG Stopwatch — central focal point */
-.stopwatch-block{
-  text-align:center;margin-bottom:8px;
-}
-.stopwatch-block .label{
-  font-size:11px;color:#64748B;letter-spacing:3px;text-transform:uppercase;
-}
+/* Stopwatch */
+.stopwatch-block{text-align:center;margin-bottom:6px}
+.stopwatch-block .label{font-size:11px;color:#64748B;letter-spacing:3px;text-transform:uppercase}
 .stopwatch-block .time{
   font-size:42px;font-weight:900;font-family:'Courier New',monospace;
   color:#2563EB;line-height:1.1;
@@ -40,41 +36,48 @@ body{
 
 /* Progress */
 .progress-row{
-  display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;
 }
 .progress-num{font-size:14px;font-weight:700;color:#64748B}
 .progress-dot{
-  width:12px;height:12px;border-radius:50%;background:#E2E8F0;transition:all 0.3s;
+  width:11px;height:11px;border-radius:50%;background:#E2E8F0;transition:all 0.3s;
 }
 .progress-dot.done{background:#059669}
 .progress-dot.wrong{background:#DC2626}
-.progress-dot.cur{background:#2563EB;box-shadow:0 0 0 5px rgba(37,99,235,0.2)}
+.progress-dot.cur{background:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,0.2)}
 
 /* Question */
 .q-box{
   background:linear-gradient(135deg,#f8fafc,#f1f5f9);
-  border:2px solid #E2E8F0;border-radius:18px;padding:22px 16px;
-  margin-bottom:14px;text-align:center;
+  border:2px solid #E2E8F0;border-radius:16px;padding:16px 14px;
+  margin-bottom:10px;text-align:center;
 }
-.q-box .context{
-  font-size:16px;color:#475569;line-height:1.7;margin-bottom:10px;
-}
-.q-box .sentence{
-  font-size:26px;color:#1E293B;font-weight:600;line-height:1.8;
-}
+.q-box .context{font-size:15px;color:#475569;line-height:1.6;margin-bottom:8px}
+.q-box .sentence{font-size:24px;color:#1E293B;font-weight:600;line-height:1.7}
 .q-box .sentence b{color:#DB2777}
 .q-box .blank{
-  display:inline-block;min-width:150px;border-bottom:4px solid #2563EB;
-  margin:0 6px;vertical-align:bottom;color:#2563EB;
+  display:inline-block;min-width:130px;border-bottom:4px solid #2563EB;
+  margin:0 4px;vertical-align:bottom;color:#2563EB;
 }
 
-/* Choices — BIG buttons */
+/* Start screen */
+.start-wrap{flex:1;display:flex;align-items:center;justify-content:center}
+.start-btn{
+  padding:22px 60px;border:none;border-radius:18px;
+  background:linear-gradient(135deg,#DB2777,#EC4899);color:#fff;
+  font-size:22px;font-weight:800;cursor:pointer;font-family:'Microsoft YaHei','Segoe UI',sans-serif;
+  box-shadow:0 6px 24px rgba(219,39,119,0.35);
+  transition:all 0.15s;
+}
+.start-btn:active{transform:scale(0.94)}
+
+/* Choices */
 .choices{
-  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px;
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;
 }
 .choice{
-  padding:28px 14px;border:4px solid #E2E8F0;border-radius:18px;
-  background:#fff;font-size:28px;font-weight:800;cursor:pointer;
+  padding:22px 14px;border:4px solid #E2E8F0;border-radius:16px;
+  background:#fff;font-size:26px;font-weight:800;cursor:pointer;
   text-align:center;transition:all 0.12s;color:#1E293B;
   -webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;
@@ -86,19 +89,19 @@ body{
 
 /* Feedback */
 .feedback{
-  min-height:56px;padding:14px 18px;border-radius:14px;
-  font-size:16px;font-weight:600;text-align:center;line-height:1.7;
-  display:none;margin-bottom:10px;
+  min-height:48px;padding:12px 16px;border-radius:12px;
+  font-size:15px;font-weight:600;text-align:center;line-height:1.6;
+  display:none;margin-bottom:8px;
 }
 .feedback.show{display:block}
 .feedback.ok{background:#D1FAE5;color:#065F46}
 .feedback.no{background:#FEE2E2;color:#991B1B}
 
 /* Buttons */
-.btn-row{display:flex;gap:12px;justify-content:center}
+.btn-row{display:flex;gap:10px;justify-content:center}
 .btn{
-  padding:16px 36px;border:none;border-radius:14px;
-  font-size:18px;font-weight:700;cursor:pointer;transition:all 0.15s;
+  padding:14px 32px;border:none;border-radius:14px;
+  font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;
   font-family:'Microsoft YaHei','Segoe UI',sans-serif;
 }
 .btn-next{background:#DB2777;color:#fff;display:none}
@@ -110,21 +113,25 @@ body{
 /* Done */
 .done-wrap{display:none;text-align:center}
 .done-wrap.show{display:block}
-.done-wrap .trophy{font-size:64px}
-.done-wrap h2{color:#059669;margin:8px 0;font-size:22px}
-.done-wrap .big-time{font-size:44px;font-weight:900;color:#2563EB;font-family:'Courier New',monospace}
-.done-wrap .detail{color:#64748B;margin:6px 0 16px;font-size:16px}
-.done-wrap table{width:100%;border-collapse:collapse;margin-bottom:14px}
-.done-wrap th{color:#64748B;font-size:13px;padding:10px 8px;border-bottom:2px solid #E2E8F0}
-.done-wrap td{padding:10px 8px;border-bottom:1px solid #E2E8F0;font-size:16px}
+.done-wrap .trophy{font-size:56px}
+.done-wrap h2{color:#059669;margin:6px 0;font-size:20px}
+.done-wrap .big-time{font-size:38px;font-weight:900;color:#2563EB;font-family:'Courier New',monospace}
+.done-wrap .detail{color:#64748B;margin:4px 0 12px;font-size:15px}
+.done-wrap table{width:100%;border-collapse:collapse;margin-bottom:10px}
+.done-wrap th{color:#64748B;font-size:12px;padding:8px 6px;border-bottom:2px solid #E2E8F0}
+.done-wrap td{padding:8px 6px;border-bottom:1px solid #E2E8F0;font-size:15px}
 .done-wrap .r-ok{color:#059669}
 .done-wrap .r-no{color:#DC2626}
 
-.link-row{margin-top:12px;text-align:center}
+/* Quiz area — hidden until start */
+.quiz-area{display:none;flex:1}
+.quiz-area.show{display:block}
+
+.link-row{margin-top:8px;text-align:center;padding-bottom:4px}
 .link-row a{
-  display:inline-block;padding:6px 14px;border-radius:8px;
-  border:2px solid #E2E8F0;background:#fff;font-size:13px;
-  font-weight:600;text-decoration:none;color:#475569;margin:0 4px;
+  display:inline-block;padding:5px 12px;border-radius:8px;
+  border:2px solid #E2E8F0;background:#fff;font-size:12px;
+  font-weight:600;text-decoration:none;color:#475569;margin:0 3px;
 }
 </style>
 </head>
@@ -132,10 +139,10 @@ body{
 <div class="container">
   <div class="header">
     <div class="badge">ADVERB QUIZ</div>
-    <h2>📝 乘务场景 · 副词二选一</h2>
+    <h2>乘务场景 · 副词二选一</h2>
   </div>
 
-  <!-- BIG STOPWATCH -->
+  <!-- STOPWATCH -->
   <div class="stopwatch-block">
     <div class="label">⏱ TIMER</div>
     <div class="time" id="stopwatch">00:00</div>
@@ -147,19 +154,23 @@ body{
     <div id="progressDots" style="display:flex;gap:5px"></div>
   </div>
 
-  <!-- Question -->
-  <div class="q-box">
-    <div class="context" id="context"></div>
-    <div class="sentence" id="sentence"></div>
+  <!-- START BUTTON (before quiz begins) -->
+  <div class="start-wrap" id="startWrap">
+    <button class="start-btn" onclick="startQuiz()">开始答题</button>
   </div>
 
-  <!-- Choices -->
-  <div class="choices" id="choices"></div>
-  <div class="feedback" id="feedback"></div>
-
-  <div class="btn-row">
-    <button class="btn btn-next" id="btnNext" onclick="nextQ()">下一题 →</button>
-    <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">🔄 再来一次</button>
+  <!-- QUIZ AREA (hidden until start) -->
+  <div class="quiz-area" id="quizArea">
+    <div class="q-box">
+      <div class="context" id="context"></div>
+      <div class="sentence" id="sentence"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btn-row">
+      <button class="btn btn-next" id="btnNext" onclick="nextQ()">下一题 →</button>
+      <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">再来一次</button>
+    </div>
   </div>
 
   <!-- Done -->
@@ -172,8 +183,8 @@ body{
   </div>
 
   <div class="link-row">
-    <a href="adverb-training.html">🎙 发音训练</a>
-    <a href="index.html">🏠 主页</a>
+    <a href="adverb-training.html">发音训练</a>
+    <a href="index.html">主页</a>
   </div>
 </div>
 
@@ -245,6 +256,13 @@ function stopStopwatch() {
   document.getElementById('stopwatch').className = 'time';
 }
 
+function startQuiz() {
+  document.getElementById('startWrap').style.display = 'none';
+  document.getElementById('quizArea').classList.add('show');
+  buildProgress();
+  renderQ();
+}
+
 function selectChoice(choiceText) {
   if (answered) return;
   answered = true;
@@ -300,12 +318,10 @@ function fmtTime(sec) {
 }
 
 function showDone() {
-  document.querySelector('.q-box').style.display = 'none';
-  document.getElementById('choices').style.display = 'none';
-  document.getElementById('feedback').style.display = 'none';
-  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('quizArea').style.display = 'none';
   document.getElementById('btnRestart').classList.add('show');
   document.querySelector('.stopwatch-block').style.display = 'none';
+  document.querySelector('.progress-row').style.display = 'none';
 
   var correctCount = results.filter(function(r){return r.correct;}).length;
   var totalTime = results.reduce(function(s,r){return s + r.elapsed;}, 0);
@@ -324,7 +340,6 @@ function showDone() {
 }
 
 buildProgress();
-renderQ();
 </script>
 </body>
 </html>
