@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adverb Quiz · 副词选择题</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#fdf2f8 0%,#eff6ff 50%,#fdf2f8 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.container{
+  background:#fff;border-radius:20px;padding:28px 22px;
+  max-width:600px;width:100%;box-shadow:0 8px 40px rgba(219,39,119,0.12);
+}
+
+.header{text-align:center;margin-bottom:18px}
+.header .badge{
+  display:inline-block;padding:4px 16px;border-radius:20px;
+  background:#FCE7F3;color:#DB2777;font-size:12px;font-weight:700;
+  letter-spacing:2px;margin-bottom:6px;
+}
+.header h2{color:#2563EB;font-size:20px}
+.header .sub{color:#64748B;font-size:13px}
+
+/* Timer */
+.timer-row{
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  justify-content:center;
+}
+.timer-icon{font-size:22px}
+.timer-bar-wrap{
+  flex:1;height:10px;background:#E2E8F0;border-radius:5px;overflow:hidden;
+  max-width:300px;
+}
+.timer-bar{
+  height:100%;background:linear-gradient(90deg,#059669,#2563EB);
+  border-radius:5px;transition:width 0.3s linear;
+}
+.timer-bar.warn{background:linear-gradient(90deg,#F59E0B,#DC2626)}
+.timer-text{font-size:15px;font-weight:700;color:#1E293B;min-width:36px;text-align:center}
+
+/* Progress */
+.progress-row{
+  display:flex;align-items:center;gap:6px;margin-bottom:14px;
+}
+.progress-dot{
+  width:10px;height:10px;border-radius:50%;background:#E2E8F0;
+  transition:all 0.3s;
+}
+.progress-dot.done{background:#059669}
+.progress-dot.wrong{background:#DC2626}
+.progress-dot.cur{background:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,0.2)}
+
+/* Question */
+.q-box{
+  background:linear-gradient(135deg,#f8fafc,#f1f5f9);
+  border:2px solid #E2E8F0;border-radius:16px;padding:22px 20px;
+  margin-bottom:16px;text-align:center;min-height:100px;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.q-box .context{
+  font-size:15px;color:#475569;line-height:1.7;margin-bottom:10px;
+}
+.q-box .sentence{
+  font-size:20px;color:#1E293B;font-weight:600;line-height:1.6;
+}
+.q-box .blank{
+  display:inline-block;min-width:80px;border-bottom:3px solid #2563EB;
+  margin:0 4px;vertical-align:bottom;transition:all 0.3s;
+}
+.q-box .blank.reveal{color:#059669;border-color:#059669}
+
+/* Choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.choice{
+  padding:16px 12px;border:3px solid #E2E8F0;border-radius:14px;
+  background:#fff;font-size:18px;font-weight:700;cursor:pointer;
+  text-align:center;transition:all 0.15s;color:#1E293B;
+  -webkit-tap-highlight-color:transparent;
+}
+.choice:active{transform:scale(0.96)}
+.choice:hover{border-color:#2563EB;background:#EFF6FF}
+.choice.correct{border-color:#059669;background:#D1FAE5;color:#065F46;pointer-events:none}
+.choice.wrong{border-color:#DC2626;background:#FEE2E2;color:#991B1B;pointer-events:none;animation:shake 0.4s}
+.choice.show-answer{border-color:#059669;border-style:dashed}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Feedback */
+.feedback{
+  min-height:52px;padding:10px 16px;border-radius:10px;
+  font-size:14px;font-weight:600;text-align:center;line-height:1.6;
+  display:none;margin-bottom:8px;
+}
+.feedback.show{display:block}
+.feedback.ok{background:#D1FAE5;color:#065F46}
+.feedback.no{background:#FEE2E2;color:#991B1B}
+.feedback.timeout{background:#FEF3C7;color:#92400E}
+
+/* Button */
+.btn-next{
+  display:none;margin:0 auto;padding:12px 32px;border:none;border-radius:10px;
+  background:#DB2777;color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;
+}
+.btn-next.show{display:block}
+.btn-next:hover{background:#BE185D}
+.btn-next:active{transform:scale(0.96)}
+
+/* Done */
+.done-wrap{display:none;text-align:center}
+.done-wrap.show{display:block}
+.done-wrap .trophy{font-size:60px}
+.done-wrap h2{color:#059669;margin:6px 0}
+.done-wrap .big-score{font-size:44px;font-weight:700;color:#2563EB}
+.done-wrap .detail{color:#64748B;margin:6px 0 12px;font-size:14px;line-height:1.6}
+.done-wrap table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.done-wrap th{color:#64748B;font-size:12px;padding:8px 6px;border-bottom:2px solid #E2E8F0}
+.done-wrap td{padding:8px 6px;border-bottom:1px solid #E2E8F0;font-size:13px}
+.done-wrap .r-ok{color:#059669}
+.done-wrap .r-no{color:#DC2626}
+.done-wrap .r-timeout{color:#F59E0B}
+
+.btn-restart{
+  padding:12px 32px;border:none;border-radius:10px;
+  background:#2563EB;color:#fff;font-size:15px;font-weight:600;cursor:pointer;
+}
+.btn-restart:hover{background:#1D4ED8}
+
+/* score */
+.score-tag{
+  display:inline-block;padding:3px 10px;border-radius:8px;
+  font-size:13px;font-weight:700;margin-bottom:8px;
+}
+
+.link-row{margin-top:12px;text-align:center}
+.link-row a{
+  display:inline-block;padding:6px 14px;border-radius:8px;
+  border:2px solid #E2E8F0;background:#fff;font-size:12px;
+  font-weight:600;text-decoration:none;color:#475569;margin:0 4px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ADVERB QUIZ</div>
+    <h2>📝 乘务场景 · 副词选择</h2>
+    <p class="sub">Choose the correct adverb · 限时作答</p>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-row">
+    <span class="timer-icon">⏱</span>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
+    <span class="timer-text" id="timerText">15s</span>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-row" id="progressRow"></div>
+
+  <!-- Question -->
+  <div class="q-box">
+    <div class="context" id="context"></div>
+    <div class="sentence" id="sentence"></div>
+  </div>
+
+  <!-- Choices -->
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="btn-next" id="btnNext" onclick="nextQ()">Next →</button>
+
+  <!-- Done -->
+  <div class="done-wrap" id="doneWrap">
+    <div class="trophy">🏆</div>
+    <h2>Quiz Complete!</h2>
+    <div class="big-score" id="doneScore"></div>
+    <div class="detail" id="doneMsg"></div>
+    <table id="reviewTable"></table>
+    <button class="btn-restart" onclick="location.reload()">🔄 Try Again</button>
+  </div>
+
+  <div class="link-row">
+    <a href="adverb-training.html">🎙 发音训练</a>
+    <a href="index.html">🏠 主页</a>
+  </div>
+</div>
+
+<script>
+// ===== QUIZ DATA =====
+var quizData = [
+  {
+    context:'On the train, a passenger is asking about ticket prices, discounts, transfer times, seat types, and refund policies one after another...',
+    sentence:'When passengers ask <b>many questions</b> about tickets, we should answer them <span class="blank">______</span>.',
+    choices:['patiently','politely','carefully','suddenly'],
+    answer:'patiently',
+    explain:'"patiently" = 耐心地 — for handling many repeated questions, patience is the key quality.',
+    zh:'耐心地（面对反复提问，耐心是关键品质）'
+  },
+  {
+    context:'You see passengers walking toward the platform. It\'s the first interaction they will have with railway staff today.',
+    sentence:'When <b>greeting passengers</b> at the station, we must speak <span class="blank">______</span>.',
+    choices:['politely','carefully','quickly','late'],
+    answer:'politely',
+    explain:'"politely" = 礼貌地 — greeting is about showing respect and warmth.',
+    zh:'礼貌地（打招呼的核心是尊重和热情）'
+  },
+  {
+    context:'The safety of all 600 passengers on this train depends on thorough checks. A single missed item could cause danger.',
+    sentence:'We need to check passengers\' luggage <span class="blank">______</span> to keep travel safe.',
+    choices:['carefully','patiently','suddenly','surprisingly'],
+    answer:'carefully',
+    explain:'"carefully" = 仔细地 — safety checks require thoroughness and attention to detail.',
+    zh:'仔细地（安全检查需要细致认真）'
+  },
+  {
+    context:'An elderly passenger is walking slowly down the aisle with a cane. Other passengers are waiting behind.',
+    sentence:'When helping elderly passengers board, we should walk <span class="blank">______</span> beside them.',
+    choices:['slowly','quickly','suddenly','surprisingly'],
+    answer:'slowly',
+    explain:'"slowly" = 缓慢地 — match the pace of elderly passengers to ensure their safety.',
+    zh:'缓慢地（配合老人的步伐，确保安全）'
+  },
+  {
+    context:'The train is about to depart in 2 minutes. A passenger is still saying goodbye on the platform.',
+    sentence:'When departure time is near, we must <span class="blank">______</span> guide remaining passengers aboard.',
+    choices:['quickly','slowly','patiently','carefully'],
+    answer:'quickly',
+    explain:'"quickly" = 快速地 — time-sensitive situations require prompt action.',
+    zh:'快速地（时间紧迫需要迅速行动）'
+  },
+  {
+    context:'The train is running smoothly at 250 km/h. Without warning, the emergency brake activates.',
+    sentence:'When the train brakes <span class="blank">______</span>, attendants must hold on and reassure passengers.',
+    choices:['suddenly','slowly','politely','patiently'],
+    answer:'suddenly',
+    explain:'"suddenly" = 突然地 — describes an unexpected, abrupt action. The emergency brake engaged without warning.',
+    zh:'突然地（描述突发、意外的动作）'
+  },
+  {
+    context:'You check the departure board. The 14:30 service to Kunming is showing a 90-minute delay due to severe rain.',
+    sentence:'<span class="blank">______</span>, the train is delayed because of bad weather. We must inform waiting passengers.',
+    choices:['Unfortunately','Surprisingly','Politely','Patiently'],
+    answer:'Unfortunately',
+    explain:'"Unfortunately" = 不幸地；遗憾地 — used to introduce bad news with regret. Capitalized as it starts the sentence.',
+    zh:'不幸地；遗憾地（用于引出坏消息）'
+  },
+  {
+    context:'A new trainee attendant handled a medical emergency on her very first day — and did it perfectly.',
+    sentence:'The new trainee handled the crisis <span class="blank">______</span> well for someone so inexperienced.',
+    choices:['surprisingly','unfortunately','slowly','suddenly'],
+    answer:'surprisingly',
+    explain:'"surprisingly" = 令人惊讶地 — something unexpected in a positive or remarkable way.',
+    zh:'令人惊讶地（出乎意料地好）'
+  }
+];
+
+// Quiz engine state
+var idx = 0, score = 0, timerId = null, timeLeft = 0, answered = false;
+var TIME_LIMIT = 15;
+var results = [];
+
+function buildProgress() {
+  var html = '';
+  for (var i = 0; i < quizData.length; i++) {
+    var cls = 'progress-dot';
+    if (i < idx) {
+      var r = results[i];
+      cls += r.correct ? ' done' : ' wrong';
+    } else if (i === idx) {
+      cls += ' cur';
+    }
+    html += '<span class="' + cls + '"></span>';
+  }
+  document.getElementById('progressRow').innerHTML = html;
+}
+
+function startTimer() {
+  timeLeft = TIME_LIMIT;
+  document.getElementById('timerBar').classList.remove('warn');
+  document.getElementById('timerBar').style.width = '100%';
+  document.getElementById('timerText').textContent = timeLeft + 's';
+  timerId = setInterval(function() {
+    timeLeft--;
+    var pct = (timeLeft / TIME_LIMIT) * 100;
+    document.getElementById('timerBar').style.width = pct + '%';
+    document.getElementById('timerText').textContent = timeLeft + 's';
+    if (timeLeft <= 5) document.getElementById('timerBar').classList.add('warn');
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      timeout();
+    }
+  }, 1000);
+}
+
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+
+function timeout() {
+  if (answered) return;
+  answered = true;
+  document.getElementById('feedback').className = 'feedback show timeout';
+  document.getElementById('feedback').innerHTML = '⏰ Time\'s up! The answer is <strong>' + quizData[idx].answer + '</strong> — ' + quizData[idx].zh;
+  document.getElementById('btnNext').classList.add('show');
+  // Highlight correct answer
+  highlightAnswer();
+  results.push({ q: quizData[idx], userChoice: '(timeout)', correct: false, timeout: true });
+}
+
+function highlightAnswer() {
+  var buttons = document.querySelectorAll('.choice');
+  var q = quizData[idx];
+  buttons.forEach(function(b) {
+    b.style.pointerEvents = 'none';
+    if (b.textContent === q.answer) b.classList.add('show-answer');
+  });
+}
+
+function selectChoice(choiceText) {
+  if (answered) return;
+  answered = true;
+  stopTimer();
+
+  var q = quizData[idx];
+  var isCorrect = choiceText === q.answer;
+  var buttons = document.querySelectorAll('.choice');
+
+  // Highlight
+  buttons.forEach(function(b) {
+    b.style.pointerEvents = 'none';
+    if (b.textContent === q.answer) b.classList.add('correct');
+    if (b.textContent === choiceText && !isCorrect) b.classList.add('wrong');
+  });
+
+  // Score
+  if (isCorrect) {
+    score += 10 + Math.max(0, timeLeft - 3); // bonus for speed
+    document.getElementById('feedback').className = 'feedback show ok';
+    document.getElementById('feedback').innerHTML = '✅ Correct! <strong>' + q.answer + '</strong> — ' + q.explain + '<br><span style="font-size:12px;color:#64748B;">+' + (10 + Math.max(0, timeLeft - 3)) + ' pts (speed bonus)</span>';
+  } else {
+    document.getElementById('feedback').className = 'feedback show no';
+    document.getElementById('feedback').innerHTML = '❌ Not quite. <strong>' + q.answer + '</strong> — ' + q.explain;
+  }
+  document.getElementById('btnNext').classList.add('show');
+  results.push({ q: q, userChoice: choiceText, correct: isCorrect, timeout: false });
+}
+
+function nextQ() {
+  stopTimer();
+  idx++;
+  if (idx >= quizData.length) {
+    showDone();
+    return;
+  }
+  answered = false;
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btnNext').classList.remove('show');
+  renderQ();
+  buildProgress();
+}
+
+function renderQ() {
+  var q = quizData[idx];
+  document.getElementById('context').innerHTML = '🚂 ' + q.context;
+  document.getElementById('sentence').innerHTML = q.sentence;
+
+  var html = '';
+  q.choices.forEach(function(c) {
+    html += '<button class="choice" onclick="selectChoice(\'' + c + '\')">' + c + '</button>';
+  });
+  document.getElementById('choices').innerHTML = html;
+
+  startTimer();
+}
+
+function showDone() {
+  document.querySelector('.q-box').style.display = 'none';
+  document.getElementById('choices').style.display = 'none';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btnNext').style.display = 'none';
+  document.querySelector('.timer-row').style.display = 'none';
+  document.getElementById('progressRow').style.display = 'none';
+
+  var correctCount = results.filter(function(r){return r.correct;}).length;
+  var pct = Math.round((correctCount / quizData.length) * 100);
+  var rank = pct >= 90 ? '🏅 Excellent · 副词达人'
+    : pct >= 70 ? '🎖 Great · 表现优秀'
+    : pct >= 50 ? '📚 Good · 继续加油'
+    : '💪 Keep Going · 再接再厉';
+
+  document.getElementById('doneScore').textContent = score + ' pts';
+  document.getElementById('doneMsg').innerHTML = rank + '<br>Correct: ' + correctCount + '/' + quizData.length;
+
+  var tableHtml = '<tr><th>#</th><th>Your Choice</th><th>Answer</th><th>Meaning</th></tr>';
+  results.forEach(function(r, i) {
+    var icon = r.timeout ? '⏰' : r.correct ? '✅' : '❌';
+    var cls = r.timeout ? 'r-timeout' : r.correct ? 'r-ok' : 'r-no';
+    tableHtml += '<tr>' +
+      '<td>' + icon + '</td>' +
+      '<td class="' + cls + '">' + r.userChoice + '</td>' +
+      '<td style="color:#2563EB;font-weight:600;">' + r.q.answer + '</td>' +
+      '<td style="color:#64748B;">' + r.q.zh + '</td>' +
+      '</tr>';
+  });
+  document.getElementById('reviewTable').innerHTML = tableHtml;
+  document.getElementById('doneWrap').classList.add('show');
+}
+
+// Init
+buildProgress();
+renderQ();
+</script>
+</body>
+</html>
