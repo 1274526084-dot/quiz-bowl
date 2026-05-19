@@ -13,89 +13,92 @@ body{
   font-family:'Segoe UI','Microsoft YaHei',sans-serif;
   min-height:100vh;min-height:100dvh;
   background:linear-gradient(135deg,#fdf2f8 0%,#eff6ff 50%,#fdf2f8 100%);
-  padding:12px;
+  padding:8px;
 }
-.container{max-width:640px;margin:0 auto;height:100%}
+.container{max-width:720px;margin:0 auto}
 
-.header{text-align:center;margin-bottom:8px}
+.header{text-align:center;margin-bottom:6px}
 .header .badge{
   display:inline-block;padding:3px 14px;border-radius:20px;
-  background:#FCE7F3;color:#DB2777;font-size:12px;font-weight:700;
-  letter-spacing:2px;margin-bottom:4px;
+  background:#FCE7F3;color:#DB2777;font-size:13px;font-weight:700;
+  letter-spacing:2px;margin-bottom:2px;
 }
-.header h2{color:#2563EB;font-size:21px}
-.header .sub{color:#64748B;font-size:12px}
+.header h2{color:#2563EB;font-size:22px}
 
-/* Stopwatch + progress combined */
-.top-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:10px;padding:0 4px;
+/* BIG Stopwatch — central focal point */
+.stopwatch-block{
+  text-align:center;margin-bottom:8px;
 }
-.stopwatch{
-  font-size:17px;font-weight:700;color:#64748B;font-family:monospace;
-  background:#F1F5F9;padding:4px 12px;border-radius:8px;
-  min-width:60px;text-align:center;
+.stopwatch-block .label{
+  font-size:11px;color:#64748B;letter-spacing:3px;text-transform:uppercase;
 }
-.progress{
-  display:flex;align-items:center;gap:5px;
+.stopwatch-block .time{
+  font-size:42px;font-weight:900;font-family:'Courier New',monospace;
+  color:#2563EB;line-height:1.1;
 }
-.progress-num{font-size:13px;font-weight:700;color:#2563EB}
+.stopwatch-block .time.running{color:#059669}
+
+/* Progress */
+.progress-row{
+  display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;
+}
+.progress-num{font-size:14px;font-weight:700;color:#64748B}
 .progress-dot{
-  width:9px;height:9px;border-radius:50%;background:#E2E8F0;transition:all 0.3s;
+  width:12px;height:12px;border-radius:50%;background:#E2E8F0;transition:all 0.3s;
 }
 .progress-dot.done{background:#059669}
 .progress-dot.wrong{background:#DC2626}
-.progress-dot.cur{background:#2563EB;box-shadow:0 0 0 4px rgba(37,99,235,0.2)}
+.progress-dot.cur{background:#2563EB;box-shadow:0 0 0 5px rgba(37,99,235,0.2)}
 
 /* Question */
 .q-box{
   background:linear-gradient(135deg,#f8fafc,#f1f5f9);
-  border:2px solid #E2E8F0;border-radius:16px;padding:24px 18px;
+  border:2px solid #E2E8F0;border-radius:18px;padding:22px 16px;
   margin-bottom:14px;text-align:center;
 }
 .q-box .context{
-  font-size:15px;color:#475569;line-height:1.7;margin-bottom:10px;
+  font-size:16px;color:#475569;line-height:1.7;margin-bottom:10px;
 }
 .q-box .sentence{
-  font-size:22px;color:#1E293B;font-weight:600;line-height:1.7;
+  font-size:26px;color:#1E293B;font-weight:600;line-height:1.8;
 }
 .q-box .sentence b{color:#DB2777}
 .q-box .blank{
-  display:inline-block;min-width:120px;border-bottom:3px solid #2563EB;
-  margin:0 4px;vertical-align:bottom;color:#2563EB;
+  display:inline-block;min-width:150px;border-bottom:4px solid #2563EB;
+  margin:0 6px;vertical-align:bottom;color:#2563EB;
 }
 
-/* Choices — 2 big buttons */
+/* Choices — BIG buttons */
 .choices{
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px;
 }
 .choice{
-  padding:22px 12px;border:3px solid #E2E8F0;border-radius:16px;
-  background:#fff;font-size:22px;font-weight:700;cursor:pointer;
-  text-align:center;transition:all 0.15s;color:#1E293B;
+  padding:28px 14px;border:4px solid #E2E8F0;border-radius:18px;
+  background:#fff;font-size:28px;font-weight:800;cursor:pointer;
+  text-align:center;transition:all 0.12s;color:#1E293B;
   -webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;
 }
-.choice:active{transform:scale(0.95)}
+.choice:active{transform:scale(0.94)}
 .choice.correct{border-color:#059669;background:#D1FAE5;color:#065F46;pointer-events:none}
 .choice.wrong{border-color:#DC2626;background:#FEE2E2;color:#991B1B;pointer-events:none;animation:shake 0.4s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 
 /* Feedback */
 .feedback{
-  min-height:54px;padding:12px 16px;border-radius:12px;
-  font-size:15px;font-weight:600;text-align:center;line-height:1.6;
-  display:none;margin-bottom:8px;
+  min-height:56px;padding:14px 18px;border-radius:14px;
+  font-size:16px;font-weight:600;text-align:center;line-height:1.7;
+  display:none;margin-bottom:10px;
 }
 .feedback.show{display:block}
 .feedback.ok{background:#D1FAE5;color:#065F46}
 .feedback.no{background:#FEE2E2;color:#991B1B}
 
 /* Buttons */
-.btn-row{display:flex;gap:10px;justify-content:center}
+.btn-row{display:flex;gap:12px;justify-content:center}
 .btn{
-  padding:14px 28px;border:none;border-radius:12px;
-  font-size:16px;font-weight:600;cursor:pointer;transition:all 0.15s;
+  padding:16px 36px;border:none;border-radius:14px;
+  font-size:18px;font-weight:700;cursor:pointer;transition:all 0.15s;
   font-family:'Microsoft YaHei','Segoe UI',sans-serif;
 }
 .btn-next{background:#DB2777;color:#fff;display:none}
@@ -107,20 +110,20 @@ body{
 /* Done */
 .done-wrap{display:none;text-align:center}
 .done-wrap.show{display:block}
-.done-wrap .trophy{font-size:56px}
-.done-wrap h2{color:#059669;margin:6px 0;font-size:20px}
-.done-wrap .big-time{font-size:36px;font-weight:700;color:#2563EB;font-family:monospace}
-.done-wrap .detail{color:#64748B;margin:4px 0 14px;font-size:14px;line-height:1.6}
-.done-wrap table{width:100%;border-collapse:collapse;margin-bottom:12px}
-.done-wrap th{color:#64748B;font-size:12px;padding:8px 6px;border-bottom:2px solid #E2E8F0}
-.done-wrap td{padding:8px 6px;border-bottom:1px solid #E2E8F0;font-size:14px}
+.done-wrap .trophy{font-size:64px}
+.done-wrap h2{color:#059669;margin:8px 0;font-size:22px}
+.done-wrap .big-time{font-size:44px;font-weight:900;color:#2563EB;font-family:'Courier New',monospace}
+.done-wrap .detail{color:#64748B;margin:6px 0 16px;font-size:16px}
+.done-wrap table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.done-wrap th{color:#64748B;font-size:13px;padding:10px 8px;border-bottom:2px solid #E2E8F0}
+.done-wrap td{padding:10px 8px;border-bottom:1px solid #E2E8F0;font-size:16px}
 .done-wrap .r-ok{color:#059669}
 .done-wrap .r-no{color:#DC2626}
 
-.link-row{margin-top:10px;text-align:center}
+.link-row{margin-top:12px;text-align:center}
 .link-row a{
   display:inline-block;padding:6px 14px;border-radius:8px;
-  border:2px solid #E2E8F0;background:#fff;font-size:12px;
+  border:2px solid #E2E8F0;background:#fff;font-size:13px;
   font-weight:600;text-decoration:none;color:#475569;margin:0 4px;
 }
 </style>
@@ -130,22 +133,27 @@ body{
   <div class="header">
     <div class="badge">ADVERB QUIZ</div>
     <h2>📝 乘务场景 · 副词二选一</h2>
-    <p class="sub">Choose the correct adverb · <span style="color:#DB2777">v3 (正计时)</span></p>
   </div>
 
-  <div class="top-bar">
-    <span class="stopwatch" id="stopwatch">00:00</span>
-    <div class="progress">
-      <span class="progress-num" id="progNum">1/3</span>
-      <div id="progressDots" style="display:flex;gap:4px"></div>
-    </div>
+  <!-- BIG STOPWATCH -->
+  <div class="stopwatch-block">
+    <div class="label">⏱ TIMER</div>
+    <div class="time" id="stopwatch">00:00</div>
   </div>
 
+  <!-- Progress -->
+  <div class="progress-row">
+    <span class="progress-num" id="progNum">1 / 3</span>
+    <div id="progressDots" style="display:flex;gap:5px"></div>
+  </div>
+
+  <!-- Question -->
   <div class="q-box">
     <div class="context" id="context"></div>
     <div class="sentence" id="sentence"></div>
   </div>
 
+  <!-- Choices -->
   <div class="choices" id="choices"></div>
   <div class="feedback" id="feedback"></div>
 
@@ -154,6 +162,7 @@ body{
     <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">🔄 再来一次</button>
   </div>
 
+  <!-- Done -->
   <div class="done-wrap" id="doneWrap">
     <div class="trophy">🏆</div>
     <h2>Quiz Complete!</h2>
@@ -196,11 +205,7 @@ var quizData = [
   }
 ];
 
-// State
-var idx = 0, answered = false;
-var timerSec = 0, timerId = null;
-var results = [];
-var qStartTime = 0; // timestamp when question was shown
+var idx = 0, answered = false, timerSec = 0, timerId = null, qStartTime = 0, results = [];
 
 function pad(n){ return n<10?'0'+n:''+n; }
 
@@ -211,39 +216,44 @@ function buildProgress() {
     if (i < idx) {
       var r = results[i];
       cls += r.correct ? ' done' : ' wrong';
-    } else if (i === idx) {
-      cls += ' cur';
-    }
+    } else if (i === idx) cls += ' cur';
     html += '<span class="' + cls + '"></span>';
   }
   document.getElementById('progressDots').innerHTML = html;
-  document.getElementById('progNum').textContent = (idx+1) + '/' + quizData.length;
+  document.getElementById('progNum').textContent = (idx+1) + ' / ' + quizData.length;
 }
 
-// Stopwatch — counts UP from 00:00
+function updateStopwatch() {
+  var m = Math.floor(timerSec / 60);
+  var s = timerSec % 60;
+  document.getElementById('stopwatch').textContent = pad(m) + ':' + pad(s);
+}
+
 function startStopwatch() {
   qStartTime = Date.now();
   timerSec = 0;
-  document.getElementById('stopwatch').textContent = '00:00';
+  document.getElementById('stopwatch').className = 'time running';
+  updateStopwatch();
   timerId = setInterval(function() {
     timerSec++;
-    var m = Math.floor(timerSec / 60);
-    var s = timerSec % 60;
-    document.getElementById('stopwatch').textContent = pad(m) + ':' + pad(s);
+    updateStopwatch();
   }, 1000);
 }
 
-function stopStopwatch() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function stopStopwatch() {
+  if (timerId) { clearInterval(timerId); timerId = null; }
+  document.getElementById('stopwatch').className = 'time';
+}
 
 function selectChoice(choiceText) {
   if (answered) return;
   answered = true;
-
+  stopStopwatch();
   var elapsed = (Date.now() - qStartTime) / 1000;
   var q = quizData[idx];
   var isCorrect = choiceText === q.answer;
-  var buttons = document.querySelectorAll('.choice');
 
+  var buttons = document.querySelectorAll('.choice');
   buttons.forEach(function(b) {
     b.style.pointerEvents = 'none';
     if (b.textContent === q.answer) b.classList.add('correct');
@@ -258,18 +268,13 @@ function selectChoice(choiceText) {
     fb.className = 'feedback show no';
     fb.innerHTML = '❌ <strong>' + choiceText + '</strong> is not right. ' + q.explain;
   }
-
   document.getElementById('btnNext').classList.add('show');
   results.push({ q: q, userChoice: choiceText, correct: isCorrect, elapsed: elapsed });
 }
 
 function nextQ() {
   idx++;
-  if (idx >= quizData.length) {
-    stopStopwatch();
-    showDone();
-    return;
-  }
+  if (idx >= quizData.length) { showDone(); return; }
   answered = false;
   document.getElementById('feedback').className = 'feedback';
   document.getElementById('btnNext').classList.remove('show');
@@ -281,19 +286,16 @@ function renderQ() {
   var q = quizData[idx];
   document.getElementById('context').textContent = '🚂 ' + q.context;
   document.getElementById('sentence').innerHTML = q.sentence;
-
   var html = '';
   q.choices.forEach(function(c) {
     html += '<button class="choice" onclick="selectChoice(\'' + c + '\')">' + c + '</button>';
   });
   document.getElementById('choices').innerHTML = html;
-
   startStopwatch();
 }
 
 function fmtTime(sec) {
-  var m = Math.floor(sec / 60);
-  var s = Math.floor(sec % 60);
+  var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
   return pad(m) + ':' + pad(s);
 }
 
@@ -303,23 +305,19 @@ function showDone() {
   document.getElementById('feedback').style.display = 'none';
   document.getElementById('btnNext').classList.remove('show');
   document.getElementById('btnRestart').classList.add('show');
+  document.querySelector('.stopwatch-block').style.display = 'none';
 
   var correctCount = results.filter(function(r){return r.correct;}).length;
   var totalTime = results.reduce(function(s,r){return s + r.elapsed;}, 0);
 
-  document.getElementById('doneTime').textContent = 'Total: ' + fmtTime(totalTime);
-  document.getElementById('doneMsg').innerHTML = 'Correct: <strong>' + correctCount + '/' + quizData.length + '</strong>';
+  document.getElementById('doneTime').textContent = '⏱ Total: ' + fmtTime(totalTime);
+  document.getElementById('doneMsg').innerHTML = 'Correct: <strong>' + correctCount + ' / ' + quizData.length + '</strong>';
 
   var tableHtml = '<tr><th>#</th><th>Your Choice</th><th>Answer</th><th>Time</th></tr>';
   results.forEach(function(r, i) {
     var icon = r.correct ? '✅' : '❌';
     var cls = r.correct ? 'r-ok' : 'r-no';
-    tableHtml += '<tr>' +
-      '<td>' + icon + '</td>' +
-      '<td class="' + cls + '">' + r.userChoice + '</td>' +
-      '<td style="color:#2563EB;font-weight:600;">' + r.q.answer + '</td>' +
-      '<td style="color:#64748B;">' + fmtTime(r.elapsed) + '</td>' +
-      '</tr>';
+    tableHtml += '<tr><td>' + icon + '</td><td class="' + cls + '"><strong>' + r.userChoice + '</strong></td><td style="color:#2563EB;font-weight:700;">' + r.q.answer + '</td><td style="color:#64748B;">' + fmtTime(r.elapsed) + '</td></tr>';
   });
   document.getElementById('reviewTable').innerHTML = tableHtml;
   document.getElementById('doneWrap').classList.add('show');
