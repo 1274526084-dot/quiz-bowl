@@ -309,9 +309,10 @@ function resetUI() {
 
 var _modelAudio = null;
 var _preloadedAudio = null;
+var _audioVersion = 'v2';
 function preloadModel(word) {
   if (_preloadedAudio) { _preloadedAudio.pause(); _preloadedAudio = null; }
-  _preloadedAudio = new Audio('audio/' + word + '.wav');
+  _preloadedAudio = new Audio('audio/' + word + '.wav?v=' + _audioVersion);
   _preloadedAudio.preload = 'auto';
   _preloadedAudio.load();
 }
@@ -324,7 +325,7 @@ function playModel() {
   if (_preloadedAudio && _preloadedAudio.src.indexOf(w.word + '.wav') !== -1) {
     _modelAudio = _preloadedAudio;
   } else {
-    _modelAudio = new Audio('audio/' + w.word + '.wav');
+    _modelAudio = new Audio('audio/' + w.word + '.wav?v=' + _audioVersion);
     _modelAudio.preload = 'auto';
   }
 
@@ -592,7 +593,7 @@ function showPhDetail(i, card) {
     if (_phListenAudio) { _phListenAudio.pause(); }
     btn.classList.add('playing');
     btn.textContent = '🔊 Loading...';
-    _phListenAudio = new Audio('audio/' + w.word + '.wav');
+    _phListenAudio = new Audio('audio/' + w.word + '.wav?v=' + _audioVersion);
     _phListenAudio.preload = 'auto';
     _phListenAudio.onended = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Listen'; _phListenAudio = null; };
     _phListenAudio.onerror = function() { btn.classList.remove('playing'); btn.textContent = '⚠ Retry'; _phListenAudio = null; };
