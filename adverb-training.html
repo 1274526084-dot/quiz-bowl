@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adverb Pronunciation · 副词发音训练</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 50%, #fdf2f8 100%);
+  padding: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.container { max-width: 720px; width: 100%; }
+
+.header { text-align: center; margin-bottom: 14px; }
+.header .badge {
+  display: inline-block; padding: 4px 16px; border-radius: 20px;
+  background: #FCE7F3; color: #DB2777; font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; margin-bottom: 6px;
+}
+.header h1 { color: #2563EB; font-size: 22px; }
+.header .sub { color: #64748B; font-size: 13px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.tab-btn {
+  flex: 1; padding: 10px 4px; border: 2px solid #E2E8F0;
+  border-radius: 10px; background: #F8FAFC; font-size: 13px;
+  font-weight: 700; cursor: pointer; text-align: center; transition: all 0.15s;
+  color: #64748B;
+}
+.tab-btn.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Word tabs (shared) */
+.word-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; justify-content: center; }
+.word-tab {
+  padding: 5px 12px; border-radius: 14px; border: 2px solid #E2E8F0;
+  background: #fff; font-size: 12px; cursor: pointer; transition: all 0.15s;
+  font-weight: 600; color: #475569; -webkit-tap-highlight-color: transparent;
+}
+.word-tab:active { transform: scale(0.95); }
+.word-tab.active { background: #2563EB; color: #fff; border-color: #2563EB; }
+.word-tab.done { border-color: #059669; background: #D1FAE5; color: #065F46; }
+
+/* Card */
+.card {
+  background: #fff; border-radius: 18px; padding: 18px 16px 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; margin-bottom: 8px;
+}
+.card .target-word { font-size: 30px; font-weight: 700; color: #1E293B; margin-bottom: 2px; }
+.card .word-ipa { font-size: 13px; color: #94A3B8; margin-bottom: 4px; }
+.card .word-zh { font-size: 14px; color: #475569; margin-bottom: 10px; }
+
+.btn-model {
+  padding: 8px 20px; border-radius: 10px; border: 2px solid #2563EB;
+  background: #EFF6FF; color: #2563EB; font-size: 13px; font-weight: 600;
+  cursor: pointer; margin-bottom: 10px;
+}
+.btn-model:active { transform: scale(0.95); }
+.btn-model.playing { background: #2563EB; color: #fff; }
+
+.btn-record {
+  width: 68px; height: 68px; border-radius: 50%; border: 3px solid #DC2626;
+  background: #fff; font-size: 26px; cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(220,38,38,0.2); margin-bottom: 4px;
+}
+.btn-record:active { transform: scale(0.92); }
+.btn-record.recording {
+  background: #DC2626; animation: pulse 1.2s infinite;
+  box-shadow: 0 4px 20px rgba(220,38,38,0.4);
+}
+@keyframes pulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4)}
+  50%{box-shadow:0 0 0 12px rgba(220,38,38,0)}
+}
+
+.record-hint { font-size: 11px; color: #94A3B8; margin-bottom: 8px; }
+
+.score-panel { display: none; margin-bottom: 6px; }
+.score-panel.show { display: block; }
+.score-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.score-item {
+  background: #F8FAFC; border-radius: 10px; padding: 8px 4px;
+  text-align: center; border: 2px solid #E2E8F0;
+}
+.score-item .score-val { font-size: 22px; font-weight: 700; }
+.score-item .score-label { font-size: 10px; color: #64748B; margin-top: 1px; }
+.score-item.bad .score-val { color: #DC2626; }
+.score-item.ok .score-val { color: #F59E0B; }
+.score-item.good .score-val { color: #2563EB; }
+.score-item.great .score-val { color: #059669; }
+
+.overall-row {
+  text-align: center; padding: 8px; border-radius: 8px;
+  font-weight: 700; font-size: 14px;
+}
+
+#waveCanvas {
+  width: 100%; height: 48px; border-radius: 8px;
+  background: #F1F5F9; margin-bottom: 8px; display: none;
+}
+#waveCanvas.show { display: block; }
+
+.playback-row {
+  display: none; align-items: center; gap: 8px; justify-content: center; margin-bottom: 8px;
+}
+.playback-row.show { display: flex; }
+.btn-play {
+  width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2563EB;
+  background: #EFF6FF; font-size: 14px; cursor: pointer;
+}
+.btn-play.playing { background: #2563EB; color: #fff; }
+
+.stats-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+.stat-badge {
+  padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
+  background: #EFF6FF; color: #2563EB;
+}
+
+/* Phonetics grid */
+.ph-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ph-card {
+  background: #F8FAFC; border-radius: 12px; padding: 10px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.2s; text-align: center;
+}
+.ph-card:hover { border-color: #2563EB; box-shadow: 0 4px 12px rgba(37,99,235,0.12); }
+.ph-card.sel { border-color: #2563EB; background: #EFF6FF; }
+.ph-card .en { font-size: 17px; font-weight: 700; color: #2563EB; }
+.ph-card .ipa { font-size: 12px; color: #DB2777; margin: 2px 0; }
+.ph-card .syl { font-size: 11px; color: #64748B; }
+
+.ph-detail {
+  background: #F8FAFC; border-radius: 14px; padding: 18px; display: none;
+  border: 2px solid #2563EB; margin-bottom: 8px;
+}
+.ph-detail.show { display: block; }
+.ph-detail h3 { color: #DB2777; margin-bottom: 8px; font-size: 17px; }
+.ph-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #E2E8F0; font-size: 13px; }
+.ph-row:last-child { border-bottom: none; }
+.ph-label { color: #64748B; }
+.ph-val { color: #1E293B; font-weight: 600; }
+.ph-val.blue { color: #2563EB; }
+.ph-val.pink { color: #DB2777; }
+
+.btn-listen {
+  display: inline-block; padding: 8px 18px; background: #2563EB; color: #fff;
+  border: none; border-radius: 8px; font-size: 14px; cursor: pointer; margin-top: 10px;
+  transition: all 0.15s;
+}
+.btn-listen:hover { background: #1D4ED8; }
+.btn-listen:active { transform: scale(0.96); }
+.btn-listen.playing { background: #DB2777; animation: pulse2 0.6s infinite; }
+@keyframes pulse2 { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+.link-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.link-row a {
+  display: inline-block; padding: 6px 12px; border-radius: 8px;
+  border: 2px solid #E2E8F0; background: #fff; font-size: 12px;
+  font-weight: 600; text-decoration: none; color: #475569;
+}
+.link-row a.hl { color: #DB2777; border-color: #FBCFE8; }
+
+@media (max-width: 500px) {
+  .ph-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .ph-card { padding: 8px 6px; }
+  .ph-card .en { font-size: 15px; }
+  .tab-btn { font-size: 11px; padding: 8px 2px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ADVERB TRAINING</div>
+    <h1>📝 副词发音训练</h1>
+    <p class="sub">Listen → Record → Analyze · 8高频副词 · 发音+音变</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchMainTab(0)">🎙 发音评测</button>
+    <button class="tab-btn" onclick="switchMainTab(1)">🔊 音变分析</button>
+  </div>
+
+  <!-- === TAB 0: Pronunciation === -->
+  <div class="tab-content active" id="tabPron">
+    <div class="stats-row">
+      <span class="stat-badge">✅ <strong id="doneCount">0</strong>/8</span>
+      <span class="stat-badge">⭐ Avg: <strong id="avgScore">-</strong></span>
+    </div>
+    <div class="word-tabs" id="wordTabs"></div>
+
+    <div class="card">
+      <div class="target-word" id="targetWord"></div>
+      <div class="word-ipa" id="wordIpa"></div>
+      <div class="word-zh" id="wordZh"></div>
+
+      <button class="btn-model" id="btnModel" onclick="playModel()">🔊 Listen to Model</button>
+      <br>
+      <button class="btn-record" id="btnRecord" onclick="toggleRecord()">🎤</button>
+      <div class="record-hint" id="recordHint">Tap to record (max 4s)</div>
+
+      <canvas id="waveCanvas" width="400" height="48"></canvas>
+      <div class="playback-row" id="playbackRow">
+        <button class="btn-play" id="btnPlay" onclick="playMyRecording()">▶</button>
+        <span style="font-size:12px;color:#64748B;">Your recording</span>
+      </div>
+
+      <div class="score-panel" id="scorePanel">
+        <div class="score-grid">
+          <div class="score-item" id="scorePitch"><div class="score-val">-</div><div class="score-label">Pitch 音调</div></div>
+          <div class="score-item" id="scoreVolume"><div class="score-val">-</div><div class="score-label">Volume 音量</div></div>
+          <div class="score-item" id="scoreDuration"><div class="score-val">-</div><div class="score-label">Pace 节奏</div></div>
+          <div class="score-item" id="scoreClarity"><div class="score-val">-</div><div class="score-label">Clarity 清晰度</div></div>
+          <div class="score-item" id="scoreFluency"><div class="score-val">-</div><div class="score-label">Fluency 流利度</div></div>
+          <div class="score-item" id="scoreOverall"><div class="score-val">-</div><div class="score-label">Overall 综合</div></div>
+        </div>
+        <div class="overall-row" id="overallMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === TAB 1: Phonetics === -->
+  <div class="tab-content" id="tabPhon">
+    <div class="ph-grid" id="phGrid"></div>
+    <div class="ph-detail" id="phDetail"></div>
+  </div>
+
+  <div class="link-row">
+    <a href="index.html" class="hl">⬅ 返回主页</a>
+    <a href="pronounce.html">🎙 原发音页</a>
+    <a href="phonetic-analyzer.html">🔊 原音变页</a>
+  </div>
+</div>
+
+<script>
+// ============ WORD DATA ============
+var words = [
+  { word:'usually',        ipa:'/ˈjuːʒuəli/',       zh:'通常；一般',        syllables:'u·su·al·ly', stress:'1st syllable', link:'/ʒ/ + /uə/ vowel linking',        weak:'"al" → /əl/',              tip:'Starts like \"you\"; /ʒ/ like \"s\" in \"pleasure\"' },
+  { word:'quickly',        ipa:'/ˈkwɪkli/',         zh:'快速地',            syllables:'quick·ly',     stress:'1st syllable', link:'/k/ + /l/ consonant cluster',      weak:'"ly" → /li/ (unstressed)',  tip:'Short /ɪ/ — do NOT say \"kweek-ly\"' },
+  { word:'late',           ipa:'/leɪt/',            zh:'晚；迟',            syllables:'late',         stress:'single syllable',link:'N/A — single syllable',           weak:'None',                      tip:'Long /eɪ/ diphthong — glide /e/→/ɪ/' },
+  { word:'suddenly',       ipa:'/ˈsʌdənli/',        zh:'突然地',            syllables:'sud·den·ly',   stress:'1st syllable', link:'/d/+/n/ nasal release',           weak:'"en" → /ən/',               tip:'Quick schwa in middle; don\'t stress \"den\"' },
+  { word:'carefully',      ipa:'/ˈkeəfəli/',        zh:'小心地；仔细地',     syllables:'care·ful·ly',  stress:'1st syllable', link:'/r/+/f/ oral transition',          weak:'"ful" → /fəl/',            tip:'British /eə/ — jaw drops then closes' },
+  { word:'slowly',         ipa:'/ˈsloʊli/',         zh:'缓慢地',            syllables:'slow·ly',      stress:'1st syllable', link:'/s/+/l/ initial consonant cluster',weak:'"ly" → /li/ (unstressed)',  tip:'Clean /sl/ start — both consonants heard' },
+  { word:'unfortunately',  ipa:'/ʌnˈfɔːtʃənətli/',  zh:'不幸地；遗憾地',     syllables:'un·for·tu·nate·ly',stress:'2nd syllable',link:'/tʃ/+/ə/ affricate linking',      weak:'"u"→/ʌ/; "ate"→/ət/',     tip:'Stress falls on FOR — un-FOR-tu-nate-ly' },
+  { word:'surprisingly',   ipa:'/səˈpraɪzɪŋli/',    zh:'令人惊讶地',        syllables:'sur·pris·ing·ly',stress:'2nd syllable',link:'/z/+/ɪŋ/ voiced linking',         weak:'"sur" → /sə/',             tip:'First syllable is weak /sə/; stress on \"prise\"' }
+];
+
+// ============ TAB SWITCHING ============
+function switchMainTab(i) {
+  document.querySelectorAll('.tab-btn').forEach(function(b,j){ b.classList.toggle('active',j===i); });
+  document.getElementById('tabPron').classList.toggle('active', i===0);
+  document.getElementById('tabPhon').classList.toggle('active', i===1);
+  if (i===1 && !window._phBuilt) buildPhonetics();
+}
+
+// ============ PRONUNCIATION ENGINE ============
+var currentIdx = 0;
+var scores = {};
+var isRecording = false;
+var mediaRecorder = null;
+var recordedChunks = [];
+var myBlob = null;
+var myBlobURL = null;
+var audioCtx = null;
+
+function buildWordTabs() {
+  var html = '';
+  for (var i = 0; i < words.length; i++) {
+    var cls = 'word-tab';
+    if (i === currentIdx) cls += ' active';
+    if (scores[words[i].word] && scores[words[i].word].attempts > 0) cls += ' done';
+    html += '<button class="' + cls + '" onclick="switchWord(' + i + ')">' + words[i].word + '</button>';
+  }
+  document.getElementById('wordTabs').innerHTML = html;
+}
+
+function switchWord(i) { currentIdx = i; resetUI(); buildWordTabs(); renderWord(); }
+
+function renderWord() {
+  var w = words[currentIdx];
+  document.getElementById('targetWord').textContent = w.word;
+  document.getElementById('wordIpa').textContent = w.ipa;
+  document.getElementById('wordZh').textContent = w.zh;
+  buildWordTabs();
+  updateStats();
+}
+
+function resetUI() {
+  document.getElementById('scorePanel').classList.remove('show');
+  document.getElementById('btnRecord').classList.remove('recording');
+  document.getElementById('recordHint').textContent = 'Tap to record (max 4s)';
+  document.getElementById('playbackRow').classList.remove('show');
+  document.getElementById('waveCanvas').classList.remove('show');
+  document.getElementById('btnPlay').classList.remove('playing');
+  isRecording = false;
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  if (myBlobURL) { URL.revokeObjectURL(myBlobURL); myBlobURL = null; }
+  myBlob = null;
+  recordedChunks = [];
+  document.getElementById('btnModel').classList.remove('playing');
+}
+
+function playModel() {
+  if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+  var utter = new SpeechSynthesisUtterance(words[currentIdx].word);
+  utter.lang = 'en-US';
+  utter.rate = 0.85;
+  var btn = document.getElementById('btnModel');
+  btn.classList.add('playing');
+  utter.onend = function() { btn.classList.remove('playing'); };
+  utter.onerror = function() { btn.classList.remove('playing'); };
+  window.speechSynthesis.speak(utter);
+}
+
+function playMyRecording() {
+  if (!myBlobURL) return;
+  var a = new Audio(myBlobURL);
+  var btn = document.getElementById('btnPlay');
+  btn.classList.add('playing');
+  a.onended = function() { btn.classList.remove('playing'); };
+  a.play();
+}
+
+function toggleRecord() {
+  if (isRecording) {
+    mediaRecorder.stop();
+  } else {
+    resetUI();
+    recordedChunks = [];
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus' : 'audio/webm';
+      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+      mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = function() {
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        myBlob = new Blob(recordedChunks, { type: mime });
+        myBlobURL = URL.createObjectURL(myBlob);
+        document.getElementById('playbackRow').classList.add('show');
+        document.getElementById('recordHint').textContent = 'Analyzing...';
+        analyzeRecording();
+      };
+      mediaRecorder.start();
+      document.getElementById('btnRecord').classList.add('recording');
+      document.getElementById('recordHint').textContent = 'Recording... Tap to stop';
+      isRecording = true;
+      setTimeout(function() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+      }, 4000);
+    }).catch(function() {
+      document.getElementById('recordHint').textContent = 'Microphone blocked!';
+    });
+  }
+}
+
+// ===== Audio Analysis =====
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function decodeBlob(blob) {
+  return blob.arrayBuffer().then(function(buf) { return getAudioCtx().decodeAudioData(buf); });
+}
+
+function extractFeatures(buffer) {
+  var data = buffer.getChannelData(0);
+  var sampleRate = buffer.sampleRate;
+  var len = data.length;
+  var duration = len / sampleRate;
+  var sumSq = 0, i;
+  for (i = 0; i < len; i++) sumSq += data[i] * data[i];
+  var rms = Math.sqrt(sumSq / len);
+  var peaks = 0, threshold = rms * 1.5, above = false;
+  for (i = 0; i < len; i++) {
+    var abs = Math.abs(data[i]);
+    if (abs > threshold && !above) { peaks++; above = true; }
+    if (abs < rms * 0.5) above = false;
+  }
+  var zcr = 0;
+  for (i = 1; i < len; i++) {
+    if ((data[i] >= 0 && data[i-1] < 0) || (data[i] < 0 && data[i-1] >= 0)) zcr++;
+  }
+  zcr = zcr / len;
+  var centroid = zcr * sampleRate / 2;
+  var pitch = estimatePitch(data, sampleRate);
+  var windowSize = Math.floor(sampleRate * 0.02), envelope = [];
+  for (i = 0; i < len; i += windowSize) {
+    var end = Math.min(i + windowSize, len), winSum = 0;
+    for (var j = i; j < end; j++) winSum += Math.abs(data[j]);
+    envelope.push(winSum / (end - i));
+  }
+  var envVar = 0;
+  if (envelope.length > 1) {
+    var envMean = envelope.reduce(function(a,b){return a+b;},0) / envelope.length;
+    for (var k = 0; k < envelope.length; k++) envVar += Math.pow(envelope[k] - envMean, 2);
+    envVar = Math.sqrt(envVar / envelope.length) / (envMean || 0.001);
+  }
+  return { duration:duration, rms:rms, peaks:peaks, zcr:zcr, centroid:centroid, pitch:pitch, envVar:envVar, data:data };
+}
+
+function estimatePitch(data, sampleRate) {
+  var len = data.length;
+  var minLag = Math.floor(sampleRate / 400), maxLag = Math.floor(sampleRate / 60);
+  if (maxLag >= len) return 0;
+  var bestCorr = -1, bestLag = 0;
+  for (var lag = minLag; lag < maxLag; lag++) {
+    var corr = 0;
+    for (var i = 0; i < len - lag; i++) corr += data[i] * data[i + lag];
+    if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+  }
+  return bestLag > 0 ? sampleRate / bestLag : 0;
+}
+
+function analyzeRecording() {
+  if (!myBlob) return;
+  decodeBlob(myBlob).then(function(buf) {
+    var f = extractFeatures(buf);
+    drawWaveform(f.data);
+    showHeuristicScore(f);
+  }).catch(function() {
+    document.getElementById('recordHint').textContent = 'Analysis failed. Try again.';
+  });
+}
+
+function showHeuristicScore(f) {
+  var vol = Math.min(100, Math.round(f.rms * 1000));
+  var pitch = Math.min(100, Math.max(10, Math.round(f.pitch / 2)));
+  var pace = f.duration < 0.25 ? 50 : f.duration > 2.5 ? 55 : Math.round(100 - Math.abs(1 - f.duration) * 40);
+  var clarity = Math.min(100, Math.round(f.zcr * 8));
+  var flu = Math.min(100, Math.round(100 - f.envVar * 30));
+  var overall = Math.round(vol*0.15 + pitch*0.2 + pace*0.15 + clarity*0.3 + flu*0.2);
+  displayScores(pitch, vol, pace, clarity, flu, overall);
+}
+
+function displayScores(pitch, volume, pace, clarity, fluency, overall) {
+  document.getElementById('scorePanel').classList.add('show');
+  setScore('scorePitch', pitch);
+  setScore('scoreVolume', volume);
+  setScore('scoreDuration', pace);
+  setScore('scoreClarity', clarity);
+  setScore('scoreFluency', fluency);
+  setScore('scoreOverall', overall);
+  var msg = document.getElementById('overallMsg');
+  if (overall >= 90) {
+    msg.innerHTML = '🏆 Excellent! 发音非常标准！';
+    msg.style.background = '#D1FAE5'; msg.style.color = '#065F46';
+  } else if (overall >= 75) {
+    msg.innerHTML = '👍 Good job! 发音不错！';
+    msg.style.background = '#DBEAFE'; msg.style.color = '#1E40AF';
+  } else if (overall >= 55) {
+    msg.innerHTML = '📚 Not bad! 多听范读，模仿语调！';
+    msg.style.background = '#FEF3C7'; msg.style.color = '#92400E';
+  } else {
+    msg.innerHTML = '💪 Keep practicing! 再听一遍范读！';
+    msg.style.background = '#FEE2E2'; msg.style.color = '#991B1B';
+  }
+  document.getElementById('recordHint').textContent = 'Tap to record again';
+  var w = words[currentIdx];
+  scores[w.word] = { overall: overall, attempts: (scores[w.word] ? scores[w.word].attempts + 1 : 1) };
+  buildWordTabs();
+  updateStats();
+}
+
+function setScore(id, val) {
+  val = Math.max(10, Math.min(100, Math.round(val)));
+  var el = document.getElementById(id);
+  var item = el.closest('.score-item');
+  item.classList.remove('bad', 'ok', 'good', 'great');
+  if (val >= 90) item.classList.add('great');
+  else if (val >= 70) item.classList.add('good');
+  else if (val >= 45) item.classList.add('ok');
+  else item.classList.add('bad');
+  el.querySelector('.score-val').textContent = val + '%';
+}
+
+function drawWaveform(data) {
+  var canvas = document.getElementById('waveCanvas');
+  canvas.classList.add('show');
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  var step = Math.max(1, Math.floor(data.length / w));
+  ctx.beginPath();
+  ctx.strokeStyle = '#2563EB';
+  ctx.lineWidth = 1.5;
+  var mid = h / 2;
+  for (var i = 0; i < w; i++) {
+    var val = Math.abs(data[Math.min(Math.floor(i * step), data.length - 1)]);
+    var y = mid - val * mid * 0.9;
+    if (i === 0) ctx.moveTo(i, y || mid);
+    else ctx.lineTo(i, y || mid);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 0.5;
+  ctx.moveTo(0, mid); ctx.lineTo(w, mid);
+  ctx.stroke();
+}
+
+function updateStats() {
+  var done = 0, total = 0;
+  for (var k in scores) {
+    if (scores[k].attempts > 0) { done++; total += scores[k].overall; }
+  }
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('avgScore').textContent = done > 0 ? Math.round(total / done) + '%' : '-';
+}
+
+// ============ PHONETIC ANALYZER ============
+function buildPhonetics() {
+  window._phBuilt = true;
+  var grid = document.getElementById('phGrid');
+  if (grid.children.length > 0) return;
+  words.forEach(function(w, i) {
+    var card = document.createElement('div');
+    card.className = 'ph-card';
+    card.id = 'phCard' + i;
+    card.innerHTML = '<div class="en">' + w.word + '</div><div class="ipa">' + w.ipa + '</div><div class="syl">' + w.syllables + '</div>';
+    card.onclick = function() { showPhDetail(i, card); };
+    grid.appendChild(card);
+  });
+}
+
+function showPhDetail(i, card) {
+  if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+  var w = words[i];
+  var panel = document.getElementById('phDetail');
+  panel.className = 'ph-detail show';
+  panel.innerHTML =
+    '<h3>📖 ' + w.word + ' <span style="font-size:15px;color:#64748B;">— ' + w.syllables + '</span></h3>' +
+    '<div class="ph-row"><span class="ph-label">IPA</span><span class="ph-val blue">' + w.ipa + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Syllable Count</span><span class="ph-val">' + w.syllables.split('·').length + ' syllables</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Primary Stress</span><span class="ph-val pink">' + w.stress + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Linking Feature</span><span class="ph-val">' + w.link + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Weak Form / Reduction</span><span class="ph-val">' + w.weak + '</span></div>' +
+    '<div class="ph-row"><span class="ph-label">Pronunciation Tip</span><span class="ph-val blue">' + w.tip + '</span></div>' +
+    '<button class="btn-listen" id="phListenBtn">🔊 Listen</button>';
+
+  document.querySelectorAll('.ph-card').forEach(function(c) { c.classList.remove('sel'); });
+  card.classList.add('sel');
+
+  document.getElementById('phListenBtn').addEventListener('click', function() {
+    var btn = this;
+    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    btn.classList.add('playing');
+    btn.textContent = '🔊 Playing...';
+    var utter = new SpeechSynthesisUtterance(w.word);
+    utter.lang = 'en-US';
+    utter.rate = 0.85;
+    utter.onend = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Listen'; };
+    utter.onerror = function() { btn.classList.remove('playing'); btn.textContent = '🔊 Retry'; };
+    window.speechSynthesis.speak(utter);
+  });
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ============ INIT ============
+renderWord();
+</script>
+</body>
+</html>
