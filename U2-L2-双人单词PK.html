@@ -8,16 +8,19 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
-    background: #0d1117; color: #fff; height: 100vh; overflow: hidden;
+    background: #e8ecf0; color: #333; height: 100vh; overflow: hidden;
     display: flex; flex-direction: column;
     -webkit-user-select: none; user-select: none;
   }
 
+  .hidden { display: none !important; }
+
   /* ---- TOP BAR ---- */
   .top-bar {
     display: flex; align-items: center; justify-content: center; gap: 40px;
-    padding: 8px 16px; background: #161b22; flex-shrink: 0;
-    border-bottom: 2px solid #30363d; height: 64px;
+    padding: 8px 16px; background: #fff; flex-shrink: 0;
+    border-bottom: 2px solid #dde; height: 64px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
   .p-summary {
     display: flex; align-items: center; gap: 12px; min-width: 220px;
@@ -28,23 +31,23 @@
   .p-dot {
     width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
   }
-  .p-dot.p1 { background: #58a6ff; box-shadow: 0 0 12px #58a6ff88; }
-  .p-dot.p2 { background: #f85149; box-shadow: 0 0 12px #f8514988; }
+  .p-dot.p1 { background: #3b82f6; box-shadow: 0 0 8px #3b82f688; }
+  .p-dot.p2 { background: #ef4444; box-shadow: 0 0 8px #ef444488; }
 
   .p-info { text-align: right; }
   .p2s .p-info { text-align: left; }
-  .p-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
-  .p1s .p-label { color: #58a6ff; }
-  .p2s .p-label { color: #f85149; }
-  .p-stats { font-size: 11px; color: #8b949e; }
-  .p-stats b { font-size: 15px; }
-  .p1s .p-stats b { color: #58a6ff; }
-  .p2s .p-stats b { color: #f85149; }
+  .p-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .p1s .p-label { color: #3b82f6; }
+  .p2s .p-label { color: #ef4444; }
+  .p-stats { font-size: 12px; color: #666; }
+  .p-stats b { font-size: 16px; }
+  .p1s .p-stats b { color: #3b82f6; }
+  .p2s .p-stats b { color: #ef4444; }
 
   .top-vs {
-    font-size: 13px; font-weight: 900; color: #e6b422;
-    background: #21262d; border-radius: 8px; padding: 6px 16px;
-    letter-spacing: 2px;
+    font-size: 14px; font-weight: 900; color: #f59e0b;
+    background: #fffbeb; border: 2px solid #fde68a; border-radius: 8px;
+    padding: 6px 16px; letter-spacing: 2px;
   }
 
   /* ---- MAIN AREA ---- */
@@ -54,7 +57,7 @@
 
   /* ---- DIVIDER ---- */
   .divider {
-    width: 4px; flex-shrink: 0; background: linear-gradient(180deg, #58a6ff, #e6b422, #f85149);
+    width: 4px; flex-shrink: 0; background: linear-gradient(180deg, #3b82f6, #f59e0b, #ef4444);
     position: relative; z-index: 2;
   }
 
@@ -64,39 +67,38 @@
     padding: 14px 16px; gap: 10px; min-width: 0; position: relative;
     justify-content: center;
   }
-  .p1-panel { background: linear-gradient(90deg, #0d2137 0%, #0d1520 100%); }
-  .p2-panel { background: linear-gradient(90deg, #0d1520 0%, #2d0d0d 100%); }
+  .p1-panel { background: #f0f4ff; }
+  .p2-panel { background: #fff5f5; }
 
   /* ---- TIMER PER PLAYER ---- */
-  .timer-badge {
-    text-align: center;
-  }
+  .timer-badge { text-align: center; }
   .timer-count {
     font-size: 56px; font-weight: 900; line-height: 1;
     transition: color 0.3s;
   }
-  .p1-panel .timer-count { color: #58a6ff; }
-  .p2-panel .timer-count { color: #f85149; }
-  .timer-count.warn { color: #d2991b !important; }
-  .timer-count.danger { color: #f85149 !important; animation: pulse 0.5s infinite; }
+  .p1-panel .timer-count { color: #3b82f6; }
+  .p2-panel .timer-count { color: #ef4444; }
+  .timer-count.warn { color: #f59e0b !important; }
+  .timer-count.danger { color: #ef4444 !important; animation: pulse 0.5s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-  .timer-label { font-size: 10px; color: #484f58; letter-spacing: 2px; }
+  .timer-label { font-size: 10px; color: #999; letter-spacing: 2px; }
 
   /* ---- QUESTION ---- */
   .q-card {
-    background: #161b22; border: 1px solid #30363d; border-radius: 14px;
+    background: #fff; border: 2px solid #e5e7eb; border-radius: 14px;
     padding: 14px 16px; text-align: center; width: 100%; max-width: 420px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
   }
   .q-context {
-    font-size: 11px; color: #e6b422; letter-spacing: 2px; margin-bottom: 6px;
-    text-transform: uppercase;
+    font-size: 11px; color: #f59e0b; letter-spacing: 2px; margin-bottom: 6px;
+    text-transform: uppercase; font-weight: 600;
   }
   .q-sentence {
-    font-size: 17px; color: #c9d1d9; line-height: 1.7; font-weight: 500;
+    font-size: 17px; color: #1f2937; line-height: 1.7; font-weight: 500;
   }
   .q-sentence .blank {
-    display: inline-block; background: #21262d; color: #e6b422;
-    border-radius: 5px; padding: 1px 12px; border-bottom: 2px dashed #e6b422;
+    display: inline-block; background: #fef3c7; color: #92400e;
+    border-radius: 5px; padding: 1px 12px; border-bottom: 2px dashed #f59e0b;
     font-weight: 700;
   }
 
@@ -106,19 +108,21 @@
     width: 100%; max-width: 420px;
   }
   .opt-btn {
-    background: #21262d; border: 2px solid #30363d; border-radius: 12px;
-    padding: 16px 10px; color: #c9d1d9; font-size: 16px; font-weight: 700;
+    background: #fff; border: 2px solid #d1d5db; border-radius: 12px;
+    padding: 16px 10px; color: #1f2937; font-size: 16px; font-weight: 700;
     cursor: pointer; text-align: center; transition: all 0.1s;
     -webkit-tap-highlight-color: transparent; min-height: 52px;
     display: flex; align-items: center; justify-content: center; word-break: break-all;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  .p1-panel .opt-btn { border-color: #1f6feb33; }
-  .p2-panel .opt-btn { border-color: #da363333; }
-  .opt-btn:active { transform: scale(0.95); }
-  .opt-btn.correct { background: #1a3a2a; border-color: #3fb950; color: #3fb950; animation: pop 0.3s; }
-  .opt-btn.wrong { background: #3a1a1a; border-color: #f85149; color: #f85149; animation: shake 0.4s; }
-  .opt-btn.reveal { background: #1a2a3a; border-color: #3fb950; color: #3fb950; }
-  .opt-btn.locked { pointer-events: none; opacity: 0.3; }
+  .p1-panel .opt-btn { border-color: #bfdbfe; }
+  .p2-panel .opt-btn { border-color: #fecaca; }
+  .opt-btn:hover { background: #f9fafb; }
+  .opt-btn:active { transform: scale(0.95); background: #f3f4f6; }
+  .opt-btn.correct { background: #d1fae5; border-color: #6ee7b7; color: #065f46; animation: pop 0.3s; }
+  .opt-btn.wrong { background: #fee2e2; border-color: #fca5a5; color: #991b1b; animation: shake 0.4s; }
+  .opt-btn.reveal { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+  .opt-btn.locked { pointer-events: none; opacity: 0.4; }
   .opt-btn.disabled { pointer-events: none; }
   @keyframes pop { 0%{transform:scale(1);} 50%{transform:scale(1.06);} 100%{transform:scale(1);} }
   @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(6px);} }
@@ -134,48 +138,48 @@
   /* ---- DONE STATE ---- */
   .done-overlay {
     position: absolute; inset: 0; display: flex; align-items: center;
-    justify-content: center; background: rgba(0,0,0,0.7); z-index: 10;
-    font-size: 28px; font-weight: 900; pointer-events: none;
+    justify-content: center; background: rgba(255,255,255,0.85); z-index: 10;
+    font-size: 32px; font-weight: 900; pointer-events: none;
   }
-  .p1-panel .done-overlay { color: #58a6ff; }
-  .p2-panel .done-overlay { color: #f85149; }
+  .p1-panel .done-overlay { color: #3b82f6; }
+  .p2-panel .done-overlay { color: #ef4444; }
 
   /* ---- OVERLAY ---- */
   .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
     display: flex; align-items: center; justify-content: center; z-index: 100;
   }
-  .overlay.hidden { display: none; }
 
   .dialog {
-    background: #161b22; border-radius: 24px; padding: 36px 32px; text-align: center;
-    max-width: 500px; width: 90%; border: 2px solid #30363d;
+    background: #fff; border-radius: 24px; padding: 36px 32px; text-align: center;
+    max-width: 500px; width: 90%; border: 2px solid #e5e7eb;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
   }
-  .dialog h2 { font-size: 30px; margin-bottom: 8px; }
-  .dialog .vs { color: #e6b422; font-size: 14px; margin-bottom: 24px; }
+  .dialog h2 { font-size: 30px; margin-bottom: 8px; color: #1f2937; }
+  .dialog .vs { color: #f59e0b; font-size: 14px; margin-bottom: 24px; }
 
   .btn-go {
-    background: #e6b422; color: #0d1117; border: none; border-radius: 50px;
+    background: #f59e0b; color: #fff; border: none; border-radius: 50px;
     padding: 16px 52px; font-size: 20px; font-weight: 700; cursor: pointer;
     -webkit-tap-highlight-color: transparent; transition: all 0.15s;
+    box-shadow: 0 4px 16px rgba(245,158,11,0.3);
   }
-  .btn-go:hover { background: #f0c840; }
+  .btn-go:hover { background: #fbbf24; }
   .btn-go:active { transform: scale(0.95); }
 
   .winner-emoji { font-size: 64px; margin-bottom: 10px; }
-  .winner-text { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
-  .winner-sub { font-size: 14px; color: #e6b422; margin-bottom: 24px; }
+  .winner-text { font-size: 26px; font-weight: 900; margin-bottom: 6px; color: #1f2937; }
+  .winner-sub { font-size: 14px; color: #f59e0b; margin-bottom: 24px; }
 
   .score-compare {
     display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 28px;
   }
   .sc-item { text-align: center; min-width: 100px; }
   .sc-num { font-size: 44px; font-weight: 900; line-height: 1; }
-  .sc-label { font-size: 12px; color: #8b949e; margin-top: 4px; }
-  .sc-sub { font-size: 12px; color: #6e7681; margin-top: 2px; }
-  .sc-vs { font-size: 20px; color: #484f58; font-weight: 900; }
+  .sc-label { font-size: 12px; color: #666; margin-top: 4px; }
+  .sc-sub { font-size: 12px; color: #999; margin-top: 2px; }
+  .sc-vs { font-size: 20px; color: #ccc; font-weight: 900; }
 
-  /* Smaller screens */
   @media (max-width: 800px) {
     .opt-btn { padding: 12px 6px; font-size: 13px; min-height: 40px; }
     .q-sentence { font-size: 14px; }
@@ -192,21 +196,21 @@
     <h2>🚄 双人单词PK</h2>
     <div class="vs">U2-L2 新生词 · 铁路场景 · 独立作答 · 触屏对战</div>
     <div style="display:flex;gap:32px;justify-content:center;margin-bottom:20px;text-align:center;">
-      <div style="color:#58a6ff;">
+      <div style="color:#3b82f6;">
         <div style="font-size:48px;font-weight:900;">🔵</div>
         <div style="font-size:14px;font-weight:700;">Player 1</div>
-        <div style="font-size:11px;color:#8b949e;">左侧屏幕作答</div>
+        <div style="font-size:11px;color:#999;">左侧屏幕作答</div>
       </div>
-      <div style="color:#f85149;">
+      <div style="color:#ef4444;">
         <div style="font-size:48px;font-weight:900;">🔴</div>
         <div style="font-size:14px;font-weight:700;">Player 2</div>
-        <div style="font-size:11px;color:#8b949e;">右侧屏幕作答</div>
+        <div style="font-size:11px;color:#999;">右侧屏幕作答</div>
       </div>
     </div>
-    <div style="font-size:12px;color:#8b949e;line-height:1.8;margin-bottom:24px;">
+    <div style="font-size:12px;color:#999;line-height:1.8;margin-bottom:24px;">
       两人各自独立完成 15 道题 · 每题 10 秒限时<br>
       答对 +10 分 · 答错 -5 分并锁定 2 秒<br>
-      最后比较<b style="color:#e6b422;">得分</b>和<b style="color:#e6b422;">用时</b>
+      最后比较<b style="color:#f59e0b;">得分</b>和<b style="color:#f59e0b;">用时</b>
     </div>
     <button class="btn-go" onclick="startGame()">开始对战</button>
   </div>
@@ -294,8 +298,6 @@ var QUESTIONS = [
 ];
 
 var ALL_WORDS = QUESTIONS.map(function(q) { return q.answer; });
-
-// Per-player state: { roundIdx, score, totalTime, timerLeft, timerInterval, locked, answered, optWords }
 var p1 = {}, p2 = {};
 var gameOver = false;
 
@@ -313,13 +315,9 @@ function pickOptions(answer) {
   return shuffle(shuffle(others).slice(0, 3).concat(answer));
 }
 
-// ===== START =====
 function startGame() {
   gameOver = false;
-
-  // Random question order — same for both
   var order = shuffle(QUESTIONS);
-
   p1 = { roundIdx: 0, score: 0, totalTime: 0, timerLeft: 10, timerInterval: null, locked: false, answered: false, optWords: [], order: order };
   p2 = { roundIdx: 0, score: 0, totalTime: 0, timerLeft: 10, timerInterval: null, locked: false, answered: false, optWords: [], order: shuffle(QUESTIONS) };
 
@@ -333,13 +331,11 @@ function startGame() {
   loadPlayerRound(2);
 }
 
-// ===== LOAD ROUND FOR ONE PLAYER =====
 function loadPlayerRound(player) {
   var s = player === 1 ? p1 : p2;
   var pfx = player === 1 ? "p1" : "p2";
 
   if (s.roundIdx >= 15) {
-    // Player done
     clearInterval(s.timerInterval);
     document.getElementById(pfx + "Timer").textContent = "✓";
     document.getElementById(pfx + "Context").textContent = "——";
@@ -363,7 +359,6 @@ function loadPlayerRound(player) {
 
   renderOptions(pfx + "Options", s.optWords);
 
-  // Start per-player timer
   clearInterval(s.timerInterval);
   s.timerInterval = setInterval(function() {
     s.timerLeft = Math.max(0, s.timerLeft - 0.1);
@@ -390,7 +385,6 @@ function renderOptions(gridId, words) {
   });
 }
 
-// Attach click handlers via delegation
 document.getElementById("p1Options").addEventListener("click", function(e) {
   if (e.target.classList.contains("opt-btn") && !e.target.classList.contains("locked") && !e.target.classList.contains("disabled")) {
     p1Click(e.target.getAttribute("data-word"), e.target);
@@ -405,7 +399,6 @@ document.getElementById("p2Options").addEventListener("click", function(e) {
 function p1Click(word, btn) { handleAnswer(1, word, btn); }
 function p2Click(word, btn) { handleAnswer(2, word, btn); }
 
-// ===== ANSWER =====
 function handleAnswer(player, chosen, btn) {
   if (gameOver) return;
   var s = player === 1 ? p1 : p2;
@@ -430,14 +423,12 @@ function handleAnswer(player, chosen, btn) {
       loadPlayerRound(player);
     }, 600);
   } else {
-    // Wrong
     s.score = Math.max(0, s.score - 5);
     s.locked = true;
     btn.classList.add("wrong");
     flashPlayer(player, "❌");
     updateTopBar();
 
-    // Reveal correct briefly
     var grid = document.getElementById(pfx + "Options");
     var btns = grid.querySelectorAll(".opt-btn");
     btns.forEach(function(b) {
@@ -450,7 +441,6 @@ function handleAnswer(player, chosen, btn) {
       btns.forEach(function(b) {
         b.classList.remove("locked", "wrong", "reveal");
       });
-      // Reset timer
       s.timerLeft = 10;
       document.getElementById(pfx + "Timer").textContent = "10";
       document.getElementById(pfx + "Timer").className = "timer-count";
@@ -466,7 +456,6 @@ function playerTimeUp(player) {
   s.answered = true;
   s.totalTime += 10;
 
-  // Reveal answer
   var q = s.order[s.roundIdx];
   var grid = document.getElementById(pfx + "Options");
   var btns = grid.querySelectorAll(".opt-btn");
@@ -485,7 +474,6 @@ function playerTimeUp(player) {
   }, 1200);
 }
 
-// ===== FLASH =====
 function flashPlayer(player, emoji) {
   var el = document.getElementById(player === 1 ? "p1Flash" : "p2Flash");
   el.textContent = emoji;
@@ -493,7 +481,6 @@ function flashPlayer(player, emoji) {
   setTimeout(function() { el.classList.remove("show"); }, 500);
 }
 
-// ===== TOP BAR =====
 function updateTopBar() {
   document.getElementById("p1ScoreTop").textContent = p1.score;
   document.getElementById("p1TimeTop").textContent = p1.totalTime.toFixed(1) + "s";
@@ -504,13 +491,11 @@ function updateTopBar() {
   document.getElementById("p2Progress").textContent = p2.roundIdx + "/15";
 }
 
-// ===== END =====
 function endGame() {
   gameOver = true;
   clearInterval(p1.timerInterval);
   clearInterval(p2.timerInterval);
 
-  // Determine winner: higher score wins; if tie, faster time wins
   var winnerEmoji, winnerText, sub;
   if (p1.score > p2.score) {
     winnerEmoji = "🔵"; winnerText = "Player 1 获胜！"; sub = "得分领先 " + (p1.score - p2.score) + " 分";
@@ -530,13 +515,13 @@ function endGame() {
     '<div class="winner-sub">' + sub + '</div>' +
     '<div class="score-compare">' +
       '<div class="sc-item">' +
-        '<div class="sc-num" style="color:#58a6ff">' + p1.score + '</div>' +
+        '<div class="sc-num" style="color:#3b82f6">' + p1.score + '</div>' +
         '<div class="sc-label">Player 1 得分</div>' +
         '<div class="sc-sub">用时 ' + p1.totalTime.toFixed(1) + 's</div>' +
       '</div>' +
       '<div class="sc-vs">VS</div>' +
       '<div class="sc-item">' +
-        '<div class="sc-num" style="color:#f85149">' + p2.score + '</div>' +
+        '<div class="sc-num" style="color:#ef4444">' + p2.score + '</div>' +
         '<div class="sc-label">Player 2 得分</div>' +
         '<div class="sc-sub">用时 ' + p2.totalTime.toFixed(1) + 's</div>' +
       '</div>' +
@@ -549,7 +534,6 @@ function endGame() {
 function restartGame() {
   document.getElementById("resultOverlay").classList.add("hidden");
   document.getElementById("welcomeOverlay").classList.remove("hidden");
-  // cleanup
   ["p1Options", "p2Options"].forEach(function(id) { document.getElementById(id).innerHTML = ""; });
   document.getElementById("p1Sentence").innerHTML = "";
   document.getElementById("p2Sentence").innerHTML = "";
