@@ -3,224 +3,297 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>U2-L2 双人单词PK</title>
+<title>U2-L2 双人单词PK · 课堂对战</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0d1117; color: #fff; min-height: 100vh; overflow: hidden;
-    display: flex; flex-direction: column; height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: #0d1117; color: #fff; height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column;
     -webkit-user-select: none; user-select: none;
   }
 
-  /* ---- Top bar: scores + timer ---- */
+  /* ---- TOP BAR ---- */
   .top-bar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 12px; background: #161b22; flex-shrink: 0;
-    border-bottom: 1px solid #30363d;
+    padding: 10px 24px; background: #161b22; flex-shrink: 0; height: 70px;
+    border-bottom: 2px solid #30363d;
   }
-  .player-score {
-    display: flex; align-items: center; gap: 8px; min-width: 90px;
+  .p-score-block { display: flex; align-items: center; gap: 14px; }
+  .p-avatar {
+    width: 44px; height: 44px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-size: 22px; font-weight: 900;
   }
-  .player-score.left { justify-content: flex-start; }
-  .player-score.right { justify-content: flex-end; text-align: right; }
-  .p-dot {
-    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
-  }
-  .p-dot.p1 { background: #58a6ff; box-shadow: 0 0 8px #58a6ff; }
-  .p-dot.p2 { background: #f85149; box-shadow: 0 0 8px #f85149; }
+  .p1-avatar { background: #1f6feb; color: #fff; }
+  .p2-avatar { background: #da3633; color: #fff; }
+  .p-name { font-size: 13px; font-weight: 600; }
+  .p1-name { color: #58a6ff; }
+  .p2-name { color: #f85149; }
+  .p-score-num { font-size: 42px; font-weight: 900; line-height: 1; }
+  .p1-score-num { color: #58a6ff; }
+  .p2-score-num { color: #f85149; }
 
-  .p-name { font-size: 11px; color: #8b949e; }
-  .p-pts { font-size: 24px; font-weight: 900; }
-  .p1-pts { color: #58a6ff; }
-  .p2-pts { color: #f85149; }
-
-  .timer-circle {
-    width: 52px; height: 52px; border-radius: 50%; border: 3px solid #30363d;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: 900; flex-shrink: 0;
-    transition: border-color 0.3s;
+  /* ---- TIMER ---- */
+  .timer-box {
+    text-align: center; flex-shrink: 0;
   }
-  .timer-circle.warn { border-color: #d2991b; }
-  .timer-circle.danger { border-color: #f85149; animation: pulse 0.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
-
-  .round-tag {
-    font-size: 10px; color: #8b949e; text-align: center; flex-shrink: 0;
-    line-height: 1.3;
+  .timer-num {
+    font-size: 48px; font-weight: 900; line-height: 1;
+    transition: color 0.3s;
   }
-  .round-tag b { color: #e6b422; font-size: 14px; display: block; }
+  .timer-num.warn { color: #d2991b; }
+  .timer-num.danger { color: #f85149; animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-  /* ---- Sentence area ---- */
-  .sentence-zone {
-    text-align: center; padding: 10px 14px; flex-shrink: 0;
-    background: #161b22; border-bottom: 1px solid #30363d;
+  .timer-label { font-size: 10px; color: #8b949e; letter-spacing: 2px; text-transform: uppercase; }
+
+  .round-badge {
+    background: #21262d; border: 1px solid #30363d; border-radius: 8px;
+    padding: 6px 14px; text-align: center; flex-shrink: 0;
   }
-  .sentence-tag { font-size: 10px; color: #e6b422; letter-spacing: 1px; text-transform: uppercase; }
-  .sentence-txt { font-size: 15px; color: #c9d1d9; line-height: 1.6; margin-top: 4px; }
-  .sentence-txt .blank {
-    display: inline-block; background: #21262d; color: #e6b422;
-    border-radius: 4px; padding: 1px 10px; border-bottom: 2px dashed #e6b422;
-    font-weight: 700;
+  .round-badge b { color: #e6b422; font-size: 20px; display: block; }
+  .round-badge span { font-size: 10px; color: #8b949e; }
+
+  /* ---- MAIN AREA ---- */
+  .main-area {
+    flex: 1; display: flex; min-height: 0;
   }
 
-  /* ---- Player zones ---- */
+  /* ---- PLAYER ZONES ---- */
   .player-zone {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    padding: 6px 10px; position: relative; min-height: 0;
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 20px; gap: 16px; position: relative;
+    min-width: 0;
   }
-  .player-zone.p1 { background: linear-gradient(180deg, #0d2137 0%, #0d1117 100%); }
-  .player-zone.p2 { background: linear-gradient(180deg, #0d1117 0%, #2d0d0d 100%); }
+  .p1-zone { background: linear-gradient(90deg, #0d2137 0%, #0d1520 100%); }
+  .p2-zone { background: linear-gradient(90deg, #0d1520 0%, #2d0d0d 100%); }
 
-  .options-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-    width: 100%; max-width: 360px;
+  .zone-label {
+    font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+  }
+  .p1-zone .zone-label { color: #58a6ff; }
+  .p2-zone .zone-label { color: #f85149; }
+
+  /* ---- OPTIONS ---- */
+  .options-col {
+    display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px;
   }
   .opt-btn {
-    background: #21262d; border: 2px solid #30363d; border-radius: 10px;
-    padding: 12px 6px; color: #c9d1d9; font-size: 14px; font-weight: 600;
-    cursor: pointer; text-align: center; transition: all 0.12s; word-break: break-all;
-    -webkit-tap-highlight-color: transparent; min-height: 44px;
-    display: flex; align-items: center; justify-content: center;
+    background: #21262d; border: 2px solid #30363d; border-radius: 12px;
+    padding: 16px 20px; color: #c9d1d9; font-size: 18px; font-weight: 700;
+    cursor: pointer; text-align: center; transition: all 0.1s;
+    display: flex; align-items: center; gap: 14px;
+    -webkit-tap-highlight-color: transparent; min-height: 54px;
   }
-  .p1 .opt-btn { border-color: #1f6feb44; }
-  .p2 .opt-btn { border-color: #f8514944; }
+  .p1-zone .opt-btn { border-left: 4px solid #1f6feb66; }
+  .p2-zone .opt-btn { border-right: 4px solid #da363366; }
 
-  .opt-btn:active { transform: scale(0.94); }
-  .opt-btn.correct { background: #1a3a2a; border-color: #3fb950; color: #3fb950; }
+  .opt-btn:hover { border-color: #58a6ff55; }
+  .opt-btn:active { transform: scale(0.96); }
+
+  .key-hint {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 8px; font-size: 16px; font-weight: 900;
+    flex-shrink: 0;
+  }
+  .p1-zone .key-hint { background: #1f6feb; color: #fff; }
+  .p2-zone .key-hint { background: #da3633; color: #fff; }
+
+  .opt-btn.correct { background: #1a3a2a; border-color: #3fb950; color: #3fb950; animation: pop 0.3s; }
   .opt-btn.wrong { background: #3a1a1a; border-color: #f85149; color: #f85149; animation: shake 0.4s; }
+  .opt-btn.reveal { background: #1a2a3a; border-color: #3fb950; color: #3fb950; }
   .opt-btn.locked { pointer-events: none; opacity: 0.35; }
-  .opt-btn.disabled { pointer-events: none; }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .opt-btn.disabled { pointer-events: none; opacity: 0.6; }
+  @keyframes pop { 0%{transform:scale(1);} 50%{transform:scale(1.06);} 100%{transform:scale(1);} }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-8px);} 40%{transform:translateX(8px);} 60%{transform:translateX(-6px);} 80%{transform:translateX(6px);} }
 
-  /* ---- Feedback flash ---- */
+  /* ---- CENTER PANEL ---- */
+  .center-panel {
+    width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px 16px;
+    background: #0d1117; border-left: 2px solid #30363d; border-right: 2px solid #30363d;
+    gap: 16px;
+  }
+  .context-badge {
+    background: #e6b42222; color: #e6b422; border: 1px solid #e6b42244;
+    border-radius: 20px; padding: 6px 18px; font-size: 12px;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .sentence-display {
+    text-align: center; font-size: 19px; line-height: 1.8; color: #c9d1d9; font-weight: 500;
+  }
+  .sentence-display .blank {
+    display: inline-block; background: #21262d; color: #e6b422;
+    border-radius: 6px; padding: 2px 14px; border-bottom: 3px dashed #e6b422;
+    font-weight: 700; min-width: 50px;
+  }
+  .keyboard-hint {
+    text-align: center; font-size: 11px; color: #484f58; line-height: 1.6;
+  }
+  .keyboard-hint b { color: #6e7681; }
+
+  /* ---- FLASH ---- */
   .flash {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    font-size: 40px; pointer-events: none; opacity: 0; z-index: 10;
-    transition: opacity 0.15s;
+    font-size: 72px; pointer-events: none; opacity: 0; z-index: 20;
+    transition: opacity 0.12s;
   }
   .flash.show { opacity: 1; }
 
-  /* ---- Overlay screens ---- */
+  /* ---- OVERLAY ---- */
   .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
     display: flex; align-items: center; justify-content: center; z-index: 100;
   }
   .overlay.hidden { display: none; }
 
   .dialog {
-    background: #161b22; border-radius: 20px; padding: 28px 22px; text-align: center;
-    max-width: 340px; width: 90%; border: 1px solid #30363d;
+    background: #161b22; border-radius: 24px; padding: 36px 32px; text-align: center;
+    max-width: 480px; width: 90%; border: 2px solid #30363d;
   }
-  .dialog h2 { font-size: 24px; margin-bottom: 8px; }
-  .dialog .vs { color: #e6b422; font-size: 13px; margin-bottom: 16px; }
-  .dialog .rules { font-size: 12px; color: #8b949e; line-height: 1.8; margin-bottom: 20px; }
+  .dialog h2 { font-size: 32px; margin-bottom: 8px; }
+  .dialog .vs { color: #e6b422; font-size: 15px; margin-bottom: 20px; }
+
+  .rules-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px;
+    text-align: left; font-size: 13px; color: #8b949e; margin-bottom: 28px;
+  }
+  .rules-grid .r-item { display: flex; align-items: center; gap: 8px; }
+  .rules-grid .r-key {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 28px; border-radius: 6px; font-size: 13px; font-weight: 900;
+    flex-shrink: 0;
+  }
+  .r-key.p1k { background: #1f6feb; color: #fff; }
+  .r-key.p2k { background: #da3633; color: #fff; }
+
   .btn-go {
     background: #e6b422; color: #0d1117; border: none; border-radius: 50px;
-    padding: 14px 44px; font-size: 18px; font-weight: 700; cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    padding: 16px 52px; font-size: 20px; font-weight: 700; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; transition: all 0.15s;
   }
+  .btn-go:hover { background: #f0c840; transform: scale(1.03); }
   .btn-go:active { transform: scale(0.95); }
 
-  .winner-emoji { font-size: 56px; margin-bottom: 8px; }
-  .winner-text { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
-  .winner-detail { font-size: 13px; color: #8b949e; margin-bottom: 20px; line-height: 1.8; }
+  .winner-emoji { font-size: 72px; margin-bottom: 12px; }
+  .winner-text { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+  .winner-sub { font-size: 15px; color: #e6b422; margin-bottom: 24px; }
+
   .score-compare {
-    display: flex; justify-content: center; gap: 32px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center; gap: 28px; margin-bottom: 28px;
   }
   .sc-item { text-align: center; }
-  .sc-num { font-size: 36px; font-weight: 900; }
-  .sc-label { font-size: 11px; color: #8b949e; }
-
-  /* ---- Responsive font sizes ---- */
-  @media (max-height: 700px) {
-    .opt-btn { padding: 8px 6px; font-size: 12px; min-height: 36px; }
-    .sentence-txt { font-size: 13px; }
-    .p-pts { font-size: 20px; }
-  }
+  .sc-num { font-size: 52px; font-weight: 900; line-height: 1; }
+  .sc-label { font-size: 13px; color: #8b949e; margin-top: 4px; }
+  .sc-vs { font-size: 24px; color: #484f58; font-weight: 900; }
 </style>
 </head>
 <body>
 
-<!-- ====== WELCOME OVERLAY ====== -->
+<!-- ====== WELCOME ====== -->
 <div class="overlay" id="welcomeOverlay">
   <div class="dialog">
     <h2>🚄 双人单词PK</h2>
-    <div class="vs">U2-L2 新生词 · Player 1 ⚡ Player 2</div>
-    <div class="rules">
-      同一道题，两人同时抢答<br>
-      先答对 <b style="color:#58a6ff">+15</b> 分，后答对 <b style="color:#f85149">+10</b> 分<br>
-      答错 <b style="color:#f85149">-5</b> 分并锁定 2 秒<br>
-      共 15 题 · 每题 10 秒 · 高分胜出
+    <div class="vs">U2-L2 新生词 · 铁路场景 · 课堂对战</div>
+    <div class="rules-grid">
+      <div class="r-item"><span class="r-key p1k">A</span> <span class="r-key p1k">S</span> <span class="r-key p1k">D</span> <span class="r-key p1k">F</span> Player 1</div>
+      <div class="r-item"><span class="r-key p2k">J</span> <span class="r-key p2k">K</span> <span class="r-key p2k">L</span> <span class="r-key p2k">;</span> Player 2</div>
+      <div class="r-item" style="grid-column:1/3">⚡ 先答对 +15 分 · 后答对 +10 分</div>
+      <div class="r-item" style="grid-column:1/3">❌ 答错 -5 分 · 锁定 2 秒</div>
     </div>
     <button class="btn-go" onclick="startGame()">开始对战</button>
   </div>
 </div>
 
-<!-- ====== RESULT OVERLAY ====== -->
+<!-- ====== RESULT ====== -->
 <div class="overlay hidden" id="resultOverlay">
   <div class="dialog" id="resultDialog"></div>
 </div>
 
-<!-- ====== GAME UI ====== -->
+<!-- ====== TOP BAR ====== -->
 <div class="top-bar">
-  <div class="player-score left">
-    <div class="p-dot p1"></div>
+  <div class="p-score-block">
+    <div class="p-avatar p1-avatar">1</div>
     <div>
-      <div class="p-name">Player 1</div>
-      <div class="p-pts p1-pts" id="p1Score">0</div>
+      <div class="p-name p1-name">Player 1</div>
+      <div class="p-score-num p1-score-num" id="p1Score">0</div>
     </div>
   </div>
-  <div class="round-tag">
-    第 <b id="roundNum">1</b>/15 题
+
+  <div class="timer-box">
+    <div class="timer-num" id="timerNum">10</div>
+    <div class="timer-label">seconds</div>
   </div>
-  <div class="timer-circle" id="timerCircle">10</div>
-  <div class="round-tag">
-    第 <b id="roundNum2">1</b>/15 题
+
+  <div class="round-badge">
+    <b id="roundNum">1</b>
+    <span>/ 15</span>
   </div>
-  <div class="player-score right">
-    <div>
-      <div class="p-name">Player 2</div>
-      <div class="p-pts p2-pts" id="p2Score">0</div>
+
+  <div class="timer-box">
+    <div class="timer-num" id="timerNum2" style="visibility:hidden;">10</div>
+    <div class="timer-label">&nbsp;</div>
+  </div>
+
+  <div class="p-score-block" style="flex-direction:row-reverse;text-align:right;">
+    <div class="p-avatar p2-avatar">2</div>
+    <div style="text-align:right;">
+      <div class="p-name p2-name">Player 2</div>
+      <div class="p-score-num p2-score-num" id="p2Score">0</div>
     </div>
-    <div class="p-dot p2"></div>
   </div>
 </div>
 
-<div class="sentence-zone">
-  <div class="sentence-tag" id="contextTag">铁路场景</div>
-  <div class="sentence-txt" id="sentenceTxt"></div>
-</div>
+<!-- ====== MAIN ====== -->
+<div class="main-area">
+  <!-- Player 1 (Left) -->
+  <div class="player-zone p1-zone" id="p1Zone">
+    <div class="zone-label">Player 1</div>
+    <div class="options-col" id="p1Options"></div>
+    <div class="flash" id="p1Flash"></div>
+  </div>
 
-<div class="player-zone p1" id="p1Zone">
-  <div class="options-grid" id="p1Options"></div>
-  <div class="flash" id="p1Flash"></div>
-</div>
-<div class="player-zone p2" id="p2Zone">
-  <div class="options-grid" id="p2Options"></div>
-  <div class="flash" id="p2Flash"></div>
+  <!-- Center -->
+  <div class="center-panel">
+    <div class="context-badge" id="contextBadge">车辆维修</div>
+    <div class="sentence-display" id="sentenceDisplay"></div>
+    <div class="keyboard-hint">
+      P1: <b>A S D F</b> &nbsp;|&nbsp; P2: <b>J K L ;</b>
+    </div>
+  </div>
+
+  <!-- Player 2 (Right) -->
+  <div class="player-zone p2-zone" id="p2Zone">
+    <div class="zone-label">Player 2</div>
+    <div class="options-col" id="p2Options"></div>
+    <div class="flash" id="p2Flash"></div>
+  </div>
 </div>
 
 <script>
 var QUESTIONS = [
-  { sentence: "The mechanic had to <span class='blank'>___</span> that he forgot to check the brake system.", answer: "admit", context: "车辆维修场景" },
-  { sentence: "The safety <span class='blank'>___</span> inspected the new signaling equipment at the station.", answer: "advisor", context: "安全检查场景" },
-  { sentence: "The <span class='blank'>___</span> young engineer wants to redesign the entire maintenance workflow.", answer: "ambitious", context: "技术创新场景" },
-  { sentence: "Each <span class='blank'>___</span> for the train driver position must pass a strict health examination.", answer: "candidate", context: "招聘选拔场景" },
-  { sentence: "The chief inspector made a positive <span class='blank'>___</span> about the clean engine room.", answer: "comment", context: "质量检查场景" },
-  { sentence: "Every repair procedure must be <span class='blank'>___</span>ed in the maintenance logbook.", answer: "document", context: "维修记录场景" },
-  { sentence: "Heavy snowfall can have a serious <span class='blank'>___</span> on the railway timetable.", answer: "impact", context: "极端天气场景" },
-  { sentence: "The railway company will <span class='blank'>___</span> free technical training to all new employees.", answer: "offer", context: "员工培训场景" },
-  { sentence: "A well-<span class='blank'>___</span> maintenance team can repair the electric multiple unit much faster.", answer: "organized", context: "动车维修场景" },
-  { sentence: "The <span class='blank'>___</span> of the new high-speed train has exceeded all expectations.", answer: "performance", context: "高铁性能场景" },
-  { sentence: "We need to set a <span class='blank'>___</span> timeline for the track replacement project.", answer: "realistic", context: "轨道施工场景" },
-  { sentence: "Passenger safety is the primary <span class='blank'>___</span> of every crew member on board.", answer: "responsibility", context: "客运安全场景" },
-  { sentence: "Engineers discovered a structural <span class='blank'>___</span> in the steel bridge during routine inspection.", answer: "weakness", context: "桥梁检测场景" },
-  { sentence: "The locomotive depot is a busy <span class='blank'>___</span> that operates 24 hours a day.", answer: "workplace", context: "机务段场景" },
-  { sentence: "Lack of sleep can <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> a driver's concentration and reaction speed.", answer: "have a negative impact on", context: "行车安全场景" }
+  { sentence: "The mechanic had to <span class='blank'>___</span> that he forgot to check the brake system.", answer: "admit", context: "车辆维修" },
+  { sentence: "The safety <span class='blank'>___</span> inspected the new signaling equipment at the station.", answer: "advisor", context: "安全检查" },
+  { sentence: "The <span class='blank'>___</span> young engineer wants to redesign the entire maintenance workflow.", answer: "ambitious", context: "技术创新" },
+  { sentence: "Each <span class='blank'>___</span> for the train driver position must pass a strict health examination.", answer: "candidate", context: "招聘选拔" },
+  { sentence: "The chief inspector made a positive <span class='blank'>___</span> about the clean engine room.", answer: "comment", context: "质量检查" },
+  { sentence: "Every repair procedure must be <span class='blank'>___</span>ed in the maintenance logbook.", answer: "document", context: "维修记录" },
+  { sentence: "Heavy snowfall can have a serious <span class='blank'>___</span> on the railway timetable.", answer: "impact", context: "极端天气" },
+  { sentence: "The railway company will <span class='blank'>___</span> free technical training to all new employees.", answer: "offer", context: "员工培训" },
+  { sentence: "A well-<span class='blank'>___</span> maintenance team can repair the electric multiple unit much faster.", answer: "organized", context: "动车维修" },
+  { sentence: "The <span class='blank'>___</span> of the new high-speed train has exceeded all expectations.", answer: "performance", context: "高铁性能" },
+  { sentence: "We need to set a <span class='blank'>___</span> timeline for the track replacement project.", answer: "realistic", context: "轨道施工" },
+  { sentence: "Passenger safety is the primary <span class='blank'>___</span> of every crew member on board.", answer: "responsibility", context: "客运安全" },
+  { sentence: "Engineers discovered a structural <span class='blank'>___</span> in the steel bridge during routine inspection.", answer: "weakness", context: "桥梁检测" },
+  { sentence: "The locomotive depot is a busy <span class='blank'>___</span> that operates 24 hours a day.", answer: "workplace", context: "机务段" },
+  { sentence: "Lack of sleep can <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> <span class='blank'>___</span> a driver's concentration and reaction speed.", answer: "have a negative impact on", context: "行车安全" }
 ];
 
 var ALL_WORDS = QUESTIONS.map(function(q) { return q.answer; });
+var P1_KEYS = ["a", "s", "d", "f"];
+var P2_KEYS = ["j", "k", "l", ";"];
+
 var rounds = [];
 var currentRound = 0;
 var p1Score = 0, p2Score = 0;
@@ -229,6 +302,8 @@ var p1Locked = false, p2Locked = false;
 var timeLeft = 0;
 var timerInterval = null;
 var answered = false;
+var p1OptWords = [];
+var p2OptWords = [];
 
 function shuffle(arr) {
   var a = arr.slice();
@@ -244,7 +319,7 @@ function pickOptions(answer) {
   return shuffle(shuffle(others).slice(0, 3).concat(answer));
 }
 
-// ===== START GAME =====
+// ===== START =====
 function startGame() {
   rounds = shuffle(QUESTIONS);
   currentRound = 0;
@@ -258,41 +333,35 @@ function startGame() {
 
 // ===== LOAD ROUND =====
 function loadRound() {
-  if (currentRound >= rounds.length) {
-    endGame();
-    return;
-  }
+  if (currentRound >= rounds.length) { endGame(); return; }
 
   p1Done = false; p2Done = false;
   p1Locked = false; p2Locked = false;
   answered = false;
 
   var q = rounds[currentRound];
-  var p1Opts = pickOptions(q.answer);
-  var p2Opts = pickOptions(q.answer);
+  p1OptWords = pickOptions(q.answer);
+  p2OptWords = pickOptions(q.answer);
 
   document.getElementById("roundNum").textContent = currentRound + 1;
-  document.getElementById("roundNum2").textContent = currentRound + 1;
-  document.getElementById("sentenceTxt").innerHTML = q.sentence;
-  document.getElementById("contextTag").textContent = q.context;
+  document.getElementById("sentenceDisplay").innerHTML = q.sentence;
+  document.getElementById("contextBadge").textContent = q.context;
 
-  renderOptions("p1Options", p1Opts, 1);
-  renderOptions("p2Options", p2Opts, 2);
-
-  document.getElementById("p1Zone").querySelector(".options-grid").style.opacity = "1";
-  document.getElementById("p2Zone").querySelector(".options-grid").style.opacity = "1";
+  renderOptions("p1Options", p1OptWords, P1_KEYS, "p1-zone");
+  renderOptions("p2Options", p2OptWords, P2_KEYS, "p2-zone");
 
   startTimer();
 }
 
-function renderOptions(gridId, opts, player) {
+function renderOptions(gridId, words, keys, zoneClass) {
   var grid = document.getElementById(gridId);
   grid.innerHTML = "";
-  opts.forEach(function(word) {
+  words.forEach(function(word, i) {
     var btn = document.createElement("button");
     btn.className = "opt-btn";
-    btn.textContent = word;
-    btn.onclick = function() { selectAnswer(player, word, btn); };
+    btn.innerHTML = '<span class="key-hint">' + keys[i].toUpperCase() + '</span> ' + word;
+    btn.setAttribute("data-key", keys[i]);
+    btn.setAttribute("data-word", word);
     grid.appendChild(btn);
   });
 }
@@ -305,177 +374,161 @@ function startTimer() {
   timerInterval = setInterval(function() {
     timeLeft = Math.max(0, timeLeft - 0.1);
     updateTimer();
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      if (!answered) timeUp();
-    }
+    if (timeLeft <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
   }, 100);
 }
 
 function updateTimer() {
   var sec = Math.ceil(timeLeft);
-  var circle = document.getElementById("timerCircle");
-  circle.textContent = sec;
-  circle.className = "timer-circle" + (timeLeft < 3 ? " danger" : timeLeft < 5 ? " warn" : "");
+  var el = document.getElementById("timerNum");
+  el.textContent = sec;
+  el.className = "timer-num" + (timeLeft < 3 ? " danger" : timeLeft < 5 ? " warn" : "");
 }
 
 function timeUp() {
   answered = true;
-  var q = rounds[currentRound];
-  revealAll(q.answer);
+  revealAnswer(rounds[currentRound].answer);
   flashBoth("⏰");
   setTimeout(nextRound, 1500);
 }
 
-// ===== ANSWER =====
-function selectAnswer(player, chosen, btn) {
+// ===== KEYBOARD =====
+document.addEventListener("keydown", function(e) {
   if (answered) return;
+  var key = e.key.toLowerCase();
+
+  if (P1_KEYS.indexOf(key) >= 0 && !p1Done && !p1Locked) {
+    e.preventDefault();
+    var idx = P1_KEYS.indexOf(key);
+    var word = p1OptWords[idx];
+    var btn = document.querySelector("#p1Options [data-key='" + key + "']");
+    handleAnswer(1, word, btn);
+  }
+
+  if (P2_KEYS.indexOf(key) >= 0 && !p2Done && !p2Locked) {
+    e.preventDefault();
+    var idx2 = P2_KEYS.indexOf(key);
+    var word2 = p2OptWords[idx2];
+    var btn2 = document.querySelector("#p2Options [data-key='" + key + "']");
+    handleAnswer(2, word2, btn2);
+  }
+});
+
+// ===== ANSWER =====
+function handleAnswer(player, chosen, btn) {
+  if (answered) return;
+  if (player === 1 && (p1Done || p1Locked)) return;
+  if (player === 2 && (p2Done || p2Locked)) return;
 
   var q = rounds[currentRound];
 
-  if (player === 1) {
-    if (p1Done || p1Locked) return;
-  } else {
-    if (p2Done || p2Locked) return;
-  }
-
-  var playerDoneRef = player === 1 ? "p1Done" : "p2Done";
-  var zoneId = player === 1 ? "p1Zone" : "p2Zone";
-  var flashId = player === 1 ? "p1Flash" : "p2Flash";
-
   if (chosen === q.answer) {
-    // CORRECT
-    var basePoints, speedLabel;
+    btn.classList.add("correct");
+    flashPlayer(player, "✅");
+
     if (!p1Done && !p2Done) {
       // First to answer
-      basePoints = 15;
-      speedLabel = "⚡先答";
+      var bonus = 15;
     } else {
-      basePoints = 10;
-      speedLabel = "";
+      var bonus2 = 10;
     }
 
     if (player === 1) {
       p1Done = true;
-      p1Score += basePoints;
+      p1Score += (!p2Done ? 15 : 10);
       document.getElementById("p1Score").textContent = p1Score;
     } else {
       p2Done = true;
-      p2Score += basePoints;
+      p2Score += (!p1Done ? 15 : 10);
       document.getElementById("p2Score").textContent = p2Score;
     }
 
-    btn.classList.add("correct");
-    highlightPlayerCorrect(player);
-    flashPlayer(flashId, "✅");
-
-    // Check if both done
     if (p1Done && p2Done) {
       answered = true;
       clearInterval(timerInterval);
       setTimeout(nextRound, 1200);
     }
   } else {
-    // WRONG
     btn.classList.add("wrong");
-    flashPlayer(flashId, "❌");
+    flashPlayer(player, "❌");
 
-    // Penalty
     if (player === 1) {
       p1Score = Math.max(0, p1Score - 5);
       document.getElementById("p1Score").textContent = p1Score;
       p1Locked = true;
-      lockPlayer(1);
-      setTimeout(function() { p1Locked = false; }, 2000);
+      lockButtons("p1Options");
+      setTimeout(function() { p1Locked = false; unlockButtons("p1Options"); }, 2000);
     } else {
       p2Score = Math.max(0, p2Score - 5);
       document.getElementById("p2Score").textContent = p2Score;
       p2Locked = true;
-      lockPlayer(2);
-      setTimeout(function() { p2Locked = false; }, 2000);
+      lockButtons("p2Options");
+      setTimeout(function() { p2Locked = false; unlockButtons("p2Options"); }, 2000);
     }
   }
 }
 
-function highlightPlayerCorrect(player) {
-  var grid = document.getElementById(player === 1 ? "p1Options" : "p2Options");
-  // Already handled by btn.classList.add("correct")
-}
-
-function lockPlayer(player) {
-  var grid = document.getElementById(player === 1 ? "p1Options" : "p2Options");
-  var btns = grid.querySelectorAll(".opt-btn");
+function lockButtons(gridId) {
+  var btns = document.getElementById(gridId).querySelectorAll(".opt-btn");
   btns.forEach(function(b) { b.classList.add("locked"); });
-  setTimeout(function() {
-    btns.forEach(function(b) { b.classList.remove("locked"); });
-  }, 2000);
 }
 
-function flashPlayer(flashId, emoji) {
-  var el = document.getElementById(flashId);
+function unlockButtons(gridId) {
+  var btns = document.getElementById(gridId).querySelectorAll(".opt-btn");
+  btns.forEach(function(b) { b.classList.remove("locked"); });
+}
+
+function flashPlayer(player, emoji) {
+  var el = document.getElementById(player === 1 ? "p1Flash" : "p2Flash");
   el.textContent = emoji;
   el.classList.add("show");
   setTimeout(function() { el.classList.remove("show"); }, 500);
 }
 
 function flashBoth(emoji) {
-  flashPlayer("p1Flash", emoji);
-  flashPlayer("p2Flash", emoji);
+  flashPlayer(1, emoji);
+  flashPlayer(2, emoji);
 }
 
-function revealAll(answer) {
-  [document.getElementById("p1Options"), document.getElementById("p2Options")].forEach(function(grid) {
-    var btns = grid.querySelectorAll(".opt-btn");
+function revealAnswer(answer) {
+  ["p1Options", "p2Options"].forEach(function(gid) {
+    var btns = document.getElementById(gid).querySelectorAll(".opt-btn");
     btns.forEach(function(b) {
       b.classList.add("disabled");
-      if (b.textContent === answer) b.classList.add("correct");
+      if (b.getAttribute("data-word") === answer) b.classList.add("reveal");
     });
   });
 }
 
-// ===== NEXT ROUND =====
 function nextRound() {
   currentRound++;
   loadRound();
 }
 
-// ===== END GAME =====
+// ===== END =====
 function endGame() {
   if (timerInterval) clearInterval(timerInterval);
 
-  var winnerEmoji, winnerText, detail;
+  var winnerEmoji, winnerText, sub;
   if (p1Score > p2Score) {
-    winnerEmoji = "🔵"; winnerText = "Player 1 获胜！";
-    detail = "领先 " + (p1Score - p2Score) + " 分";
+    winnerEmoji = "🔵"; winnerText = "Player 1 获胜！"; sub = "领先 " + (p1Score - p2Score) + " 分";
   } else if (p2Score > p1Score) {
-    winnerEmoji = "🔴"; winnerText = "Player 2 获胜！";
-    detail = "领先 " + (p2Score - p1Score) + " 分";
+    winnerEmoji = "🔴"; winnerText = "Player 2 获胜！"; sub = "领先 " + (p2Score - p1Score) + " 分";
   } else {
-    winnerEmoji = "🤝"; winnerText = "平局！";
-    detail = "旗鼓相当，再来一局？";
+    winnerEmoji = "🤝"; winnerText = "平局！"; sub = "旗鼓相当，再来一局";
   }
 
-  var html =
+  document.getElementById("resultDialog").innerHTML =
     '<div class="winner-emoji">' + winnerEmoji + '</div>' +
     '<div class="winner-text">' + winnerText + '</div>' +
-    '<div class="winner-detail">' + detail + '</div>' +
+    '<div class="winner-sub">' + sub + '</div>' +
     '<div class="score-compare">' +
-      '<div class="sc-item">' +
-        '<div class="sc-num" style="color:#58a6ff">' + p1Score + '</div>' +
-        '<div class="sc-label">Player 1</div>' +
-      '</div>' +
-      '<div class="sc-item">' +
-        '<div class="sc-num" style="color:#8b949e">VS</div>' +
-        '<div class="sc-label">&nbsp;</div>' +
-      '</div>' +
-      '<div class="sc-item">' +
-        '<div class="sc-num" style="color:#f85149">' + p2Score + '</div>' +
-        '<div class="sc-label">Player 2</div>' +
-      '</div>' +
+      '<div class="sc-item"><div class="sc-num" style="color:#58a6ff">' + p1Score + '</div><div class="sc-label">Player 1</div></div>' +
+      '<div class="sc-vs">VS</div>' +
+      '<div class="sc-item"><div class="sc-num" style="color:#f85149">' + p2Score + '</div><div class="sc-label">Player 2</div></div>' +
     '</div>' +
     '<button class="btn-go" onclick="restartGame()">再来一局</button>';
 
-  document.getElementById("resultDialog").innerHTML = html;
   document.getElementById("resultOverlay").classList.remove("hidden");
 }
 
@@ -483,11 +536,6 @@ function restartGame() {
   document.getElementById("resultOverlay").classList.add("hidden");
   document.getElementById("welcomeOverlay").classList.remove("hidden");
 }
-
-// Prevent double-tap zoom on buttons
-document.addEventListener('touchstart', function(e) {
-  if (e.target.tagName === 'BUTTON') e.preventDefault();
-}, { passive: false });
 </script>
 </body>
 </html>
