@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U2-L2 新生词跟读</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    color: #fff;
+    padding: 30px 0 20px;
+  }
+  .header h1 {
+    font-size: 28px;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .header .subtitle {
+    font-size: 14px;
+    opacity: 0.85;
+  }
+  .score-bar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 10px;
+    z-index: 10;
+  }
+  .score-bar .total-score {
+    font-size: 40px;
+    font-weight: 700;
+    color: #667eea;
+  }
+  .score-bar .total-label {
+    font-size: 13px;
+    color: #999;
+  }
+  .score-bar .detail {
+    text-align: right;
+    font-size: 13px;
+    color: #666;
+  }
+  .word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .word-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: all 0.2s;
+  }
+  .word-card.recording {
+    background: #fff3f3;
+    box-shadow: 0 0 0 3px #e74c3c33;
+  }
+  .word-card.scored {
+    background: #f0fff4;
+  }
+  .word-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #667eea;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .word-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .word-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333;
+  }
+  .word-ipa {
+    font-size: 13px;
+    color: #999;
+    margin-top: 1px;
+  }
+  .word-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-speak {
+    background: #e8ecff;
+    color: #667eea;
+  }
+  .btn-speak:hover { background: #d0d6ff; }
+  .btn-speak:active { background: #b8c0ff; }
+  .btn-record {
+    background: #ffe8e8;
+    color: #e74c3c;
+    min-width: 64px;
+  }
+  .btn-record:hover { background: #ffd0d0; }
+  .btn-record.recording {
+    background: #e74c3c;
+    color: #fff;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .word-score {
+    font-size: 18px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+  }
+  .word-score.high { color: #27ae60; }
+  .word-score.mid { color: #f39c12; }
+  .word-score.low { color: #e74c3c; }
+  .word-score.none { color: #ccc; }
+  .status-msg {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .status-msg.show { opacity: 1; }
+  .notice {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>U2-L2 新生词跟读</h1>
+    <div class="subtitle">15个词汇 · 点击喇叭听发音 · 点击录音跟读评分</div>
+  </div>
+
+  <div class="score-bar">
+    <div>
+      <div class="total-score" id="totalScore">-</div>
+      <div class="total-label">总分 · 平均</div>
+    </div>
+    <div class="detail">
+      <div>已读：<span id="doneCount">0</span>/15</div>
+      <div>达标(≥3★)：<span id="passCount">0</span></div>
+    </div>
+  </div>
+
+  <div class="notice">
+    点击 🔊 听标准发音 → 点击 🎤 开始录音 → 大声跟读 → 系统自动评分
+  </div>
+
+  <div class="word-list" id="wordList"></div>
+
+  <div class="status-msg" id="statusMsg"></div>
+</div>
+
+<script>
+const WORDS = [
+  { word: "admit", ipa: "/ədˈmɪt/" },
+  { word: "advisor", ipa: "/ədˈvaɪzər/" },
+  { word: "ambitious", ipa: "/æmˈbɪʃəs/" },
+  { word: "candidate", ipa: "/ˈkændɪdeit/" },
+  { word: "comment", ipa: "/ˈkɑ:ment/" },
+  { word: "document", ipa: "/ˈdɑːkjumənt/" },
+  { word: "impact", ipa: "/ˈɪmpækt/" },
+  { word: "offer", ipa: "/ˈɒfə(r)/" },
+  { word: "organized", ipa: "/ˈɔːɡənaɪzd/" },
+  { word: "performance", ipa: "/pərˈfɔːrməns/" },
+  { word: "realistic", ipa: "/ˌriəˈlɪstɪk/" },
+  { word: "responsibility", ipa: "/rɪˌspɑːnsəˈbɪləti/" },
+  { word: "weakness", ipa: "/ˈwiːknəs/" },
+  { word: "workplace", ipa: "/ˈwɜːrkpleɪs/" },
+  { word: "have a negative impact on", ipa: "—— 短语 ——" },
+];
+
+const scores = {};           // per-word rating 1-5
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let currentWordIdx = -1;
+let isRecording = false;
+
+function init() {
+  const list = document.getElementById("wordList");
+  WORDS.forEach((w, i) => {
+    const card = document.createElement("div");
+    card.className = "word-card";
+    card.id = "card-" + i;
+    card.innerHTML = `
+      <div class="word-num">${i + 1}</div>
+      <div class="word-info">
+        <div class="word-text">${w.word}</div>
+        <div class="word-ipa">${w.ipa}</div>
+      </div>
+      <div class="word-actions">
+        <button class="btn btn-speak" onclick="speakWord(${i})" title="听发音">🔊</button>
+        <button class="btn btn-record" id="recBtn-${i}" onclick="toggleRecord(${i})">🎤 录音</button>
+        <span class="word-score none" id="score-${i}">-</span>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 5;
+
+    recognition.onresult = (event) => {
+      const spoken = [];
+      for (const alt of event.results[0]) {
+        spoken.push(alt.transcript.trim().toLowerCase());
+      }
+      gradeWord(currentWordIdx, spoken);
+    };
+
+    recognition.onerror = (event) => {
+      showStatus("录音出错：" + event.error + "，请重试");
+      stopRecordingUI(currentWordIdx);
+    };
+
+    recognition.onend = () => {
+      if (isRecording) {
+        stopRecordingUI(currentWordIdx);
+      }
+    };
+  } else {
+    showStatus("⚠ 当前浏览器不支持语音识别，请使用 Chrome 浏览器");
+  }
+}
+
+function speakWord(idx) {
+  const w = WORDS[idx];
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(w.word);
+  utter.lang = "en-US";
+  utter.rate = 0.85;
+  // Pick a good English voice
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang === "en-US" && v.name.includes("Google"))
+    || voices.find(v => v.lang === "en-US")
+    || voices[0];
+  if (enVoice) utter.voice = enVoice;
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleRecord(idx) {
+  if (isRecording) {
+    if (currentWordIdx === idx) {
+      recognition.stop();
+    }
+  } else {
+    startRecording(idx);
+  }
+}
+
+function startRecording(idx) {
+  if (!recognition) {
+    showStatus("⚠ 当前浏览器不支持语音识别，请使用 Chrome");
+    return;
+  }
+  currentWordIdx = idx;
+  isRecording = true;
+  const btn = document.getElementById("recBtn-" + idx);
+  btn.textContent = "⏺ 录音中...";
+  btn.classList.add("recording");
+  const card = document.getElementById("card-" + idx);
+  card.classList.add("recording");
+  try {
+    recognition.start();
+    showStatus("正在录音，请大声跟读...");
+  } catch (e) {
+    stopRecordingUI(idx);
+  }
+}
+
+function stopRecordingUI(idx) {
+  isRecording = false;
+  currentWordIdx = -1;
+  const btn = document.getElementById("recBtn-" + idx);
+  btn.textContent = "🎤 录音";
+  btn.classList.remove("recording");
+  const card = document.getElementById("card-" + idx);
+  card.classList.remove("recording");
+}
+
+function gradeWord(idx, spokenWords) {
+  const target = WORDS[idx].word.toLowerCase();
+  let bestScore = 0;
+
+  for (const spoken of spokenWords) {
+    const s = similarity(target, spoken);
+    if (s > bestScore) bestScore = s;
+  }
+
+  // Convert similarity (0-1) to star rating (1-5)
+  let stars;
+  if (bestScore >= 0.95) stars = 5;
+  else if (bestScore >= 0.80) stars = 4;
+  else if (bestScore >= 0.55) stars = 3;
+  else if (bestScore >= 0.30) stars = 2;
+  else stars = 1;
+
+  scores[idx] = stars;
+
+  // Update UI
+  const scoreEl = document.getElementById("score-" + idx);
+  scoreEl.textContent = "★".repeat(stars);
+  scoreEl.className = "word-score " + (stars >= 4 ? "high" : stars >= 3 ? "mid" : "low");
+
+  const card = document.getElementById("card-" + idx);
+  card.classList.add("scored");
+
+  // Show feedback
+  const bestSpoken = spokenWords[0] || "";
+  showStatus(stars >= 4
+    ? "👍 很好！" + target
+    : stars >= 3
+    ? "👌 还行，" + (bestSpoken || "再试试")
+    : "🔁 再练练，" + (bestSpoken ? "听到：" + bestSpoken : "请大声跟读"));
+
+  updateTotalScore();
+}
+
+// Simple Levenshtein-based similarity
+function similarity(a, b) {
+  a = a.replace(/[.,!?]/g, "").trim();
+  b = b.replace(/[.,!?]/g, "").trim();
+  if (a === b) return 1;
+  if (!a || !b) return 0;
+
+  // For multi-word phrases, compare word-by-word
+  const aWords = a.split(/\s+/);
+  const bWords = b.split(/\s+/);
+
+  if (aWords.length > 1 || bWords.length > 1) {
+    let totalSim = 0;
+    const maxLen = Math.max(aWords.length, bWords.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < aWords.length && i < bWords.length) {
+        totalSim += wordSim(aWords[i], bWords[i]);
+      }
+    }
+    return totalSim / maxLen;
+  }
+
+  return wordSim(a, b);
+}
+
+function wordSim(a, b) {
+  if (a === b) return 1;
+  const m = Math.max(a.length, b.length);
+  if (m === 0) return 1;
+  let d = 0;
+  for (let i = 0; i < m; i++) {
+    if (a[i] !== b[i]) d++;
+  }
+  // Adjust for length difference
+  const lenDiff = Math.abs(a.length - b.length);
+  d += lenDiff;
+  return Math.max(0, 1 - d / (m + lenDiff));
+}
+
+function updateTotalScore() {
+  const done = Object.keys(scores).length;
+  const total = WORDS.length;
+  let sum = 0;
+  let passCount = 0;
+  for (const [idx, stars] of Object.entries(scores)) {
+    sum += stars;
+    if (stars >= 3) passCount++;
+  }
+  const avg = done > 0 ? (sum / done).toFixed(1) : "-";
+
+  document.getElementById("totalScore").textContent = avg === "-" ? "-" : avg;
+  document.getElementById("doneCount").textContent = done;
+  document.getElementById("passCount").textContent = passCount;
+}
+
+function showStatus(msg) {
+  const el = document.getElementById("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+// Preload voices
+window.speechSynthesis.getVoices();
+window.speechSynthesis.onvoiceschanged = () => {};
+
+init();
+</script>
+</body>
+</html>
