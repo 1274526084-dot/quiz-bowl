@@ -15,6 +15,7 @@
   .header { text-align: center; color: #fff; padding: 24px 0 12px; }
   .header h1 { font-size: 24px; margin-bottom: 4px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
   .header .subtitle { font-size: 13px; opacity: 0.85; }
+
   .score-bar {
     background: #fff; border-radius: 16px; padding: 14px 18px; margin-bottom: 12px;
     display: flex; align-items: center; justify-content: space-between;
@@ -23,10 +24,12 @@
   .score-bar .total-score { font-size: 36px; font-weight: 700; color: #667eea; }
   .score-bar .total-label { font-size: 12px; color: #999; }
   .score-bar .detail { text-align: right; font-size: 12px; color: #666; }
+
   .notice {
     background: #fff; border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
     font-size: 12px; color: #999; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
   }
+
   .word-list { display: flex; flex-direction: column; gap: 8px; }
   .word-card {
     background: #fff; border-radius: 12px; padding: 12px 14px;
@@ -35,7 +38,8 @@
   }
   .word-card.recording { background: #fff3f3; box-shadow: 0 0 0 3px #e74c3c44; }
   .word-card.scored { background: #f0fff4; }
-  .word-card.recognizing { background: #fffbe6; box-shadow: 0 0 0 3px #f39c1244; }
+  .word-card.listening { background: #fffbe6; box-shadow: 0 0 0 3px #f39c1244; }
+
   .word-num {
     width: 26px; height: 26px; border-radius: 50%; background: #667eea; color: #fff;
     display: flex; align-items: center; justify-content: center;
@@ -44,6 +48,7 @@
   .word-info { flex: 1; min-width: 0; }
   .word-text { font-size: 16px; font-weight: 600; color: #333; word-break: break-all; }
   .word-ipa { font-size: 12px; color: #999; margin-top: 1px; }
+
   .word-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
   .btn {
     border: none; border-radius: 8px; padding: 7px 12px; font-size: 12px;
@@ -54,30 +59,24 @@
   .btn-speak:active { background: #b8c0ff; transform: scale(0.96); }
   .btn-record { background: #ffe8e8; color: #e74c3c; min-width: 56px; text-align: center; }
   .btn-record.recording { background: #e74c3c; color: #fff; animation: pulse 1s infinite; }
-  .btn-record.recognizing { background: #f39c12; color: #fff; }
+  .btn-record.listening { background: #f39c12; color: #fff; }
+  .btn-record.disabled { background: #eee; color: #bbb; cursor: not-allowed; pointer-events: none; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.7;} }
+
   .word-result { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .word-score { font-size: 16px; font-weight: 700; min-width: 32px; text-align: center; }
-  .word-score.high { color: #27ae60; } .word-score.mid { color: #f39c12; } .word-score.low { color: #e74c3c; } .word-score.none { color: #ccc; }
+  .word-score.high { color: #27ae60; }
+  .word-score.mid { color: #f39c12; }
+  .word-score.low { color: #e74c3c; }
+  .word-score.none { color: #ccc; }
   .heard-text { font-size: 11px; color: #aaa; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .settings-bar {
-    background: #fff; border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
-    font-size: 12px; color: #666; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  }
-  .settings-bar input {
-    flex: 1; min-width: 100px; border: 1px solid #ddd; border-radius: 6px;
-    padding: 6px 10px; font-size: 12px;
-  }
-  .settings-bar button {
-    border: none; border-radius: 6px; padding: 6px 14px; font-size: 12px;
-    background: #667eea; color: #fff; cursor: pointer;
-  }
-  .error-tip {
+
+  .browser-warn {
     display: none; background: #fff3cd; color: #856404; border-radius: 10px;
     padding: 10px 14px; margin-bottom: 10px; font-size: 12px; text-align: center;
   }
-  .error-tip.show { display: block; }
+  .browser-warn.show { display: block; }
+
   .status-msg {
     position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
     background: rgba(0,0,0,0.85); color: #fff; padding: 10px 20px; border-radius: 20px;
@@ -90,16 +89,10 @@
 <div class="container">
   <div class="header">
     <h1>U2-L2 新生词跟读</h1>
-    <div class="subtitle">15个词汇 · 听发音 · 录音跟读 · 腾讯云AI评分</div>
+    <div class="subtitle">15个词汇 · 听发音 · 录音跟读 · AI系统评分</div>
   </div>
 
-  <div class="settings-bar" id="settingsBar">
-    <input type="password" id="secretId" placeholder="SecretId">
-    <input type="password" id="secretKey" placeholder="SecretKey">
-    <button onclick="saveKeys()">保存</button>
-  </div>
-
-  <div class="error-tip" id="errorTip"></div>
+  <div class="browser-warn" id="browserWarn"></div>
 
   <div class="score-bar">
     <div>
@@ -113,8 +106,7 @@
   </div>
 
   <div class="notice">
-    点击 🔊 听标准发音 → 点击 🎤 开始录音 → 大声跟读 → AI自动评分
-    <br><small>腾讯云语音识别 · Chrome / Safari 通用</small>
+    点击 🔊 听标准发音 → 点击 🎤 开始录音 → 大声跟读 → 5秒自动评分
   </div>
 
   <div class="word-list" id="wordList"></div>
@@ -142,50 +134,50 @@ const WORDS = [
 
 const scores = {};
 let currentIdx = -1;
-let mediaRecorder = null;
-let audioChunks = [];
-let secretId = "";
-let secretKey = "";
+let recognition = null;
+let autoStopTimer = null;
 
-// ---- Load saved keys ----
-try {
-  secretId = localStorage.getItem("tencent_secretId") || "";
-  secretKey = localStorage.getItem("tencent_secretKey") || "";
-  if (secretId && secretKey) {
-    document.getElementById("settingsBar").style.display = "none";
+// Detect browser
+const ua = navigator.userAgent;
+const isSafari = /Safari/i.test(ua) && !/Chrome|CriOS|Edge/i.test(ua);
+const isIOS = /iPad|iPhone|iPod/i.test(ua);
+const isChrome = /Chrome|CriOS/i.test(ua);
+
+const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+const hasAPI = !!SpeechRecognitionCtor;
+
+// Show browser guidance
+(function checkBrowser() {
+  var warn = document.getElementById("browserWarn");
+  if (!hasAPI) {
+    warn.textContent = "当前浏览器不支持语音识别，请使用 Chrome、Edge 或 Safari 浏览器打开。";
+    warn.classList.add("show");
+  } else if (isSafari) {
+    // Safari has the API but it can be flaky — give a tip
+    warn.textContent = "Safari 用户：如识别失败请多试一两次，或使用 Chrome 体验更佳。";
+    warn.classList.add("show");
   }
-} catch(e) {}
-
-function saveKeys() {
-  secretId = document.getElementById("secretId").value.trim();
-  secretKey = document.getElementById("secretKey").value.trim();
-  if (!secretId || !secretKey) { showStatus("请填写 SecretId 和 SecretKey"); return; }
-  try {
-    localStorage.setItem("tencent_secretId", secretId);
-    localStorage.setItem("tencent_secretKey", secretKey);
-  } catch(e) {}
-  document.getElementById("settingsBar").style.display = "none";
-  document.getElementById("errorTip").classList.remove("show");
-  showStatus("密钥已保存！开始跟读吧");
-}
+})();
 
 // ---- TTS ----
 function speakWord(idx) {
-  const w = WORDS[idx];
+  var w = WORDS[idx];
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(w.word);
+  var utter = new SpeechSynthesisUtterance(w.word);
   utter.lang = "en-US";
   utter.rate = 0.82;
-  let voices = window.speechSynthesis.getVoices();
-  const doSpeak = function() {
+
+  var voices = window.speechSynthesis.getVoices();
+  function doSpeak() {
     voices = window.speechSynthesis.getVoices();
-    let voice = voices.find(function(v) { return v.lang === "en-US" && v.name.includes("Google"); });
-    if (!voice) voice = voices.find(function(v) { return v.lang === "en-US" && v.name.includes("Samantha"); });
+    var voice = voices.find(function(v) { return v.lang === "en-US" && v.name.indexOf("Google") >= 0; });
+    if (!voice) voice = voices.find(function(v) { return v.lang === "en-US" && v.name.indexOf("Samantha") >= 0; });
     if (!voice) voice = voices.find(function(v) { return v.lang === "en-US"; });
-    if (!voice) voice = voices.find(function(v) { return v.lang.startsWith("en"); });
+    if (!voice) voice = voices.find(function(v) { return v.lang.indexOf("en") === 0; });
     if (voice) utter.voice = voice;
     window.speechSynthesis.speak(utter);
-  };
+  }
+
   if (voices.length === 0) {
     window.speechSynthesis.onvoiceschanged = doSpeak;
   } else {
@@ -193,331 +185,230 @@ function speakWord(idx) {
   }
 }
 
-// ---- Recording ----
-async function startRecording(idx) {
-  if (!secretId || !secretKey) {
-    document.getElementById("settingsBar").style.display = "flex";
-    showStatus("请先填写腾讯云 API 密钥");
+// ---- Speech Recognition ----
+function startRecording(idx) {
+  if (!hasAPI) {
+    showStatus("浏览器不支持语音识别，请用 Chrome 打开");
     return;
   }
 
-  if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-    return;
-  }
+  // Clean up any existing recognition
+  stopRecognition();
 
   currentIdx = idx;
-  const btn = document.getElementById("recBtn-" + idx);
-  const card = document.getElementById("card-" + idx);
-  document.getElementById("errorTip").classList.remove("show");
+  var btn = document.getElementById("recBtn-" + idx);
+  var card = document.getElementById("card-" + idx);
+  var warn = document.getElementById("browserWarn");
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
-    });
+  btn.textContent = "⏺";
+  btn.className = "btn btn-record recording";
+  card.className = "word-card recording";
 
-    // Use AudioContext to capture raw PCM → avoids format issues
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-    const source = audioCtx.createMediaStreamSource(stream);
-    const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-    const pcmChunks = [];
+  // Create fresh instance — essential for Safari
+  recognition = new SpeechRecognitionCtor();
 
-    source.connect(processor);
-    processor.connect(audioCtx.destination);
+  // Safari uses underscore, Chrome uses hyphen
+  recognition.lang = isSafari ? "en_US" : "en-US";
+  recognition.interimResults = true;
+  recognition.continuous = false;
 
-    processor.onaudioprocess = function(e) {
-      if (mediaRecorder && mediaRecorder.state === "recording") {
-        pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+  // Safari: skip maxAlternatives to reduce issues
+  if (!isSafari) {
+    recognition.maxAlternatives = 5;
+  }
+
+  var hasResult = false;
+
+  recognition.onresult = function(event) {
+    // Collect final + interim results
+    var allSpoken = [];
+    for (var r = 0; r < event.results.length; r++) {
+      var result = event.results[r];
+      for (var a = 0; a < result.length; a++) {
+        var t = result[a].transcript.trim();
+        if (t) allSpoken.push(t.toLowerCase());
       }
-    };
+    }
 
-    audioChunks = [];
-    mediaRecorder = new MediaRecorder(stream, {
-      mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm"
-    });
+    // On final result or if we have something good, score it
+    var isFinal = event.results[0] && event.results[0].isFinal;
+    var lastResult = event.results[event.results.length - 1];
+    var isLastFinal = lastResult && lastResult.isFinal;
 
-    mediaRecorder.ondataavailable = function(e) {
-      if (e.data.size > 0) audioChunks.push(e.data);
-    };
+    if (isLastFinal || allSpoken.length >= 3) {
+      hasResult = true;
+      if (allSpoken.length > 0) {
+        gradeWord(currentIdx, allSpoken.slice(0, isSafari ? allSpoken.length : 5));
+      }
+      stopRecognition();
+      currentIdx = -1;
+      resetBtn(idx);
+    }
+  };
 
-    mediaRecorder.onstop = async function() {
-      stream.getTracks().forEach(function(t) { t.stop(); });
-      source.disconnect();
-      processor.disconnect();
-      audioCtx.close();
+  recognition.onerror = function(event) {
+    var err = event.error;
+    if (err === "no-speech") {
+      showStatus("未检测到语音，请声音大一点再试");
+    } else if (err === "aborted") {
+      // Normal stop
+    } else if (err === "audio-capture") {
+      showStatus("无法访问麦克风，请检查权限设置");
+    } else if (err === "network") {
+      showStatus("语音识别需要联网，请检查网络");
+    } else if (err === "not-allowed") {
+      showStatus("麦克风权限被拒绝，请在浏览器设置中允许");
+    } else if (err === "bad-grammar" || err === "language-not-supported") {
+      showStatus("浏览器不支持英语语音识别，请用 Chrome");
+    } else {
+      showStatus("识别失败: " + err + "，请重试");
+    }
+    if (!hasResult) {
+      stopRecognition();
+      resetBtn(idx);
+    }
+  };
 
-      btn.textContent = "⏳";
-      btn.className = "btn btn-record recognizing";
-      card.className = "word-card recognizing";
-      showStatus("正在识别中...");
+  recognition.onend = function() {
+    if (!hasResult && currentIdx === idx) {
+      // Safari sometimes fires onend without onresult — give it benefit
+      showStatus("未识别到语音，请声音大一点再试");
+    }
+    resetBtn(idx);
+    if (currentIdx === idx) currentIdx = -1;
+  };
 
-      // Convert PCM to 16kHz 16-bit mono WAV
-      const wav = float32ToWav(pcmChunks, 16000);
-      await recognizeAndScore(idx, wav);
-    };
-
-    // Start both — MediaRecorder for timing, ScriptProcessor for PCM
-    pcmChunks.length = 0;
-    mediaRecorder.start();
-    btn.textContent = "⏺ 停止";
+  recognition.onaudiostart = function() {
+    showStatus("正在听... 请跟读");
+    btn.textContent = "⏺ 聆听";
     btn.className = "btn btn-record recording";
     card.className = "word-card recording";
-    showStatus("正在录音，大声跟读后点击停止");
+  };
 
-    // Auto-stop after 5s
-    setTimeout(function() {
-      if (mediaRecorder && mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
+  recognition.onaudioend = function() {
+    btn.textContent = "⏳";
+    btn.className = "btn btn-record listening";
+    card.className = "word-card listening";
+  };
+
+  try {
+    recognition.start();
+    // Auto-stop after 5s to prevent hanging
+    autoStopTimer = setTimeout(function() {
+      if (recognition && currentIdx === idx) {
+        try { recognition.stop(); } catch(e) {}
       }
     }, 5000);
-
   } catch(e) {
-    document.getElementById("errorTip").classList.add("show");
-    document.getElementById("errorTip").textContent = "无法访问麦克风 —— 请在浏览器设置中允许麦克风权限，然后刷新页面重试。";
+    showStatus("启动失败，请刷新重试");
+    stopRecognition();
     resetBtn(idx);
   }
 }
 
-// Float32 PCM → 16-bit mono WAV
-function float32ToWav(chunks, sampleRate) {
-  // Concatenate all chunks
-  let totalLen = 0;
-  for (let i = 0; i < chunks.length; i++) totalLen += chunks[i].length;
-  const pcm = new Float32Array(totalLen);
-  let offset = 0;
-  for (let i = 0; i < chunks.length; i++) {
-    pcm.set(chunks[i], offset);
-    offset += chunks[i].length;
+function stopRecognition() {
+  if (autoStopTimer) { clearTimeout(autoStopTimer); autoStopTimer = null; }
+  if (recognition) {
+    try { recognition.abort(); } catch(e) {}
+    recognition = null;
   }
-
-  // Convert to 16-bit PCM
-  const numChannels = 1;
-  const bitsPerSample = 16;
-  const byteRate = sampleRate * numChannels * bitsPerSample / 8;
-  const blockAlign = numChannels * bitsPerSample / 8;
-  const dataSize = pcm.length * blockAlign;
-  const buf = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(buf);
-
-  // WAV header
-  writeString(view, 0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeString(view, 8, "WAVE");
-  writeString(view, 12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);        // PCM
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, byteRate, true);
-  view.setUint16(32, blockAlign, true);
-  view.setUint16(34, bitsPerSample, true);
-  writeString(view, 36, "data");
-  view.setUint32(40, dataSize, true);
-
-  // PCM data
-  for (let i = 0; i < pcm.length; i++) {
-    const s = Math.max(-1, Math.min(1, pcm[i]));
-    view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-  }
-
-  return new Uint8Array(buf);
-}
-
-function writeString(view, offset, str) {
-  for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
 }
 
 function resetBtn(idx) {
-  const btn = document.getElementById("recBtn-" + idx);
-  if (btn) { btn.textContent = "🎤"; btn.className = "btn btn-record"; }
-  const card = document.getElementById("card-" + idx);
-  if (card) card.className = "word-card";
+  var btn = document.getElementById("recBtn-" + idx);
+  if (btn) { btn.textContent = "🎤"; btn.className = "btn btn-record" + (!hasAPI ? " disabled" : ""); }
+  var card = document.getElementById("card-" + idx);
+  if (card) card.className = "word-card" + (scores[idx] ? " scored" : "");
 }
 
-// ---- Call Tencent Cloud ASR ----
-async function recognizeAndScore(idx, wavBytes) {
-  const target = WORDS[idx].word.toLowerCase();
-  const base64 = arrayBufferToBase64(wavBytes.buffer);
-  const resultText = await callASR(base64, wavBytes.length);
+// ---- Scoring ----
+function gradeWord(idx, spokenWords) {
+  var target = WORDS[idx].word.toLowerCase();
+  var bestScore = 0, bestMatch = "";
 
-  resetBtn(idx);
-
-  if (resultText === null) {
-    showStatus("识别失败，请重试");
-    return;
+  for (var i = 0; i < spokenWords.length; i++) {
+    var s = calcSim(target, spokenWords[i]);
+    if (s > bestScore) { bestScore = s; bestMatch = spokenWords[i]; }
   }
 
-  const spoken = resultText.replace(/[.,!?]/g, "").trim().toLowerCase();
-
-  const sim = calcSim(target, spoken);
-
-  let stars;
-  if (sim >= 0.95) stars = 5;
-  else if (sim >= 0.78) stars = 4;
-  else if (sim >= 0.52) stars = 3;
-  else if (sim >= 0.28) stars = 2;
+  var stars;
+  if (bestScore >= 0.95) stars = 5;
+  else if (bestScore >= 0.78) stars = 4;
+  else if (bestScore >= 0.52) stars = 3;
+  else if (bestScore >= 0.28) stars = 2;
   else stars = 1;
 
   scores[idx] = stars;
 
-  const resultEl = document.getElementById("result-" + idx);
-  const cls = stars >= 4 ? "high" : stars >= 3 ? "mid" : "low";
+  var resultEl = document.getElementById("result-" + idx);
+  var cls = stars >= 4 ? "high" : stars >= 3 ? "mid" : "low";
   resultEl.innerHTML =
-    '<span class="word-score ' + cls + '">' + "★".repeat(stars) + '</span>' +
-    '<span class="heard-text">' + escapeHtml(spoken || "?") + '</span>';
+    '<span class="word-score ' + cls + '">' + Array(stars + 1).join("★") + '</span>' +
+    '<span class="heard-text">' + escapeHtml(bestMatch || "?") + '</span>';
 
   document.getElementById("card-" + idx).classList.add("scored");
   updateTotalScore();
 
-  const fb = stars >= 4 ? "👍 很好!" : stars >= 3 ? "👌 还行" : "🔁 再练练";
-  showStatus(fb + "  AI听到: >" + escapeHtml(spoken || "—") + "< 原词: " + target);
+  var fb = stars >= 4 ? "👍 很好!" : stars >= 3 ? "👌 还行" : "🔁 再练练";
+  showStatus(fb + "  识别: " + escapeHtml(bestMatch || "—"));
 }
 
-function escapeHtml(s) {
-  const d = document.createElement("div");
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-// ---- Tencent Cloud SentenceRecognition API ----
-async function callASR(base64, dataLen) {
-  try {
-    const payload = JSON.stringify({
-      EngSerViceType: "16k_en",
-      SourceType: 1,
-      VoiceFormat: "wav",
-      Data: base64,
-      DataLen: dataLen,
-    });
-
-    const timestamp = Math.floor(Date.now() / 1000);
-    const date = new Date(timestamp * 1000).toISOString().slice(0, 10).replace(/-/g, "");
-    const service = "asr";
-    const action = "SentenceRecognition";
-    const version = "2019-06-14";
-    const host = "asr.tencentcloudapi.com";
-
-    const signedHeaders = "content-type;host";
-    const canonicalRequest = "POST\n/\n\ncontent-type:application/json; charset=utf-8\nhost:" + host + "\n\n" + signedHeaders + "\n" + await sha256hex(payload);
-    const algorithm = "TC3-HMAC-SHA256";
-    const credentialScope = date + "/" + service + "/tc3_request";
-    const stringToSign = algorithm + "\n" + timestamp + "\n" + credentialScope + "\n" + await sha256hex(canonicalRequest);
-
-    const kDate = await hmacSha256("TC3" + secretKey, date);
-    const kService = await hmacSha256(kDate, service);
-    const kSigning = await hmacSha256(kService, "tc3_request");
-    const signature = await hmacSha256Hex(kSigning, stringToSign);
-
-    const authorization = algorithm + " Credential=" + secretId + "/" + credentialScope + ", SignedHeaders=" + signedHeaders + ", Signature=" + signature;
-
-    const resp = await fetch("https://" + host, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": authorization,
-        "X-TC-Action": action,
-        "X-TC-Version": version,
-        "X-TC-Timestamp": String(timestamp),
-      },
-      body: payload,
-    });
-
-    const json = await resp.json();
-    if (json.Response.Error) {
-      const code = json.Response.Error.Code;
-      if (code === "AuthFailure.SignatureFailure" || code === "AuthFailure.SecretIdNotFound") {
-        document.getElementById("errorTip").classList.add("show");
-        document.getElementById("errorTip").textContent = "密钥验证失败，请检查 SecretId / SecretKey 是否正确，并确认已开通语音识别服务。";
-        document.getElementById("settingsBar").style.display = "flex";
-        try { localStorage.removeItem("tencent_secretId"); localStorage.removeItem("tencent_secretKey"); } catch(e) {}
-        secretId = ""; secretKey = "";
-      } else if (code === "FailedOperation.ErrorRecognize") {
-        showStatus("未识别到语音，请声音大一点");
-      } else if (code === "FailedOperation.UserNotRegistered") {
-        document.getElementById("errorTip").classList.add("show");
-        document.getElementById("errorTip").textContent = "未开通语音识别服务 —— 请在腾讯云控制台开通「语音识别 ASR」服务。";
-      } else {
-        showStatus("API错误: " + json.Response.Error.Message);
-      }
-      return null;
-    }
-    return json.Response.Result || "";
-  } catch(e) {
-    showStatus("网络错误，请检查网络后重试");
-    return null;
-  }
-}
-
-// ---- Crypto (Web Crypto API) ----
-function arrayBufferToBase64(buf) {
-  let binary = "";
-  const bytes = new Uint8Array(buf);
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
-}
-
-async function sha256hex(str) {
-  const data = new TextEncoder().encode(str);
-  const buf = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
-}
-
-async function hmacSha256(key, data) {
-  const k = typeof key === "string" ? new TextEncoder().encode(key) : key;
-  const d = typeof data === "string" ? new TextEncoder().encode(data) : data;
-  const algo = { name: "HMAC", hash: "SHA-256" };
-  const cryptoKey = await crypto.subtle.importKey("raw", k, algo, false, ["sign"]);
-  return new Uint8Array(await crypto.subtle.sign(algo, cryptoKey, d));
-}
-
-async function hmacSha256Hex(key, data) {
-  const sig = await hmacSha256(key, data);
-  return Array.from(sig).map(function(b) { return b.toString(16).padStart(2, "0"); }).join("");
-}
-
-// ---- Similarity ----
 function calcSim(a, b) {
-  a = a.replace(/[.,!?]/g, "").trim(); b = b.replace(/[.,!?]/g, "").trim();
-  if (a === b) return 1; if (!a || !b) return 0;
-  const aW = a.split(/\s+/), bW = b.split(/\s+/);
+  a = a.replace(/[.,!?]/g, "").trim();
+  b = b.replace(/[.,!?]/g, "").trim();
+  if (a === b) return 1;
+  if (!a || !b) return 0;
+  var aW = a.split(/\s+/), bW = b.split(/\s+/);
   if (aW.length > 1 || bW.length > 1) {
-    let s = 0; const max = Math.max(aW.length, bW.length);
-    for (let i = 0; i < max; i++) { if (i < aW.length && i < bW.length) s += wSim(aW[i], bW[i]); }
+    var s = 0, max = Math.max(aW.length, bW.length);
+    for (var i = 0; i < max; i++) {
+      if (i < aW.length && i < bW.length) s += wSim(aW[i], bW[i]);
+    }
     return Math.min(1, s / max);
   }
   return wSim(a, b);
 }
+
 function wSim(a, b) {
   if (a === b) return 1;
-  const m = Math.max(a.length, b.length); if (m === 0) return 1;
-  let d = 0;
-  for (let i = 0; i < Math.min(a.length, b.length); i++) { if (a[i] !== b[i]) d++; }
+  var m = Math.max(a.length, b.length);
+  if (m === 0) return 1;
+  var d = 0;
+  for (var i = 0; i < Math.min(a.length, b.length); i++) { if (a[i] !== b[i]) d++; }
   d += Math.abs(a.length - b.length);
   return Math.max(0, 1 - d / m);
 }
 
 function updateTotalScore() {
-  const keys = Object.keys(scores);
-  let sum = 0, pass = 0;
-  for (const stars of Object.values(scores)) { sum += stars; if (stars >= 3) pass++; }
+  var keys = Object.keys(scores);
+  var sum = 0, pass = 0;
+  for (var k in scores) { sum += scores[k]; if (scores[k] >= 3) pass++; }
   document.getElementById("totalScore").textContent = keys.length > 0 ? (sum / keys.length).toFixed(1) : "-";
   document.getElementById("doneCount").textContent = keys.length;
   document.getElementById("passCount").textContent = pass;
 }
 
 function showStatus(msg) {
-  const el = document.getElementById("statusMsg");
-  el.textContent = msg; el.classList.add("show");
+  var el = document.getElementById("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
   clearTimeout(el._timeout);
   el._timeout = setTimeout(function() { el.classList.remove("show"); }, 3000);
 }
 
+function escapeHtml(s) {
+  var d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
 // ---- Build UI ----
 (function init() {
-  const list = document.getElementById("wordList");
+  var list = document.getElementById("wordList");
   WORDS.forEach(function(w, i) {
-    const card = document.createElement("div");
-    card.className = "word-card"; card.id = "card-" + i;
+    var card = document.createElement("div");
+    card.className = "word-card";
+    card.id = "card-" + i;
     card.innerHTML =
       '<div class="word-num">' + (i + 1) + '</div>' +
       '<div class="word-info">' +
@@ -526,7 +417,7 @@ function showStatus(msg) {
       '</div>' +
       '<div class="word-actions">' +
         '<button class="btn btn-speak" onclick="speakWord(' + i + ')">🔊</button>' +
-        '<button class="btn btn-record" id="recBtn-' + i + '" onclick="startRecording(' + i + ')">🎤</button>' +
+        '<button class="btn btn-record' + (!hasAPI ? " disabled" : "") + '" id="recBtn-' + i + '" onclick="startRecording(' + i + ')">🎤</button>' +
       '</div>' +
       '<div class="word-result" id="result-' + i + '"></div>';
     list.appendChild(card);
