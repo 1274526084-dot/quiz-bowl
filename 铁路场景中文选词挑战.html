@@ -43,7 +43,7 @@
   .top-bar .rivet.bl { bottom: 10px; left: 10px; }
   .top-bar .rivet.br { bottom: 10px; right: 10px; }
   .top-bar .icons { font-size: 28px; letter-spacing: 6px; margin-bottom: 6px; animation: bounce 2s ease-in-out infinite; }
-  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes bounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
   .top-bar h1 { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
   .top-bar .sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
 
@@ -75,7 +75,7 @@
   }
   .timer-ring.warn { border-color: #fbbf24; color: #b45309; animation: pulse 0.6s ease-in-out infinite; }
   .timer-ring.danger { border-color: #ef4444; color: #dc2626; animation: pulse 0.4s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @keyframes pulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.1); } }
 
   /* Scene card */
   .scene-card {
@@ -95,31 +95,34 @@
     margin-bottom: 16px; letter-spacing: 1px;
   }
 
-  .sentence-wrap {
-    background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px;
-    padding: 20px 24px; margin-bottom: 8px; text-align: center;
-    position: relative;
+  /* Sentence display */
+  .sentence-box {
+    background: #f0f6ff; border-left: 4px solid #2c5f8a; border-radius: 8px;
+    padding: 18px 20px; margin-bottom: 6px;
   }
-  .sentence-wrap .full-sentence { font-size: 22px; line-height: 1.7; color: #1e293b; letter-spacing: 1px; }
-  .sentence-wrap .blank {
-    display: inline-block; min-width: 70px; border-bottom: 3px solid #ef4444;
-    color: #ef4444; font-weight: 700; margin: 0 4px; padding: 0 6px;
+  .sentence-box .label { font-size: 11px; color: #2c5f8a; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .sentence-box .text { font-size: 21px; line-height: 1.7; color: #1e293b; letter-spacing: 1px; }
+  .sentence-box .text .hl {
+    background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px;
+    font-weight: 700; border-bottom: 2px solid #f59e0b;
   }
-  .sentence-wrap .pinyin-hint {
-    font-size: 13px; color: #94a3b8; margin-top: 8px;
+  .sentence-box .pinyin-row { font-size: 12px; color: #94a3b8; margin-top: 6px; }
+
+  /* Question display */
+  .question-box {
+    background: #fff; border: 2px dashed #e2e8f0; border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 12px; text-align: center;
   }
-  .sentence-wrap .eng-hint {
-    font-size: 12px; color: #a8b8c8; margin-top: 2px; font-style: italic;
-  }
+  .question-box .icon { font-size: 20px; margin-bottom: 4px; }
+  .question-box .text { font-size: 18px; font-weight: 600; color: #1e293b; }
 
   /* Options */
-  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .opt-btn {
     display: flex; align-items: center; gap: 14px;
     padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px;
     background: #fff; cursor: pointer; transition: all 0.2s;
     font-size: 18px; font-family: inherit; text-align: left;
-    position: relative;
   }
   .opt-btn:hover { border-color: #2c5f8a; background: #f0f6ff; }
   .opt-btn .letter {
@@ -127,10 +130,7 @@
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 15px; color: #64748b; flex-shrink: 0;
   }
-  .opt-btn .word {
-    font-size: 22px; font-weight: 600; color: #1e293b;
-  }
-  .opt-btn .word .py { font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 6px; }
+  .opt-btn .word { font-size: 20px; font-weight: 600; color: #1e293b; }
 
   .opt-btn.correct { border-color: #4ade80; background: #f0fdf4; }
   .opt-btn.correct .letter { background: #4ade80; color: #fff; }
@@ -162,7 +162,7 @@
   .signal-light.r { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: blink 2s infinite; }
   .signal-light.y { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: blink 2s infinite 0.7s; }
   .signal-light.g { background: #4ade80; box-shadow: 0 0 8px #4ade80; animation: blink 2s infinite 1.4s; }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes blink { 0%,100%{ opacity: 1; } 50%{ opacity: 0.3; } }
 
   /* Result overlay */
   .overlay {
@@ -194,7 +194,7 @@
 
   .hidden { display: none !important; }
 
-  /* Bottom rail decoration */
+  /* Bottom rail */
   .bottom-rail {
     height: 6px; background: repeating-linear-gradient(90deg, #8b775a 0, #8b775a 40px, #c4a97d 40px, #c4a97d 42px);
     border-radius: 0 0 16px 16px;
@@ -202,8 +202,8 @@
 
   @media (max-width: 500px) {
     .top-bar h1 { font-size: 18px; }
-    .sentence-wrap .full-sentence { font-size: 18px; }
-    .opt-btn .word { font-size: 18px; }
+    .sentence-box .text { font-size: 18px; }
+    .opt-btn .word { font-size: 17px; }
   }
 </style>
 </head>
@@ -215,7 +215,7 @@
     <div class="rivet bl"></div><div class="rivet br"></div>
     <div class="icons">🚄 🚂 🛤️</div>
     <h1>铁路场景 · 中文选词挑战</h1>
-    <div class="sub">马东铁 · 基础中文 · 情景填空</div>
+    <div class="sub">马东铁 · 基础中文 · 读句子选答案</div>
   </div>
   <div class="rail-divider"></div>
 
@@ -233,16 +233,24 @@
     <div><div id="sceneTitle">在火车站售票处</div><div class="ctx" id="sceneCtx">At the railway station ticket office</div></div>
   </div>
 
-  <!-- Question card -->
+  <!-- Main card -->
   <div class="main-card">
-    <div class="q-label" id="qLabel">选出正确的词语填空</div>
+    <div class="q-label">📖 读句子 → 🤔 选答案</div>
 
-    <div class="sentence-wrap">
-      <div class="full-sentence" id="sentence"></div>
-      <div class="pinyin-hint" id="pinyinHint"></div>
-      <div class="eng-hint" id="engHint"></div>
+    <!-- Sentence -->
+    <div class="sentence-box">
+      <div class="label">📝 读一读 Read:</div>
+      <div class="text" id="sentenceText"></div>
+      <div class="pinyin-row" id="pinyinRow"></div>
     </div>
 
+    <!-- Question -->
+    <div class="question-box">
+      <div class="icon">❓</div>
+      <div class="text" id="questionText"></div>
+    </div>
+
+    <!-- Options -->
     <div class="options" id="options"></div>
     <div class="feedback" id="feedback"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
@@ -270,26 +278,27 @@
 </div>
 
 <script>
-// ========== 题库：12 道铁路场景选词填空 ==========
+// ========== 题库：12 道铁路场景选择题 ==========
+// 每题：一句含目标词的铁路场景句 + 一个理解问题 + 3 个选项
 const questions = [
   {
     id: 1,
     word: "旅游",
     pinyin: "lǚyóu",
-    meaning: "travel / tourism",
+    meaning: "travel",
     scene: "在火车站售票处",
     sceneEn: "At the railway station ticket office",
     sceneEmoji: "🚉",
-    before: "我们坐火车去北京",
-    after: "。",
+    sentence: '我们坐火车去北京<span class="hl">旅游</span>。',
+    sentencePinyin: "Wǒmen zuò huǒchē qù Běijīng lǚyóu.",
+    question: "他们去北京做什么？",
     options: [
-      { text: "旅游", py: "lǚyóu", correct: true },
-      { text: "吃饭", py: "chīfàn", correct: false },
-      { text: "睡觉", py: "shuìjiào", correct: false }
+      { text: "旅游", correct: true },
+      { text: "吃饭", correct: false },
+      { text: "睡觉", correct: false }
     ],
-    engHint: "We take the train to Beijing to ____.",
-    explainOk: "✅ 正确！"旅游"就是 travel，坐火车去旅游是最常见的出行方式。",
-    explainNo: "❌ 应该是"旅游"（travel）。坐火车去北京是为了旅游，不是吃饭或睡觉。"
+    explainOk: '✅ 正确！"旅游"就是 travel。坐火车去北京旅游。',
+    explainNo: '❌ 应该是"旅游"。句子说"去北京旅游"，不是吃饭或睡觉。'
   },
   {
     id: 2,
@@ -299,54 +308,54 @@ const questions = [
     scene: "在列车车厢里",
     sceneEn: "Inside the train carriage",
     sceneEmoji: "🚃",
-    before: "我",
-    after: "火车很快，也很舒服。",
+    sentence: '我<span class="hl">觉得</span>火车很快，也很舒服。',
+    sentencePinyin: "Wǒ juéde huǒchē hěn kuài, yě hěn shūfu.",
+    question: '"我"认为火车怎么样？',
     options: [
-      { text: "看见", py: "kànjiàn", correct: false },
-      { text: "觉得", py: "juéde", correct: true },
-      { text: "听见", py: "tīngjiàn", correct: false }
+      { text: "又快又舒服", correct: true },
+      { text: "又慢又不舒服", correct: false },
+      { text: "又大又贵", correct: false }
     ],
-    engHint: "I ____ the train is fast and comfortable.",
-    explainOk: "✅ 正确！"觉得"就是 think/feel，用来表达自己的感受和想法。",
-    explainNo: "❌ 应该是"觉得"（think/feel），表达对火车的感受。"
+    explainOk: '✅ 正确！"觉得"就是 think/feel。我觉得火车又快又舒服。',
+    explainNo: '❌ 应该是"又快又舒服"。句子说"很快，也很舒服"。'
   },
   {
     id: 3,
     word: "最",
     pinyin: "zuì",
-    meaning: "most / the most",
+    meaning: "most",
     scene: "在高铁站台上",
     sceneEn: "On the high-speed rail platform",
     sceneEmoji: "🚄",
-    before: "高铁是我",
-    after: "喜欢的交通工具。",
+    sentence: '高铁是我<span class="hl">最</span>喜欢的交通工具。',
+    sentencePinyin: "Gāotiě shì wǒ zuì xǐhuan de jiāotōng gōngjù.",
+    question: '"我"喜欢高铁吗？',
     options: [
-      { text: "不", py: "bù", correct: false },
-      { text: "很", py: "hěn", correct: false },
-      { text: "最", py: "zuì", correct: true }
+      { text: "最喜欢", correct: true },
+      { text: "不喜欢", correct: false },
+      { text: "有一点喜欢", correct: false }
     ],
-    engHint: "High-speed rail is my ____ favorite transportation.",
-    explainOk: "✅ 正确！"最"就是 most，表示"第一喜欢"。",
-    explainNo: "❌ 应该是"最"（most）。"最喜欢"= like the most。"
+    explainOk: '✅ 正确！"最"就是 most。"最喜欢"= like the most。',
+    explainNo: '❌ 应该是"最喜欢"。"最"表示第一，不是不喜欢。'
   },
   {
     id: 4,
     word: "为什么",
     pinyin: "wèishénme",
     meaning: "why",
-    scene: "在候车室",
-    sceneEn: "In the waiting room",
+    scene: "在站台上",
+    sceneEn: "On the platform",
     sceneEmoji: "🚏",
-    before: "",
-    after: "你喜欢坐火车？",
+    sentence: '<span class="hl">为什么</span>火车停在这里？因为要等乘客上车。',
+    sentencePinyin: "Wèishénme huǒchē tíng zài zhèlǐ? Yīnwèi yào děng chéngkè shàngchē.",
+    question: "火车为什么停在站台？",
     options: [
-      { text: "为什么", py: "wèishénme", correct: true },
-      { text: "什么", py: "shénme", correct: false },
-      { text: "怎么", py: "zěnme", correct: false }
+      { text: "等乘客上车", correct: true },
+      { text: "等司机吃饭", correct: false },
+      { text: "等天气变好", correct: false }
     ],
-    engHint: "____ do you like taking the train?",
-    explainOk: "✅ 正确！"为什么"就是 why，用来问原因。",
-    explainNo: "❌ 应该是"为什么"（why），问喜欢火车的原因。"
+    explainOk: '✅ 正确！"为什么"就是 why，问原因。因为要等乘客上车。',
+    explainNo: '❌ 应该是"等乘客上车"。句子说"因为要等乘客上车"。'
   },
   {
     id: 5,
@@ -356,16 +365,16 @@ const questions = [
     scene: "在火车站入口",
     sceneEn: "At the railway station entrance",
     sceneEmoji: "🚂",
-    before: "爸爸喜欢火车，妈妈",
-    after: "喜欢火车。",
+    sentence: '我喜欢坐火车，姐姐<span class="hl">也</span>喜欢坐火车。',
+    sentencePinyin: "Wǒ xǐhuan zuò huǒchē, jiějie yě xǐhuan zuò huǒchē.",
+    question: "姐姐喜欢坐火车吗？",
     options: [
-      { text: "也", py: "yě", correct: true },
-      { text: "不", py: "bù", correct: false },
-      { text: "没", py: "méi", correct: false }
+      { text: "喜欢", correct: true },
+      { text: "不喜欢", correct: false },
+      { text: "不知道", correct: false }
     ],
-    engHint: "Dad likes trains, Mom ____ likes trains.",
-    explainOk: "✅ 正确！"也"就是 also/too，表示"同样"的意思。",
-    explainNo: "❌ 应该是"也"（also）。妈妈和爸爸一样喜欢火车。"
+    explainOk: '✅ 正确！"也"就是 also。姐姐和"我"一样喜欢火车。',
+    explainNo: '❌ 应该是"喜欢"。"也"表示同样喜欢，不是不喜欢。'
   },
   {
     id: 6,
@@ -375,16 +384,16 @@ const questions = [
     scene: "去体育馆的路上",
     sceneEn: "On the way to the sports center",
     sceneEmoji: "⚽",
-    before: "我坐火车去体育馆",
-    after: "。",
+    sentence: '我每天<span class="hl">运动</span>，因为运动对身体好。',
+    sentencePinyin: "Wǒ měitiān yùndòng, yīnwèi yùndòng duì shēntǐ hǎo.",
+    question: "什么对身体好？",
     options: [
-      { text: "火车", py: "huǒchē", correct: false },
-      { text: "运动", py: "yùndòng", correct: true },
-      { text: "车站", py: "chēzhàn", correct: false }
+      { text: "运动", correct: true },
+      { text: "火车", correct: false },
+      { text: "吃饭", correct: false }
     ],
-    engHint: "I take the train to the sports center to ____.",
-    explainOk: "✅ 正确！"运动"就是 sports/exercise。坐火车去体育馆运动！",
-    explainNo: "❌ 应该是"运动"（sports）。去体育馆当然是为了运动！"
+    explainOk: '✅ 正确！"运动"就是 sports/exercise。运动对身体好！',
+    explainNo: '❌ 应该是"运动"。句子说"运动对身体好"。'
   },
   {
     id: 7,
@@ -394,16 +403,16 @@ const questions = [
     scene: "在铁路公园",
     sceneEn: "At the railway park",
     sceneEmoji: "⚽",
-    before: "小明和朋友在铁路公园",
-    after: "。",
+    sentence: '小明和朋友在草地上<span class="hl">踢足球</span>。',
+    sentencePinyin: "Xiǎomíng hé péngyou zài cǎodì shàng tī zúqiú.",
+    question: "小明在草地上做什么？",
     options: [
-      { text: "坐火车", py: "zuò huǒchē", correct: false },
-      { text: "踢足球", py: "tī zúqiú", correct: true },
-      { text: "买票", py: "mǎi piào", correct: false }
+      { text: "踢足球", correct: true },
+      { text: "坐火车", correct: false },
+      { text: "买火车票", correct: false }
     ],
-    engHint: "Xiaoming and friends ____ at the railway park.",
-    explainOk: "✅ 正确！"踢足球"就是 play football。在铁路公园里踢足球！",
-    explainNo: "❌ 应该是"踢足球"（play football）。在公园里和朋友一起踢足球。"
+    explainOk: '✅ 正确！"踢足球"就是 play football。他们在草地上踢足球。',
+    explainNo: '❌ 应该是"踢足球"。句子说"在草地上踢足球"。'
   },
   {
     id: 8,
@@ -413,16 +422,16 @@ const questions = [
     scene: "在学校门口",
     sceneEn: "At the school gate",
     sceneEmoji: "🏫",
-    before: "我们",
-    after: "去火车站，好吗？",
+    sentence: '我们<span class="hl">一起</span>去火车站吧！',
+    sentencePinyin: "Wǒmen yìqǐ qù huǒchēzhàn ba!",
+    question: "说话的人想做什么？",
     options: [
-      { text: "一起", py: "yìqǐ", correct: true },
-      { text: "一个", py: "yí gè", correct: false },
-      { text: "一下", py: "yí xià", correct: false }
+      { text: "和大家一起去火车站", correct: true },
+      { text: "一个人去火车站", correct: false },
+      { text: "不去火车站", correct: false }
     ],
-    engHint: "Let's go to the railway station ____, OK?",
-    explainOk: "✅ 正确！"一起"就是 together。我们一起去火车站吧！",
-    explainNo: "❌ 应该是"一起"（together），表示"一块儿、共同"的意思。"
+    explainOk: '✅ 正确！"一起"就是 together。我们一起去，不是一个人去。',
+    explainNo: '❌ 应该是"和大家一起去火车站"。"一起"表示共同、一块儿。'
   },
   {
     id: 9,
@@ -432,16 +441,16 @@ const questions = [
     scene: "在售票窗口前",
     sceneEn: "At the ticket window",
     sceneEmoji: "🎫",
-    before: "我",
-    after: "买一张去上海的火车票。",
+    sentence: '我<span class="hl">要</span>买一张去上海的火车票。',
+    sentencePinyin: "Wǒ yào mǎi yī zhāng qù Shànghǎi de huǒchē piào.",
+    question: '"我"想做什么？',
     options: [
-      { text: "是", py: "shì", correct: false },
-      { text: "要", py: "yào", correct: true },
-      { text: "有", py: "yǒu", correct: false }
+      { text: "买火车票", correct: true },
+      { text: "坐汽车", correct: false },
+      { text: "去吃饭", correct: false }
     ],
-    engHint: "I ____ to buy a train ticket to Shanghai.",
-    explainOk: "✅ 正确！"要"就是 want/need to，表示"想要做某事"。",
-    explainNo: "❌ 应该是"要"（want），表示想要买票。"
+    explainOk: '✅ 正确！"要"就是 want/need。我要买火车票去上海。',
+    explainNo: '❌ 应该是"买火车票"。句子说"我要买一张火车票"。'
   },
   {
     id: 10,
@@ -451,16 +460,16 @@ const questions = [
     scene: "在新列车旁边",
     sceneEn: "Next to the new train",
     sceneEmoji: "🚅",
-    before: "马东铁是一条",
-    after: "的铁路，很漂亮。",
+    sentence: '马东铁是一条<span class="hl">新</span>的铁路，很漂亮。',
+    sentencePinyin: "Mǎdōngtiě shì yī tiáo xīn de tiělù, hěn piàoliang.",
+    question: "马东铁是什么样的铁路？",
     options: [
-      { text: "旧", py: "jiù", correct: false },
-      { text: "新", py: "xīn", correct: true },
-      { text: "大", py: "dà", correct: false }
+      { text: "新的", correct: true },
+      { text: "旧的", correct: false },
+      { text: "小的", correct: false }
     ],
-    engHint: "The ECRL is a ____ railway, very beautiful.",
-    explainOk: "✅ 正确！"新"就是 new。马东铁是一条新的铁路！",
-    explainNo: "❌ 应该是"新"（new）。马东铁是全新的铁路，不是旧的。"
+    explainOk: '✅ 正确！"新"就是 new。马东铁是新的铁路！',
+    explainNo: '❌ 应该是"新的"。"新"表示 new，不是旧（old）。'
   },
   {
     id: 11,
@@ -470,16 +479,16 @@ const questions = [
     scene: "在火车博物馆",
     sceneEn: "At the railway museum",
     sceneEmoji: "🚂",
-    before: "这列火车很漂亮，",
-    after: "叫"复兴号"。",
+    sentence: '这列火车很漂亮，<span class="hl">它</span>叫"复兴号"。',
+    sentencePinyin: "Zhè liè huǒchē hěn piàoliang, tā jiào 'Fùxīng Hào'.",
+    question: "这列火车叫什么名字？",
     options: [
-      { text: "他", py: "tā", correct: false },
-      { text: "她", py: "tā", correct: false },
-      { text: "它", py: "tā", correct: true }
+      { text: "复兴号", correct: true },
+      { text: "和谐号", correct: false },
+      { text: "马东铁", correct: false }
     ],
-    engHint: "This train is beautiful, ____ is called 'Fuxing Hao'.",
-    explainOk: "✅ 正确！"它"就是 it，用来指动物或东西。火车是东西，用"它"。",
-    explainNo: "❌ 应该是"它"（it）。火车是东西，不用"他"（he）或"她"（she）。"
+    explainOk: '✅ 正确！"它"就是 it。"它叫复兴号"= It is called Fuxing Hao。',
+    explainNo: '❌ 应该是"复兴号"。句子说"它叫复兴号"。'
   },
   {
     id: 12,
@@ -489,16 +498,16 @@ const questions = [
     scene: "在列车车窗旁",
     sceneEn: "By the train window",
     sceneEmoji: "👀",
-    before: "在火车上，我们用",
-    after: "看窗外的风景。",
+    sentence: '在火车上，我用<span class="hl">眼睛</span>看窗外的风景。',
+    sentencePinyin: "Zài huǒchē shàng, wǒ yòng yǎnjing kàn chuāng wài de fēngjǐng.",
+    question: '"我"用什么看风景？',
     options: [
-      { text: "眼睛", py: "yǎnjing", correct: true },
-      { text: "耳朵", py: "ěrduo", correct: false },
-      { text: "嘴巴", py: "zuǐba", correct: false }
+      { text: "眼睛", correct: true },
+      { text: "耳朵", correct: false },
+      { text: "嘴巴", correct: false }
     ],
-    engHint: "On the train, we use ____ to see the scenery outside.",
-    explainOk: "✅ 正确！"眼睛"就是 eyes。我们用眼睛看窗外的美丽风景！",
-    explainNo: "❌ 应该是"眼睛"（eyes）。看风景当然用眼睛，不是耳朵或嘴巴。"
+    explainOk: '✅ 正确！"眼睛"就是 eyes。我们当然用眼睛看风景！',
+    explainNo: '❌ 应该是"眼睛"。看风景用眼睛，不是耳朵或嘴巴。'
   }
 ];
 
@@ -509,77 +518,58 @@ let correctCount = 0;
 let timerLeft = 25;
 let timerInterval = null;
 let answered = false;
-let results = []; // { word, correct }
+let results = [];
 const TOTAL_TIME = 25;
 const POINTS = 10;
 
-// ========== DOM refs ==========
 const $ = id => document.getElementById(id);
 
 // ========== 渲染题目 ==========
 function renderQuestion() {
-  if (currentQ >= questions.length) {
-    showResult();
-    return;
-  }
+  if (currentQ >= questions.length) { showResult(); return; }
 
   const q = questions[currentQ];
   answered = false;
   timerLeft = TOTAL_TIME;
 
-  // Update header info
   $("wordBadge").textContent = '📝 ' + q.word + ' ' + q.pinyin;
   $("qInfo").textContent = (currentQ + 1) + '/' + questions.length;
   $("progressFill").style.width = (currentQ / questions.length * 100) + '%';
 
-  // Scene
   $("sceneCard").querySelector('.emoji').textContent = q.sceneEmoji;
   $("sceneTitle").textContent = q.scene;
   $("sceneCtx").textContent = q.sceneEn;
 
-  // Sentence with blank
-  const blank = '<span class="blank">______</span>';
-  $("sentence").innerHTML = q.before + blank + q.after;
-  $("pinyinHint").textContent = '🔊 ' + q.word + ' (' + q.pinyin + ') — ' + q.meaning;
-  $("engHint").textContent = q.engHint;
+  $("sentenceText").innerHTML = q.sentence;
+  $("pinyinRow").textContent = '🔊 ' + q.sentencePinyin;
+  $("questionText").textContent = q.question;
 
-  // Options
   const optHtml = q.options.map((opt, i) => {
-    const letter = String.fromCharCode(65 + i); // A, B, C
-    return `
-      <button class="opt-btn" onclick="selectAnswer(${i}, this)" data-idx="${i}">
+    const letter = String.fromCharCode(65 + i);
+    return `<button class="opt-btn" onclick="selectAnswer(${i}, this)">
         <span class="letter">${letter}</span>
-        <span class="word">${opt.text}<span class="py">${opt.py}</span></span>
+        <span class="word">${opt.text}</span>
       </button>`;
   }).join('');
   $("options").innerHTML = optHtml;
 
-  // Reset feedback & next button
   $("feedback").textContent = '';
   $("feedback").className = 'feedback';
   $("nextBtn").style.display = 'none';
-
-  // Reset timer ring
   $("timerRing").textContent = TOTAL_TIME;
   $("timerRing").className = 'timer-ring';
 
   startTimer();
 }
 
-// ========== 计时器 ==========
 function startTimer() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timerLeft--;
     $("timerRing").textContent = timerLeft;
-
     if (timerLeft <= 5) $("timerRing").className = 'timer-ring danger';
     else if (timerLeft <= 10) $("timerRing").className = 'timer-ring warn';
-
-    if (timerLeft <= 0) {
-      clearInterval(timerInterval);
-      if (!answered) timeUp();
-    }
+    if (timerLeft <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
   }, 1000);
 }
 
@@ -587,15 +577,12 @@ function timeUp() {
   answered = true;
   const q = questions[currentQ];
   results.push({ word: q.word, correct: false });
-
-  // Highlight correct answer
   const btns = $("options").querySelectorAll('.opt-btn');
   q.options.forEach((opt, i) => {
     btns[i].disabled = true;
     if (opt.correct) btns[i].classList.add('show-correct');
   });
-
-  $("feedback").textContent = '⏰ 时间到！正确答案是 "' + q.word + '"（' + q.pinyin + '）';
+  $("feedback").textContent = '⏰ 时间到！再读一遍句子：' + q.sentence.replace(/<[^>]*>/g,'');
   $("feedback").className = 'feedback no';
   $("nextBtn").style.display = 'inline-block';
 }
@@ -608,19 +595,12 @@ function selectAnswer(idx, btn) {
   const q = questions[currentQ];
   const chosen = q.options[idx];
   const btns = $("options").querySelectorAll('.opt-btn');
-
-  // Disable all
   btns.forEach(b => b.disabled = true);
-
-  // Highlight correct
-  q.options.forEach((opt, i) => {
-    if (opt.correct) btns[i].classList.add('show-correct');
-  });
+  q.options.forEach((opt, i) => { if (opt.correct) btns[i].classList.add('show-correct'); });
 
   if (chosen.correct) {
     btn.classList.add('correct');
     score += POINTS;
-    // Time bonus: +5 if >15s left, +3 if >5s left
     if (timerLeft > 15) score += 5;
     else if (timerLeft > 5) score += 3;
     correctCount++;
@@ -633,34 +613,23 @@ function selectAnswer(idx, btn) {
     $("feedback").textContent = q.explainNo;
     $("feedback").className = 'feedback no';
   }
-
   $("nextBtn").style.display = 'inline-block';
 }
 
-function nextQuestion() {
-  currentQ++;
-  renderQuestion();
-}
+function nextQuestion() { currentQ++; renderQuestion(); }
 
-// ========== 结果 ==========
 function showResult() {
   clearInterval(timerInterval);
-
-  const maxScore = questions.length * POINTS + questions.length * 5;
   const pct = correctCount / questions.length;
-
   let emoji, title;
   if (pct >= 0.9) { emoji = '🏆'; title = '太棒了！你是中文小达人！'; }
   else if (pct >= 0.7) { emoji = '🎉'; title = '很好！继续加油！'; }
   else if (pct >= 0.5) { emoji = '💪'; title = '不错哦，再练一练！'; }
   else { emoji = '📚'; title = '没关系，多复习就会进步！'; }
-
   $("resultEmoji").textContent = emoji;
   $("resultTitle").textContent = title;
   $("resultScore").textContent = score + ' 分';
   $("resultStats").textContent = '答对 ' + correctCount + ' / ' + questions.length + ' 题';
-
-  // Words review
   let reviewHtml = '<div style="font-weight:700;margin-bottom:6px;">📝 词汇回顾：</div>';
   results.forEach(r => {
     const cls = r.correct ? 'right' : 'wrong';
@@ -668,22 +637,17 @@ function showResult() {
     reviewHtml += '<span class="' + cls + '">' + mark + r.word + '</span> ';
   });
   $("wordsReview").innerHTML = reviewHtml;
-
   $("resultOverlay").classList.remove('hidden');
 }
 
 function restart() {
-  currentQ = 0;
-  score = 0;
-  correctCount = 0;
-  results = [];
+  currentQ = 0; score = 0; correctCount = 0; results = [];
   clearInterval(timerInterval);
   $("resultOverlay").classList.add('hidden');
   $("progressFill").style.width = '0%';
   renderQuestion();
 }
 
-// ========== 启动 ==========
 renderQuestion();
 </script>
 </body>
