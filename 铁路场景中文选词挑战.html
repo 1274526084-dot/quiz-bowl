@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>铁路场景 · 中文选词挑战</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #f0f2f5;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(139,119,90,0.06) 28px, rgba(139,119,90,0.06) 30px),
+      repeating-linear-gradient(90deg, transparent, transparent 58px, rgba(139,119,90,0.04) 58px, rgba(139,119,90,0.04) 60px);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container { width: 100%; max-width: 680px; position: relative; }
+
+  /* Top bar */
+  .top-bar {
+    background: linear-gradient(135deg, #1a3a5c, #2c5f8a);
+    color: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .top-bar::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #fbbf24, #ef4444, #4ade80);
+  }
+  .top-bar .rivet {
+    position: absolute; width: 10px; height: 10px; background: #94a3b8;
+    border-radius: 50%; border: 2px solid #cbd5e1;
+  }
+  .top-bar .rivet.tl { top: 10px; left: 10px; }
+  .top-bar .rivet.tr { top: 10px; right: 10px; }
+  .top-bar .rivet.bl { bottom: 10px; left: 10px; }
+  .top-bar .rivet.br { bottom: 10px; right: 10px; }
+  .top-bar .icons { font-size: 28px; letter-spacing: 6px; margin-bottom: 6px; animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .top-bar h1 { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+  .top-bar .sub { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  .rail-divider { height: 4px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706); }
+
+  /* Progress */
+  .progress-wrap {
+    background: #fff; padding: 14px 24px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .progress-wrap .bar {
+    flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;
+  }
+  .progress-wrap .bar .fill {
+    height: 100%; background: linear-gradient(90deg, #2c5f8a, #4ade80);
+    border-radius: 4px; transition: width 0.4s;
+  }
+  .progress-wrap .info { font-size: 14px; color: #64748b; white-space: nowrap; }
+  .progress-wrap .word-badge {
+    background: #fef3c7; color: #92400e; font-size: 14px; font-weight: 600;
+    padding: 3px 12px; border-radius: 12px; white-space: nowrap;
+  }
+
+  /* Timer ring */
+  .timer-ring {
+    width: 44px; height: 44px; border-radius: 50%; border: 4px solid #e2e8f0;
+    display: flex; align-items: center; justify-content: center; font-weight: 700;
+    font-size: 16px; color: #2c5f8a; flex-shrink: 0; position: relative;
+  }
+  .timer-ring.warn { border-color: #fbbf24; color: #b45309; animation: pulse 0.6s ease-in-out infinite; }
+  .timer-ring.danger { border-color: #ef4444; color: #dc2626; animation: pulse 0.4s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+  /* Scene card */
+  .scene-card {
+    background: #fff; border-left: 5px solid #2c5f8a;
+    padding: 14px 20px; margin: 0 24px; font-size: 15px; color: #475569;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .scene-card .emoji { font-size: 32px; flex-shrink: 0; }
+  .scene-card .ctx { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+
+  /* Main card */
+  .main-card { background: #fff; padding: 24px 24px 28px; margin: 0 24px; }
+
+  .q-label {
+    display: inline-block; background: #2c5f8a; color: #fff;
+    font-size: 12px; font-weight: 700; padding: 4px 14px; border-radius: 12px;
+    margin-bottom: 16px; letter-spacing: 1px;
+  }
+
+  .sentence-wrap {
+    background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 8px; text-align: center;
+    position: relative;
+  }
+  .sentence-wrap .full-sentence { font-size: 22px; line-height: 1.7; color: #1e293b; letter-spacing: 1px; }
+  .sentence-wrap .blank {
+    display: inline-block; min-width: 70px; border-bottom: 3px solid #ef4444;
+    color: #ef4444; font-weight: 700; margin: 0 4px; padding: 0 6px;
+  }
+  .sentence-wrap .pinyin-hint {
+    font-size: 13px; color: #94a3b8; margin-top: 8px;
+  }
+  .sentence-wrap .eng-hint {
+    font-size: 12px; color: #a8b8c8; margin-top: 2px; font-style: italic;
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .opt-btn {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 12px;
+    background: #fff; cursor: pointer; transition: all 0.2s;
+    font-size: 18px; font-family: inherit; text-align: left;
+    position: relative;
+  }
+  .opt-btn:hover { border-color: #2c5f8a; background: #f0f6ff; }
+  .opt-btn .letter {
+    width: 34px; height: 34px; border-radius: 50%; background: #f1f5f9;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px; color: #64748b; flex-shrink: 0;
+  }
+  .opt-btn .word {
+    font-size: 22px; font-weight: 600; color: #1e293b;
+  }
+  .opt-btn .word .py { font-size: 12px; color: #94a3b8; font-weight: 400; margin-left: 6px; }
+
+  .opt-btn.correct { border-color: #4ade80; background: #f0fdf4; }
+  .opt-btn.correct .letter { background: #4ade80; color: #fff; }
+  .opt-btn.wrong { border-color: #ef4444; background: #fef2f2; }
+  .opt-btn.wrong .letter { background: #ef4444; color: #fff; }
+  .opt-btn.show-correct { border-color: #4ade80; background: #f0fdf4; }
+  .opt-btn.show-correct .letter { background: #4ade80; color: #fff; }
+  .opt-btn:disabled { pointer-events: none; }
+
+  /* Feedback */
+  .feedback {
+    text-align: center; padding: 12px; font-size: 16px; font-weight: 600;
+    min-height: 44px; line-height: 1.6;
+  }
+  .feedback.ok { color: #16a34a; }
+  .feedback.no { color: #dc2626; }
+
+  /* Next button */
+  .next-btn {
+    display: none; margin: 0 auto 10px; padding: 10px 40px;
+    background: #2c5f8a; color: #fff; border: none; border-radius: 24px;
+    font-size: 16px; cursor: pointer; font-family: inherit; letter-spacing: 1px;
+  }
+  .next-btn:hover { background: #1a3a5c; }
+
+  /* Signal row */
+  .signal-row { display: flex; justify-content: center; gap: 10px; padding: 10px 0 6px; }
+  .signal-light { width: 14px; height: 14px; border-radius: 50%; }
+  .signal-light.r { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation: blink 2s infinite; }
+  .signal-light.y { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: blink 2s infinite 0.7s; }
+  .signal-light.g { background: #4ade80; box-shadow: 0 0 8px #4ade80; animation: blink 2s infinite 1.4s; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* Result overlay */
+  .overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .overlay .result-card {
+    background: #fff; border-radius: 20px; padding: 36px 32px; text-align: center;
+    max-width: 420px; width: 90%;
+  }
+  .overlay .result-card .big-emoji { font-size: 56px; margin-bottom: 10px; }
+  .overlay .result-card h2 { font-size: 24px; color: #1e293b; margin-bottom: 8px; }
+  .overlay .result-card .score { font-size: 48px; font-weight: 800; color: #2c5f8a; }
+  .overlay .result-card .stats { font-size: 14px; color: #64748b; margin: 8px 0 16px; }
+  .overlay .result-card .words-review {
+    text-align: left; font-size: 14px; color: #64748b; margin: 10px 0;
+    max-height: 150px; overflow-y: auto; line-height: 1.8;
+  }
+  .overlay .result-card .words-review span { margin: 0 4px; }
+  .overlay .result-card .words-review .right { color: #16a34a; }
+  .overlay .result-card .words-review .wrong { color: #dc2626; text-decoration: line-through; }
+  .overlay .result-card button {
+    padding: 12px 36px; background: #2c5f8a; color: #fff; border: none;
+    border-radius: 24px; font-size: 17px; cursor: pointer; font-family: inherit;
+    margin-top: 10px;
+  }
+  .overlay .result-card button:hover { background: #1a3a5c; }
+
+  .hidden { display: none !important; }
+
+  /* Bottom rail decoration */
+  .bottom-rail {
+    height: 6px; background: repeating-linear-gradient(90deg, #8b775a 0, #8b775a 40px, #c4a97d 40px, #c4a97d 42px);
+    border-radius: 0 0 16px 16px;
+  }
+
+  @media (max-width: 500px) {
+    .top-bar h1 { font-size: 18px; }
+    .sentence-wrap .full-sentence { font-size: 18px; }
+    .opt-btn .word { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="rivet tl"></div><div class="rivet tr"></div>
+    <div class="rivet bl"></div><div class="rivet br"></div>
+    <div class="icons">🚄 🚂 🛤️</div>
+    <h1>铁路场景 · 中文选词挑战</h1>
+    <div class="sub">马东铁 · 基础中文 · 情景填空</div>
+  </div>
+  <div class="rail-divider"></div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <span class="word-badge" id="wordBadge">📝 旅游</span>
+    <div class="bar"><div class="fill" id="progressFill" style="width:0%"></div></div>
+    <div class="timer-ring" id="timerRing">25</div>
+    <span class="info" id="qInfo">1/12</span>
+  </div>
+
+  <!-- Scene -->
+  <div class="scene-card" id="sceneCard">
+    <span class="emoji">🚉</span>
+    <div><div id="sceneTitle">在火车站售票处</div><div class="ctx" id="sceneCtx">At the railway station ticket office</div></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="main-card">
+    <div class="q-label" id="qLabel">选出正确的词语填空</div>
+
+    <div class="sentence-wrap">
+      <div class="full-sentence" id="sentence"></div>
+      <div class="pinyin-hint" id="pinyinHint"></div>
+      <div class="eng-hint" id="engHint"></div>
+    </div>
+
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
+  </div>
+
+  <div class="signal-row">
+    <div class="signal-light r"></div>
+    <div class="signal-light y"></div>
+    <div class="signal-light g"></div>
+  </div>
+  <div class="bottom-rail"></div>
+</div>
+
+<!-- Result overlay -->
+<div class="overlay hidden" id="resultOverlay">
+  <div class="result-card">
+    <div class="big-emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">太棒了！</h2>
+    <div class="score" id="resultScore">0</div>
+    <div style="color:#64748b;font-size:15px;">总分</div>
+    <div class="stats" id="resultStats"></div>
+    <div class="words-review" id="wordsReview"></div>
+    <button onclick="restart()">再来一次 🔄</button>
+  </div>
+</div>
+
+<script>
+// ========== 题库：12 道铁路场景选词填空 ==========
+const questions = [
+  {
+    id: 1,
+    word: "旅游",
+    pinyin: "lǚyóu",
+    meaning: "travel / tourism",
+    scene: "在火车站售票处",
+    sceneEn: "At the railway station ticket office",
+    sceneEmoji: "🚉",
+    before: "我们坐火车去北京",
+    after: "。",
+    options: [
+      { text: "旅游", py: "lǚyóu", correct: true },
+      { text: "吃饭", py: "chīfàn", correct: false },
+      { text: "睡觉", py: "shuìjiào", correct: false }
+    ],
+    engHint: "We take the train to Beijing to ____.",
+    explainOk: "✅ 正确！"旅游"就是 travel，坐火车去旅游是最常见的出行方式。",
+    explainNo: "❌ 应该是"旅游"（travel）。坐火车去北京是为了旅游，不是吃饭或睡觉。"
+  },
+  {
+    id: 2,
+    word: "觉得",
+    pinyin: "juéde",
+    meaning: "think / feel",
+    scene: "在列车车厢里",
+    sceneEn: "Inside the train carriage",
+    sceneEmoji: "🚃",
+    before: "我",
+    after: "火车很快，也很舒服。",
+    options: [
+      { text: "看见", py: "kànjiàn", correct: false },
+      { text: "觉得", py: "juéde", correct: true },
+      { text: "听见", py: "tīngjiàn", correct: false }
+    ],
+    engHint: "I ____ the train is fast and comfortable.",
+    explainOk: "✅ 正确！"觉得"就是 think/feel，用来表达自己的感受和想法。",
+    explainNo: "❌ 应该是"觉得"（think/feel），表达对火车的感受。"
+  },
+  {
+    id: 3,
+    word: "最",
+    pinyin: "zuì",
+    meaning: "most / the most",
+    scene: "在高铁站台上",
+    sceneEn: "On the high-speed rail platform",
+    sceneEmoji: "🚄",
+    before: "高铁是我",
+    after: "喜欢的交通工具。",
+    options: [
+      { text: "不", py: "bù", correct: false },
+      { text: "很", py: "hěn", correct: false },
+      { text: "最", py: "zuì", correct: true }
+    ],
+    engHint: "High-speed rail is my ____ favorite transportation.",
+    explainOk: "✅ 正确！"最"就是 most，表示"第一喜欢"。",
+    explainNo: "❌ 应该是"最"（most）。"最喜欢"= like the most。"
+  },
+  {
+    id: 4,
+    word: "为什么",
+    pinyin: "wèishénme",
+    meaning: "why",
+    scene: "在候车室",
+    sceneEn: "In the waiting room",
+    sceneEmoji: "🚏",
+    before: "",
+    after: "你喜欢坐火车？",
+    options: [
+      { text: "为什么", py: "wèishénme", correct: true },
+      { text: "什么", py: "shénme", correct: false },
+      { text: "怎么", py: "zěnme", correct: false }
+    ],
+    engHint: "____ do you like taking the train?",
+    explainOk: "✅ 正确！"为什么"就是 why，用来问原因。",
+    explainNo: "❌ 应该是"为什么"（why），问喜欢火车的原因。"
+  },
+  {
+    id: 5,
+    word: "也",
+    pinyin: "yě",
+    meaning: "also / too",
+    scene: "在火车站入口",
+    sceneEn: "At the railway station entrance",
+    sceneEmoji: "🚂",
+    before: "爸爸喜欢火车，妈妈",
+    after: "喜欢火车。",
+    options: [
+      { text: "也", py: "yě", correct: true },
+      { text: "不", py: "bù", correct: false },
+      { text: "没", py: "méi", correct: false }
+    ],
+    engHint: "Dad likes trains, Mom ____ likes trains.",
+    explainOk: "✅ 正确！"也"就是 also/too，表示"同样"的意思。",
+    explainNo: "❌ 应该是"也"（also）。妈妈和爸爸一样喜欢火车。"
+  },
+  {
+    id: 6,
+    word: "运动",
+    pinyin: "yùndòng",
+    meaning: "sports / exercise",
+    scene: "去体育馆的路上",
+    sceneEn: "On the way to the sports center",
+    sceneEmoji: "⚽",
+    before: "我坐火车去体育馆",
+    after: "。",
+    options: [
+      { text: "火车", py: "huǒchē", correct: false },
+      { text: "运动", py: "yùndòng", correct: true },
+      { text: "车站", py: "chēzhàn", correct: false }
+    ],
+    engHint: "I take the train to the sports center to ____.",
+    explainOk: "✅ 正确！"运动"就是 sports/exercise。坐火车去体育馆运动！",
+    explainNo: "❌ 应该是"运动"（sports）。去体育馆当然是为了运动！"
+  },
+  {
+    id: 7,
+    word: "踢足球",
+    pinyin: "tī zúqiú",
+    meaning: "play football",
+    scene: "在铁路公园",
+    sceneEn: "At the railway park",
+    sceneEmoji: "⚽",
+    before: "小明和朋友在铁路公园",
+    after: "。",
+    options: [
+      { text: "坐火车", py: "zuò huǒchē", correct: false },
+      { text: "踢足球", py: "tī zúqiú", correct: true },
+      { text: "买票", py: "mǎi piào", correct: false }
+    ],
+    engHint: "Xiaoming and friends ____ at the railway park.",
+    explainOk: "✅ 正确！"踢足球"就是 play football。在铁路公园里踢足球！",
+    explainNo: "❌ 应该是"踢足球"（play football）。在公园里和朋友一起踢足球。"
+  },
+  {
+    id: 8,
+    word: "一起",
+    pinyin: "yìqǐ",
+    meaning: "together",
+    scene: "在学校门口",
+    sceneEn: "At the school gate",
+    sceneEmoji: "🏫",
+    before: "我们",
+    after: "去火车站，好吗？",
+    options: [
+      { text: "一起", py: "yìqǐ", correct: true },
+      { text: "一个", py: "yí gè", correct: false },
+      { text: "一下", py: "yí xià", correct: false }
+    ],
+    engHint: "Let's go to the railway station ____, OK?",
+    explainOk: "✅ 正确！"一起"就是 together。我们一起去火车站吧！",
+    explainNo: "❌ 应该是"一起"（together），表示"一块儿、共同"的意思。"
+  },
+  {
+    id: 9,
+    word: "要",
+    pinyin: "yào",
+    meaning: "want / need to",
+    scene: "在售票窗口前",
+    sceneEn: "At the ticket window",
+    sceneEmoji: "🎫",
+    before: "我",
+    after: "买一张去上海的火车票。",
+    options: [
+      { text: "是", py: "shì", correct: false },
+      { text: "要", py: "yào", correct: true },
+      { text: "有", py: "yǒu", correct: false }
+    ],
+    engHint: "I ____ to buy a train ticket to Shanghai.",
+    explainOk: "✅ 正确！"要"就是 want/need to，表示"想要做某事"。",
+    explainNo: "❌ 应该是"要"（want），表示想要买票。"
+  },
+  {
+    id: 10,
+    word: "新",
+    pinyin: "xīn",
+    meaning: "new",
+    scene: "在新列车旁边",
+    sceneEn: "Next to the new train",
+    sceneEmoji: "🚅",
+    before: "马东铁是一条",
+    after: "的铁路，很漂亮。",
+    options: [
+      { text: "旧", py: "jiù", correct: false },
+      { text: "新", py: "xīn", correct: true },
+      { text: "大", py: "dà", correct: false }
+    ],
+    engHint: "The ECRL is a ____ railway, very beautiful.",
+    explainOk: "✅ 正确！"新"就是 new。马东铁是一条新的铁路！",
+    explainNo: "❌ 应该是"新"（new）。马东铁是全新的铁路，不是旧的。"
+  },
+  {
+    id: 11,
+    word: "它",
+    pinyin: "tā",
+    meaning: "it",
+    scene: "在火车博物馆",
+    sceneEn: "At the railway museum",
+    sceneEmoji: "🚂",
+    before: "这列火车很漂亮，",
+    after: "叫"复兴号"。",
+    options: [
+      { text: "他", py: "tā", correct: false },
+      { text: "她", py: "tā", correct: false },
+      { text: "它", py: "tā", correct: true }
+    ],
+    engHint: "This train is beautiful, ____ is called 'Fuxing Hao'.",
+    explainOk: "✅ 正确！"它"就是 it，用来指动物或东西。火车是东西，用"它"。",
+    explainNo: "❌ 应该是"它"（it）。火车是东西，不用"他"（he）或"她"（she）。"
+  },
+  {
+    id: 12,
+    word: "眼睛",
+    pinyin: "yǎnjing",
+    meaning: "eyes",
+    scene: "在列车车窗旁",
+    sceneEn: "By the train window",
+    sceneEmoji: "👀",
+    before: "在火车上，我们用",
+    after: "看窗外的风景。",
+    options: [
+      { text: "眼睛", py: "yǎnjing", correct: true },
+      { text: "耳朵", py: "ěrduo", correct: false },
+      { text: "嘴巴", py: "zuǐba", correct: false }
+    ],
+    engHint: "On the train, we use ____ to see the scenery outside.",
+    explainOk: "✅ 正确！"眼睛"就是 eyes。我们用眼睛看窗外的美丽风景！",
+    explainNo: "❌ 应该是"眼睛"（eyes）。看风景当然用眼睛，不是耳朵或嘴巴。"
+  }
+];
+
+// ========== 游戏状态 ==========
+let currentQ = 0;
+let score = 0;
+let correctCount = 0;
+let timerLeft = 25;
+let timerInterval = null;
+let answered = false;
+let results = []; // { word, correct }
+const TOTAL_TIME = 25;
+const POINTS = 10;
+
+// ========== DOM refs ==========
+const $ = id => document.getElementById(id);
+
+// ========== 渲染题目 ==========
+function renderQuestion() {
+  if (currentQ >= questions.length) {
+    showResult();
+    return;
+  }
+
+  const q = questions[currentQ];
+  answered = false;
+  timerLeft = TOTAL_TIME;
+
+  // Update header info
+  $("wordBadge").textContent = '📝 ' + q.word + ' ' + q.pinyin;
+  $("qInfo").textContent = (currentQ + 1) + '/' + questions.length;
+  $("progressFill").style.width = (currentQ / questions.length * 100) + '%';
+
+  // Scene
+  $("sceneCard").querySelector('.emoji').textContent = q.sceneEmoji;
+  $("sceneTitle").textContent = q.scene;
+  $("sceneCtx").textContent = q.sceneEn;
+
+  // Sentence with blank
+  const blank = '<span class="blank">______</span>';
+  $("sentence").innerHTML = q.before + blank + q.after;
+  $("pinyinHint").textContent = '🔊 ' + q.word + ' (' + q.pinyin + ') — ' + q.meaning;
+  $("engHint").textContent = q.engHint;
+
+  // Options
+  const optHtml = q.options.map((opt, i) => {
+    const letter = String.fromCharCode(65 + i); // A, B, C
+    return `
+      <button class="opt-btn" onclick="selectAnswer(${i}, this)" data-idx="${i}">
+        <span class="letter">${letter}</span>
+        <span class="word">${opt.text}<span class="py">${opt.py}</span></span>
+      </button>`;
+  }).join('');
+  $("options").innerHTML = optHtml;
+
+  // Reset feedback & next button
+  $("feedback").textContent = '';
+  $("feedback").className = 'feedback';
+  $("nextBtn").style.display = 'none';
+
+  // Reset timer ring
+  $("timerRing").textContent = TOTAL_TIME;
+  $("timerRing").className = 'timer-ring';
+
+  startTimer();
+}
+
+// ========== 计时器 ==========
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerLeft--;
+    $("timerRing").textContent = timerLeft;
+
+    if (timerLeft <= 5) $("timerRing").className = 'timer-ring danger';
+    else if (timerLeft <= 10) $("timerRing").className = 'timer-ring warn';
+
+    if (timerLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) timeUp();
+    }
+  }, 1000);
+}
+
+function timeUp() {
+  answered = true;
+  const q = questions[currentQ];
+  results.push({ word: q.word, correct: false });
+
+  // Highlight correct answer
+  const btns = $("options").querySelectorAll('.opt-btn');
+  q.options.forEach((opt, i) => {
+    btns[i].disabled = true;
+    if (opt.correct) btns[i].classList.add('show-correct');
+  });
+
+  $("feedback").textContent = '⏰ 时间到！正确答案是 "' + q.word + '"（' + q.pinyin + '）';
+  $("feedback").className = 'feedback no';
+  $("nextBtn").style.display = 'inline-block';
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const q = questions[currentQ];
+  const chosen = q.options[idx];
+  const btns = $("options").querySelectorAll('.opt-btn');
+
+  // Disable all
+  btns.forEach(b => b.disabled = true);
+
+  // Highlight correct
+  q.options.forEach((opt, i) => {
+    if (opt.correct) btns[i].classList.add('show-correct');
+  });
+
+  if (chosen.correct) {
+    btn.classList.add('correct');
+    score += POINTS;
+    // Time bonus: +5 if >15s left, +3 if >5s left
+    if (timerLeft > 15) score += 5;
+    else if (timerLeft > 5) score += 3;
+    correctCount++;
+    results.push({ word: q.word, correct: true });
+    $("feedback").textContent = q.explainOk;
+    $("feedback").className = 'feedback ok';
+  } else {
+    btn.classList.add('wrong');
+    results.push({ word: q.word, correct: false });
+    $("feedback").textContent = q.explainNo;
+    $("feedback").className = 'feedback no';
+  }
+
+  $("nextBtn").style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  currentQ++;
+  renderQuestion();
+}
+
+// ========== 结果 ==========
+function showResult() {
+  clearInterval(timerInterval);
+
+  const maxScore = questions.length * POINTS + questions.length * 5;
+  const pct = correctCount / questions.length;
+
+  let emoji, title;
+  if (pct >= 0.9) { emoji = '🏆'; title = '太棒了！你是中文小达人！'; }
+  else if (pct >= 0.7) { emoji = '🎉'; title = '很好！继续加油！'; }
+  else if (pct >= 0.5) { emoji = '💪'; title = '不错哦，再练一练！'; }
+  else { emoji = '📚'; title = '没关系，多复习就会进步！'; }
+
+  $("resultEmoji").textContent = emoji;
+  $("resultTitle").textContent = title;
+  $("resultScore").textContent = score + ' 分';
+  $("resultStats").textContent = '答对 ' + correctCount + ' / ' + questions.length + ' 题';
+
+  // Words review
+  let reviewHtml = '<div style="font-weight:700;margin-bottom:6px;">📝 词汇回顾：</div>';
+  results.forEach(r => {
+    const cls = r.correct ? 'right' : 'wrong';
+    const mark = r.correct ? '✅' : '❌';
+    reviewHtml += '<span class="' + cls + '">' + mark + r.word + '</span> ';
+  });
+  $("wordsReview").innerHTML = reviewHtml;
+
+  $("resultOverlay").classList.remove('hidden');
+}
+
+function restart() {
+  currentQ = 0;
+  score = 0;
+  correctCount = 0;
+  results = [];
+  clearInterval(timerInterval);
+  $("resultOverlay").classList.add('hidden');
+  $("progressFill").style.width = '0%';
+  renderQuestion();
+}
+
+// ========== 启动 ==========
+renderQuestion();
+</script>
+</body>
+</html>
