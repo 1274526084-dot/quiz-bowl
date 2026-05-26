@@ -6,92 +6,225 @@
 <title>铁路情景英语问答挑战</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(180deg, #1a3a4a 0%, #0f2a35 50%, #1a1a2e 100%);
+    background: #1a2d35;
     min-height: 100vh; color: #fff; display: flex; flex-direction: column;
     -webkit-user-select: none; user-select: none;
+    position: relative; overflow-x: hidden;
   }
 
-  .container { max-width: 720px; margin: 0 auto; padding: 16px; width: 100%; }
+  /* ---- Railway track background ---- */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      /* Horizontal rails */
+      repeating-linear-gradient(0deg, transparent, transparent 48px, #ffffff06 48px, #ffffff06 52px),
+      /* Vertical sleepers / ties */
+      repeating-linear-gradient(90deg, transparent, transparent 38px, #ffffff08 38px, #ffffff08 42px),
+      /* Subtle diagonal track lines */
+      linear-gradient(175deg, transparent 40%, #ffffff03 40.5%, #ffffff03 41%, transparent 41.5%),
+      linear-gradient(5deg, transparent 60%, #ffffff03 60.5%, #ffffff03 61%, transparent 61.5%);
+  }
 
-  /* Header */
-  .header { text-align: center; padding: 20px 0 12px; }
-  .header .icon { font-size: 48px; margin-bottom: 4px; }
-  .header h1 { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
-  .header .sub { font-size: 12px; color: #8ab4c8; margin-top: 2px; }
+  /* Signal light glow top-left */
+  body::after {
+    content: "";
+    position: fixed; top: -80px; left: -40px; width: 200px; height: 200px;
+    background: radial-gradient(circle, #ef444420 0%, transparent 70%);
+    pointer-events: none; z-index: 0; animation: signalGlow 3s ease-in-out infinite;
+  }
+  @keyframes signalGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; background: radial-gradient(circle, #4ade8040 0%, transparent 70%); }
+  }
 
-  /* Top bar */
+  .container { max-width: 720px; margin: 0 auto; padding: 16px; width: 100%; position: relative; z-index: 1; }
+
+  /* ---- Header ---- */
+  .header {
+    text-align: center; padding: 20px 0 12px; position: relative;
+  }
+  .header-icons {
+    display: flex; justify-content: center; gap: 12px; margin-bottom: 6px;
+    font-size: 32px;
+  }
+  .header-icons span { animation: bounce 2s ease-in-out infinite; }
+  .header-icons span:nth-child(2) { animation-delay: 0.3s; }
+  .header-icons span:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .header h1 {
+    font-size: 22px; font-weight: 900; letter-spacing: 3px;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header .sub {
+    font-size: 12px; color: #8ab4c8; margin-top: 4px;
+  }
+  .header .rail-divider {
+    width: 60px; height: 3px; margin: 8px auto 0;
+    background: linear-gradient(90deg, transparent, #fbbf24, #fbbf24, #fbbf24, transparent);
+    border-radius: 2px;
+  }
+
+  /* ---- Top bar ---- */
   .top-bar {
     display: flex; align-items: center; justify-content: space-between;
-    background: #ffffff15; border-radius: 14px; padding: 12px 18px;
-    margin-bottom: 12px; backdrop-filter: blur(10px); gap: 12px;
+    background: linear-gradient(135deg, #ffffff12, #ffffff08);
+    border: 1px solid #ffffff18; border-radius: 14px;
+    padding: 12px 18px; margin-bottom: 12px; gap: 12px;
+    position: relative; overflow: hidden;
   }
+  /* Rivet corners */
+  .top-bar::before, .top-bar::after {
+    content: ""; position: absolute; width: 8px; height: 8px;
+    background: #ffffff40; border-radius: 50%;
+  }
+  .top-bar::before { top: 6px; left: 10px; }
+  .top-bar::after { bottom: 6px; right: 10px; }
+
   .top-item { text-align: center; }
   .top-item .val { font-size: 24px; font-weight: 900; }
   .top-item .val.p1 { color: #fbbf24; }
   .top-item .val.p2 { color: #4ade80; }
-  .top-item .lbl { font-size: 10px; color: #8ab4c8; }
+  .top-item .lbl { font-size: 10px; color: #8ab4c8; letter-spacing: 1px; }
 
   .progress-wrap { flex: 1; }
   .progress-bar {
-    height: 8px; background: #ffffff20; border-radius: 4px; overflow: hidden;
+    height: 8px; background: #ffffff15; border-radius: 4px; overflow: hidden;
+    border: 1px solid #ffffff10;
   }
-  .progress-fill { height: 100%; background: #fbbf24; border-radius: 4px; transition: width 0.3s; }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    border-radius: 4px; transition: width 0.3s;
+    position: relative;
+  }
+  /* Moving shine on progress */
+  .progress-fill::after {
+    content: ""; position: absolute; right: 0; top: 0; bottom: 0;
+    width: 20px; background: linear-gradient(90deg, transparent, #ffffff40);
+    animation: progressShine 1s linear infinite;
+  }
+  @keyframes progressShine {
+    0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; }
+  }
 
-  /* Timer */
-  .timer-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  /* ---- Timer ---- */
+  .timer-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-bottom: 14px;
+  }
   .timer-ring {
-    width: 56px; height: 56px; border-radius: 50%; border: 3px solid #4ade80;
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 3px solid #4ade80;
     display: flex; align-items: center; justify-content: center;
     font-size: 24px; font-weight: 900; transition: border-color 0.3s;
+    background: radial-gradient(circle, #ffffff08, transparent);
+    box-shadow: 0 0 16px #4ade8020;
   }
-  .timer-ring.warn { border-color: #fbbf24; }
-  .timer-ring.danger { border-color: #ef4444; animation: pulse 0.5s infinite; }
+  .timer-ring.warn { border-color: #fbbf24; box-shadow: 0 0 16px #fbbf2420; }
+  .timer-ring.danger {
+    border-color: #ef4444; box-shadow: 0 0 20px #ef444440;
+    animation: pulse 0.5s infinite;
+  }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .timer-label {
+    font-size: 10px; color: #8ab4c8; letter-spacing: 2px; text-transform: uppercase;
+  }
 
-  /* Scene card */
+  /* ---- Scene card ---- */
   .scene-card {
     background: linear-gradient(135deg, #1e4a5f 0%, #163d4f 100%);
-    border: 1px solid #2d6a80; border-radius: 16px; padding: 18px 16px;
-    margin-bottom: 14px; text-align: center;
+    border: 1px solid #2d6a80; border-radius: 16px;
+    padding: 20px 18px; margin-bottom: 14px; text-align: center;
+    position: relative; overflow: hidden;
   }
-  .scene-badge {
-    display: inline-block; background: #fbbf2422; color: #fbbf24;
-    border: 1px solid #fbbf2444; border-radius: 20px; padding: 4px 14px;
-    font-size: 11px; letter-spacing: 2px; margin-bottom: 8px;
+  /* Rail edge on scene card */
+  .scene-card::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24);
   }
-  .scene-prompt { font-size: 16px; color: #e0f0f7; line-height: 1.6; }
-  .scene-context { font-size: 13px; color: #8ab4c8; margin-top: 6px; font-style: italic; }
+  /* Subtle train window pattern */
+  .scene-card::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 15% 50%, #ffffff03 0%, transparent 20%),
+      radial-gradient(circle at 50% 50%, #ffffff03 0%, transparent 20%),
+      radial-gradient(circle at 85% 50%, #ffffff03 0%, transparent 20%);
+    opacity: 0.5;
+  }
 
-  /* Options */
+  .scene-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fbbf2418; color: #fbbf24;
+    border: 1px solid #fbbf2433; border-radius: 20px;
+    padding: 5px 16px; font-size: 11px; letter-spacing: 2px;
+    margin-bottom: 10px; position: relative; z-index: 1;
+  }
+  .scene-prompt {
+    font-size: 16px; color: #e0f0f7; line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+  .scene-context {
+    font-size: 15px; color: #fbbf24; margin-top: 8px;
+    font-weight: 600; position: relative; z-index: 1;
+  }
+
+  /* ---- Options ---- */
   .options-list { display: flex; flex-direction: column; gap: 8px; }
   .opt-btn {
     display: flex; align-items: center; gap: 12px;
-    background: #ffffff10; border: 2px solid #ffffff20; border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff0c, #ffffff06);
+    border: 2px solid #ffffff18; border-radius: 12px;
     padding: 14px 16px; color: #e0f0f7; font-size: 15px;
     cursor: pointer; transition: all 0.15s; text-align: left;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent; position: relative;
   }
-  .opt-btn:hover { background: #ffffff18; border-color: #4ade8055; }
+  .opt-btn::before {
+    content: ""; position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 2px; border-radius: 1px; background: #4ade8030;
+    transition: background 0.2s;
+  }
+  .opt-btn:hover { background: #ffffff15; border-color: #4ade8055; }
+  .opt-btn:hover::before { background: #4ade8080; }
   .opt-btn:active { transform: scale(0.98); }
 
   .opt-letter {
-    width: 32px; height: 32px; border-radius: 8px; background: #ffffff20;
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff20, #ffffff10);
     display: flex; align-items: center; justify-content: center;
     font-weight: 900; font-size: 14px; flex-shrink: 0;
+    border: 1px solid #ffffff20;
   }
-  .opt-btn.correct { background: #14532d; border-color: #4ade80; color: #4ade80; }
-  .opt-btn.correct .opt-letter { background: #4ade8033; }
-  .opt-btn.wrong { background: #450a0a; border-color: #ef4444; color: #ef4444; animation: shake 0.4s; }
-  .opt-btn.wrong .opt-letter { background: #ef444433; }
+  .opt-btn.correct {
+    background: #14532d; border-color: #4ade80; color: #4ade80;
+  }
+  .opt-btn.correct::before { background: #4ade80; }
+  .opt-btn.correct .opt-letter { background: #4ade8025; border-color: #4ade8040; }
+  .opt-btn.wrong {
+    background: #450a0a; border-color: #ef4444; color: #ef4444;
+    animation: shake 0.4s;
+  }
+  .opt-btn.wrong::before { background: #ef4444; }
+  .opt-btn.wrong .opt-letter { background: #ef444425; border-color: #ef444440; }
   .opt-btn.disabled { pointer-events: none; opacity: 0.5; }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);} 40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);} 80%{transform:translateX(4px);}
+  }
 
   /* Feedback */
   .feedback {
-    text-align: center; font-size: 14px; margin-top: 10px; min-height: 24px;
-    font-weight: 600;
+    text-align: center; font-size: 13px; margin-top: 10px;
+    min-height: 22px; font-weight: 600; line-height: 1.6;
   }
   .feedback.correct { color: #4ade80; }
   .feedback.wrong { color: #ef4444; }
@@ -99,23 +232,55 @@
   /* Result */
   .result-card {
     text-align: center; padding: 28px 20px;
+    position: relative;
   }
-  .result-emoji { font-size: 64px; margin-bottom: 10px; }
-  .result-score { font-size: 52px; font-weight: 900; color: #fbbf24; }
-  .result-note { font-size: 14px; color: #8ab4c8; margin: 8px 0 20px; line-height: 1.8; }
+  .result-card::before {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, #fbbf2415 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 10px; position: relative; }
+  .result-score { font-size: 52px; font-weight: 900; color: #fbbf24; position: relative; }
+  .result-note {
+    font-size: 14px; color: #8ab4c8; margin: 8px 0 20px;
+    line-height: 1.8; position: relative;
+  }
 
   .btn-restart {
-    background: #fbbf24; color: #1a3a4a; border: none; border-radius: 50px;
-    padding: 14px 44px; font-size: 16px; font-weight: 700; cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #1a2d35; border: none; border-radius: 50px;
+    padding: 14px 44px; font-size: 16px; font-weight: 700;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    position: relative; box-shadow: 0 4px 20px #fbbf2430;
+    transition: all 0.2s;
   }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 24px #fbbf2440; }
   .btn-restart:active { transform: scale(0.95); }
 
   .hidden { display: none !important; }
 
+  /* Signal lights decor bottom */
+  .signal-row {
+    display: flex; justify-content: center; gap: 16px;
+    margin-top: 6px; opacity: 0.5;
+  }
+  .signal-light {
+    width: 12px; height: 12px; border-radius: 50%;
+    animation: signalBlink 2s ease-in-out infinite;
+  }
+  .signal-light.r { background: #ef4444; box-shadow: 0 0 8px #ef4444; animation-delay: 0s; }
+  .signal-light.y { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation-delay: 0.7s; }
+  .signal-light.g { background: #4ade80; box-shadow: 0 0 8px #4ade80; animation-delay: 1.4s; }
+  @keyframes signalBlink {
+    0%, 40%, 100% { opacity: 0.3; transform: scale(0.8); }
+    20% { opacity: 1; transform: scale(1.2); }
+  }
+
   @media (max-width: 500px) {
-    .header h1 { font-size: 18px; }
+    .header h1 { font-size: 18px; letter-spacing: 1px; }
     .scene-prompt { font-size: 14px; }
+    .scene-context { font-size: 13px; }
     .opt-btn { font-size: 13px; padding: 12px 14px; }
   }
 </style>
@@ -123,9 +288,19 @@
 <body>
 <div class="container">
   <div class="header">
-    <div class="icon">🚄</div>
+    <div class="header-icons">
+      <span>🚄</span><span>🚂</span><span>🛤️</span>
+    </div>
     <h1>铁路情景英语问答挑战</h1>
-    <div class="sub">马东铁项目 · 铁电专业 · 情景交际训练</div>
+    <div class="sub">马东铁项目 · 铁路专业 · 情景交际训练</div>
+    <div class="rail-divider"></div>
+  </div>
+
+  <!-- Signal lights decor -->
+  <div class="signal-row">
+    <div class="signal-light r"></div>
+    <div class="signal-light y"></div>
+    <div class="signal-light g"></div>
   </div>
 
   <!-- Top bar -->
@@ -146,11 +321,12 @@
   <!-- Timer -->
   <div class="timer-row">
     <div class="timer-ring" id="timerRing">20</div>
+    <div class="timer-label">SEC</div>
   </div>
 
   <!-- Question area -->
   <div class="scene-card" id="sceneCard">
-    <div class="scene-badge" id="sceneBadge">列车餐车</div>
+    <div class="scene-badge" id="sceneBadge">🚂 列车餐车</div>
     <div class="scene-prompt" id="scenePrompt"></div>
     <div class="scene-context" id="sceneContext"></div>
   </div>
@@ -158,19 +334,26 @@
   <div class="options-list" id="optionsList"></div>
   <div class="feedback" id="feedback"></div>
 
-  <!-- Result (hidden by default) -->
+  <!-- Result (hidden) -->
   <div class="result-card hidden" id="resultCard">
     <div class="result-emoji" id="resultEmoji"></div>
     <div class="result-score" id="resultScore"></div>
     <div class="result-note" id="resultNote"></div>
     <button class="btn-restart" onclick="restartGame()">再来一次</button>
   </div>
+
+  <!-- Track decoration at bottom -->
+  <div class="signal-row" style="margin-top:20px;">
+    <div class="signal-light r"></div>
+    <div class="signal-light y"></div>
+    <div class="signal-light g"></div>
+  </div>
 </div>
 
 <script>
 var questions = [
   {
-    scene: "列车餐车",
+    scene: "🚂 列车餐车",
     prompt: "乘务员微笑着递上菜单，用英语询问：",
     question: "\"What would you like to drink?\"",
     options: ["Thank you.", "Here you go.", "Just water.", "Sounds great."],
@@ -178,7 +361,7 @@ var questions = [
     explain: "[Just water.] 礼貌简洁地回应饮品询问；A用于致谢，B用于递东西，D用于回应提议。"
   },
   {
-    scene: "车站面试室",
+    scene: "🚉 车站面试室",
     prompt: "面试官看了看简历，抬头用英语问：",
     question: "\"May I have your name?\"",
     options: ["I'm doing well.", "I'm Jane Smith.", "Take care.", "My pleasure."],
@@ -186,7 +369,7 @@ var questions = [
     explain: "[I'm Jane Smith.] 直接回答姓名询问；A回答[How are you?]，C是告别语，D回应[Thank you]。"
   },
   {
-    scene: "站台服务区",
+    scene: "🛤️ 站台服务区",
     prompt: "你帮一位老年旅客提行李后，对方感激地说：",
     question: "\"Thank you so much for your help!\"",
     options: ["No problem.", "It's over there.", "Never mind.", "You're welcome."],
@@ -194,7 +377,7 @@ var questions = [
     explain: "[You're welcome.] 回应感谢最正式礼貌；A偏随意，B指方向，C用于安慰对方别在意。"
   },
   {
-    scene: "机车检修车间",
+    scene: "🔧 机车检修车间",
     prompt: "新同事第一天上班，好奇地问你：",
     question: "\"How do you get to the locomotive depot every day?\"",
     options: ["It's up to you.", "By subway.", "Not far away.", "After you."],
@@ -202,7 +385,7 @@ var questions = [
     explain: "[By subway.] 回答交通方式；A表示[你决定]，C是距离模糊回答，D是礼让对方先行。"
   },
   {
-    scene: "检修班组休息室",
+    scene: "🛡️ 检修班组休息室",
     prompt: "同事兴奋地跑进来说他通过了机车检修高级考核，你应该说：",
     question: "Your colleague: \"I passed the locomotive maintenance exam!\"",
     options: ["Good luck!", "That's true.", "Well done.", "Sure."],
@@ -210,7 +393,7 @@ var questions = [
     explain: "[Well done!] 对别人的好成绩表示赞扬；A用于事前祝福，B表示同意观点，D表同意。"
   },
   {
-    scene: "列车车厢",
+    scene: "🚃 列车车厢",
     prompt: "一位旅客想填写乘车意见表，向你借笔：",
     question: "\"Excuse me, can I borrow your pen?\"",
     options: ["Help yourself.", "Have a good time.", "Sure, here you are.", "Don't mention it."],
@@ -218,7 +401,7 @@ var questions = [
     explain: "[Sure, here you are.] 借出物品的标准回应；A请对方自便，B祝玩开心，D回应感谢。"
   },
   {
-    scene: "车站售票窗口",
+    scene: "🎫 车站售票窗口",
     prompt: "售票员打印好车票后，用英语询问付款方式：",
     question: "\"How would you like to pay?\"",
     options: ["By car.", "This way, please.", "Good idea.", "By credit card."],
@@ -250,10 +433,7 @@ function restartGame() {
 }
 
 function loadQuestion() {
-  if (currentQ >= questions.length) {
-    endGame();
-    return;
-  }
+  if (currentQ >= questions.length) { endGame(); return; }
   answered = false;
   var q = questions[currentQ];
 
@@ -287,10 +467,7 @@ function startTimer() {
   timerInterval = setInterval(function() {
     timerLeft = Math.max(0, timerLeft - 0.1);
     updateTimer();
-    if (timerLeft <= 0) {
-      clearInterval(timerInterval);
-      if (!answered) timeUp();
-    }
+    if (timerLeft <= 0) { clearInterval(timerInterval); if (!answered) timeUp(); }
   }, 100);
 }
 
@@ -344,10 +521,7 @@ function selectAnswer(idx, btn) {
   setTimeout(nextQuestion, 2200);
 }
 
-function nextQuestion() {
-  currentQ++;
-  loadQuestion();
-}
+function nextQuestion() { currentQ++; loadQuestion(); }
 
 function endGame() {
   if (timerInterval) clearInterval(timerInterval);
@@ -375,7 +549,6 @@ function endGame() {
   document.getElementById("resultCard").classList.remove("hidden");
 }
 
-// Init
 restartGame();
 </script>
 </body>
