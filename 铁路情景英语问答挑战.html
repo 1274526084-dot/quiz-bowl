@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>铁路情景英语问答挑战</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(180deg, #1a3a4a 0%, #0f2a35 50%, #1a1a2e 100%);
+    min-height: 100vh; color: #fff; display: flex; flex-direction: column;
+    -webkit-user-select: none; user-select: none;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 16px; width: 100%; }
+
+  /* Header */
+  .header { text-align: center; padding: 20px 0 12px; }
+  .header .icon { font-size: 48px; margin-bottom: 4px; }
+  .header h1 { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+  .header .sub { font-size: 12px; color: #8ab4c8; margin-top: 2px; }
+
+  /* Top bar */
+  .top-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #ffffff15; border-radius: 14px; padding: 12px 18px;
+    margin-bottom: 12px; backdrop-filter: blur(10px); gap: 12px;
+  }
+  .top-item { text-align: center; }
+  .top-item .val { font-size: 24px; font-weight: 900; }
+  .top-item .val.p1 { color: #fbbf24; }
+  .top-item .val.p2 { color: #4ade80; }
+  .top-item .lbl { font-size: 10px; color: #8ab4c8; }
+
+  .progress-wrap { flex: 1; }
+  .progress-bar {
+    height: 8px; background: #ffffff20; border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; background: #fbbf24; border-radius: 4px; transition: width 0.3s; }
+
+  /* Timer */
+  .timer-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  .timer-ring {
+    width: 56px; height: 56px; border-radius: 50%; border: 3px solid #4ade80;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 900; transition: border-color 0.3s;
+  }
+  .timer-ring.warn { border-color: #fbbf24; }
+  .timer-ring.danger { border-color: #ef4444; animation: pulse 0.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+  /* Scene card */
+  .scene-card {
+    background: linear-gradient(135deg, #1e4a5f 0%, #163d4f 100%);
+    border: 1px solid #2d6a80; border-radius: 16px; padding: 18px 16px;
+    margin-bottom: 14px; text-align: center;
+  }
+  .scene-badge {
+    display: inline-block; background: #fbbf2422; color: #fbbf24;
+    border: 1px solid #fbbf2444; border-radius: 20px; padding: 4px 14px;
+    font-size: 11px; letter-spacing: 2px; margin-bottom: 8px;
+  }
+  .scene-prompt { font-size: 16px; color: #e0f0f7; line-height: 1.6; }
+  .scene-context { font-size: 13px; color: #8ab4c8; margin-top: 6px; font-style: italic; }
+
+  /* Options */
+  .options-list { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: #ffffff10; border: 2px solid #ffffff20; border-radius: 12px;
+    padding: 14px 16px; color: #e0f0f7; font-size: 15px;
+    cursor: pointer; transition: all 0.15s; text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .opt-btn:hover { background: #ffffff18; border-color: #4ade8055; }
+  .opt-btn:active { transform: scale(0.98); }
+
+  .opt-letter {
+    width: 32px; height: 32px; border-radius: 8px; background: #ffffff20;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 14px; flex-shrink: 0;
+  }
+  .opt-btn.correct { background: #14532d; border-color: #4ade80; color: #4ade80; }
+  .opt-btn.correct .opt-letter { background: #4ade8033; }
+  .opt-btn.wrong { background: #450a0a; border-color: #ef4444; color: #ef4444; animation: shake 0.4s; }
+  .opt-btn.wrong .opt-letter { background: #ef444433; }
+  .opt-btn.disabled { pointer-events: none; opacity: 0.5; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);} }
+
+  /* Feedback */
+  .feedback {
+    text-align: center; font-size: 14px; margin-top: 10px; min-height: 24px;
+    font-weight: 600;
+  }
+  .feedback.correct { color: #4ade80; }
+  .feedback.wrong { color: #ef4444; }
+
+  /* Result */
+  .result-card {
+    text-align: center; padding: 28px 20px;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 10px; }
+  .result-score { font-size: 52px; font-weight: 900; color: #fbbf24; }
+  .result-note { font-size: 14px; color: #8ab4c8; margin: 8px 0 20px; line-height: 1.8; }
+
+  .btn-restart {
+    background: #fbbf24; color: #1a3a4a; border: none; border-radius: 50px;
+    padding: 14px 44px; font-size: 16px; font-weight: 700; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-restart:active { transform: scale(0.95); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 500px) {
+    .header h1 { font-size: 18px; }
+    .scene-prompt { font-size: 14px; }
+    .opt-btn { font-size: 13px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="icon">🚄</div>
+    <h1>铁路情景英语问答挑战</h1>
+    <div class="sub">马东铁项目 · 铁电专业 · 情景交际训练</div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="top-item">
+      <div class="val p1" id="scoreDisplay">0</div>
+      <div class="lbl">得分</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="top-item">
+      <div class="val p2" id="qDisplay">1/7</div>
+      <div class="lbl">进度</div>
+    </div>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-row">
+    <div class="timer-ring" id="timerRing">20</div>
+  </div>
+
+  <!-- Question area -->
+  <div class="scene-card" id="sceneCard">
+    <div class="scene-badge" id="sceneBadge">列车餐车</div>
+    <div class="scene-prompt" id="scenePrompt"></div>
+    <div class="scene-context" id="sceneContext"></div>
+  </div>
+
+  <div class="options-list" id="optionsList"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <!-- Result (hidden by default) -->
+  <div class="result-card hidden" id="resultCard">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-note" id="resultNote"></div>
+    <button class="btn-restart" onclick="restartGame()">再来一次</button>
+  </div>
+</div>
+
+<script>
+var questions = [
+  {
+    scene: "列车餐车",
+    prompt: "乘务员微笑着递上菜单，用英语询问：",
+    question: "\"What would you like to drink?\"",
+    options: ["Thank you.", "Here you go.", "Just water.", "Sounds great."],
+    answer: 2,
+    explain: "[Just water.] 礼貌简洁地回应饮品询问；A用于致谢，B用于递东西，D用于回应提议。"
+  },
+  {
+    scene: "车站面试室",
+    prompt: "面试官看了看简历，抬头用英语问：",
+    question: "\"May I have your name?\"",
+    options: ["I'm doing well.", "I'm Jane Smith.", "Take care.", "My pleasure."],
+    answer: 1,
+    explain: "[I'm Jane Smith.] 直接回答姓名询问；A回答[How are you?]，C是告别语，D回应[Thank you]。"
+  },
+  {
+    scene: "站台服务区",
+    prompt: "你帮一位老年旅客提行李后，对方感激地说：",
+    question: "\"Thank you so much for your help!\"",
+    options: ["No problem.", "It's over there.", "Never mind.", "You're welcome."],
+    answer: 3,
+    explain: "[You're welcome.] 回应感谢最正式礼貌；A偏随意，B指方向，C用于安慰对方别在意。"
+  },
+  {
+    scene: "机车检修车间",
+    prompt: "新同事第一天上班，好奇地问你：",
+    question: "\"How do you get to the locomotive depot every day?\"",
+    options: ["It's up to you.", "By subway.", "Not far away.", "After you."],
+    answer: 1,
+    explain: "[By subway.] 回答交通方式；A表示[你决定]，C是距离模糊回答，D是礼让对方先行。"
+  },
+  {
+    scene: "检修班组休息室",
+    prompt: "同事兴奋地跑进来说他通过了机车检修高级考核，你应该说：",
+    question: "Your colleague: \"I passed the locomotive maintenance exam!\"",
+    options: ["Good luck!", "That's true.", "Well done.", "Sure."],
+    answer: 2,
+    explain: "[Well done!] 对别人的好成绩表示赞扬；A用于事前祝福，B表示同意观点，D表同意。"
+  },
+  {
+    scene: "列车车厢",
+    prompt: "一位旅客想填写乘车意见表，向你借笔：",
+    question: "\"Excuse me, can I borrow your pen?\"",
+    options: ["Help yourself.", "Have a good time.", "Sure, here you are.", "Don't mention it."],
+    answer: 2,
+    explain: "[Sure, here you are.] 借出物品的标准回应；A请对方自便，B祝玩开心，D回应感谢。"
+  },
+  {
+    scene: "车站售票窗口",
+    prompt: "售票员打印好车票后，用英语询问付款方式：",
+    question: "\"How would you like to pay?\"",
+    options: ["By car.", "This way, please.", "Good idea.", "By credit card."],
+    answer: 3,
+    explain: "[By credit card.] 回答支付方式；A是交通方式，B用于领路，C是对建议的赞同。"
+  }
+];
+
+var currentQ = 0;
+var score = 0;
+var timerLeft = 0;
+var timerInterval = null;
+var answered = false;
+
+function restartGame() {
+  currentQ = 0;
+  score = 0;
+  answered = false;
+  document.getElementById("resultCard").classList.add("hidden");
+  document.getElementById("sceneCard").classList.remove("hidden");
+  document.getElementById("optionsList").classList.remove("hidden");
+  document.getElementById("feedback").classList.remove("hidden");
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("scoreDisplay").textContent = "0";
+  document.getElementById("progressFill").style.width = "0%";
+  document.getElementById("qDisplay").textContent = "1/7";
+  loadQuestion();
+}
+
+function loadQuestion() {
+  if (currentQ >= questions.length) {
+    endGame();
+    return;
+  }
+  answered = false;
+  var q = questions[currentQ];
+
+  document.getElementById("sceneBadge").textContent = q.scene;
+  document.getElementById("scenePrompt").textContent = q.prompt;
+  document.getElementById("sceneContext").textContent = q.question;
+  document.getElementById("qDisplay").textContent = (currentQ + 1) + "/7";
+  document.getElementById("progressFill").style.width = (currentQ / questions.length * 100) + "%";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "feedback";
+
+  var list = document.getElementById("optionsList");
+  list.innerHTML = "";
+  var letters = ["A", "B", "C", "D"];
+  q.options.forEach(function(text, i) {
+    var btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.innerHTML = '<span class="opt-letter">' + letters[i] + '</span> ' + text;
+    btn.setAttribute("data-idx", i);
+    btn.onclick = function() { selectAnswer(i, btn); };
+    list.appendChild(btn);
+  });
+
+  startTimer();
+}
+
+function startTimer() {
+  timerLeft = 20;
+  updateTimer();
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    timerLeft = Math.max(0, timerLeft - 0.1);
+    updateTimer();
+    if (timerLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!answered) timeUp();
+    }
+  }, 100);
+}
+
+function updateTimer() {
+  var sec = Math.ceil(timerLeft);
+  var ring = document.getElementById("timerRing");
+  ring.textContent = sec;
+  ring.className = "timer-ring" + (timerLeft <= 4 ? " danger" : timerLeft <= 8 ? " warn" : "");
+}
+
+function timeUp() {
+  answered = true;
+  var q = questions[currentQ];
+  var btns = document.querySelectorAll(".opt-btn");
+  btns.forEach(function(b) {
+    b.classList.add("disabled");
+    if (parseInt(b.getAttribute("data-idx")) === q.answer) b.classList.add("correct");
+  });
+  document.getElementById("feedback").textContent = "⏰ 时间到！正确答案: " + ["A","B","C","D"][q.answer] + ". " + q.explain;
+  document.getElementById("feedback").className = "feedback wrong";
+  setTimeout(nextQuestion, 2000);
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  var q = questions[currentQ];
+  var btns = document.querySelectorAll(".opt-btn");
+  btns.forEach(function(b) { b.classList.add("disabled"); });
+
+  var fb = document.getElementById("feedback");
+
+  if (idx === q.answer) {
+    var timeBonus = timerLeft > 12 ? 5 : timerLeft > 6 ? 3 : 0;
+    score += 10 + timeBonus;
+    btn.classList.add("correct");
+    fb.textContent = "✅ 正确！+" + (10 + timeBonus) + "分  " + q.explain;
+    fb.className = "feedback correct";
+    document.getElementById("scoreDisplay").textContent = score;
+  } else {
+    btn.classList.add("wrong");
+    btns.forEach(function(b) {
+      if (parseInt(b.getAttribute("data-idx")) === q.answer) b.classList.add("correct");
+    });
+    fb.textContent = "❌ 正确答案: " + ["A","B","C","D"][q.answer] + ". " + q.explain;
+    fb.className = "feedback wrong";
+  }
+
+  setTimeout(nextQuestion, 2200);
+}
+
+function nextQuestion() {
+  currentQ++;
+  loadQuestion();
+}
+
+function endGame() {
+  if (timerInterval) clearInterval(timerInterval);
+  document.getElementById("sceneCard").classList.add("hidden");
+  document.getElementById("optionsList").classList.add("hidden");
+  document.getElementById("feedback").classList.add("hidden");
+  document.getElementById("timerRing").textContent = "✓";
+  document.getElementById("timerRing").className = "timer-ring";
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("qDisplay").textContent = "7/7";
+
+  var maxScore = 7 * 15;
+  var pct = score / maxScore;
+  var emoji, note;
+  if (pct >= 0.9) { emoji = "🏆"; note = "太棒了！你在铁路情景英语问答中表现出色。"; }
+  else if (pct >= 0.7) { emoji = "🥇"; note = "很好！基本掌握了铁路情景交际用语。"; }
+  else if (pct >= 0.5) { emoji = "🥈"; note = "还不错，再练练铁路相关情景问答。"; }
+  else { emoji = "💪"; note = "需要加油！多复习情景交际英语，下次一定更好。"; }
+
+  note += "\n满分 " + maxScore + " 分 · 每题 10 分基础 + 剩余时间奖励";
+
+  document.getElementById("resultEmoji").textContent = emoji;
+  document.getElementById("resultScore").textContent = score + " 分";
+  document.getElementById("resultNote").textContent = note;
+  document.getElementById("resultCard").classList.remove("hidden");
+}
+
+// Init
+restartGame();
+</script>
+</body>
+</html>
