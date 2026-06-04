@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Adverb Quiz · PK Mode</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  min-height:100vh;min-height:100dvh;
+  background:#0f172a;
+  padding:8px;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.container{width:100%;max-width:900px;margin:0 auto}
+
+/* Header */
+.header{text-align:center;padding:8px 0 4px}
+.header .badge{
+  display:inline-block;padding:3px 16px;border-radius:20px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:3px;
+}
+.header h2{color:#e2e8f0;font-size:16px;margin-top:4px}
+
+/* VS Bar */
+.vs-bar{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  margin:6px 0 10px;
+}
+.vs-player{
+  flex:1;text-align:center;padding:8px 4px;border-radius:12px;
+  font-weight:800;font-size:15px;letter-spacing:1px;
+}
+.vs-player.p1{background:rgba(37,99,235,0.2);color:#60a5fa}
+.vs-player.p2{background:rgba(220,38,38,0.2);color:#f87171}
+.vs-icon{
+  font-size:28px;font-weight:900;padding:0 10px;
+  color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,0.5);
+  flex-shrink:0;
+}
+
+/* Arena */
+.arena{display:flex;gap:6px}
+.arena-col{
+  flex:1;background:#1e293b;border-radius:16px;padding:12px 10px;
+  display:flex;flex-direction:column;gap:8px;
+  min-width:0;
+}
+.arena-col.p1{border-top:4px solid #3b82f6}
+.arena-col.p2{border-top:4px solid #dc2626}
+
+/* Player timer */
+.p-timer{text-align:center}
+.p-timer .p-label{font-size:10px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase}
+.p-timer .p-time{
+  font-size:36px;font-weight:900;font-family:'Courier New',monospace;
+  color:#e2e8f0;line-height:1.1;
+}
+.p1 .p-time{color:#60a5fa}
+.p2 .p-time{color:#f87171}
+.p-time.running{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* Progress dots */
+.p-dots{display:flex;justify-content:center;gap:4px}
+.p-dot{
+  width:7px;height:7px;border-radius:50%;background:#334155;transition:all 0.3s;
+}
+.p-dot.done{background:#22c55e}
+.p-dot.wrong{background:#ef4444}
+.p-dot.cur{background:#e2e8f0;box-shadow:0 0 0 3px rgba(226,232,240,0.2)}
+
+/* Question box */
+.q-mini{
+  background:rgba(255,255,255,0.04);border:1px solid #334155;
+  border-radius:10px;padding:10px;text-align:center;
+}
+.q-mini .context{font-size:11px;color:#94a3b8;line-height:1.4;margin-bottom:4px}
+.q-mini .sentence{font-size:15px;color:#e2e8f0;font-weight:600;line-height:1.6}
+.q-mini .sentence b{color:#fbbf24}
+.q-mini .blank{
+  display:inline-block;min-width:70px;border-bottom:3px solid #6366f1;
+  margin:0 3px;vertical-align:bottom;color:#818cf8;
+}
+
+/* Choices per player */
+.p-choices{display:flex;flex-direction:column;gap:6px}
+.p-choice{
+  padding:16px 8px;border:3px solid #334155;border-radius:10px;
+  background:rgba(255,255,255,0.03);font-size:20px;font-weight:800;
+  cursor:pointer;text-align:center;color:#cbd5e1;
+  transition:all 0.1s;
+}
+.p1 .p-choice:hover{border-color:#60a5fa}
+.p2 .p-choice:hover{border-color:#f87171}
+.p-choice:active{transform:scale(0.96)}
+.p1 .p-choice.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e;pointer-events:none}
+.p1 .p-choice.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444;pointer-events:none;animation:shake 0.4s}
+.p2 .p-choice.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e;pointer-events:none}
+.p2 .p-choice.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444;pointer-events:none;animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Feedback */
+.p-fb{
+  min-height:36px;padding:8px 10px;border-radius:8px;
+  font-size:11px;font-weight:600;text-align:center;line-height:1.5;
+  display:none;
+}
+.p-fb.show{display:block}
+.p1 .p-fb.ok{background:rgba(34,197,94,0.15);color:#4ade80}
+.p1 .p-fb.no{background:rgba(239,68,68,0.15);color:#f87171}
+.p2 .p-fb.ok{background:rgba(34,197,94,0.15);color:#4ade80}
+.p2 .p-fb.no{background:rgba(239,68,68,0.15);color:#f87171}
+
+/* Waiting indicator */
+.p-waiting{
+  text-align:center;padding:8px;color:#64748b;font-size:11px;
+  display:none;
+}
+.p-waiting.show{display:block}
+
+/* Shared actions */
+.actions-row{text-align:center;margin-top:10px}
+.btn{
+  padding:14px 40px;border:none;border-radius:14px;
+  font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;
+  font-family:'Microsoft YaHei','Segoe UI',sans-serif;
+}
+.btn:active{transform:scale(0.95)}
+.btn-start{
+  background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f172a;
+  font-size:20px;box-shadow:0 4px 20px rgba(245,158,11,0.4);
+}
+.btn-next{
+  background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;
+  display:none;font-size:16px;
+}
+.btn-next.show{display:inline-block}
+.btn-restart{
+  background:#334155;color:#e2e8f0;
+  display:none;font-size:14px;
+}
+.btn-restart.show{display:inline-block}
+
+/* Countdown overlay */
+.countdown-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(15,23,42,0.95);display:none;
+  align-items:center;justify-content:center;z-index:100;
+}
+.countdown-overlay.show{display:flex}
+.countdown-num{font-size:120px;font-weight:900;color:#fbbf24;animation:countBounce 0.6s ease-out}
+@keyframes countBounce{0%{transform:scale(2);opacity:0}60%{transform:scale(0.9);opacity:1}100%{transform:scale(1);opacity:1}}
+
+/* Start screen */
+.start-wrap{text-align:center;padding:30px 0}
+.start-wrap h3{color:#e2e8f0;font-size:18px;margin-bottom:4px}
+.start-wrap p{color:#94a3b8;font-size:13px;margin-bottom:18px}
+
+/* Result screen */
+.result-wrap{display:none;padding:16px 0}
+.result-wrap.show{display:block}
+.result-cards{display:flex;gap:8px;margin-bottom:12px}
+.result-card{
+  flex:1;background:#1e293b;border-radius:14px;padding:16px 12px;text-align:center;
+}
+.result-card.winner{border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.2)}
+.result-card .r-name{font-size:13px;font-weight:700;margin-bottom:6px}
+.result-card.p1 .r-name{color:#60a5fa}
+.result-card.p2 .r-name{color:#f87171}
+.result-card .r-score{font-size:40px;font-weight:900;color:#e2e8f0}
+.result-card .r-time{font-size:13px;color:#94a3b8;margin-top:4px}
+.result-card .r-crown{font-size:28px;margin-top:4px}
+.verdict{text-align:center;margin-bottom:10px}
+.verdict h3{font-size:22px;font-weight:800}
+.verdict .win{color:#fbbf24}
+.verdict .draw{color:#94a3b8}
+.review-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+.review-table th{
+  color:#94a3b8;font-size:10px;padding:6px 4px;border-bottom:1px solid #334155;
+  text-align:center;
+}
+.review-table td{
+  padding:6px 4px;border-bottom:1px solid #1e293b;font-size:12px;
+  text-align:center;color:#e2e8f0;
+}
+.review-table .r-ok{color:#4ade80}
+.review-table .r-no{color:#f87171}
+
+.link-row{margin-top:8px;text-align:center}
+.link-row a{
+  display:inline-block;padding:4px 10px;border-radius:6px;
+  border:1px solid #334155;background:#1e293b;font-size:11px;
+  font-weight:600;text-decoration:none;color:#94a3b8;margin:0 2px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ADVERB QUIZ · PK MODE</div>
+    <h2>乘务场景 · 副词二选一 · 双人对战</h2>
+  </div>
+
+  <!-- VS Bar -->
+  <div class="vs-bar">
+    <div class="vs-player p1">🔵 PLAYER 1</div>
+    <div class="vs-icon">⚡VS⚡</div>
+    <div class="vs-player p2">🔴 PLAYER 2</div>
+  </div>
+
+  <!-- Start -->
+  <div class="start-wrap" id="startWrap">
+    <h3>👥 双人PK模式</h3>
+    <p>同一屏幕 · 左右对战 · 同时计时 · 谁更快更准？</p>
+    <button class="btn btn-start" onclick="startPK()">⚡ 开始PK</button>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena" id="arena" style="display:none">
+    <!-- Player 1 Column -->
+    <div class="arena-col p1" id="col1">
+      <div class="p-timer">
+        <div class="p-label">⏱ TIMER</div>
+        <div class="p-time running" id="time1">00:00</div>
+      </div>
+      <div class="p-dots" id="dots1"></div>
+      <div class="q-mini">
+        <div class="context" id="ctx1"></div>
+        <div class="sentence" id="sen1"></div>
+      </div>
+      <div class="p-choices" id="choices1"></div>
+      <div class="p-fb" id="fb1"></div>
+      <div class="p-waiting" id="wait1">⏳ 等待对手...</div>
+    </div>
+
+    <!-- Player 2 Column -->
+    <div class="arena-col p2" id="col2">
+      <div class="p-timer">
+        <div class="p-label">⏱ TIMER</div>
+        <div class="p-time running" id="time2">00:00</div>
+      </div>
+      <div class="p-dots" id="dots2"></div>
+      <div class="q-mini">
+        <div class="context" id="ctx2"></div>
+        <div class="sentence" id="sen2"></div>
+      </div>
+      <div class="p-choices" id="choices2"></div>
+      <div class="p-fb" id="fb2"></div>
+      <div class="p-waiting" id="wait2">⏳ 等待对手...</div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions-row">
+    <button class="btn btn-next" id="btnNext" onclick="nextQ()">下一题 ▶</button>
+    <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">🔄 再来一局</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-cards">
+      <div class="result-card p1" id="rcard1">
+        <div class="r-name">🔵 PLAYER 1</div>
+        <div class="r-score" id="rscore1"></div>
+        <div class="r-time" id="rtime1"></div>
+        <div class="r-crown" id="rcrown1"></div>
+      </div>
+      <div class="result-card p2" id="rcard2">
+        <div class="r-name">🔴 PLAYER 2</div>
+        <div class="r-score" id="rscore2"></div>
+        <div class="r-time" id="rtime2"></div>
+        <div class="r-crown" id="rcrown2"></div>
+      </div>
+    </div>
+    <div class="verdict"><h3 id="verdictText"></h3></div>
+    <table class="review-table" id="reviewTable"></table>
+  </div>
+
+  <div class="link-row">
+    <a href="adverb-quiz.html">单人模式</a>
+    <a href="adverb-training.html">发音训练</a>
+    <a href="index.html">主页</a>
+  </div>
+</div>
+
+<!-- Countdown Overlay -->
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-num" id="countdownNum">3</div>
+</div>
+
+<script>
+var quizData = [
+  {
+    context:'A passenger keeps asking about ticket prices, discounts, transfer times, seat types, and refund policies...',
+    sentence:'When passengers ask <b>many questions</b> about tickets, we should answer them <span class="blank">______</span>.',
+    choices:['patiently','politely'],
+    answer:'patiently',
+    explain:'"patiently" = 耐心地 — when facing many repeated questions, patience is the key quality for a train attendant.'
+  },
+  {
+    context:'You are standing at the platform entrance. It is the first interaction passengers will have with railway staff today.',
+    sentence:'When <b>greeting passengers</b> at the station, we must speak <span class="blank">______</span>.',
+    choices:['politely','carefully'],
+    answer:'politely',
+    explain:'"politely" = 礼貌地 — the first greeting sets the tone; politeness shows respect and warmth toward passengers.'
+  },
+  {
+    context:'A full luggage rack could pose a safety risk. Every bag must be checked before departure.',
+    sentence:'We need to check passengers\' luggage <span class="blank">______</span> to keep travel safe.',
+    choices:['carefully','patiently'],
+    answer:'carefully',
+    explain:'"carefully" = 仔细地 — safety inspections require thoroughness and attention to every detail.'
+  }
+];
+
+var TOTAL = quizData.length;
+var currentQ = 0;
+
+// Two player states
+var p1 = { results: [], answered: false, timerSec: 0, timerId: null, qStartTime: 0 };
+var p2 = { results: [], answered: false, timerSec: 0, timerId: null, qStartTime: 0 };
+
+function pad(n){ return n<10?'0'+n:''+n; }
+
+// ===== Build UI per player =====
+function buildDots(playerNum) {
+  var html = '';
+  for (var i = 0; i < TOTAL; i++) {
+    var cls = 'p-dot';
+    if (i < currentQ) {
+      var r = (playerNum === 1 ? p1 : p2).results[i];
+      cls += r.correct ? ' done' : ' wrong';
+    } else if (i === currentQ) cls += ' cur';
+    html += '<span class="' + cls + '"></span>';
+  }
+  document.getElementById('dots' + playerNum).innerHTML = html;
+}
+
+function renderQForPlayer(playerNum) {
+  var q = quizData[currentQ];
+  document.getElementById('ctx' + playerNum).textContent = '🚂 ' + q.context;
+  document.getElementById('sen' + playerNum).innerHTML = q.sentence;
+  var html = '';
+  q.choices.forEach(function(c) {
+    html += '<button class="p-choice" onclick="selectChoice(' + playerNum + ',\'' + c + '\')">' + c + '</button>';
+  });
+  document.getElementById('choices' + playerNum).innerHTML = html;
+}
+
+function updateTimer(playerNum) {
+  var p = playerNum === 1 ? p1 : p2;
+  var m = Math.floor(p.timerSec / 60);
+  var s = p.timerSec % 60;
+  document.getElementById('time' + playerNum).textContent = pad(m) + ':' + pad(s);
+}
+
+function startPlayerTimer(playerNum) {
+  var p = playerNum === 1 ? p1 : p2;
+  p.qStartTime = Date.now();
+  p.timerSec = 0;
+  p.timerId = setInterval(function() {
+    p.timerSec++;
+    updateTimer(playerNum);
+  }, 1000);
+}
+
+function stopPlayerTimer(playerNum) {
+  var p = playerNum === 1 ? p1 : p2;
+  if (p.timerId) { clearInterval(p.timerId); p.timerId = null; }
+}
+
+// ===== Countdown & Start =====
+function startPK() {
+  document.getElementById('startWrap').style.display = 'none';
+  document.getElementById('arena').style.display = 'flex';
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnRestart').classList.remove('show');
+  document.getElementById('resultWrap').classList.remove('show');
+
+  // Reset state
+  currentQ = 0;
+  p1.results = []; p1.answered = false;
+  p2.results = []; p2.answered = false;
+
+  // Show countdown
+  var overlay = document.getElementById('countdownOverlay');
+  var numEl = document.getElementById('countdownNum');
+  overlay.classList.add('show');
+  var count = 3;
+  numEl.textContent = count;
+  numEl.style.animation = 'none';
+  void numEl.offsetWidth;
+  numEl.style.animation = 'countBounce 0.6s ease-out';
+
+  var cdId = setInterval(function() {
+    count--;
+    if (count <= 0) {
+      clearInterval(cdId);
+      overlay.classList.remove('show');
+      beginRound();
+      return;
+    }
+    numEl.textContent = count;
+    numEl.style.animation = 'none';
+    void numEl.offsetWidth;
+    numEl.style.animation = 'countBounce 0.6s ease-out';
+  }, 800);
+}
+
+function beginRound() {
+  p1.answered = false;
+  p2.answered = false;
+  document.getElementById('fb1').className = 'p-fb';
+  document.getElementById('fb2').className = 'p-fb';
+  document.getElementById('wait1').classList.remove('show');
+  document.getElementById('wait2').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  renderQForPlayer(1);
+  renderQForPlayer(2);
+  buildDots(1);
+  buildDots(2);
+
+  startPlayerTimer(1);
+  startPlayerTimer(2);
+  document.getElementById('time1').classList.add('running');
+  document.getElementById('time2').classList.add('running');
+}
+
+// ===== Answer handling =====
+function selectChoice(playerNum, choiceText) {
+  var p = playerNum === 1 ? p1 : p2;
+  if (p.answered) return;
+  p.answered = true;
+  stopPlayerTimer(playerNum);
+  document.getElementById('time' + playerNum).classList.remove('running');
+
+  var elapsed = (Date.now() - p.qStartTime) / 1000;
+  var q = quizData[currentQ];
+  var isCorrect = choiceText === q.answer;
+
+  // Lock buttons
+  var buttons = document.querySelectorAll('#choices' + playerNum + ' .p-choice');
+  buttons.forEach(function(b) {
+    b.style.pointerEvents = 'none';
+    if (b.textContent === q.answer) b.classList.add('correct');
+    if (b.textContent === choiceText && !isCorrect) b.classList.add('wrong');
+  });
+
+  // Show feedback
+  var fb = document.getElementById('fb' + playerNum);
+  if (isCorrect) {
+    fb.className = 'p-fb show ok';
+    fb.innerHTML = '✅ <strong>Correct!</strong><br>' + q.explain;
+  } else {
+    fb.className = 'p-fb show no';
+    fb.innerHTML = '❌ <strong>' + choiceText + '</strong> is wrong.<br>' + q.explain;
+  }
+
+  p.results.push({ choice: choiceText, correct: isCorrect, elapsed: elapsed });
+
+  // Check if both answered
+  if (p1.answered && p2.answered) {
+    document.getElementById('wait1').classList.remove('show');
+    document.getElementById('wait2').classList.remove('show');
+    document.getElementById('btnNext').classList.add('show');
+  } else {
+    // Show waiting for the one who answered first
+    document.getElementById('wait' + playerNum).classList.add('show');
+  }
+}
+
+// ===== Next question =====
+function nextQ() {
+  currentQ++;
+  if (currentQ >= TOTAL) { showResult(); return; }
+  beginRound();
+}
+
+// ===== Result =====
+function fmtTime(sec) {
+  var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return pad(m) + ':' + pad(s);
+}
+
+function showResult() {
+  document.getElementById('arena').style.display = 'none';
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnRestart').classList.add('show');
+  document.getElementById('resultWrap').classList.add('show');
+
+  var c1 = p1.results.filter(function(r){return r.correct;}).length;
+  var c2 = p2.results.filter(function(r){return r.correct;}).length;
+  var t1 = p1.results.reduce(function(s,r){return s + r.elapsed;}, 0);
+  var t2 = p2.results.reduce(function(s,r){return s + r.elapsed;}, 0);
+
+  document.getElementById('rscore1').textContent = c1 + '/' + TOTAL;
+  document.getElementById('rtime1').textContent = '⏱ ' + fmtTime(t1);
+  document.getElementById('rscore2').textContent = c2 + '/' + TOTAL;
+  document.getElementById('rtime2').textContent = '⏱ ' + fmtTime(t2);
+
+  var rcard1 = document.getElementById('rcard1');
+  var rcard2 = document.getElementById('rcard2');
+  rcard1.classList.remove('winner');
+  rcard2.classList.remove('winner');
+  document.getElementById('rcrown1').textContent = '';
+  document.getElementById('rcrown2').textContent = '';
+
+  var verdictEl = document.getElementById('verdictText');
+  if (c1 > c2 || (c1 === c2 && t1 < t2)) {
+    rcard1.classList.add('winner');
+    document.getElementById('rcrown1').textContent = '👑';
+    verdictEl.className = 'win';
+    verdictEl.textContent = '🔵 PLAYER 1 获胜！';
+  } else if (c2 > c1 || (c2 === c1 && t2 < t1)) {
+    rcard2.classList.add('winner');
+    document.getElementById('rcrown2').textContent = '👑';
+    verdictEl.className = 'win';
+    verdictEl.textContent = '🔴 PLAYER 2 获胜！';
+  } else {
+    verdictEl.className = 'draw';
+    verdictEl.textContent = '🤝 平局！势均力敌！';
+  }
+
+  // Review table
+  var tableHtml = '<tr><th>#</th><th>P1 Choice</th><th>P1 Time</th><th>P2 Choice</th><th>P2 Time</th><th>Answer</th></tr>';
+  for (var i = 0; i < TOTAL; i++) {
+    var r1 = p1.results[i], r2 = p2.results[i];
+    var q = quizData[i];
+    var c1Cls = r1.correct ? 'r-ok' : 'r-no';
+    var c2Cls = r2.correct ? 'r-ok' : 'r-no';
+    tableHtml += '<tr>' +
+      '<td style="color:#94a3b8;">Q' + (i+1) + '</td>' +
+      '<td class="' + c1Cls + '"><strong>' + r1.choice + '</strong></td>' +
+      '<td style="color:#64748b;">' + fmtTime(r1.elapsed) + '</td>' +
+      '<td class="' + c2Cls + '"><strong>' + r2.choice + '</strong></td>' +
+      '<td style="color:#64748b;">' + fmtTime(r2.elapsed) + '</td>' +
+      '<td style="color:#fbbf24;font-weight:700;">' + q.answer + '</td>' +
+      '</tr>';
+  }
+  document.getElementById('reviewTable').innerHTML = tableHtml;
+}
+</script>
+</body>
+</html>
