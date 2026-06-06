@@ -137,9 +137,9 @@ body {
 
   <div class="flow">
     <div class="flow-steps">
-      <span class="flow-step">Step 1: 猜词感知</span>
+      <span class="flow-step">Step 1: 闪卡巩固</span>
       <span class="flow-arrow">→</span>
-      <span class="flow-step">Step 2: 闪卡巩固</span>
+      <span class="flow-step">Step 2: 猜词感知</span>
       <span class="flow-arrow">→</span>
       <span class="flow-step">Step 3: 发音评测</span>
       <span class="flow-arrow">→</span>
@@ -149,10 +149,10 @@ body {
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab(0)">
-      <span class="step-num">1</span>🧠 Quiz Bowl
+      <span class="step-num">1</span>📇 Flashcards
     </button>
     <button class="tab-btn" onclick="switchTab(1)">
-      <span class="step-num">2</span>📇 Flashcards
+      <span class="step-num">2</span>🧠 Quiz Bowl
     </button>
     <button class="tab-btn" onclick="switchTab(2)">
       <span class="step-num">3</span>🎙 Pronunciation
@@ -162,14 +162,14 @@ body {
     </button>
   </div>
 
-  <!-- Tab 1: Quiz Bowl -->
+  <!-- Tab 1: Flashcards -->
   <div class="tab-panel active">
-    <div class="iframe-box"><iframe src="quiz.html" allow="microphone"></iframe></div>
+    <div class="iframe-box"><iframe src="flashcards.html"></iframe></div>
   </div>
 
-  <!-- Tab 2: Flashcards -->
+  <!-- Tab 2: Quiz Bowl -->
   <div class="tab-panel">
-    <div class="iframe-box"><iframe src="flashcards.html"></iframe></div>
+    <div class="iframe-box"><iframe src="quiz.html" allow="microphone"></iframe></div>
   </div>
 
   <!-- Tab 3: Pronunciation -->
