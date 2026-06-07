@@ -171,10 +171,10 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
       <div class="tab" id="tab2" onclick="switchRound(1)"><span class="tnum">Round 2</span>🎯 听力测试</div>
       <div class="tab" id="tab3" onclick="switchRound(2)"><span class="tnum">Round 3</span>🔊 听音写词</div>
     </div>
-    <div class="panel show" id="panel0"><div class="dialogue-card"><h3>📋 语境填空</h3><p class="ctx">🚂 点击 🔊 听单词，填入空白处。</p><div id="dialogue1"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 1</span><span class="s-val" id="score1">—</span></span><button class="btn btn-check" onclick="checkRound(0)">✅ 检查</button></div></div>
-    <div class="panel" id="panel1"><div class="dialogue-card"><h3>🎯 听力测试</h3><p class="ctx">🚂 点击按钮播放完整对话，然后凭记忆填入单词。</p><div id="r2audio"></div><div id="dialogue2"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 2</span><span class="s-val" id="score2">—</span></span><button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button></div></div>
-    <div class="panel" id="panel2"><div class="dialogue-card"><h3>🔊 听音写单词</h3><p class="ctx">点击播放按钮听发音，最多听 3 遍。</p><div class="dict-list" id="dictList"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 3</span><span class="s-val" id="score3">—</span></span><button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button></div>
-    <div class="submit-section" id="submitSection"><div class="big-icon">🏆</div><h3 id="submitTitle"></h3><div class="total-score" id="totalScore"></div><div class="detail-scores" id="detailScores"></div><button class="btn-submit" id="btnSubmit" onclick="submitToCloud()">📤 提交成绩</button><p style="font-size:11px;color:#94a3b8;margin-top:6px" id="submitStatus"></p></div></div>
+    <div class="panel show" id="panel0"><div class="dialogue-card"><h3>📋 语境填空</h3><p class="ctx">🚂 点击 🔊 听单词，填入空白处。</p><div id="dialogue1"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 1</span><span class="s-val" id="score1">—</span></span><button class="btn btn-check" id="btnCheck0" onclick="checkRound(0)">✅ 提交成绩</button><span style="font-size:12px;color:#16a34a;display:none" id="submitted0">✓ 已提交</span></div></div>
+    <div class="panel" id="panel1"><div class="dialogue-card"><h3>🎯 听力测试</h3><p class="ctx">🚂 点击按钮播放完整对话，然后凭记忆填入单词。</p><div id="r2audio"></div><div id="dialogue2"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 2</span><span class="s-val" id="score2">—</span></span><button class="btn btn-check" id="btnCheck1" onclick="checkRound(1)">✅ 提交成绩</button><span style="font-size:12px;color:#16a34a;display:none" id="submitted1">✓ 已提交</span></div></div>
+    <div class="panel" id="panel2"><div class="dialogue-card"><h3>🔊 听音写单词</h3><p class="ctx">点击播放按钮听发音，最多听 3 遍。</p><div class="dict-list" id="dictList"></div></div><div class="score-bar"><span class="s-info"><span class="s-title">Round 3</span><span class="s-val" id="score3">—</span></span><button class="btn btn-check" id="btnCheck2" onclick="checkRound(2)">✅ 提交成绩</button><span style="font-size:12px;color:#16a34a;display:none" id="submitted2">✓ 已提交</span></div>
+    <div class="submit-section" id="submitSection"><div class="big-icon">🏆</div><h3 id="submitTitle"></h3><div class="total-score" id="totalScore"></div><div class="detail-scores" id="detailScores"></div><button class="btn-submit" id="btnSubmit" onclick="submitToCloud()">📤 确认完成</button><p style="font-size:11px;color:#94a3b8;margin-top:6px" id="submitStatus"></p></div></div>
   </div>
 
   <div id="displayUI" style="display:none">
@@ -311,8 +311,16 @@ function checkRound(r) {
 
   // 每轮立即提交
   submitRound(r, correct);
+  // 显示已提交状态
+  document.getElementById('btnCheck'+r).disabled = true;
+  document.getElementById('btnCheck'+r).textContent = '⏳ 提交中...';
+  setTimeout(function() {
+    var el = document.getElementById('submitted'+r);
+    if (el) { el.style.display = 'inline'; }
+    document.getElementById('btnCheck'+r).textContent = '✅ 已提交';
+  }, 500);
 
-  if (r<2 && correct>=4) setTimeout(function(){ switchRound(r+1); },1200);
+  if (r<2 && correct>=4) setTimeout(function(){ switchRound(r+1); },1500);
   if (r===2) {
     var t=(scores[0]||0)+(scores[1]||0)+(scores[2]||0);
     document.getElementById('totalScore').textContent=t+' / 15';
@@ -357,6 +365,8 @@ function resetAll(){
   scores=[null,null,null]; listenCounts={}; currentRound=0;
   ['score1','score2','score3'].forEach(function(id){ var e=document.getElementById(id); e.textContent='—'; e.classList.remove('perfect'); });
   ['tab1','tab2','tab3'].forEach(function(id){ document.getElementById(id).classList.remove('done'); });
+  // 重置提交按钮
+  [0,1,2].forEach(function(r){ var b=document.getElementById('btnCheck'+r); if(b){ b.disabled=false; b.textContent='✅ 提交成绩'; } var s=document.getElementById('submitted'+r); if(s) s.style.display='none'; });
   document.getElementById('submitSection').classList.remove('show');
   document.getElementById('btnSubmit').disabled=false; document.getElementById('btnSubmit').textContent='📤 确认完成';
   document.getElementById('r2audio').innerHTML='<div style="text-align:center;margin-bottom:10px"><button class="btn btn-check" id="btnPlayFull" onclick="playFull(this)" style="display:inline-block;width:auto;padding:10px 24px;font-size:14px">🔊 播放完整对话（仅一次）</button></div>';
