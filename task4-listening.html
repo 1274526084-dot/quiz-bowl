@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Task 4 守岗 · 听力任务</title>
-<!-- CloudBase Web SDK -->
-<script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -305,18 +303,15 @@ var ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
 var COLLECTION = 'task4_listening';
 var app = null, db = null, cloudReady = false;
 
-// ===== Init CloudBase (silent background) =====
+// ===== Init CloudBase (async, non-blocking) =====
 (function initCloud() {
-  if (typeof cloudbase === 'undefined') {
-    var retry = 0;
-    var id = setInterval(function() {
-      retry++;
-      if (typeof cloudbase !== 'undefined') { clearInterval(id); doConnect(); }
-      else if (retry > 20) clearInterval(id);
-    }, 500);
-    return;
-  }
-  doConnect();
+  // Load SDK dynamically so page renders instantly
+  var script = document.createElement('script');
+  script.src = 'https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js';
+  script.onload = function() { doConnect(); };
+  script.onerror = function() { console.error('CloudBase SDK load failed'); };
+  document.head.appendChild(script);
+
   function doConnect() {
     try {
       app = cloudbase.init({ env: ENV_ID });
