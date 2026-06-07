@@ -318,7 +318,6 @@ var app = null, db = null, cloudReady = false;
       app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() {
         db = app.database();
         cloudReady = true;
-        if (isDisplay) startDisplayLoop();
       }).catch(function(err) {
         console.error('CloudBase auth error:', err);
       });
@@ -345,6 +344,8 @@ if (isDisplay) {
   document.getElementById('displayUI').style.display = 'block';
   document.getElementById('nameModal').style.display = 'none';
   document.title = '📊 听力任务 · 实时大屏';
+  // 立刻开始轮询显示
+  startDisplayLoop();
 }
 
 // ===== Student: Name =====
@@ -528,20 +529,17 @@ function showToast(msg, type) {
 // ===== DISPLAY MODE =====
 // ==========================================
 function startDisplayLoop() {
+  // 立即开始轮询，不等云端连接确认
   renderDisplay();
-  setInterval(renderDisplay, 3000);
-  // Listen for real-time updates
-  if (db) {
-    db.collection(COLLECTION).watch({
-      onChange: function() { renderDisplay(); },
-      onError: function(e) { console.error('Watch error:', e); }
-    });
-  }
+  setInterval(renderDisplay, 2500);
 }
 
 function renderDisplay() {
-  if (!db) { document.getElementById('connStatus').textContent = '⏳ 连接中...'; return; }
-  document.getElementById('connStatus').textContent = '✅ 已连接云端';
+  if (!db) {
+    document.getElementById('connStatus').textContent = '⏳ 正在连接云端...';
+    return;
+  }
+  document.getElementById('connStatus').textContent = '✅ 云端已连接 · 自动刷新中';
 
   db.collection(COLLECTION).get().then(function(res) {
     var data = res.data || [];
