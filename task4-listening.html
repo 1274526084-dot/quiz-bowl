@@ -298,26 +298,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 </div>
 
 <script>
-// ===== CloudBase Web SDK（直接读写数据库，无需云函数） =====
-var ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
-var COLL = 'task4_listening';
-var db = null, dbReady = false;
-
-(function initDB() {
-  var s = document.createElement('script');
-  s.src = 'https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js';
-  s.onload = function() {
-    try {
-      var app = cloudbase.init({ env: ENV_ID });
-      app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() {
-        db = app.database();
-        dbReady = true;
-        console.log('CloudBase ready');
-      }).catch(function(e) { console.error('Auth error:', e); });
-    } catch(e) { console.error('Init error:', e); }
-  };
-  document.head.appendChild(s);
-})();
+// ===== CloudBase HTTP 云函数 =====
+var API_URL = 'https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 
 // ===== Config =====
 var AUDIO = {
@@ -448,46 +430,24 @@ function submitToCloud() {
   btn.disabled = true;
   document.getElementById('submitStatus').textContent = '';
 
-  submitNow();
-
-  function submitNow() {
-    if (!dbReady) {
-      // 等最多 5 秒
-      btn.textContent = '⏳ 等待连接...';
-      var w = 0;
-      var id = setInterval(function() {
-        w++;
-        if (dbReady) { clearInterval(id); doSubmit(); }
-        else if (w > 25) { clearInterval(id); btn.disabled = false; btn.textContent = '📤 重试提交'; document.getElementById('submitStatus').textContent = '⚠️ 网络不通，请稍后重试'; }
-      }, 200);
-      return;
-    }
-    doSubmit();
-
-    function doSubmit() {
-      btn.textContent = '⏳ 提交中...';
-      var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
-      // 先查同名覆盖
-      db.collection(COLL).where({name: studentName}).get().then(function(res) {
-        var entry = { name: studentName, r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t, time: new Date() };
-        if (res.data && res.data.length > 0) {
-          return db.collection(COLL).doc(res.data[0]._id).update(entry);
-        } else {
-          return db.collection(COLL).add(entry);
-        }
-      }).then(function() {
-        document.getElementById('submitStatus').textContent = '✅ 提交成功！';
-        showToast('✅ 成绩已上传！', 'ok');
-        setTimeout(function(){ resetForNext(); }, 2000);
-      }).catch(function(err) {
-        console.error('Submit err:', err);
-        btn.disabled = false;
-        btn.textContent = '📤 重试提交';
-        document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
-        showToast('提交失败', 'no');
-      });
-    }
-  }
+  var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+  btn.textContent = '⏳ 提交中...';
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ action:'submit', data:{ name:studentName, r1:scores[0]||0, r2:scores[1]||0, r3:scores[2]||0, total:t }})
+  }).then(function(r){ return r.json(); }).then(function(res) {
+    if (res && res.ok) {
+      document.getElementById('submitStatus').textContent = '✅ 提交成功！';
+      showToast('✅ 成绩已上传！','ok');
+      setTimeout(function(){ resetForNext(); },2000);
+    } else throw new Error((res&&res.error)||'fail');
+  }).catch(function(err) {
+    console.error(err);
+    btn.disabled = false; btn.textContent = '📤 重试';
+    document.getElementById('submitStatus').textContent = '⚠️ 提交失败';
+    showToast('提交失败','no');
+  });
 }
 
 function resetForNext() {
@@ -532,14 +492,11 @@ function startDisplayLoop() {
 }
 
 function renderDisplay() {
-  if (!dbReady) {
-    document.getElementById('connStatus').textContent = '⏳ 连接云端中...';
-    return;
-  }
   document.getElementById('connStatus').textContent = '✅ 自动刷新中';
 
-  db.collection(COLL).orderBy('time', 'desc').limit(50).get().then(function(res) {
-    var data = res.data || [];
+  fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'list'}) })
+  .then(function(r){ return r.json(); }).then(function(res) {
+    var data = (res && res.data) ? res.data : [];
     var n = data.length;
     document.getElementById('dispCount').textContent = n;
 
@@ -580,17 +537,15 @@ function renderDisplay() {
     });
     document.getElementById('stuTbody').innerHTML = rows;
   }).catch(function(err) {
-    console.error('Query error:', err);
-    document.getElementById('connStatus').textContent = '⚠️ 读取失败，请确认：匿名登录已开启 + 安全域名已添加';
+    console.error(err);
+    document.getElementById('connStatus').textContent = '⚠️ 连接失败，请确认云函数已部署并开启HTTP访问';
   });
 }
 
 function clearCloudData() {
   if (!confirm('确定要清除所有数据吗？')) return;
-  db.collection(COLL).get().then(function(res) {
-    var arr = (res.data || []).map(function(d) { return db.collection(COLL).doc(d._id).remove(); });
-    return Promise.all(arr);
-  }).then(function() { renderDisplay(); }).catch(function() {});
+  fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'clear'}) })
+  .then(function(){ renderDisplay(); }).catch(function(){});
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
