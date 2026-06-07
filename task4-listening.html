@@ -298,28 +298,11 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 </div>
 
 <script>
-// ===== LeanCloud Config =====
-// 注册地址: https://console.leancloud.cn
-// 创建应用后获取 AppID 和 AppKey 填入下方
-var LC_APP_ID = 'YOUR_APP_ID';
-var LC_APP_KEY = 'YOUR_APP_KEY';
-var LC_CLASS = 'Task4Listening';
-var dbReady = false;
-
-// ===== Init LeanCloud (async, non-blocking) =====
-(function initLC() {
-  var script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/leancloud-storage@4.15.2/dist/av-min.js';
-  script.onload = function() {
-    try {
-      AV.init({ appId: LC_APP_ID, appKey: LC_APP_KEY });
-      dbReady = true;
-      console.log('LeanCloud ready');
-    } catch(e) { console.error('LeanCloud init error:', e); }
-  };
-  script.onerror = function() { console.error('LeanCloud SDK load failed'); };
-  document.head.appendChild(script);
-})();
+// ===== API 配置 =====
+// 本地服务器模式：node server.js 启动后，学生和教师连同一WiFi即可
+// GitHub Pages 模式：需配置后端API地址
+var API_BASE = location.hostname === '1274526084-dot.github.io' ? '' : '';
+var dbReady = true; // REST API 无需SDK初始化
 
 // ===== Config =====
 var AUDIO = {
@@ -451,39 +434,34 @@ function submitToCloud() {
   btn.disabled = true;
   document.getElementById('submitStatus').textContent = '';
 
-  if (!dbReady) {
-    btn.textContent = '⏳ 等待连接...';
-    document.getElementById('submitStatus').textContent = '正在连接云端，请稍候...';
-    var waited = 0;
-    var waitId = setInterval(function() {
-      waited++;
-      if (dbReady) { clearInterval(waitId); doSubmit(); }
-      else if (waited > 25) { clearInterval(waitId); btn.disabled = false; btn.textContent = '📤 提交成绩到云端'; document.getElementById('submitStatus').textContent = '⚠️ 网络不通，请稍后重试'; }
-    }, 200);
-    return;
-  }
   doSubmit();
 
   function doSubmit() {
     btn.textContent = '⏳ 提交中...';
 
     var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
-    var Record = AV.Object.extend(CLASS_NAME);
-    var record = new Record();
-    record.set('name', studentName);
-    record.set('r1', scores[0]||0);
-    record.set('r2', scores[1]||0);
-    record.set('r3', scores[2]||0);
-    record.set('total', t);
-    record.save().then(function() {
-      document.getElementById('submitStatus').textContent = '✅ 提交成功！';
-      showToast('✅ 成绩已上传云端！', 'ok');
-      setTimeout(function(){ resetForNext(); }, 2500);
+    var entry = {
+      name: studentName,
+      r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t
+    };
+
+    fetch(API_BASE + '/api/submit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(entry)
+    }).then(function(r) { return r.json(); }).then(function(res) {
+      if (res.ok) {
+        document.getElementById('submitStatus').textContent = '✅ 提交成功！';
+        showToast('✅ 成绩已上传！', 'ok');
+        setTimeout(function(){ resetForNext(); }, 2500);
+      } else {
+        throw new Error(res.error);
+      }
     }).catch(function(err) {
       console.error('Submit error:', err);
       btn.disabled = false;
-      btn.textContent = '📤 提交成绩到云端';
-      document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
+      btn.textContent = '📤 提交成绩';
+      document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请确保连接教师WiFi';
       showToast('提交失败，请检查网络', 'no');
     });
   }
@@ -531,17 +509,9 @@ function startDisplayLoop() {
 }
 
 function renderDisplay() {
-  if (!dbReady) {
-    document.getElementById('connStatus').textContent = '⏳ 正在连接云端（请确认已注册LeanCloud并填入AppID/AppKey）';
-    return;
-  }
-  document.getElementById('connStatus').textContent = '✅ 云端已连接 · 自动刷新中';
+  document.getElementById('connStatus').textContent = '✅ 自动刷新中';
 
-  var query = new AV.Query(CLASS_NAME);
-  query.descending('createdAt');
-  query.limit(50);
-  query.find().then(function(results) {
-    var data = results.map(function(r) { return r.attributes; });
+  fetch(API_BASE + '/api/students').then(function(r) { return r.json(); }).then(function(data) {
     var n = data.length;
     document.getElementById('dispCount').textContent = n;
 
@@ -582,24 +552,18 @@ function renderDisplay() {
     });
     document.getElementById('stuTbody').innerHTML = rows;
   }).catch(function(err) {
-    console.error('LeanCloud query error:', err);
-    document.getElementById('connStatus').textContent = '⚠️ 查询失败: ' + (err.message || '请检查AppID/AppKey');
+    console.error('Fetch error:', err);
+    document.getElementById('connStatus').textContent = '⚠️ 无法连接服务器，请确认教师电脑已运行 node server.js';
   });
 }
 
 function clearCloudData() {
-  if (!confirm('确定要清除云端所有数据吗？')) return;
-  if (!dbReady) return;
-  var query = new AV.Query(CLASS_NAME);
-  query.limit(100);
-  query.find().then(function(results) {
-    return AV.Object.destroyAll(results);
-  }).then(function() {
+  if (!confirm('确定要清除所有数据吗？')) return;
+  fetch(API_BASE + '/api/clear', {method:'POST'}).then(function() {
     renderDisplay();
     alert('数据已清除');
   }).catch(function(err) {
-    console.error('Clear error:', err);
-    alert('清除失败: ' + (err.message || ''));
+    alert('清除失败');
   });
 }
 
