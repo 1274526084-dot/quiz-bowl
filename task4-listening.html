@@ -130,7 +130,7 @@ body.display{background:#0f172a;padding:24px;color:#e2e8f0}
     <div class="top-bar"><div><span class="live-dot"></span><span class="live-text">LIVE</span></div><div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div><div class="conn-status" id="connStatus">⏳ 等待数据...</div></div>
     <div class="stat-cards"><div class="stat-card"><span class="sc-val green" id="dTotal">—</span><span class="sc-label">平均总分 /15</span></div><div class="stat-card"><span class="sc-val amber" id="dR1">—</span><span class="sc-label">Round 1 /5</span></div><div class="stat-card"><span class="sc-val rose" id="dR2">—</span><span class="sc-label">Round 2 /5</span></div><div class="stat-card"><span class="sc-val blue" id="dR3">—</span><span class="sc-label">Round 3 /5</span></div></div>
     <div class="round-compare" id="roundCompare"></div>
-    <div class="stu-table-wrap"><table class="stu-table"><thead><tr><th>#</th><th>姓名</th><th>R1</th><th>R2</th><th>R3</th><th>总分</th><th>评价</th></tr></thead><tbody id="stuTbody"><tr><td colspan="7" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr></tbody></table></div>
+    <div class="stu-table-wrap"><table class="stu-table"><thead><tr><th>#</th><th>姓名</th><th>环节</th><th>得分</th></tr></thead><tbody id="stuTbody"><tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr></tbody></table></div>
     <div class="ctrl-bar"><button class="btn-clear" onclick="clearCloudData()">🗑 清除</button></div>
   </div>
 </div>
@@ -248,28 +248,43 @@ function checkRound(r) {
   document.getElementById('score'+(r+1)).textContent=correct+'/5';
   if (correct===5) document.getElementById('score'+(r+1)).classList.add('perfect');
   document.getElementById('tab'+(r+1)).classList.add('done');
-  if (r<2 && correct>=4) setTimeout(function(){ switchRound(r+1); },1200);
-  if (r===2) showSubmit();
   showToast(correct===5?'🎉 全对！':correct+'/5', correct===5?'ok':'no');
-}
-function showSubmit(){
-  var t=(scores[0]||0)+(scores[1]||0)+(scores[2]||0);
-  document.getElementById('totalScore').textContent=t+' / 15';
-  document.getElementById('detailScores').textContent='R1: '+(scores[0]||0)+'/5 | R2: '+(scores[1]||0)+'/5 | R3: '+(scores[2]||0)+'/5';
-  var icon=t===15?'🏆':(t>=12?'🎉':(t>=8?'👍':'📚'));
-  document.getElementById('submitTitle').innerHTML=icon+' '+(t===15?'完美！':(t>=12?'优秀！':(t>=8?'不错！':'加油！')));
-  document.getElementById('submitSection').classList.add('show');
+
+  // 每轮立即提交
+  submitRound(r, correct);
+
+  if (r<2 && correct>=4) setTimeout(function(){ switchRound(r+1); },1200);
+  if (r===2) {
+    var t=(scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+    document.getElementById('totalScore').textContent=t+' / 15';
+    document.getElementById('detailScores').textContent='R1: '+(scores[0]||0)+'/5 | R2: '+(scores[1]||0)+'/5 | R3: '+(scores[2]||0)+'/5';
+    var icon=t===15?'🏆':(t>=12?'🎉':(t>=8?'👍':'📚'));
+    document.getElementById('submitTitle').innerHTML=icon+' '+(t===15?'完美！':(t>=12?'优秀！':(t>=8?'不错！':'加油！')));
+    document.getElementById('submitSection').classList.add('show');
+  }
 }
 
-// ===== Submit via JSONP =====
+// 每轮独立提交
+function submitRound(r, score) {
+  var roundNames = ['语境填空','听力测试','听音写词'];
+  jsonp('submit', {name:studentName, round: r+1, roundName: roundNames[r], score: score}, function(res){
+    if (res && res.ok) {
+      console.log('Round '+(r+1)+' submitted: '+score+'/5');
+    }
+  });
+}
+
+// 手动提交（最后一轮确认按钮）
 function submitToCloud(){
-  var btn=document.getElementById('btnSubmit'), t=(scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+  var t=(scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+  var btn=document.getElementById('btnSubmit');
   btn.disabled=true; btn.textContent='⏳ 提交中...';
   document.getElementById('submitStatus').textContent='';
-  jsonp('submit', {name:studentName, r1:scores[0]||0, r2:scores[1]||0, r3:scores[2]||0, total:t}, function(res){
+  // 最终总分也提交一次
+  jsonp('submit', {name:studentName, round:0, roundName:'总分', score:t, total:t, r1:scores[0]||0, r2:scores[1]||0, r3:scores[2]||0}, function(res){
     if (res && res.ok) {
-      document.getElementById('submitStatus').textContent='✅ 提交成功！';
-      showToast('✅ 已上传！','ok');
+      document.getElementById('submitStatus').textContent='✅ 全部提交成功！';
+      showToast('✅ 已完成！','ok');
       setTimeout(function(){ resetAll(); },2000);
     } else {
       btn.disabled=false; btn.textContent='📤 重试';
@@ -284,7 +299,7 @@ function resetAll(){
   ['score1','score2','score3'].forEach(function(id){ var e=document.getElementById(id); e.textContent='—'; e.classList.remove('perfect'); });
   ['tab1','tab2','tab3'].forEach(function(id){ document.getElementById(id).classList.remove('done'); });
   document.getElementById('submitSection').classList.remove('show');
-  document.getElementById('btnSubmit').disabled=false; document.getElementById('btnSubmit').textContent='📤 提交成绩';
+  document.getElementById('btnSubmit').disabled=false; document.getElementById('btnSubmit').textContent='📤 确认完成';
   document.getElementById('r2audio').innerHTML='<div style="text-align:center;margin-bottom:10px"><button class="btn btn-check" id="btnPlayFull" onclick="playFull(this)" style="display:inline-block;width:auto;padding:10px 24px;font-size:14px">🔊 播放完整对话（仅一次）</button></div>';
   document.getElementById('dialogue1').innerHTML=buildDialogue(0,true);
   document.getElementById('dialogue2').innerHTML=buildDialogue(1,false);
@@ -301,30 +316,43 @@ function refreshDisplay() {
   jsonp('list', null, function(res) {
     if (!res || !res.data) { document.getElementById('connStatus').textContent='⚠️ 无响应'; return; }
     document.getElementById('connStatus').textContent='✅ 已连接 · 自动刷新';
-    var data=res.data, n=data.length;
-    document.getElementById('dispCount').textContent=n;
+    var all=res.data, n=all.length;
+    document.getElementById('dispCount').textContent=n+'条';
     if (n===0) {
       document.getElementById('dTotal').textContent='—'; document.getElementById('dR1').textContent='—'; document.getElementById('dR2').textContent='—'; document.getElementById('dR3').textContent='—';
-      document.getElementById('stuTbody').innerHTML='<tr><td colspan="7" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr>';
+      document.getElementById('stuTbody').innerHTML='<tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr>';
       document.getElementById('roundCompare').innerHTML=''; return;
     }
-    var s1=0,s2=0,s3=0,sT=0;
-    data.forEach(function(d){ s1+=d.r1;s2+=d.r2;s3+=d.r3;sT+=d.total; });
-    var a1=(s1/n).toFixed(1),a2=(s2/n).toFixed(1),a3=(s3/n).toFixed(1),aT=(sT/n).toFixed(1);
-    document.getElementById('dTotal').textContent=aT;document.getElementById('dR1').textContent=a1;document.getElementById('dR2').textContent=a2;document.getElementById('dR3').textContent=a3;
+
+    // 按 round 分组统计
+    var r1=[],r2=[],r3=[],totals=[];
+    all.forEach(function(d){
+      if (d.round===1) r1.push(d);
+      else if (d.round===2) r2.push(d);
+      else if (d.round===3) r3.push(d);
+      else if (d.round===0) totals.push(d);
+    });
+    function avg(arr,key){ if(!arr.length) return '—'; var s=arr.reduce(function(a,b){return a+(b[key]||0);},0); return (s/arr.length).toFixed(1); }
+    var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score');
+    document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;
+    // 总分统计（从总提交中取）
+    var atot=totals.length?avg(totals,'total'):'—';
+    document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
     document.getElementById('roundCompare').innerHTML=
-      '<div class="round-col r1"><span class="rc-title">📝 Round 1</span><span class="rc-avg">'+a1+'</span><span class="rc-max">/5</span></div>'+
-      '<div class="round-col r2"><span class="rc-title">🎯 Round 2</span><span class="rc-avg">'+a2+'</span><span class="rc-max">/5</span></div>'+
-      '<div class="round-col r3"><span class="rc-title">🔊 Round 3</span><span class="rc-avg">'+a3+'</span><span class="rc-max">/5</span></div>'+
-      '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 总分</span><span class="rc-avg" style="color:#818cf8">'+aT+'</span><span class="rc-max">/15</span></div>';
+      '<div class="round-col r1"><span class="rc-title">📝 Round 1</span><span class="rc-avg">'+a1+'</span><span class="rc-max">/5 · '+r1.length+'次</span></div>'+
+      '<div class="round-col r2"><span class="rc-title">🎯 Round 2</span><span class="rc-avg">'+a2+'</span><span class="rc-max">/5 · '+r2.length+'次</span></div>'+
+      '<div class="round-col r3"><span class="rc-title">🔊 Round 3</span><span class="rc-avg">'+a3+'</span><span class="rc-max">/5 · '+r3.length+'次</span></div>'+
+      '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 总分</span><span class="rc-avg" style="color:#818cf8">'+atot+'</span><span class="rc-max">/15 · '+totals.length+'人</span></div>';
+
+    // 表格：显示每轮提交
     var rows='';
-    data.forEach(function(d,i){
-      var c=d.total>=14?'s-ok':(d.total>=10?'s-md':'s-lo');
+    all.forEach(function(d,i){
+      var rName=d.round===0?'🏆总分':('R'+d.round+' '+d.roundName);
+      var cls=d.score>=4?'s-ok':(d.score>=2?'s-md':'s-lo');
+      var dispScore=d.round===0?(d.total+'/15'):(d.score+'/5');
       rows+='<tr><td>'+(i+1)+'</td><td class="s-name">'+esc(d.name)+'</td>'+
-        '<td class="'+(d.r1>=4?'s-ok':(d.r1>=2?'s-md':'s-lo'))+'">'+d.r1+'/5</td>'+
-        '<td class="'+(d.r2>=4?'s-ok':(d.r2>=2?'s-md':'s-lo'))+'">'+d.r2+'/5</td>'+
-        '<td class="'+(d.r3>=4?'s-ok':(d.r3>=2?'s-md':'s-lo'))+'">'+d.r3+'/5</td>'+
-        '<td class="'+c+'"><b>'+d.total+'/15</b></td><td>'+(d.total>=14?'🌟':(d.total>=10?'👍':'💪'))+'</td></tr>';
+        '<td style="color:'+(d.round===1?'#fbbf24':(d.round===2?'#60a5fa':(d.round===3?'#4ade80':'#94a3b8')))+';font-weight:700">'+rName+'</td>'+
+        '<td class="'+cls+'">'+dispScore+'</td></tr>';
     });
     document.getElementById('stuTbody').innerHTML=rows;
   });
