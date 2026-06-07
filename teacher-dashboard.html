@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard · 无字幕视频前测/后测对比</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  background:#f1f5f9;color:#1e293b;min-height:100vh;
+}
+/* Sidebar */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:220px;background:#0f172a;
+  padding:24px 0;display:flex;flex-direction:column;z-index:10;
+}
+.sidebar .logo{color:#fff;font-size:18px;font-weight:800;padding:0 20px;margin-bottom:8px}
+.sidebar .logo-sub{color:#94a3b8;font-size:11px;padding:0 20px;margin-bottom:24px}
+.sidebar .nav-item{
+  padding:12px 20px;color:#94a3b8;font-size:13px;cursor:pointer;
+  border-left:3px solid transparent;transition:all 0.15s;
+}
+.sidebar .nav-item:hover,.sidebar .nav-item.active{
+  color:#fff;background:rgba(255,255,255,0.05);border-left-color:#6366f1;
+}
+/* Main */
+.main{margin-left:220px;padding:24px 28px;max-width:1300px}
+.page-title{font-size:24px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.page-sub{font-size:13px;color:#64748b;margin-bottom:24px}
+/* Summary Cards */
+.card-row{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.summary-card{
+  flex:1;min-width:180px;background:#fff;border-radius:14px;padding:18px 20px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);border-left:4px solid #6366f1;
+}
+.summary-card .s-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px}
+.summary-card .s-value{font-size:32px;font-weight:800;color:#0f172a;margin:4px 0}
+.summary-card .s-change{font-size:12px;font-weight:600}
+.summary-card .s-change.up{color:#16a34a}
+.summary-card .s-change.down{color:#dc2626}
+.summary-card.accent-green{border-left-color:#16a34a}
+.summary-card.accent-amber{border-left-color:#d97706}
+.summary-card.accent-rose{border-left-color:#dc2626}
+/* Chart Grid */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.chart-card{
+  background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.chart-card.full{grid-column:1/-1}
+.chart-card h3{font-size:15px;font-weight:700;color:#0f172a;margin-bottom:12px}
+.chart-wrap{position:relative;width:100%}
+.chart-wrap.radar{max-width:420px;margin:0 auto}
+.chart-wrap canvas{width:100%!important}
+/* Weakness bar chart custom */
+.weakness-table{width:100%;border-collapse:collapse}
+.weakness-table th{text-align:left;padding:6px 8px;font-size:11px;color:#94a3b8;border-bottom:1px solid #e2e8f0}
+.weakness-table td{padding:8px;font-size:13px;border-bottom:1px solid #f1f5f9}
+.weakness-table .bar-cell{width:100px}
+.weakness-bar-wrap{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;display:inline-block;width:80px;vertical-align:middle;margin-right:6px}
+.weakness-bar{height:100%;border-radius:4px;transition:width 0.6s}
+.weakness-bar.pre{background:#dc2626}
+.weakness-bar.post{background:#16a34a}
+.weakness-num{font-size:11px;font-weight:700;vertical-align:middle}
+/* Student Table */
+.student-table-wrap{max-height:480px;overflow-y:auto;border-radius:10px;border:1px solid #e2e8f0}
+.student-table{width:100%;border-collapse:collapse;font-size:12px}
+.student-table th{
+  position:sticky;top:0;background:#f8fafc;padding:8px 6px;text-align:center;
+  font-size:10px;color:#64748b;border-bottom:2px solid #e2e8f0;z-index:1;
+}
+.student-table td{padding:7px 6px;text-align:center;border-bottom:1px solid #f1f5f9}
+.student-table .name{text-align:left;font-weight:600;color:#0f172a}
+.student-table .score-lo{color:#dc2626;font-weight:700}
+.student-table .score-md{color:#d97706;font-weight:700}
+.student-table .score-hi{color:#16a34a;font-weight:700}
+.student-table .gain{font-size:11px;font-weight:700}
+.student-table tr:hover{background:#f8fafc}
+/* Insight boxes */
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.insight-card{
+  background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.insight-card h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.insight-card.pre h3{color:#dc2626}
+.insight-card.post h3{color:#16a34a}
+.insight-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.insight-item .tag{
+  padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap;
+}
+.tag.red{background:#fef2f2;color:#dc2626}
+.tag.green{background:#f0fdf4;color:#16a34a}
+.tag.amber{background:#fffbeb;color:#d97706}
+.tag.blue{background:#eff6ff;color:#2563eb}
+.insight-item .desc{color:#475569;line-height:1.4}
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:16px}
+  .chart-grid{grid-template-columns:1fr}
+  .insight-grid{grid-template-columns:1fr}
+  .card-row{gap:8px}
+  .summary-card{min-width:140px;padding:14px}
+  .summary-card .s-value{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">📊 ECRL Dashboard</div>
+  <div class="logo-sub">东铁英语教学看板</div>
+  <div class="nav-item active">📋 前测/后测对比</div>
+  <div class="nav-item">👥 学生列表</div>
+  <div class="nav-item">📈 成绩趋势</div>
+  <div class="nav-item">🎬 视频学习记录</div>
+  <div class="nav-item">⚙️ 设置</div>
+</div>
+
+<div class="main">
+  <div class="page-title">🎬 无字幕客运规则表达 · 前测/后测对比</div>
+  <div class="page-sub">Class 2A · 30 Students · 视频观看前后各完成一组测试 · 2026年6月</div>
+
+  <!-- Summary Cards -->
+  <div class="card-row">
+    <div class="summary-card">
+      <div class="s-label">前测平均分</div>
+      <div class="s-value" id="preAvg"></div>
+      <div class="s-change">满分 100</div>
+    </div>
+    <div class="summary-card accent-green">
+      <div class="s-label">后测平均分</div>
+      <div class="s-value" id="postAvg"></div>
+      <div class="s-change up" id="improvePct"></div>
+    </div>
+    <div class="summary-card accent-amber">
+      <div class="s-label">进步学生</div>
+      <div class="s-value" id="improveCount"></div>
+      <div class="s-change">/ 30 人</div>
+    </div>
+    <div class="summary-card accent-rose">
+      <div class="s-label">仍待加强</div>
+      <div class="s-value" id="atRiskCount"></div>
+      <div class="s-change">后测 &lt; 60 分</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🎯 五维能力雷达图 · 前测 vs 后测</h3>
+      <div class="chart-wrap radar"><canvas id="radarChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>📊 各维度得分对比</h3>
+      <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Weakness Analysis -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🔴 前测：薄弱环节分布（30人）</h3>
+      <table class="weakness-table">
+        <tr><th>薄弱项</th><th class="bar-cell">占比</th><th>人数</th></tr>
+        <tr>
+          <td>🎧 音变听不出</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar pre" style="width:80%"></span></span><span class="weakness-num">80%</span></td>
+          <td>24 / 30</td>
+        </tr>
+        <tr>
+          <td>📖 词汇积累不够</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar pre" style="width:70%"></span></span><span class="weakness-num">70%</span></td>
+          <td>21 / 30</td>
+        </tr>
+        <tr>
+          <td>🗣️ 规则不会表达</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar pre" style="width:77%"></span></span><span class="weakness-num">77%</span></td>
+          <td>23 / 30</td>
+        </tr>
+        <tr>
+          <td>🚅 不知道跨境动车具体规则</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar pre" style="width:87%"></span></span><span class="weakness-num">87%</span></td>
+          <td>26 / 30</td>
+        </tr>
+      </table>
+    </div>
+    <div class="chart-card">
+      <h3>🟢 后测：遗留问题分布（30人）</h3>
+      <table class="weakness-table">
+        <tr><th>遗留问题</th><th class="bar-cell">占比</th><th>人数</th></tr>
+        <tr>
+          <td>📖 词汇积累了但还不会使用</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar post" style="width:50%"></span></span><span class="weakness-num">50%</span></td>
+          <td>15 / 30</td>
+        </tr>
+        <tr>
+          <td>🗣️ 只会用 It's proper / not proper to</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar post" style="width:60%"></span></span><span class="weakness-num">60%</span></td>
+          <td>18 / 30</td>
+        </tr>
+        <tr>
+          <td>🎧 音变仍听不出</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar post" style="width:23%"></span></span><span class="weakness-num">23%</span></td>
+          <td>7 / 30</td>
+        </tr>
+        <tr>
+          <td>🚅 不清楚跨境动车规则</td>
+          <td class="bar-cell"><span class="weakness-bar-wrap"><span class="weakness-bar post" style="width:17%"></span></span><span class="weakness-num">17%</span></td>
+          <td>5 / 30</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="insight-grid">
+    <div class="insight-card pre">
+      <h3>🔴 前测核心问题</h3>
+      <div class="insight-item"><span class="tag red">87%</span><span class="desc">学生完全不知道跨境动车上的乘客行为规范（如行李限制、禁止吸烟区、出入境文件要求等）</span></div>
+      <div class="insight-item"><span class="tag red">80%</span><span class="desc">无法分辨听力中的连读和弱读现象，如 "It's not allowed" 听成 "It's no tallowed"</span></div>
+      <div class="insight-item"><span class="tag red">77%</span><span class="desc">面对"如何告知乘客规则"时，无法用英语组织完整句子，多数字生只会说单个单词</span></div>
+      <div class="insight-item"><span class="tag red">70%</span><span class="desc">核心客运词汇储备不足，如 prohibited, permitted, compulsory, aisle 等不认得</span></div>
+    </div>
+    <div class="insight-card post">
+      <h3>🟢 后测改善与遗留</h3>
+      <div class="insight-item"><span class="tag green">↓64%</span><span class="desc">不知道跨境规则的学生从 87% 降至 17%——视频输入对规则认知提升极为显著</span></div>
+      <div class="insight-item"><span class="tag green">↓57%</span><span class="desc">音变识别能力大幅提升，多数学生能正确分辨 "allowed to" → /əˈlaʊd tə/ 的连读</span></div>
+      <div class="insight-item"><span class="tag amber">⚠ 60%</span><span class="desc">表达方式单一化：后测中 18 人只会用 "It's proper to do..." / "It's not proper to do..." 表达规则，缺乏多样性</span></div>
+      <div class="insight-item"><span class="tag amber">⚠ 50%</span><span class="desc">词汇量提升了（认得更多词），但在口语输出时仍无法自如调用，出现"看得懂说不出"</span></div>
+    </div>
+  </div>
+
+  <!-- Score Distribution -->
+  <div class="chart-grid">
+    <div class="chart-card full">
+      <h3>📈 30名学生 · 前后测分数变化</h3>
+      <div class="chart-wrap"><canvas id="studentChart" style="height:280px"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Student Table -->
+  <div class="chart-card full" style="margin-bottom:20px">
+    <h3>👥 学生详细数据</h3>
+    <div class="student-table-wrap">
+      <table class="student-table" id="studentTable">
+        <thead><tr>
+          <th>#</th><th>姓名</th>
+          <th>前测<br>音变</th><th>前测<br>词汇</th><th>前测<br>表达</th><th>前测<br>规则</th>
+          <th>前测<br>总分</th><th>后测<br>音变</th><th>后测<br>词汇</th><th>后测<br>表达</th><th>后测<br>规则</th>
+          <th>后测<br>总分</th><th>提升</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Generate 30 students with realistic data =====
+var names = [
+  'Ahmad Firdaus','Nurul Huda','Siti Aminah','Muhammad Hafiz','Nadia Razak',
+  'Lim Wei Jie','Tan Mei Ling','Chong Kai Wen','Lee Sook Yee','Wong Jun Hao',
+  'Chen Xiao Ming','Wang Li Na','Zhang Wei Jian','Liu Yi Ting','Yang Zi Hao',
+  'Ravi Chandran','Priya Devi','Arun Kumar','Deepa Nair','Karthik Raj',
+  'Siti Nurhaliza','Mohd Zaki','Farah Ain','Hazim Wafiq','Aisyah Humaira',
+  'Goh Sze Wei','Loke Kar Chun','Teoh Hui Min','Ng Khai Sheng','Phoon Jia Yi'
+];
+
+function randBetween(lo, hi) { return Math.round((lo + Math.random() * (hi - lo)) * 10) / 10; }
+function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+var students = [];
+for (var i = 0; i < 30; i++) {
+  // Pre-test: generally low scores
+  var pre_phonetic  = randBetween(20, 55);  // 音变听不出
+  var pre_vocab     = randBetween(25, 60);  // 词汇积累不够
+  var pre_express   = randBetween(20, 55);  // 规则不会表达
+  var pre_rules     = randBetween(15, 50);  // 不知道具体规则
+  var pre_overall   = Math.round((pre_phonetic + pre_vocab + pre_express + pre_rules) / 4);
+
+  // Post-test: improved but with specific remaining weaknesses
+  // Phonetic: big improvement from video exposure
+  var post_phonetic = clamp(pre_phonetic + randBetween(20, 45), 45, 88);
+  // Vocab: improved but limited (can recognize but not use)
+  var post_vocab    = clamp(pre_vocab + randBetween(10, 30), 40, 82);
+  // Expression: improved but constrained to "it's proper/not proper to" patterns
+  var post_express  = clamp(pre_express + randBetween(12, 35), 38, 78);
+  // Rules knowledge: BIG improvement
+  var post_rules    = clamp(pre_rules + randBetween(25, 55), 55, 95);
+  var post_overall  = Math.round((post_phonetic + post_vocab + post_express + post_rules) / 4);
+
+  var gain = Math.round(post_overall - pre_overall);
+
+  students.push({
+    name: names[i],
+    pre:  { phonetic: Math.round(pre_phonetic), vocab: Math.round(pre_vocab), express: Math.round(pre_express), rules: Math.round(pre_rules), overall: pre_overall },
+    post: { phonetic: Math.round(post_phonetic), vocab: Math.round(post_vocab), express: Math.round(post_express), rules: Math.round(post_rules), overall: post_overall },
+    gain: gain
+  });
+}
+
+// Compute averages
+function avg(arr, key1, key2) {
+  return Math.round(arr.reduce(function(s, st) { return s + st[key1][key2]; }, 0) / arr.length);
+}
+var preAvgOverall  = avg(students, 'pre', 'overall');
+var postAvgOverall = avg(students, 'post', 'overall');
+var improveCount   = students.filter(function(s) { return s.gain > 0; }).length;
+var atRiskCount    = students.filter(function(s) { return s.post.overall < 60; }).length;
+var improvePct     = '+' + Math.round((postAvgOverall - preAvgOverall) / preAvgOverall * 100) + '%';
+
+document.getElementById('preAvg').textContent = preAvgOverall;
+document.getElementById('postAvg').textContent = postAvgOverall;
+document.getElementById('improvePct').textContent = improvePct;
+document.getElementById('improveCount').textContent = improveCount;
+document.getElementById('atRiskCount').textContent = atRiskCount;
+
+// ===== Radar Chart =====
+var radarCtx = document.getElementById('radarChart').getContext('2d');
+new Chart(radarCtx, {
+  type: 'radar',
+  data: {
+    labels: ['音变识别', '词汇掌握', '规则表达', '规则知识', '综合应用'],
+    datasets: [{
+      label: '前测 Pre-test', data: [
+        avg(students,'pre','phonetic'), avg(students,'pre','vocab'),
+        avg(students,'pre','express'), avg(students,'pre','rules'),
+        avg(students,'pre','overall')
+      ],
+      backgroundColor: 'rgba(220,38,38,0.12)', borderColor: '#dc2626', borderWidth: 2.5,
+      pointBackgroundColor: '#dc2626', pointRadius: 5, pointBorderColor: '#fff', pointBorderWidth: 2
+    }, {
+      label: '后测 Post-test', data: [
+        avg(students,'post','phonetic'), avg(students,'post','vocab'),
+        avg(students,'post','express'), avg(students,'post','rules'),
+        avg(students,'post','overall')
+      ],
+      backgroundColor: 'rgba(22,163,74,0.12)', borderColor: '#16a34a', borderWidth: 2.5,
+      pointBackgroundColor: '#16a34a', pointRadius: 5, pointBorderColor: '#fff', pointBorderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 13 } } } },
+    scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20, font: { size: 10 } }, pointLabels: { font: { size: 12, weight: 'bold' } } } }
+  }
+});
+
+// ===== Bar Chart: Dimension Comparison =====
+var barCtx = document.getElementById('barChart').getContext('2d');
+new Chart(barCtx, {
+  type: 'bar',
+  data: {
+    labels: ['音变识别', '词汇掌握', '规则表达', '规则知识', '综合应用'],
+    datasets: [{
+      label: '前测', data: [
+        avg(students,'pre','phonetic'), avg(students,'pre','vocab'),
+        avg(students,'pre','express'), avg(students,'pre','rules'),
+        avg(students,'pre','overall')
+      ],
+      backgroundColor: '#fca5a5', borderRadius: 6
+    }, {
+      label: '后测', data: [
+        avg(students,'post','phonetic'), avg(students,'post','vocab'),
+        avg(students,'post','express'), avg(students,'post','rules'),
+        avg(students,'post','overall')
+      ],
+      backgroundColor: '#86efac', borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+    scales: { y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } }
+  }
+});
+
+// ===== Student Score Change Chart =====
+var sortedStudents = students.slice().sort(function(a, b) { return a.gain - b.gain; });
+var stuCtx = document.getElementById('studentChart').getContext('2d');
+new Chart(stuCtx, {
+  type: 'bar',
+  data: {
+    labels: sortedStudents.map(function(s) { return s.name.split(' ').pop(); }),
+    datasets: [{
+      label: '前测总分', data: sortedStudents.map(function(s) { return s.pre.overall; }),
+      backgroundColor: '#fca5a5', borderRadius: 3, borderSkipped: false
+    }, {
+      label: '后测总分', data: sortedStudents.map(function(s) { return s.post.overall; }),
+      backgroundColor: '#86efac', borderRadius: 3, borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 12 } } },
+      tooltip: {
+        callbacks: {
+          title: function(ctx) { return sortedStudents[ctx[0].dataIndex].name; }
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { font: { size: 9 }, maxRotation: 90, minRotation: 45 } },
+      y: { beginAtZero: true, max: 100, ticks: { stepSize: 20, font: { size: 11 } } }
+    }
+  }
+});
+
+// ===== Student Table =====
+function scoreClass(s) { return s >= 75 ? 'score-hi' : (s >= 55 ? 'score-md' : 'score-lo'); }
+var tbody = '';
+students.forEach(function(s, i) {
+  tbody += '<tr>' +
+    '<td style="color:#94a3b8">' + (i+1) + '</td>' +
+    '<td class="name">' + s.name + '</td>' +
+    '<td class="' + scoreClass(s.pre.phonetic) + '">' + s.pre.phonetic + '</td>' +
+    '<td class="' + scoreClass(s.pre.vocab) + '">' + s.pre.vocab + '</td>' +
+    '<td class="' + scoreClass(s.pre.express) + '">' + s.pre.express + '</td>' +
+    '<td class="' + scoreClass(s.pre.rules) + '">' + s.pre.rules + '</td>' +
+    '<td class="' + scoreClass(s.pre.overall) + '"><b>' + s.pre.overall + '</b></td>' +
+    '<td class="' + scoreClass(s.post.phonetic) + '">' + s.post.phonetic + '</td>' +
+    '<td class="' + scoreClass(s.post.vocab) + '">' + s.post.vocab + '</td>' +
+    '<td class="' + scoreClass(s.post.express) + '">' + s.post.express + '</td>' +
+    '<td class="' + scoreClass(s.post.rules) + '">' + s.post.rules + '</td>' +
+    '<td class="' + scoreClass(s.post.overall) + '"><b>' + s.post.overall + '</b></td>' +
+    '<td class="gain" style="color:' + (s.gain > 0 ? '#16a34a' : (s.gain < 0 ? '#dc2626' : '#64748b')) + '">' + (s.gain > 0 ? '+' : '') + s.gain + '</td>' +
+    '</tr>';
+});
+document.querySelector('#studentTable tbody').innerHTML = tbody;
+</script>
+</body>
+</html>
