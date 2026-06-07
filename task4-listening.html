@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Task 4 守岗 · 听力任务</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  min-height:100vh;min-height:100dvh;
+  background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 50%,#f1f5f9 100%);
+  padding:16px;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.container{max-width:720px;margin:0 auto}
+
+.header{text-align:center;margin-bottom:16px}
+.header .badge{
+  display:inline-block;padding:4px 18px;border-radius:20px;
+  background:#d97706;color:#fff;font-size:12px;font-weight:700;letter-spacing:2px;
+}
+.header h2{color:#0f172a;font-size:20px;margin-top:6px}
+.header .sub{color:#64748b;font-size:13px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:20px}
+.tab{
+  flex:1;padding:12px 4px;border:2px solid #e2e8f0;border-radius:12px;
+  background:#fff;font-size:13px;font-weight:700;cursor:pointer;
+  text-align:center;color:#64748b;transition:all 0.15s;
+}
+.tab.active{background:#d97706;color:#fff;border-color:#d97706}
+.tab .tnum{display:block;font-size:10px;opacity:0.7}
+.tab.done{border-color:#16a34a;background:#f0fdf4;color:#16a34a}
+.tab.done .tnum{color:#16a34a}
+
+/* Panel */
+.panel{display:none}
+.panel.show{display:block}
+
+/* Dialogue card */
+.dialogue-card{
+  background:#fff;border-radius:16px;padding:20px 18px;margin-bottom:16px;
+  border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.dialogue-card h3{font-size:16px;color:#d97706;margin-bottom:6px}
+.dialogue-card .ctx{font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5}
+
+.d-line{display:flex;align-items:baseline;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.d-speaker{font-weight:700;color:#0f172a;font-size:14px;width:36px;flex-shrink:0}
+.d-text{font-size:14px;color:#334155;line-height:1.8;flex:1}
+
+.blank-wrap{display:inline-flex;align-items:center;gap:4px;vertical-align:bottom}
+.blank-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;background:#d97706;color:#fff;
+  font-size:12px;font-weight:700;flex-shrink:0;
+}
+.blank-input{
+  width:110px;padding:4px 8px;border:none;border-bottom:3px solid #d97706;
+  font-size:14px;font-weight:600;color:#0f172a;text-align:center;
+  background:transparent;outline:none;transition:all 0.2s;
+}
+.blank-input:focus{border-bottom-color:#d97706;background:rgba(217,119,6,0.05)}
+.blank-input.correct{border-bottom-color:#16a34a;color:#16a34a;background:rgba(22,163,74,0.06)}
+.blank-input.wrong{border-bottom-color:#dc2626;color:#dc2626;background:rgba(220,38,38,0.05)}
+.blank-input:disabled{opacity:0.85}
+.btn-listen{
+  width:28px;height:28px;border-radius:50%;border:2px solid #d97706;
+  background:#fff;font-size:14px;cursor:pointer;flex-shrink:0;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.btn-listen:active{transform:scale(0.9);background:#fef3c7}
+.btn-listen.playing{background:#d97706;color:#fff;animation:pulse 0.6s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Dictation round 3 */
+.dict-list{display:flex;flex-direction:column;gap:14px}
+.dict-item{
+  display:flex;align-items:center;gap:14px;background:#fff;
+  border-radius:14px;padding:18px 16px;border:2px solid #e2e8f0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.03);
+}
+.dict-num{
+  width:36px;height:36px;border-radius:50%;background:#d97706;color:#fff;
+  font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.dict-audio{
+  width:48px;height:48px;border-radius:50%;border:3px solid #d97706;
+  background:#fff;font-size:22px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.dict-audio:active{transform:scale(0.9);background:#fef3c7}
+.dict-audio.playing{background:#d97706;animation:pulse 0.6s infinite}
+.dict-input{
+  flex:1;padding:8px 12px;border:2px solid #e2e8f0;border-radius:10px;
+  font-size:18px;font-weight:600;color:#0f172a;outline:none;
+  transition:all 0.2s;min-width:0;
+}
+.dict-input:focus{border-color:#d97706}
+.dict-input.correct{border-color:#16a34a;color:#16a34a;background:#f0fdf4}
+.dict-input.wrong{border-color:#dc2626;color:#dc2626;background:#fef2f2}
+.dict-result{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;margin-bottom:16px}
+.btn{
+  flex:1;padding:14px;border:none;border-radius:12px;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;
+  font-family:'Microsoft YaHei','Segoe UI',sans-serif;
+}
+.btn:active{transform:scale(0.96)}
+.btn-check{background:#d97706;color:#fff}
+.btn-reset{background:#f1f5f9;color:#64748b}
+.btn-next{background:#16a34a;color:#fff;display:none}
+.btn-next.show{display:block}
+.btn-retry{background:#6366f1;color:#fff;display:none}
+.btn-retry.show{display:block}
+
+/* Score display */
+.score-bar{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:#fff;border-radius:14px;border:2px solid #e2e8f0;margin-bottom:16px;
+}
+.score-bar .s-icon{font-size:28px}
+.score-bar .s-info{flex:1}
+.score-bar .s-title{font-size:13px;color:#94a3b8;display:block}
+.score-bar .s-val{font-size:22px;font-weight:800;color:#d97706}
+.score-bar .s-val.perfect{color:#16a34a}
+
+/* Result summary */
+.result-summary{display:none;text-align:center;padding:20px 0}
+.result-summary.show{display:block}
+.result-summary .big-icon{font-size:64px}
+.result-summary h3{font-size:20px;margin:8px 0}
+.result-summary .big-score{font-size:48px;font-weight:900;color:#d97706}
+
+/* Feedback toast */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%);
+  padding:12px 28px;border-radius:24px;font-size:15px;font-weight:700;
+  z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.toast.show{opacity:1}
+.toast.ok{background:#16a34a;color:#fff}
+.toast.no{background:#dc2626;color:#fff}
+
+.link-row{margin-top:16px;text-align:center}
+.link-row a{
+  display:inline-block;padding:4px 10px;border-radius:6px;
+  border:1px solid #e2e8f0;background:#fff;font-size:11px;
+  font-weight:600;text-decoration:none;color:#64748b;margin:0 2px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">TASK 4 · 守岗</div>
+    <h2>🎧 ECRL Dress Code · 听力任务</h2>
+    <p class="sub">三次任务 · 从填空到听写</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab1" onclick="switchRound(0)">
+      <span class="tnum">Round 1</span>📝 语境填空
+    </div>
+    <div class="tab" id="tab2" onclick="switchRound(1)">
+      <span class="tnum">Round 2</span>🎯 听力测试
+    </div>
+    <div class="tab" id="tab3" onclick="switchRound(2)">
+      <span class="tnum">Round 3</span>🔊 听音写词
+    </div>
+  </div>
+
+  <!-- Round 1 & 2: Dialogue fill-in-blank -->
+  <div class="panel show" id="panel0">
+    <div class="dialogue-card">
+      <h3>📋 ECRL Dress Code Conversation</h3>
+      <p class="ctx">🚂 Leo 和 Adam 在讨论 ECRL 的着装规范。听对话并填入正确的单词。</p>
+      <div id="dialogue1"></div>
+    </div>
+    <div class="score-bar">
+      <span class="s-icon">📊</span>
+      <div class="s-info"><span class="s-title">Round 1 得分</span><span class="s-val" id="score1">—</span></div>
+      <button class="btn btn-check" onclick="checkRound(0)">✅ 检查答案</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel1">
+    <div class="dialogue-card">
+      <h3>🎯 ECRL Dress Code · 听力测试</h3>
+      <p class="ctx">🚂 先完整听一遍对话，然后凭记忆填入单词。每空只能听一次。</p>
+      <div id="dialogue2"></div>
+    </div>
+    <div class="score-bar">
+      <span class="s-icon">🎯</span>
+      <div class="s-info"><span class="s-title">Round 2 得分</span><span class="s-val" id="score2">—</span></div>
+      <button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button>
+    </div>
+  </div>
+
+  <!-- Round 3: Dictation -->
+  <div class="panel" id="panel2">
+    <div class="dialogue-card">
+      <h3>🔊 听音写单词</h3>
+      <p class="ctx">点击播放按钮听单词发音，在输入框中写出你听到的单词。每个单词可以听 3 遍。</p>
+      <div class="dict-list" id="dictList"></div>
+    </div>
+    <div class="score-bar">
+      <span class="s-icon">🏆</span>
+      <div class="s-info"><span class="s-title">Round 3 得分</span><span class="s-val" id="score3">—</span></div>
+      <button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button>
+    </div>
+    <div class="result-summary" id="resultSummary">
+      <div class="big-icon" id="resultIcon"></div>
+      <h3 id="resultTitle"></h3>
+      <div class="big-score" id="resultScore"></div>
+      <p style="color:#64748b;margin-top:8px" id="resultMsg"></p>
+      <button class="btn btn-retry show" onclick="resetAll()" style="margin-top:16px;display:inline-block;width:auto;padding:14px 32px;">🔄 重新开始</button>
+    </div>
+  </div>
+
+  <div class="link-row">
+    <a href="teacher-dashboard.html">📊 教师看板</a>
+    <a href="index.html">🏠 主页</a>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Audio map =====
+var AUDIO = {
+  'dress code': 'audio/dress-code.mp3',
+  'allowed': 'audio/allowed.wav',
+  'staff': 'audio/staff.wav',
+  'permitted': 'audio/permitted.wav',
+  'slogans': 'audio/slogan.mp3'
+};
+
+var ANSWERS = ['dress code', 'allowed', 'staff', 'permitted', 'slogans'];
+var currentRound = 0;
+var scores = [null, null, null]; // null = not submitted yet
+var listenCounts = {}; // track per-word listen counts for round 3
+
+// ===== Build dialogue HTML =====
+function buildDialogue(roundNum) {
+  var lines = [
+    { speaker: 'Leo',  text: 'Hi, Adam. Can I have a word, please?' },
+    { speaker: 'Adam', text: 'Sure, Leo.' },
+    { speaker: 'Leo',  text: 'I wanted to remind you about our ECRL <b class="blank-num">(1)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_0" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'dress code\',this)" title="听发音">🔊</button></span>.' },
+    { speaker: 'Adam', text: 'Is there something wrong with what I\'m wearing?' },
+    { speaker: 'Leo',  text: 'Well, you\'re wearing jeans.' },
+    { speaker: 'Adam', text: 'Oh. I think they look quite smart.' },
+    { speaker: 'Leo',  text: 'They\'re smart jeans, yes, but they are still jeans and we\'re not <b class="blank-num">(2)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_1" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'allowed\',this)" title="听发音">🔊</button></span> to wear jeans on duty.' },
+    { speaker: 'Adam', text: 'I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?' },
+    { speaker: 'Leo',  text: 'It\'s on our <b class="blank-num">(3)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_2" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'staff\',this)" title="听发音">🔊</button></span> webpage. I\'ll show you. Look! It says that staff members are not <b class="blank-num">(4)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_3" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'permitted\',this)" title="听发音">🔊</button></span> to wear jeans.' },
+    { speaker: 'Adam', text: 'I see. And no T-shirts with <b class="blank-num">(5)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_4" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'slogans\',this)" title="听发音">🔊</button></span>, short trousers or baseball caps.' },
+    { speaker: 'Leo',  text: 'Right, except on dress-down Fridays. You can wear what you want then.' },
+    { speaker: 'Adam', text: 'That\'s good to know!' }
+  ];
+
+  if (roundNum === 1) {
+    // Round 2: hide individual listen buttons, add one "play full dialogue" button at top
+    var html = '<div style="text-align:center;margin-bottom:14px"><button class="btn" style="background:#d97706;color:#fff;padding:12px 24px;display:inline-block;width:auto;font-size:15px" onclick="playFullDialogue(this)">🔊 播放完整对话（仅一次）</button></div>';
+    lines.forEach(function(l) {
+      var text = l.text.replace(/<button[^>]*>🔊<\/button>/g, '');
+      html += '<div class="d-line"><span class="d-speaker">' + l.speaker + '</span><span class="d-text">' + text + '</span></div>';
+    });
+    return html;
+  }
+
+  var html = '';
+  lines.forEach(function(l) {
+    html += '<div class="d-line"><span class="d-speaker">' + l.speaker + '</span><span class="d-text">' + l.text + '</span></div>';
+  });
+  return html;
+}
+
+// ===== Build dictation list (Round 3) =====
+function buildDictation() {
+  var html = '';
+  ANSWERS.forEach(function(word, i) {
+    html += '<div class="dict-item">' +
+      '<div class="dict-num">' + (i+1) + '</div>' +
+      '<button class="dict-audio" onclick="playDictWord(\'' + word + '\',' + i + ',this)" title="点击听发音">🔊</button>' +
+      '<input class="dict-input" id="d' + i + '" placeholder="输入你听到的单词...">' +
+      '<span class="dict-result" id="dr' + i + '"></span>' +
+      '</div>';
+  });
+  return html;
+}
+
+// ===== Audio playback =====
+var currentAudio = null;
+
+function playAudio(path, btn) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (btn) { btn.classList.add('playing'); }
+  var audio = new Audio(path);
+  currentAudio = audio;
+  audio.onended = function() {
+    if (btn) btn.classList.remove('playing');
+    currentAudio = null;
+  };
+  audio.onerror = function() {
+    if (btn) { btn.classList.remove('playing'); btn.style.opacity = '0.4'; }
+    currentAudio = null;
+    showToast('音频加载失败，请检查网络', 'no');
+  };
+  audio.play().catch(function() {
+    if (btn) btn.classList.remove('playing');
+  });
+}
+
+function playWord(word, btn) {
+  listenCounts[word] = (listenCounts[word] || 0) + 1;
+  if (currentRound === 0) {
+    // Round 1: unlimited listens
+  } else {
+    // limit not enforced but tracked
+  }
+  playAudio(AUDIO[word], btn);
+}
+
+function playDictWord(word, idx, btn) {
+  var count = listenCounts['dict_' + idx] = (listenCounts['dict_' + idx] || 0) + 1;
+  if (count > 3) {
+    showToast('该单词已听 ' + (count-1) + ' 遍，最多 3 遍', 'no');
+    return;
+  }
+  playAudio(AUDIO[word], btn);
+}
+
+function playFullDialogue(btn) {
+  // Play each word in sequence with gaps
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '🔊 播放中...';
+  btn.style.opacity = '0.6';
+
+  var delay = 0;
+  ANSWERS.forEach(function(word, i) {
+    setTimeout(function() {
+      playAudio(AUDIO[word], null);
+    }, delay);
+    delay += 2500;
+  });
+  setTimeout(function() {
+    btn.textContent = '✅ 已播放完毕';
+  }, delay);
+}
+
+// ===== Check answers =====
+function checkRound(roundNum) {
+  var correct = 0;
+  for (var i = 0; i < ANSWERS.length; i++) {
+    var input;
+    if (roundNum === 2) {
+      input = document.getElementById('d' + i);
+    } else {
+      input = document.getElementById('b' + roundNum + '_' + i);
+    }
+    if (!input) continue;
+    var userAnswer = input.value.trim().toLowerCase();
+    var expected = ANSWERS[i].toLowerCase();
+    if (userAnswer === expected) {
+      input.classList.add('correct');
+      input.classList.remove('wrong');
+      correct++;
+    } else {
+      input.classList.add('wrong');
+      input.classList.remove('correct');
+      if (roundNum < 2 && userAnswer === '') {
+        input.placeholder = '答案: ' + ANSWERS[i];
+      }
+    }
+    if (roundNum === 2) {
+      var resultEl = document.getElementById('dr' + i);
+      if (resultEl) {
+        resultEl.textContent = userAnswer === expected ? '✅' : '❌';
+      }
+    }
+    input.disabled = true;
+    if (roundNum < 2) {
+      var btn = input.parentElement.querySelector('.btn-listen');
+      if (btn) btn.style.display = 'none';
+    }
+  }
+
+  scores[roundNum] = correct;
+  document.getElementById('score' + (roundNum+1)).textContent = correct + ' / ' + ANSWERS.length;
+  if (correct === ANSWERS.length) {
+    document.getElementById('score' + (roundNum+1)).classList.add('perfect');
+  }
+
+  // Mark tab as done
+  document.getElementById('tab' + (roundNum+1)).classList.add('done');
+
+  // Auto-advance after short delay
+  if (roundNum < 2 && correct >= 4) {
+    setTimeout(function() { switchRound(roundNum + 1); }, 1500);
+  }
+
+  // Show overall result after round 3
+  if (roundNum === 2) {
+    showFinalResult();
+  }
+
+  showToast(correct === ANSWERS.length ? '🎉 全部正确！' : correct + '/' + ANSWERS.length + ' 正确', correct === ANSWERS.length ? 'ok' : 'no');
+}
+
+// ===== Final result =====
+function showFinalResult() {
+  var total = (scores[0] || 0) + (scores[1] || 0) + (scores[2] || 0);
+  var max = ANSWERS.length * 3;
+  var summary = document.getElementById('resultSummary');
+  summary.classList.add('show');
+
+  var icon, title, msg;
+  if (total === max) {
+    icon = '🏆'; title = '完美通关！'; msg = '三次任务全部满分，听力和词汇都非常扎实！';
+  } else if (total >= max - 3) {
+    icon = '🎉'; title = '表现优秀！'; msg = '得分 ' + total + '/' + max + '，你对 ECRL 着装规范用语掌握得很好！';
+  } else if (total >= max - 6) {
+    icon = '👍'; title = '继续加油！'; msg = '得分 ' + total + '/' + max + '，建议回到 Round 1 再练习一遍。';
+  } else {
+    icon = '📚'; title = '需要更多练习'; msg = '得分 ' + total + '/' + max + '，建议反复听音频，重点记忆这 5 个核心词汇。';
+  }
+
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScore').textContent = total + ' / ' + max;
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+// ===== Switch rounds =====
+function switchRound(idx) {
+  currentRound = idx;
+  document.querySelectorAll('.tab').forEach(function(t, i) { t.classList.toggle('active', i === idx); });
+  document.querySelectorAll('.panel').forEach(function(p, i) { p.classList.toggle('show', i === idx); });
+
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+}
+
+// ===== Reset =====
+function resetAll() {
+  scores = [null, null, null];
+  listenCounts = {};
+  currentRound = 0;
+
+  document.getElementById('dialogue1').innerHTML = buildDialogue(0);
+  document.getElementById('dialogue2').innerHTML = buildDialogue(1);
+  document.getElementById('dictList').innerHTML = buildDictation();
+
+  document.getElementById('score1').textContent = '—';
+  document.getElementById('score2').textContent = '—';
+  document.getElementById('score3').textContent = '—';
+  document.getElementById('score1').classList.remove('perfect');
+  document.getElementById('score2').classList.remove('perfect');
+  document.getElementById('score3').classList.remove('perfect');
+
+  document.getElementById('tab1').classList.remove('done');
+  document.getElementById('tab2').classList.remove('done');
+  document.getElementById('tab3').classList.remove('done');
+
+  document.getElementById('resultSummary').classList.remove('show');
+
+  switchRound(0);
+}
+
+// ===== Toast =====
+function showToast(msg, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  clearTimeout(toast._tid);
+  toast._tid = setTimeout(function() { toast.classList.remove('show'); }, 2000);
+}
+
+// ===== Init =====
+document.getElementById('dialogue1').innerHTML = buildDialogue(0);
+document.getElementById('dialogue2').innerHTML = buildDialogue(1);
+document.getElementById('dictList').innerHTML = buildDictation();
+</script>
+</body>
+</html>
