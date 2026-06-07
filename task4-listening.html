@@ -185,8 +185,8 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
     <!-- 学生进步追踪（核心） -->
     <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步追踪</div><div id="studentProgress"></div></div>
 
-    <!-- 各单词正确率 -->
-    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">🔤 各空正确率</div><div id="wordAccuracy"></div></div>
+    <!-- 学生进步折线图 -->
+    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步趋势（折线图）</div><div id="lineChart"></div></div>
 
     <!-- 扇形图 -->
     <div class="dist-section"><div class="dist-title">🍩 各轮得分扇形图</div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap" id="pieCharts"></div></div>
@@ -412,36 +412,7 @@ function refreshDisplay() {
     var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score'),atot=totals.length?avg(totals,'total'):'—';
     document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
 
-    // === 各单词正确率 ===
-    var words=['dress code','allowed','staff','permitted','slogans'];
-    var wordCounts=[{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]}]; // [correct,total]
-    all.forEach(function(d){
-      if (!d.details || d.round===0) return;
-      var parts=d.details.split(',').map(function(x){return parseInt(x)||0;});
-      for (var w=0;w<Math.min(5,parts.length);w++) {
-        var key='r'+d.round;
-        wordCounts[w][key][1]++; // total
-        if (parts[w]) wordCounts[w][key][0]++; // correct
-      }
-    });
-    var wHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'+
-      '<tr style="border-bottom:2px solid #e2e8f0"><th style="padding:8px;text-align:left;color:#64748b">空白</th><th style="padding:8px;color:#64748b">单词</th>'+
-      '<th style="padding:8px;color:#ef4444">R1 正确率</th><th style="padding:8px;color:#f59e0b">R2 正确率</th><th style="padding:8px;color:#22c55e">R3 正确率</th></tr>';
-    words.forEach(function(word,i){
-      var wc=wordCounts[i];
-      function pct(key){ var c=wc[key]; return c[1]>0?Math.round(c[0]/c[1]*100):'—'; }
-      function bar(key,rClass){
-        var p=pct(key); if(p==='—') return '<span style="color:#cbd5e1">暂无</span>';
-        return '<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden"><div class="dist-bar-inner '+rClass+'" style="width:'+p+'%;"></div></div><span style="font-weight:700;font-size:12px">'+p+'%</span></div>';
-      }
-      wHTML+='<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:8px;font-weight:700;color:#d97706">('+(i+1)+')</td>'+
-        '<td style="padding:8px;font-weight:600;color:#0f172a">'+word+'</td>'+
-        '<td style="padding:8px">'+bar('r1','r1')+'</td><td style="padding:8px">'+bar('r2','r2')+'</td><td style="padding:8px">'+bar('r3','r3')+'</td></tr>';
-    });
-    wHTML+='</table></div>';
-    document.getElementById('wordAccuracy').innerHTML=wHTML;
-
-    // === 学生进步追踪（按姓名聚合） ===
+    // === 学生进步（按姓名聚合） ===
     var stuMap={};
     all.forEach(function(d){
       if (d.round===0 || !d.name) return;
@@ -450,41 +421,70 @@ function refreshDisplay() {
     });
     var stuList=[];
     for (var k in stuMap) stuList.push(stuMap[k]);
-    // 按完成的轮数排序
     stuList.sort(function(a,b){
       var ca=(a.r1!==null?1:0)+(a.r2!==null?1:0)+(a.r3!==null?1:0);
       var cb=(b.r1!==null?1:0)+(b.r2!==null?1:0)+(b.r3!==null?1:0);
       return cb-ca;
     });
 
-    var progHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">'+
+    // === SVG 折线图 ===
+    var lineW=600,lineH=220,padL=40,padR=20,padT=20,padB=30;
+    var plotW=lineW-padL-padR,plotH=lineH-padT-padB;
+    var xPos=[padL, padL+plotW/2, padL+plotW]; // R1,R2,R3 x positions
+    var yMax=5;
+
+    function yPos(v){ return padT+plotH-(v/yMax*plotH); }
+
+    var lines='', dots='', labels='';
+    var colors=['#ef4444','#f59e0b','#f97316','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#6366f1','#84cc16'];
+    stuList.forEach(function(s,i){
+      var pts=[];
+      if (s.r1!==null) pts.push({x:xPos[0],y:yPos(s.r1),v:s.r1});
+      if (s.r2!==null) pts.push({x:xPos[1],y:yPos(s.r2),v:s.r2});
+      if (s.r3!==null) pts.push({x:xPos[2],y:yPos(s.r3),v:s.r3});
+      if (pts.length<2) return;
+      var color=colors[i%colors.length];
+      var d='';
+      pts.forEach(function(p,j){ d+=(j===0?'M':'L')+p.x+' '+p.y+' '; });
+      lines+='<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>';
+      pts.forEach(function(p){
+        dots+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+color+'"/><text x="'+p.x+'" y="'+(p.y-8)+'" text-anchor="middle" font-size="9" fill="'+color+'">'+p.v+'</text>';
+      });
+      // name label at last point
+      var last=pts[pts.length-1];
+      labels+='<text x="'+(last.x+4)+'" y="'+(last.y+12)+'" font-size="10" fill="'+color+'" font-weight="600">'+esc(s.name)+'</text>';
+    });
+
+    // Grid lines
+    var grid='';
+    for (var g=0;g<=5;g++) { grid+='<line x1="'+padL+'" y1="'+yPos(g)+'" x2="'+(padL+plotW)+'" y2="'+yPos(g)+'" stroke="#e2e8f0" stroke-width="1"/><text x="'+(padL-6)+'" y="'+(yPos(g)+3)+'" text-anchor="end" font-size="10" fill="#94a3b8">'+g+'</text>'; }
+    // X labels
+    var xLabels='';
+    ['R1','R2','R3'].forEach(function(l,i){ xLabels+='<text x="'+xPos[i]+'" y="'+(padT+plotH+18)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b">'+l+'</text>'; });
+
+    document.getElementById('lineChart').innerHTML=
+      '<svg viewBox="0 0 '+lineW+' '+lineH+'" style="width:100%;max-width:700px;display:block;margin:0 auto">'+grid+xLabels+lines+dots+labels+'</svg>';
+
+    // === 学生进步表格 ===
+    var progHTML='<div style="overflow-x:auto;margin-top:16px"><table style="width:100%;border-collapse:collapse;font-size:14px">'+
       '<tr style="border-bottom:2px solid #e2e8f0"><th style="padding:8px;text-align:left;color:#64748b">姓名</th>'+
-      '<th style="padding:8px;color:#ef4444">📝 R1</th><th style="padding:8px;color:#f59e0b">🎯 R2</th><th style="padding:8px;color:#22c55e">🔊 R3</th>'+
+      '<th style="padding:8px;color:#ef4444">R1</th><th style="padding:8px;color:#f59e0b">R2</th><th style="padding:8px;color:#22c55e">R3</th>'+
       '<th style="padding:8px;color:#6366f1">趋势</th></tr>';
-
-    if (stuList.length===0) progHTML+='<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8">等待第一轮提交...</td></tr>';
-
+    if (stuList.length===0) progHTML+='<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8">等待提交...</td></tr>';
     stuList.forEach(function(s){
       var trend='',trendColor='#94a3b8';
       if (s.r1!==null && s.r3!==null) {
-        if (s.r3 > s.r1) { trend='📈 进步 '+(s.r3-s.r1)+'分'; trendColor='#16a34a'; }
-        else if (s.r3 < s.r1) { trend='📉 下降'; trendColor='#dc2626'; }
-        else { trend='➡ 持平'; trendColor='#64748b'; }
-      } else if (s.r1!==null && s.r2!==null) {
-        if (s.r2 > s.r1) { trend='📈 +'+(s.r2-s.r1); trendColor='#16a34a'; }
-        else if (s.r2 < s.r1) { trend='📉'; trendColor='#dc2626'; }
+        if (s.r3>s.r1){ trend='📈 +'+(s.r3-s.r1); trendColor='#16a34a'; }
+        else if (s.r3<s.r1){ trend='📉 '+(s.r3-s.r1); trendColor='#dc2626'; }
         else { trend='➡'; trendColor='#64748b'; }
       } else { trend='...'; }
-
-      function cell(v,color){
+      function cell(v){
         if (v===null) return '<td style="padding:8px;text-align:center;color:#cbd5e1">—</td>';
-        var cls=v>=4?'#16a34a':(v>=2?'#d97706':'#dc2626');
-        return '<td style="padding:8px;text-align:center;font-weight:700;color:'+cls+'">'+v+'/5</td>';
+        var c=v>=4?'#16a34a':(v>=2?'#d97706':'#dc2626');
+        return '<td style="padding:8px;text-align:center;font-weight:700;color:'+c+'">'+v+'/5</td>';
       }
-      progHTML+='<tr style="border-bottom:1px solid #f1f5f9">'+
-        '<td style="padding:8px;font-weight:600;color:#0f172a">'+esc(s.name)+'</td>'+
-        cell(s.r1)+cell(s.r2)+cell(s.r3)+
-        '<td style="padding:8px;text-align:center;font-weight:700;color:'+trendColor+'">'+trend+'</td></tr>';
+      progHTML+='<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:8px;font-weight:600;color:#0f172a">'+esc(s.name)+'</td>'+
+        cell(s.r1)+cell(s.r2)+cell(s.r3)+'<td style="padding:8px;text-align:center;font-weight:700;color:'+trendColor+'">'+trend+'</td></tr>';
     });
     progHTML+='</table></div>';
     document.getElementById('studentProgress').innerHTML=progHTML;
