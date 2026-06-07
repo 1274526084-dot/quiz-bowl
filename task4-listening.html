@@ -300,22 +300,17 @@ var listenCounts = {};
 var isDisplay = location.search.indexOf('display') !== -1;
 var db = null, dbReady = false;
 
-// ===== 异步加载 CloudBase SDK =====
+// ===== 异步加载 CloudBase SDK（无需登录） =====
 (function loadSDK(){
   var s = document.createElement('script');
   s.src = 'https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js';
   s.onload = function(){
     try {
       var app = cloudbase.init({ env: ENV_ID });
-      app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function(){
-        db = app.database();
-        dbReady = true;
-        console.log('CloudBase SDK ready');
-        if (isDisplay) startDisplayLoop();
-      }).catch(function(e){
-        console.error('Auth error:', e);
-        if (isDisplay) { document.getElementById('connStatus').textContent = '⚠️ 匿名登录失败，请在控制台开启匿名登录'; startDisplayLoop(); }
-      });
+      db = app.database();
+      dbReady = true;
+      console.log('CloudBase ready (no auth)');
+      if (isDisplay) startDisplayLoop();
     } catch(e){ console.error('Init error:', e); }
   };
   document.head.appendChild(s);
