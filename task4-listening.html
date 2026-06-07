@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Task 4 守岗 · 听力任务</title>
+<!-- CloudBase Web SDK -->
+<script src="https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
@@ -17,7 +19,6 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .container{max-width:720px;margin:0 auto}
 .display .container{max-width:1100px}
 
-/* === Shared === */
 .header{text-align:center;margin-bottom:14px}
 .header .badge{
   display:inline-block;padding:4px 18px;border-radius:20px;
@@ -29,7 +30,7 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .display .header h2{color:#e2e8f0;font-size:28px;margin-top:6px}
 .header .sub{font-size:13px;color:#94a3b8}
 
-/* === Student: Name input === */
+/* Student: Name modal */
 .name-modal{
   position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.8);
   display:flex;align-items:center;justify-content:center;z-index:200;
@@ -39,7 +40,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
   width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
 }
 .name-box h3{font-size:20px;color:#0f172a;margin-bottom:4px}
-.name-box p{font-size:13px;color:#94a3b8;margin-bottom:20px}
+.name-box p{font-size:13px;color:#94a3b8;margin-bottom:16px}
+.name-box .status-msg{font-size:12px;color:#d97706;margin-bottom:10px}
 .name-box input{
   width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;
   font-size:20px;text-align:center;outline:none;font-weight:600;
@@ -49,8 +51,9 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
   margin-top:16px;width:100%;padding:14px;background:#d97706;color:#fff;
   border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;
 }
+.name-box button:disabled{background:#94a3b8}
 
-/* === Student: Tabs === */
+/* Tabs */
 .tabs{display:flex;gap:4px;margin-bottom:18px}
 .tab{
   flex:1;padding:12px 4px;border:2px solid #e2e8f0;border-radius:12px;
@@ -60,11 +63,10 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .tab.active{background:#d97706;color:#fff;border-color:#d97706}
 .tab .tnum{display:block;font-size:10px;opacity:0.7}
 .tab.done{border-color:#16a34a;background:#f0fdf4;color:#16a34a}
-
 .panel{display:none}
 .panel.show{display:block}
 
-/* === Student: Dialogue & Dict === */
+/* Dialogue */
 .dialogue-card{
   background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;
   border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.04);
@@ -116,7 +118,6 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .dict-input.wrong{border-color:#dc2626;color:#dc2626;background:#fef2f2}
 .dict-result{font-size:22px;width:30px;text-align:center;flex-shrink:0}
 
-/* === Student: Score bar === */
 .score-bar{
   display:flex;align-items:center;gap:10px;padding:12px 14px;
   background:#fff;border-radius:14px;border:2px solid #e2e8f0;margin-bottom:14px;
@@ -125,13 +126,10 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .score-bar .s-title{font-size:12px;color:#94a3b8;display:block}
 .score-bar .s-val{font-size:20px;font-weight:800;color:#d97706}
 .score-bar .s-val.perfect{color:#16a34a}
-.btn{ padding:12px 20px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Microsoft YaHei','Segoe UI',sans-serif;}
+.btn{padding:12px 20px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Microsoft YaHei','Segoe UI',sans-serif;}
 .btn:active{transform:scale(0.96)}
 .btn-check{background:#d97706;color:#fff}
-.btn-next{background:#16a34a;color:#fff;display:none}
-.btn-next.show{display:block}
 
-/* === Student: Submit === */
 .submit-section{display:none;text-align:center;padding:20px;background:#fff;border-radius:16px;border:2px solid #16a34a;margin-top:16px}
 .submit-section.show{display:block}
 .submit-section .big-icon{font-size:56px}
@@ -142,8 +140,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
   margin-top:12px;padding:14px 40px;background:#16a34a;color:#fff;
   border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;
 }
+.btn-submit:disabled{background:#94a3b8}
 
-/* === Toast === */
 .toast{
   position:fixed;top:20px;left:50%;transform:translateX(-50%);
   padding:12px 28px;border-radius:24px;font-size:15px;font-weight:700;
@@ -153,9 +151,7 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .toast.ok{background:#16a34a;color:#fff}
 .toast.no{background:#dc2626;color:#fff}
 
-/* ======================================== */
-/* === DISPLAY MODE (大屏展示) === */
-/* ======================================== */
+/* ===== DISPLAY MODE ===== */
 .display .top-bar{
   display:flex;justify-content:space-between;align-items:center;
   margin-bottom:20px;flex-wrap:wrap;gap:12px;
@@ -166,8 +162,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 }
 .display .live-text{font-size:16px;color:#22c55e;font-weight:700}
 .display .student-count{font-size:14px;color:#94a3b8}
+.display .conn-status{font-size:12px;color:#fbbf24}
 
-/* Stat cards */
 .stat-cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .stat-card{
   flex:1;min-width:140px;background:#1e293b;border-radius:14px;
@@ -180,7 +176,6 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .stat-card .sc-val.rose{color:#f87171}
 .stat-card .sc-label{font-size:13px;color:#94a3b8;display:block;margin-top:6px}
 
-/* Round comparison bar */
 .round-compare{display:flex;gap:12px;margin-bottom:20px}
 .round-col{
   flex:1;background:#1e293b;border-radius:14px;padding:16px;
@@ -193,24 +188,11 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .round-col.r3 .rc-avg{color:#4ade80}
 .round-col .rc-max{font-size:12px;color:#94a3b8}
 
-/* Progress bars per round */
-.prog-section{margin-bottom:20px}
-.prog-section h3{font-size:16px;color:#e2e8f0;margin-bottom:12px}
-.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.prog-label{width:70px;font-size:13px;color:#94a3b8;text-align:right}
-.prog-bar-outer{flex:1;height:22px;background:#334155;border-radius:6px;overflow:hidden}
-.prog-bar-inner{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:13px;font-weight:700;color:#fff;transition:width 0.5s ease}
-.prog-bar-inner.r1{background:linear-gradient(90deg,#dc2626,#f87171)}
-.prog-bar-inner.r2{background:linear-gradient(90deg,#d97706,#fbbf24)}
-.prog-bar-inner.r3{background:linear-gradient(90deg,#16a34a,#4ade80)}
-.prog-val{font-size:13px;font-weight:700;color:#e2e8f0;width:40px}
-
-/* Student table */
 .stu-table-wrap{max-height:400px;overflow-y:auto;border-radius:12px;border:1px solid #334155}
 .stu-table{width:100%;border-collapse:collapse;font-size:13px}
 .stu-table th{
   position:sticky;top:0;background:#1e293b;padding:10px 6px;
-  text-align:center;color:#94a3b8;font-size:11px;border-bottom:2px solid #334155;
+  text-align:center;color:#94a3b8;font-size:11px;border-bottom:2px solid #334155;z-index:1;
 }
 .stu-table td{padding:8px 6px;text-align:center;color:#e2e8f0;border-bottom:1px solid #1e293b}
 .stu-table .s-name{text-align:left;font-weight:600;color:#e2e8f0}
@@ -219,22 +201,23 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .stu-table .s-lo{color:#f87171;font-weight:700}
 .stu-table tr:hover{background:rgba(255,255,255,0.03)}
 
-/* Empty */
-.empty-state{text-align:center;padding:60px 20px}
-.empty-state .emp-icon{font-size:64px;display:block;margin-bottom:12px}
-.empty-state .emp-text{font-size:18px;color:#64748b}
-.empty-state .emp-hint{font-size:13px;color:#475569;margin-top:6px}
-
 .ctrl-bar{text-align:center;margin-top:16px}
 .btn-clear{
   padding:10px 24px;background:#dc2626;color:#fff;border:none;
   border-radius:10px;font-size:13px;cursor:pointer;
 }
+
+.connect-banner{
+  text-align:center;padding:12px;background:#1e293b;border-radius:12px;
+  margin-bottom:16px;border:1px solid #334155;
+}
+.connect-banner .cb-icon{font-size:24px}
+.connect-banner .cb-text{font-size:14px;color:#94a3b8}
 </style>
 </head>
 <body class="student" id="bodyEl">
 <div class="container">
-  <!-- ========== STUDENT MODE ========== -->
+  <!-- ========== STUDENT UI ========== -->
   <div id="studentUI">
     <div class="header">
       <div class="badge">TASK 4 · 守岗</div>
@@ -250,45 +233,35 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 
     <div class="panel show" id="panel0">
       <div class="dialogue-card"><h3>📋 语境填空（可反复听）</h3><p class="ctx">🚂 点击 🔊 听单词，填入空白处。</p><div id="dialogue1"></div></div>
-      <div class="score-bar">
-        <span class="s-info"><span class="s-title">Round 1</span><span class="s-val" id="score1">—</span></span>
-        <button class="btn btn-check" onclick="checkRound(0)">✅ 检查</button>
-      </div>
+      <div class="score-bar"><span class="s-info"><span class="s-title">Round 1</span><span class="s-val" id="score1">—</span></span><button class="btn btn-check" onclick="checkRound(0)">✅ 检查</button></div>
     </div>
-
     <div class="panel" id="panel1">
-      <div class="dialogue-card"><h3>🎯 听力测试（只听一遍）</h3><p class="ctx" id="r2ctx">🚂 点击下方按钮播放完整对话，然后凭记忆填入单词。</p><div id="r2audio"></div><div id="dialogue2"></div></div>
-      <div class="score-bar">
-        <span class="s-info"><span class="s-title">Round 2</span><span class="s-val" id="score2">—</span></span>
-        <button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button>
-      </div>
+      <div class="dialogue-card"><h3>🎯 听力测试（只听一遍）</h3><p class="ctx">🚂 点击下方按钮播放完整对话，然后凭记忆填入单词。</p><div id="r2audio"></div><div id="dialogue2"></div></div>
+      <div class="score-bar"><span class="s-info"><span class="s-title">Round 2</span><span class="s-val" id="score2">—</span></span><button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button></div>
     </div>
-
     <div class="panel" id="panel2">
       <div class="dialogue-card"><h3>🔊 听音写单词</h3><p class="ctx">点击播放按钮听发音，最多听 3 遍，写出你听到的单词。</p><div class="dict-list" id="dictList"></div></div>
-      <div class="score-bar">
-        <span class="s-info"><span class="s-title">Round 3</span><span class="s-val" id="score3">—</span></span>
-        <button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button>
-      </div>
+      <div class="score-bar"><span class="s-info"><span class="s-title">Round 3</span><span class="s-val" id="score3">—</span></span><button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button></div>
       <div class="submit-section" id="submitSection">
-        <div class="big-icon">🏆</div>
-        <h3 id="submitTitle"></h3>
+        <div class="big-icon">🏆</div><h3 id="submitTitle"></h3>
         <div class="total-score" id="totalScore"></div>
         <div class="detail-scores" id="detailScores"></div>
-        <button class="btn-submit" onclick="submitData()">📤 提交成绩</button>
+        <button class="btn-submit" id="btnSubmitData" onclick="submitToCloud()">📤 提交成绩到云端</button>
+        <p style="font-size:11px;color:#94a3b8;margin-top:6px" id="submitStatus"></p>
       </div>
     </div>
   </div>
 
-  <!-- ========== DISPLAY MODE ========== -->
+  <!-- ========== DISPLAY UI ========== -->
   <div id="displayUI" style="display:none">
     <div class="header">
       <div class="badge">TASK 4 · 守岗 · 实时数据</div>
       <h2>📊 听力任务 · 大屏展示</h2>
     </div>
     <div class="top-bar">
-      <div><span class="live-dot"></span><span class="live-text">LIVE 实时更新</span></div>
+      <div><span class="live-dot"></span><span class="live-text">LIVE</span></div>
       <div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div>
+      <div class="conn-status" id="connStatus">⏳ 连接中...</div>
     </div>
 
     <div class="stat-cards">
@@ -303,30 +276,88 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
     <div class="stu-table-wrap">
       <table class="stu-table">
         <thead><tr><th>#</th><th>姓名</th><th>Round 1</th><th>Round 2</th><th>Round 3</th><th>总分</th><th>评价</th></tr></thead>
-        <tbody id="stuTbody"><tr><td colspan="7" style="padding:40px;color:#64748b">等待学生提交数据...</td></tr></tbody>
+        <tbody id="stuTbody"><tr><td colspan="7" style="padding:40px;color:#64748b">⏳ 等待学生提交数据...</td></tr></tbody>
       </table>
     </div>
 
-    <div class="ctrl-bar" style="margin-top:20px">
-      <button class="btn-clear" onclick="clearData()">🗑 清除数据</button>
-      <span style="color:#64748b;font-size:12px;margin-left:10px">提示：学生用手机打开同一网址即可提交</span>
+    <div class="ctrl-bar">
+      <button class="btn-clear" onclick="clearCloudData()">🗑 清除数据</button>
+      <span style="color:#64748b;font-size:12px;margin-left:10px">学生用手机打开同一网址即可提交</span>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- 姓名输入弹窗 -->
+<!-- 姓名输入 -->
 <div class="name-modal" id="nameModal">
   <div class="name-box">
     <h3>👋 请输入你的姓名</h3>
     <p>用于记录你的听力任务成绩</p>
+    <p class="status-msg" id="cloudStatus"></p>
     <input id="nameInput" placeholder="输入姓名..." autocomplete="off">
-    <button onclick="confirmName()">开始答题 →</button>
+    <button id="btnStart" onclick="confirmName()">连接中...</button>
   </div>
 </div>
 
 <script>
+// ===== CloudBase Config =====
+var ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
+var COLLECTION = 'task4_listening';
+var app = null, db = null, cloudReady = false;
+
+// ===== Init CloudBase =====
+(function initCloud() {
+  var btn = document.getElementById('btnStart');
+  var status = document.getElementById('cloudStatus');
+  if (typeof cloudbase === 'undefined') {
+    status.textContent = '⚠️ 正在加载...';
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+    // Retry
+    var retry = 0;
+    var id = setInterval(function() {
+      retry++;
+      if (typeof cloudbase !== 'undefined') {
+        clearInterval(id);
+        doInit();
+      } else if (retry > 15) {
+        clearInterval(id);
+        status.textContent = '⚠️ 网络加载失败，请刷新重试';
+        btn.textContent = '刷新页面';
+        btn.disabled = false;
+        btn.onclick = function(){ location.reload(); };
+      }
+    }, 1000);
+    return;
+  }
+  doInit();
+
+  function doInit() {
+    status.textContent = '⏳ 连接云端...';
+    try {
+      app = cloudbase.init({ env: ENV_ID });
+      app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() {
+        db = app.database();
+        cloudReady = true;
+        status.textContent = '✅ 云端已连接';
+        btn.textContent = '开始答题 →';
+        btn.disabled = false;
+        if (isDisplay) startDisplayLoop();
+      }).catch(function(err) {
+        console.error('Auth error:', err);
+        status.textContent = '⚠️ 需在云开发控制台开启匿名登录';
+        btn.textContent = '刷新重试';
+        btn.disabled = false;
+      });
+    } catch(e) {
+      status.textContent = '⚠️ 初始化失败: ' + e.message;
+      btn.textContent = '刷新重试';
+      btn.disabled = false;
+    }
+  }
+})();
+
 // ===== Config =====
 var AUDIO = {
   'dress code':'audio/dress-code.mp3',
@@ -336,11 +367,8 @@ var AUDIO = {
   'slogans':'audio/slogan.mp3'
 };
 var ANSWERS = ['dress code','allowed','staff','permitted','slogans'];
-var STORAGE_KEY = 'task4_listening_data';
 var currentRound = 0, scores = [null,null,null], studentName = '', currentAudio = null;
 var listenCounts = {};
-
-// ===== Mode detection =====
 var isDisplay = location.search.indexOf('display') !== -1;
 
 if (isDisplay) {
@@ -349,15 +377,13 @@ if (isDisplay) {
   document.getElementById('displayUI').style.display = 'block';
   document.getElementById('nameModal').style.display = 'none';
   document.title = '📊 听力任务 · 实时大屏';
-  startDisplayLoop();
-} else {
-  document.getElementById('nameModal').style.display = 'flex';
 }
 
 // ===== Student: Name =====
 function confirmName() {
   var name = document.getElementById('nameInput').value.trim();
-  if (!name) { showToast('请输入姓名', 'no'); return; }
+  if (!name) { showToast('请输入姓名','no'); return; }
+  if (!cloudReady) { showToast('云端未连接，请稍候','no'); return; }
   studentName = name;
   document.getElementById('stuNameDisplay').textContent = '👤 ' + name;
   document.getElementById('nameModal').style.display = 'none';
@@ -373,55 +399,19 @@ function initStudentUI() {
 }
 
 function buildDialogue(roundNum, showListenBtns) {
-  var blanks = [
-    {num:1, word:'dress code'}, {num:2, word:'allowed'},
-    {num:3, word:'staff'}, {num:4, word:'permitted'}, {num:5, word:'slogans'}
-  ];
-  var lines = [
-    {s:'Leo', t:'Hi, Adam. Can I have a word, please?'},
-    {s:'Adam', t:'Sure, Leo.'},
-    {s:'Leo', t:blk(0, roundNum, showListenBtns)},
-    {s:'Adam', t:'Is there something wrong with what I\'m wearing?'},
-    {s:'Leo', t:'Well, you\'re wearing jeans.'},
-    {s:'Adam', t:'Oh. I think they look quite smart.'},
-    {s:'Leo', t:blk(1, roundNum, showListenBtns)},
-    {s:'Adam', t:'I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?'},
-    {s:'Leo', t:blk(2, roundNum, showListenBtns)},
-    {s:'Adam', t:'I see. And no T-shirts with ' + blk(4, roundNum, showListenBtns) + ', short trousers or baseball caps.'},
-    {s:'Leo', t:'Right, except on dress-down Fridays. You can wear what you want then.'},
-    {s:'Adam', t:'That\'s good to know!'}
-  ];
-
-  function blk(i, r, show) {
-    var b = blanks[i];
-    var lbtn = show ? '<button class="btn-listen" onclick="playWord(\''+b.word+'\',this)" title="听发音">🔊</button>' : '';
-    return 'our ECRL ' + wrap(b, 0, r, lbtn) + '.' +
-      (i===0?'':'') + (i===1?' to wear jeans on duty.':'') +
-      (i===2?' webpage. I\'ll show you. Look! It says that staff members are not ' + wrap(blanks[3], 3, r, show?'<button class="btn-listen" onclick="playWord(\'permitted\',this)" title="听发音">🔊</button>':'') + ' to wear jeans.':'');
-  }
-
-  // Simplify: just build by manually placing blanks
-  var html = '';
-  // Line 3 (Leo): dress code
-  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">I wanted to remind you about our ECRL <b style="color:#d97706">(1)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_0" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'dress code\',this)">🔊</button>' : '') + '</span>.</span></div>';
-  // Lines 1-2
-  html = '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Hi, Adam. Can I have a word, please?</span></div>' +
-    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Sure, Leo.</span></div>' + html;
-  // Line 4-6
-  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Is there something wrong with what I\'m wearing?</span></div>';
-  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Well, you\'re wearing jeans.</span></div>';
-  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Oh. I think they look quite smart.</span></div>';
-  // Line 7 (Leo): allowed
-  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">They\'re smart jeans, yes, but they are still jeans and we\'re not <b style="color:#d97706">(2)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_1" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'allowed\',this)">🔊</button>' : '') + '</span> to wear jeans on duty.</span></div>';
-  // Adam reply
-  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?</span></div>';
-  // Line 9 (Leo): staff + permitted
-  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">It\'s on our <b style="color:#d97706">(3)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_2" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'staff\',this)">🔊</button>' : '') + '</span> webpage. I\'ll show you. Look! It says that staff members are not <b style="color:#d97706">(4)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_3" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'permitted\',this)">🔊</button>' : '') + '</span> to wear jeans.</span></div>';
-  // Line 10 (Adam): slogans
-  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. And no T-shirts with <b style="color:#d97706">(5)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_4" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'slogans\',this)">🔊</button>' : '') + '</span>, short trousers or baseball caps.</span></div>';
-  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Right, except on dress-down Fridays. You can wear what you want then.</span></div>';
-  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">That\'s good to know!</span></div>';
-  return html;
+  function btnEl(word) { return showListenBtns ? '<button class="btn-listen" onclick="playWord(\''+word+'\',this)">🔊</button>' : ''; }
+  return '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Hi, Adam. Can I have a word, please?</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Sure, Leo.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">I wanted to remind you about our ECRL <b style="color:#d97706">(1)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_0" placeholder="______">'+btnEl('dress code')+'</span>.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Is there something wrong with what I\'m wearing?</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Well, you\'re wearing jeans.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Oh. I think they look quite smart.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">They\'re smart jeans, yes, but they are still jeans and we\'re not <b style="color:#d97706">(2)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_1" placeholder="______">'+btnEl('allowed')+'</span> to wear jeans on duty.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">It\'s on our <b style="color:#d97706">(3)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_2" placeholder="______">'+btnEl('staff')+'</span> webpage. I\'ll show you. Look! It says that staff members are not <b style="color:#d97706">(4)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_3" placeholder="______">'+btnEl('permitted')+'</span> to wear jeans.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. And no T-shirts with <b style="color:#d97706">(5)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_4" placeholder="______">'+btnEl('slogans')+'</span>, short trousers or baseball caps.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Right, except on dress-down Fridays. You can wear what you want then.</span></div>'+
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">That\'s good to know!</span></div>';
 }
 
 function buildDictation() {
@@ -442,25 +432,18 @@ function playAudio(path, btn) {
   a.onerror = function(){ if(btn){ btn.classList.remove('playing'); btn.style.opacity='0.4'; } currentAudio=null; };
   a.play().catch(function(){ if(btn) btn.classList.remove('playing'); });
 }
-
 function playWord(word, btn) { playAudio(AUDIO[word], btn); }
-
 function playDictWord(word, idx, btn) {
   var k = 'dict_'+idx;
   listenCounts[k] = (listenCounts[k]||0)+1;
   if (listenCounts[k] > 3) { showToast('最多听 3 遍','no'); return; }
   playAudio(AUDIO[word], btn);
 }
-
 function playFull(btn) {
   if (btn.disabled) return;
-  btn.disabled = true;
-  btn.textContent = '⏳ 播放中...';
+  btn.disabled = true; btn.textContent = '⏳ 播放中...';
   var d = 0;
-  ANSWERS.forEach(function(w,i) {
-    setTimeout(function(){ playAudio(AUDIO[w], null); }, d);
-    d += 2200;
-  });
+  ANSWERS.forEach(function(w,i) { setTimeout(function(){ playAudio(AUDIO[w],null); }, d); d += 2200; });
   setTimeout(function(){ btn.textContent = '✅ 已播放完毕'; }, d);
 }
 
@@ -476,7 +459,7 @@ function checkRound(r) {
     else { inp.classList.add('wrong'); inp.classList.remove('correct'); if(r<2&&ua==='') inp.placeholder='答案: '+ANSWERS[i]; }
     inp.disabled = true;
     if (r===2) { var re = document.getElementById('dr'+i); if(re) re.textContent = ua===ex?'✅':'❌'; }
-    if (r<2) { var btn = inp.parentElement.querySelector('.btn-listen'); if(btn) btn.style.display='none'; }
+    if (r<2) { var b = inp.parentElement.querySelector('.btn-listen'); if(b) b.style.display='none'; }
   }
   scores[r] = correct;
   document.getElementById('score'+(r+1)).textContent = correct+'/5';
@@ -491,53 +474,53 @@ function showSubmit() {
   var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
   document.getElementById('totalScore').textContent = t+' / 15';
   document.getElementById('detailScores').textContent = 'R1: '+(scores[0]||0)+'/5  |  R2: '+(scores[1]||0)+'/5  |  R3: '+(scores[2]||0)+'/5';
-  var icon, title;
-  if (t===15) { icon='🏆'; title='完美通关！'; }
-  else if (t>=12) { icon='🎉'; title='表现优秀！'; }
-  else if (t>=8) { icon='👍'; title='继续加油！'; }
-  else { icon='📚'; title='需要多练习'; }
+  var icon = t===15?'🏆':(t>=12?'🎉':(t>=8?'👍':'📚'));
+  var title = t===15?'完美通关！':(t>=12?'表现优秀！':(t>=8?'继续加油！':'需要多练习'));
   document.getElementById('submitTitle').innerHTML = icon+' '+title;
   document.getElementById('submitSection').classList.add('show');
 }
 
-// ===== Submit to localStorage =====
-function submitData() {
+// ===== Submit to CloudBase =====
+function submitToCloud() {
+  if (!cloudReady) { showToast('云端未连接', 'no'); return; }
+  var btn = document.getElementById('btnSubmitData');
+  btn.disabled = true;
+  btn.textContent = '⏳ 提交中...';
+  document.getElementById('submitStatus').textContent = '';
+
   var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
   var entry = {
     name: studentName,
     time: new Date().toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-    r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t
+    r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t,
+    createdAt: new Date().toISOString()
   };
-  var all = getStoredData();
-  // 如果同名已存在则覆盖
-  var existIdx = -1;
-  for (var i=0;i<all.length;i++) { if (all[i].name===studentName) { existIdx=i; break; } }
-  if (existIdx>=0) all[existIdx] = entry; else all.push(entry);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  showToast('✅ 提交成功！', 'ok');
-  // 3秒后重置给下一位学生
-  setTimeout(function(){ resetForNext(); }, 2000);
-}
 
-function getStoredData() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e) { return []; }
+  db.collection(COLLECTION).add(entry).then(function() {
+    document.getElementById('submitStatus').textContent = '✅ 提交成功！';
+    showToast('✅ 成绩已上传云端！', 'ok');
+    setTimeout(function(){ resetForNext(); }, 2500);
+  }).catch(function(err) {
+    console.error('Submit error:', err);
+    btn.disabled = false;
+    btn.textContent = '📤 提交成绩到云端';
+    document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
+    showToast('提交失败，请检查网络', 'no');
+  });
 }
 
 function resetForNext() {
   scores = [null,null,null]; listenCounts = {}; currentRound = 0;
-  document.getElementById('score1').textContent = '—'; document.getElementById('score1').classList.remove('perfect');
-  document.getElementById('score2').textContent = '—'; document.getElementById('score2').classList.remove('perfect');
-  document.getElementById('score3').textContent = '—'; document.getElementById('score3').classList.remove('perfect');
-  document.getElementById('tab1').classList.remove('done');
-  document.getElementById('tab2').classList.remove('done');
-  document.getElementById('tab3').classList.remove('done');
+  ['score1','score2','score3'].forEach(function(id) { var el=document.getElementById(id); el.textContent='—'; el.classList.remove('perfect'); });
+  ['tab1','tab2','tab3'].forEach(function(id) { document.getElementById(id).classList.remove('done'); });
   document.getElementById('submitSection').classList.remove('show');
+  document.getElementById('btnSubmitData').disabled = false;
+  document.getElementById('btnSubmitData').textContent = '📤 提交成绩到云端';
   document.getElementById('r2audio').innerHTML = '<div style="text-align:center;margin-bottom:10px"><button class="btn btn-check" id="btnPlayFull" onclick="playFull(this)" style="display:inline-block;width:auto;padding:10px 24px;font-size:14px">🔊 播放完整对话（仅一次）</button></div>';
   document.getElementById('dialogue1').innerHTML = buildDialogue(0, true);
   document.getElementById('dialogue2').innerHTML = buildDialogue(1, false);
   document.getElementById('dictList').innerHTML = buildDictation();
   switchRound(0);
-  // 重新输入姓名
   document.getElementById('nameInput').value = '';
   document.getElementById('nameModal').style.display = 'flex';
 }
@@ -559,68 +542,85 @@ function showToast(msg, type) {
 }
 
 // ==========================================
-// ===== DISPLAY MODE (大屏实时展示) =====
+// ===== DISPLAY MODE =====
 // ==========================================
 function startDisplayLoop() {
   renderDisplay();
-  setInterval(renderDisplay, 2000);
-  // Listen for cross-tab updates
-  window.addEventListener('storage', function(e) {
-    if (e.key === STORAGE_KEY) renderDisplay();
-  });
+  setInterval(renderDisplay, 3000);
+  // Listen for real-time updates
+  if (db) {
+    db.collection(COLLECTION).watch({
+      onChange: function() { renderDisplay(); },
+      onError: function(e) { console.error('Watch error:', e); }
+    });
+  }
 }
 
 function renderDisplay() {
-  var data = getStoredData();
-  var n = data.length;
-  document.getElementById('dispCount').textContent = n;
+  if (!db) { document.getElementById('connStatus').textContent = '⏳ 连接中...'; return; }
+  document.getElementById('connStatus').textContent = '✅ 已连接云端';
 
-  if (n === 0) {
-    document.getElementById('dTotal').textContent = '—';
-    document.getElementById('dR1').textContent = '—';
-    document.getElementById('dR2').textContent = '—';
-    document.getElementById('dR3').textContent = '—';
-    document.getElementById('stuTbody').innerHTML = '<tr><td colspan="7" style="padding:40px;color:#64748b">等待学生提交数据...</td></tr>';
-    document.getElementById('roundCompare').innerHTML = '';
-    return;
-  }
+  db.collection(COLLECTION).get().then(function(res) {
+    var data = res.data || [];
+    var n = data.length;
+    document.getElementById('dispCount').textContent = n;
 
-  var sumR1=0,sumR2=0,sumR3=0,sumT=0;
-  data.forEach(function(d){ sumR1+=d.r1;sumR2+=d.r2;sumR3+=d.r3;sumT+=d.total; });
-  var avgR1=(sumR1/n).toFixed(1), avgR2=(sumR2/n).toFixed(1), avgR3=(sumR3/n).toFixed(1), avgT=(sumT/n).toFixed(1);
+    if (n === 0) {
+      document.getElementById('dTotal').textContent = '—';
+      document.getElementById('dR1').textContent = '—';
+      document.getElementById('dR2').textContent = '—';
+      document.getElementById('dR3').textContent = '—';
+      document.getElementById('stuTbody').innerHTML = '<tr><td colspan="7" style="padding:40px;color:#64748b">⏳ 等待学生提交数据...</td></tr>';
+      document.getElementById('roundCompare').innerHTML = '';
+      return;
+    }
 
-  document.getElementById('dTotal').textContent = avgT;
-  document.getElementById('dR1').textContent = avgR1;
-  document.getElementById('dR2').textContent = avgR2;
-  document.getElementById('dR3').textContent = avgR3;
+    var sumR1=0,sumR2=0,sumR3=0,sumT=0;
+    data.forEach(function(d){ sumR1+=d.r1;sumR2+=d.r2;sumR3+=d.r3;sumT+=d.total; });
+    var avgR1=(sumR1/n).toFixed(1), avgR2=(sumR2/n).toFixed(1), avgR3=(sumR3/n).toFixed(1), avgT=(sumT/n).toFixed(1);
 
-  // Round comparison bars
-  document.getElementById('roundCompare').innerHTML =
-    '<div class="round-col r1"><span class="rc-title">📝 Round 1 语境填空</span><span class="rc-avg">'+avgR1+'</span><span class="rc-max">满分 5</span></div>' +
-    '<div class="round-col r2"><span class="rc-title">🎯 Round 2 听力测试</span><span class="rc-avg">'+avgR2+'</span><span class="rc-max">满分 5</span></div>' +
-    '<div class="round-col r3"><span class="rc-title">🔊 Round 3 听音写词</span><span class="rc-avg">'+avgR3+'</span><span class="rc-max">满分 5</span></div>' +
-    '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 三轮总分</span><span class="rc-avg" style="color:#818cf8">'+avgT+'</span><span class="rc-max">满分 15</span></div>';
+    document.getElementById('dTotal').textContent = avgT;
+    document.getElementById('dR1').textContent = avgR1;
+    document.getElementById('dR2').textContent = avgR2;
+    document.getElementById('dR3').textContent = avgR3;
 
-  // Student table
-  var rows = '';
-  data.slice().reverse().forEach(function(d,i) {
-    var cls = d.total>=14?'s-ok':(d.total>=10?'s-md':'s-lo');
-    var ev = d.total>=14?'🌟':(d.total>=10?'👍':'💪');
-    rows += '<tr><td>'+(data.length-i)+'</td><td class="s-name">'+escHtml(d.name)+'</td>' +
-      '<td class="'+(d.r1>=4?'s-ok':(d.r1>=2?'s-md':'s-lo'))+'">'+d.r1+'/5</td>' +
-      '<td class="'+(d.r2>=4?'s-ok':(d.r2>=2?'s-md':'s-lo'))+'">'+d.r2+'/5</td>' +
-      '<td class="'+(d.r3>=4?'s-ok':(d.r3>=2?'s-md':'s-lo'))+'">'+d.r3+'/5</td>' +
-      '<td class="'+cls+'"><b>'+d.total+'/15</b></td>' +
-      '<td>'+ev+'</td></tr>';
+    document.getElementById('roundCompare').innerHTML =
+      '<div class="round-col r1"><span class="rc-title">📝 Round 1 语境填空</span><span class="rc-avg">'+avgR1+'</span><span class="rc-max">满分 5</span></div>'+
+      '<div class="round-col r2"><span class="rc-title">🎯 Round 2 听力测试</span><span class="rc-avg">'+avgR2+'</span><span class="rc-max">满分 5</span></div>'+
+      '<div class="round-col r3"><span class="rc-title">🔊 Round 3 听音写词</span><span class="rc-avg">'+avgR3+'</span><span class="rc-max">满分 5</span></div>'+
+      '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 三轮总分</span><span class="rc-avg" style="color:#818cf8">'+avgT+'</span><span class="rc-max">满分 15</span></div>';
+
+    var rows = '';
+    data.slice().reverse().forEach(function(d,i) {
+      var cls = d.total>=14?'s-ok':(d.total>=10?'s-md':'s-lo');
+      var ev = d.total>=14?'🌟':(d.total>=10?'👍':'💪');
+      rows += '<tr><td>'+(data.length-i)+'</td><td class="s-name">'+escHtml(d.name)+'</td>'+
+        '<td class="'+(d.r1>=4?'s-ok':(d.r1>=2?'s-md':'s-lo'))+'">'+d.r1+'/5</td>'+
+        '<td class="'+(d.r2>=4?'s-ok':(d.r2>=2?'s-md':'s-lo'))+'">'+d.r2+'/5</td>'+
+        '<td class="'+(d.r3>=4?'s-ok':(d.r3>=2?'s-md':'s-lo'))+'">'+d.r3+'/5</td>'+
+        '<td class="'+cls+'"><b>'+d.total+'/15</b></td><td>'+ev+'</td></tr>';
+    });
+    document.getElementById('stuTbody').innerHTML = rows;
+  }).catch(function(err) {
+    console.error('Query error:', err);
+    document.getElementById('connStatus').textContent = '⚠️ 查询失败';
   });
-  document.getElementById('stuTbody').innerHTML = rows;
 }
 
-function clearData() {
-  if (confirm('确定要清除所有学生数据吗？此操作不可恢复。')) {
-    localStorage.removeItem(STORAGE_KEY);
+function clearCloudData() {
+  if (!confirm('确定要清除云端所有数据吗？')) return;
+  if (!db) return;
+  db.collection(COLLECTION).get().then(function(res) {
+    var promises = (res.data||[]).map(function(d) {
+      return db.collection(COLLECTION).doc(d._id).remove();
+    });
+    return Promise.all(promises);
+  }).then(function() {
     renderDisplay();
-  }
+    showToast('数据已清除', 'ok');
+  }).catch(function(err) {
+    console.error('Clear error:', err);
+  });
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
