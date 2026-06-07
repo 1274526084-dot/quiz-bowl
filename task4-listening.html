@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 body.student{background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 50%,#f1f5f9 100%);padding:16px}
-body.display{background:#0f172a;padding:24px;color:#e2e8f0}
+body.display{background:#f8fafc;padding:24px;color:#1e293b}
 .container{max-width:720px;margin:0 auto}
 .display .container{max-width:1100px}
 .header{text-align:center;margin-bottom:14px}
@@ -16,7 +16,7 @@ body.display{background:#0f172a;padding:24px;color:#e2e8f0}
 .student .header .badge{background:#d97706;color:#fff}
 .display .header .badge{background:#6366f1;color:#fff}
 .student .header h2{color:#0f172a;font-size:20px;margin-top:6px}
-.display .header h2{color:#e2e8f0;font-size:28px;margin-top:6px}
+.display .header h2{color:#0f172a;font-size:28px;margin-top:6px}
 .header .sub{font-size:13px;color:#94a3b8}
 
 .name-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.8);display:flex;align-items:center;justify-content:center;z-index:200}
@@ -83,31 +83,83 @@ body.display{background:#0f172a;padding:24px;color:#e2e8f0}
 .toast.ok{background:#16a34a;color:#fff}
 .toast.no{background:#dc2626;color:#fff}
 
-/* ===== DISPLAY ===== */
-.display .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+/* ===== DISPLAY (white theme) ===== */
+.display .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;background:#fff;padding:14px 20px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .display .live-dot{width:14px;height:14px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite;display:inline-block;margin-right:8px;vertical-align:middle}
-.display .live-text{font-size:16px;color:#22c55e;font-weight:700}
-.display .student-count{font-size:14px;color:#94a3b8}
-.display .conn-status{font-size:12px;color:#fbbf24}
+.display .live-text{font-size:15px;color:#16a34a;font-weight:700}
+.display .student-count{font-size:14px;color:#64748b}
+.display .conn-status{font-size:12px;color:#d97706}
+
 .stat-cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.stat-card{flex:1;min-width:140px;background:#1e293b;border-radius:14px;padding:20px 16px;text-align:center;border:2px solid #334155}
-.stat-card .sc-val{font-size:44px;font-weight:900;display:block;line-height:1}
-.sc-val.green{color:#4ade80}.sc-val.amber{color:#fbbf24}.sc-val.blue{color:#60a5fa}.sc-val.rose{color:#f87171}
+.stat-card{flex:1;min-width:160px;background:#fff;border-radius:14px;padding:24px 16px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-left:4px solid #6366f1}
+.stat-card.r1-card{border-left-color:#ef4444}
+.stat-card.r2-card{border-left-color:#f59e0b}
+.stat-card.r3-card{border-left-color:#22c55e}
+.stat-card.tot-card{border-left-color:#6366f1}
+.stat-card .sc-val{font-size:42px;font-weight:900;display:block;line-height:1;color:#1e293b}
+.sc-val.green{color:#16a34a}.sc-val.amber{color:#d97706}.sc-val.blue{color:#2563eb}.sc-val.rose{color:#dc2626}
 .stat-card .sc-label{font-size:13px;color:#94a3b8;display:block;margin-top:6px}
+
+/* Distribution section */
+.dist-section{background:#fff;border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.dist-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:16px}
+.dist-grid{display:flex;gap:20px}
+.dist-col{flex:1;text-align:center}
+.dist-col h4{font-size:14px;font-weight:700;margin-bottom:12px}
+.dist-col.r1 h4{color:#ef4444}
+.dist-col.r2 h4{color:#f59e0b}
+.dist-col.r3 h4{color:#22c55e}
+.dist-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dist-bar-label{font-size:12px;color:#94a3b8;width:24px;text-align:right}
+.dist-bar-outer{flex:1;height:14px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.dist-bar-inner{height:100%;border-radius:4px;transition:width 0.4s ease}
+.dist-bar-inner.r1{background:linear-gradient(90deg,#fca5a5,#ef4444)}
+.dist-bar-inner.r2{background:linear-gradient(90deg,#fcd34d,#f59e0b)}
+.dist-bar-inner.r3{background:linear-gradient(90deg,#86efac,#22c55e)}
+.dist-bar-num{font-size:11px;color:#64748b;width:22px}
+
+/* Round compare */
 .round-compare{display:flex;gap:12px;margin-bottom:20px}
-.round-col{flex:1;background:#1e293b;border-radius:14px;padding:16px;border:2px solid #334155;text-align:center}
-.round-col .rc-title{font-size:14px;font-weight:700;color:#e2e8f0;display:block;margin-bottom:10px}
+.round-col{flex:1;background:#fff;border-radius:14px;padding:20px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center}
+.round-col .rc-title{font-size:14px;font-weight:700;color:#1e293b;display:block;margin-bottom:10px}
 .round-col .rc-avg{font-size:36px;font-weight:900}
-.round-col.r1 .rc-avg{color:#f87171}.round-col.r2 .rc-avg{color:#fbbf24}.round-col.r3 .rc-avg{color:#4ade80}
+.round-col.r1 .rc-avg{color:#ef4444}.round-col.r2 .rc-avg{color:#f59e0b}.round-col.r3 .rc-avg{color:#22c55e}
 .round-col .rc-max{font-size:12px;color:#94a3b8}
-.stu-table-wrap{max-height:400px;overflow-y:auto;border-radius:12px;border:1px solid #334155}
+
+/* Student progress summary */
+.prog-section{background:#fff;border-radius:14px;padding:20px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.prog-title{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:16px}
+.prog-student{margin-bottom:14px}
+.prog-sname{font-size:14px;font-weight:600;color:#1e293b;margin-bottom:6px}
+.prog-rounds{display:flex;gap:8px}
+.prog-dot{flex:1;height:10px;border-radius:3px;background:#e2e8f0}
+.prog-dot.done{background:#22c55e}
+.prog-dot.mid{background:#f59e0b}
+.prog-dot.low{background:#ef4444}
+.prog-dot.none{background:#e2e8f0}
+
+/* Table */
+.stu-table-wrap{max-height:400px;overflow-y:auto;border-radius:12px;border:1px solid #e2e8f0;background:#fff}
 .stu-table{width:100%;border-collapse:collapse;font-size:13px}
-.stu-table th{position:sticky;top:0;background:#1e293b;padding:10px 6px;text-align:center;color:#94a3b8;font-size:11px;border-bottom:2px solid #334155;z-index:1}
-.stu-table td{padding:8px 6px;text-align:center;color:#e2e8f0;border-bottom:1px solid #1e293b}
-.stu-table .s-name{text-align:left;font-weight:600}
-.stu-table .s-ok{color:#4ade80;font-weight:700}.stu-table .s-md{color:#fbbf24;font-weight:700}.stu-table .s-lo{color:#f87171;font-weight:700}
+.stu-table th{position:sticky;top:0;background:#f8fafc;padding:10px 6px;text-align:center;color:#64748b;font-size:11px;border-bottom:2px solid #e2e8f0;z-index:1}
+.stu-table td{padding:8px 6px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}
+.stu-table .s-name{text-align:left;font-weight:600;color:#0f172a}
+.stu-table .s-ok{color:#16a34a;font-weight:700}.stu-table .s-md{color:#d97706;font-weight:700}.stu-table .s-lo{color:#dc2626;font-weight:700}
+.stu-table tr:hover{background:#f8fafc}
+
 .ctrl-bar{text-align:center;margin-top:16px}
-.btn-clear{padding:10px 24px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:13px;cursor:pointer}
+.btn-clear{padding:10px 24px;background:#fff;color:#dc2626;border:1px solid #fecaca;border-radius:10px;font-size:13px;cursor:pointer}
+.btn-clear:hover{background:#fef2f2}
+
+/* Student list per-round */
+.stu-round-list{display:flex;gap:12px}
+.stu-round-col{flex:1;min-width:0}
+.stu-round-col h4{font-size:13px;font-weight:700;margin-bottom:8px;text-align:center}
+.stu-round-col.r1 h4{color:#ef4444}.stu-round-col.r2 h4{color:#f59e0b}.stu-round-col.r3 h4{color:#22c55e}
+.stu-round-item{background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:4px;display:flex;justify-content:space-between;font-size:13px}
+.stu-round-item .sri-name{font-weight:600;color:#1e293b}
+.stu-round-item .sri-score{font-weight:700}
+.stu-round-item .sri-score.ok{color:#16a34a}.stu-round-item .sri-score.md{color:#d97706}.stu-round-item .sri-score.lo{color:#dc2626}
 </style>
 </head>
 <body class="student" id="bodyEl">
@@ -128,8 +180,15 @@ body.display{background:#0f172a;padding:24px;color:#e2e8f0}
   <div id="displayUI" style="display:none">
     <div class="header"><div class="badge">TASK 4 · 实时数据</div><h2>📊 听力任务 · 大屏展示</h2></div>
     <div class="top-bar"><div><span class="live-dot"></span><span class="live-text">LIVE</span></div><div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div><div class="conn-status" id="connStatus">⏳ 等待数据...</div></div>
-    <div class="stat-cards"><div class="stat-card"><span class="sc-val green" id="dTotal">—</span><span class="sc-label">平均总分 /15</span></div><div class="stat-card"><span class="sc-val amber" id="dR1">—</span><span class="sc-label">Round 1 /5</span></div><div class="stat-card"><span class="sc-val rose" id="dR2">—</span><span class="sc-label">Round 2 /5</span></div><div class="stat-card"><span class="sc-val blue" id="dR3">—</span><span class="sc-label">Round 3 /5</span></div></div>
-    <div class="round-compare" id="roundCompare"></div>
+    <div class="stat-cards"><div class="stat-card r1-card"><span class="sc-val rose" id="dR1">—</span><span class="sc-label">📝 R1 语境填空 /5</span></div><div class="stat-card r2-card"><span class="sc-val amber" id="dR2">—</span><span class="sc-label">🎯 R2 听力测试 /5</span></div><div class="stat-card r3-card"><span class="sc-val green" id="dR3">—</span><span class="sc-label">🔊 R3 听音写词 /5</span></div><div class="stat-card tot-card"><span class="sc-val blue" id="dTotal">—</span><span class="sc-label">🏆 平均总分 /15</span></div></div>
+
+    <!-- 每轮分数分布图 -->
+    <div class="dist-section"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" id="distGrid"></div></div>
+
+    <!-- 各轮学生完成情况 -->
+    <div class="prog-section"><div class="prog-title">👥 各轮完成情况</div><div class="stu-round-list" id="stuRoundList"></div></div>
+
+    <!-- 提交记录 -->
     <div class="stu-table-wrap"><table class="stu-table"><thead><tr><th>#</th><th>姓名</th><th>环节</th><th>得分</th></tr></thead><tbody id="stuTbody"><tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr></tbody></table></div>
     <div class="ctrl-bar"><button class="btn-clear" onclick="clearCloudData()">🗑 清除</button></div>
   </div>
@@ -321,37 +380,58 @@ function refreshDisplay() {
     if (n===0) {
       document.getElementById('dTotal').textContent='—'; document.getElementById('dR1').textContent='—'; document.getElementById('dR2').textContent='—'; document.getElementById('dR3').textContent='—';
       document.getElementById('stuTbody').innerHTML='<tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr>';
-      document.getElementById('roundCompare').innerHTML=''; return;
+      document.getElementById('distGrid').innerHTML='';document.getElementById('stuRoundList').innerHTML=''; return;
     }
 
-    // 按 round 分组统计
+    // 按 round 分组
     var r1=[],r2=[],r3=[],totals=[];
     all.forEach(function(d){
-      if (d.round===1) r1.push(d);
-      else if (d.round===2) r2.push(d);
-      else if (d.round===3) r3.push(d);
-      else if (d.round===0) totals.push(d);
+      if (d.round===1) r1.push(d); else if (d.round===2) r2.push(d); else if (d.round===3) r3.push(d); else if (d.round===0) totals.push(d);
     });
     function avg(arr,key){ if(!arr.length) return '—'; var s=arr.reduce(function(a,b){return a+(b[key]||0);},0); return (s/arr.length).toFixed(1); }
-    var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score');
-    document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;
-    // 总分统计（从总提交中取）
-    var atot=totals.length?avg(totals,'total'):'—';
-    document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
-    document.getElementById('roundCompare').innerHTML=
-      '<div class="round-col r1"><span class="rc-title">📝 Round 1</span><span class="rc-avg">'+a1+'</span><span class="rc-max">/5 · '+r1.length+'次</span></div>'+
-      '<div class="round-col r2"><span class="rc-title">🎯 Round 2</span><span class="rc-avg">'+a2+'</span><span class="rc-max">/5 · '+r2.length+'次</span></div>'+
-      '<div class="round-col r3"><span class="rc-title">🔊 Round 3</span><span class="rc-avg">'+a3+'</span><span class="rc-max">/5 · '+r3.length+'次</span></div>'+
-      '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 总分</span><span class="rc-avg" style="color:#818cf8">'+atot+'</span><span class="rc-max">/15 · '+totals.length+'人</span></div>';
+    var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score'),atot=totals.length?avg(totals,'total'):'—';
+    document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
 
-    // 表格：显示每轮提交
+    // === 分数分布图 ===
+    function buildDist(roundData, rClass) {
+      var hist=[0,0,0,0,0,0]; // 0-5分
+      roundData.forEach(function(d){ var s=d.score||0; if(s>=0&&s<=5) hist[s]++; });
+      var maxH=Math.max.apply(null,hist)||1;
+      var h='';
+      for (var i=5;i>=0;i--) {
+        var pct=Math.round(hist[i]/Math.max(roundData.length,1)*100);
+        h+='<div class="dist-bar-row"><span class="dist-bar-label">'+i+'分</span><div class="dist-bar-outer"><div class="dist-bar-inner '+rClass+'" style="width:'+pct+'%;"></div></div><span class="dist-bar-num">'+hist[i]+'人</span></div>';
+      }
+      return h;
+    }
+    document.getElementById('distGrid').innerHTML=
+      '<div class="dist-col r1"><h4>📝 Round 1 ('+r1.length+'人)</h4>'+buildDist(r1,'r1')+'</div>'+
+      '<div class="dist-col r2"><h4>🎯 Round 2 ('+r2.length+'人)</h4>'+buildDist(r2,'r2')+'</div>'+
+      '<div class="dist-col r3"><h4>🔊 Round 3 ('+r3.length+'人)</h4>'+buildDist(r3,'r3')+'</div>';
+
+    // === 各轮学生列表 ===
+    function buildRoundList(arr, rClass) {
+      if (!arr.length) return '<div style="color:#94a3b8;text-align:center;padding:20px">暂无数据</div>';
+      var h='';
+      arr.forEach(function(d){
+        var sc=d.score||0, cls=sc>=4?'ok':(sc>=2?'md':'lo');
+        h+='<div class="stu-round-item"><span class="sri-name">'+esc(d.name)+'</span><span class="sri-score '+cls+'">'+sc+'/5</span></div>';
+      });
+      return h;
+    }
+    document.getElementById('stuRoundList').innerHTML=
+      '<div class="stu-round-col r1"><h4>📝 R1 ('+r1.length+'人)</h4>'+buildRoundList(r1,'r1')+'</div>'+
+      '<div class="stu-round-col r2"><h4>🎯 R2 ('+r2.length+'人)</h4>'+buildRoundList(r2,'r2')+'</div>'+
+      '<div class="stu-round-col r3"><h4>🔊 R3 ('+r3.length+'人)</h4>'+buildRoundList(r3,'r3')+'</div>';
+
+    // 提交记录表
     var rows='';
     all.forEach(function(d,i){
       var rName=d.round===0?'🏆总分':('R'+d.round+' '+d.roundName);
       var cls=d.score>=4?'s-ok':(d.score>=2?'s-md':'s-lo');
       var dispScore=d.round===0?(d.total+'/15'):(d.score+'/5');
       rows+='<tr><td>'+(i+1)+'</td><td class="s-name">'+esc(d.name)+'</td>'+
-        '<td style="color:'+(d.round===1?'#fbbf24':(d.round===2?'#60a5fa':(d.round===3?'#4ade80':'#94a3b8')))+';font-weight:700">'+rName+'</td>'+
+        '<td style="color:'+(d.round===1?'#ef4444':(d.round===2?'#f59e0b':(d.round===3?'#22c55e':'#64748b')))+';font-weight:700">'+rName+'</td>'+
         '<td class="'+cls+'">'+dispScore+'</td></tr>';
     });
     document.getElementById('stuTbody').innerHTML=rows;
