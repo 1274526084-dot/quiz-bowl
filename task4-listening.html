@@ -294,9 +294,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
   <div class="name-box">
     <h3>👋 请输入你的姓名</h3>
     <p>用于记录你的听力任务成绩</p>
-    <p class="status-msg" id="cloudStatus"></p>
     <input id="nameInput" placeholder="输入姓名..." autocomplete="off">
-    <button id="btnStart" onclick="confirmName()">连接中...</button>
+    <button id="btnStart" onclick="confirmName()">开始答题 →</button>
   </div>
 </div>
 
@@ -306,55 +305,29 @@ var ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
 var COLLECTION = 'task4_listening';
 var app = null, db = null, cloudReady = false;
 
-// ===== Init CloudBase =====
+// ===== Init CloudBase (silent background) =====
 (function initCloud() {
-  var btn = document.getElementById('btnStart');
-  var status = document.getElementById('cloudStatus');
   if (typeof cloudbase === 'undefined') {
-    status.textContent = '⚠️ 正在加载...';
-    btn.textContent = '加载中...';
-    btn.disabled = true;
-    // Retry
     var retry = 0;
     var id = setInterval(function() {
       retry++;
-      if (typeof cloudbase !== 'undefined') {
-        clearInterval(id);
-        doInit();
-      } else if (retry > 15) {
-        clearInterval(id);
-        status.textContent = '⚠️ 网络加载失败，请刷新重试';
-        btn.textContent = '刷新页面';
-        btn.disabled = false;
-        btn.onclick = function(){ location.reload(); };
-      }
-    }, 1000);
+      if (typeof cloudbase !== 'undefined') { clearInterval(id); doConnect(); }
+      else if (retry > 20) clearInterval(id);
+    }, 500);
     return;
   }
-  doInit();
-
-  function doInit() {
-    status.textContent = '⏳ 连接云端...';
+  doConnect();
+  function doConnect() {
     try {
       app = cloudbase.init({ env: ENV_ID });
       app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() {
         db = app.database();
         cloudReady = true;
-        status.textContent = '✅ 云端已连接';
-        btn.textContent = '开始答题 →';
-        btn.disabled = false;
         if (isDisplay) startDisplayLoop();
       }).catch(function(err) {
-        console.error('Auth error:', err);
-        status.textContent = '⚠️ 需在云开发控制台开启匿名登录';
-        btn.textContent = '刷新重试';
-        btn.disabled = false;
+        console.error('CloudBase auth error:', err);
       });
-    } catch(e) {
-      status.textContent = '⚠️ 初始化失败: ' + e.message;
-      btn.textContent = '刷新重试';
-      btn.disabled = false;
-    }
+    } catch(e) { console.error('CloudBase init error:', e); }
   }
 })();
 
@@ -383,7 +356,6 @@ if (isDisplay) {
 function confirmName() {
   var name = document.getElementById('nameInput').value.trim();
   if (!name) { showToast('请输入姓名','no'); return; }
-  if (!cloudReady) { showToast('云端未连接，请稍候','no'); return; }
   studentName = name;
   document.getElementById('stuNameDisplay').textContent = '👤 ' + name;
   document.getElementById('nameModal').style.display = 'none';
@@ -482,11 +454,26 @@ function showSubmit() {
 
 // ===== Submit to CloudBase =====
 function submitToCloud() {
-  if (!cloudReady) { showToast('云端未连接', 'no'); return; }
   var btn = document.getElementById('btnSubmitData');
   btn.disabled = true;
-  btn.textContent = '⏳ 提交中...';
   document.getElementById('submitStatus').textContent = '';
+
+  if (!cloudReady) {
+    btn.textContent = '⏳ 等待连接...';
+    document.getElementById('submitStatus').textContent = '正在连接云端，请稍候...';
+    // Wait up to 5 seconds for cloud to be ready
+    var waited = 0;
+    var waitId = setInterval(function() {
+      waited++;
+      if (cloudReady) { clearInterval(waitId); doSubmit(); }
+      else if (waited > 25) { clearInterval(waitId); btn.disabled = false; btn.textContent = '📤 提交成绩到云端'; document.getElementById('submitStatus').textContent = '⚠️ 网络不通，请稍后重试'; }
+    }, 200);
+    return;
+  }
+  doSubmit();
+
+  function doSubmit() {
+    btn.textContent = '⏳ 提交中...';
 
   var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
   var entry = {
@@ -507,6 +494,7 @@ function submitToCloud() {
     document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
     showToast('提交失败，请检查网络', 'no');
   });
+  }
 }
 
 function resetForNext() {
