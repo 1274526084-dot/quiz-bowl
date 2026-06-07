@@ -278,13 +278,9 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
       </table>
     </div>
 
-    <div class="connect-banner" id="studentLinkBanner" style="display:none;margin-top:16px">
-      <span class="cb-icon">📱</span>
-      <span class="cb-text">学生链接：<b id="studentLink" style="color:#fbbf24;word-break:break-all;font-size:14px"></b></span>
-      <button class="btn-clear" style="padding:6px 12px;font-size:11px;margin-left:10px" onclick="copyStudentLink()">📋 复制</button>
-    </div>
     <div class="ctrl-bar" style="margin-top:12px">
       <button class="btn-clear" onclick="clearCloudData()">🗑 清除数据</button>
+      <span style="color:#64748b;font-size:12px;margin-left:10px">学生用手机打开同一网址即可</span>
     </div>
   </div>
 </div>
@@ -302,13 +298,8 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 </div>
 
 <script>
-// ===== jsonblob.com 免费云存储 =====
-// 教师先打开 /?display 生成数据空间，然后把带 blob=xxx 的链接发给学生
-var API_BASE = 'https://jsonblob.com/api/jsonBlob';
-var blobId = (function() {
-  var m = location.search.match(/blob=([a-zA-Z0-9-]+)/);
-  return m ? m[1] : (localStorage.getItem('task4_blob_id') || '');
-})();
+// ===== CloudBase HTTP API =====
+var API_URL = 'https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 
 // ===== Config =====
 var AUDIO = {
@@ -330,39 +321,7 @@ if (isDisplay) {
   document.getElementById('displayUI').style.display = 'block';
   document.getElementById('nameModal').style.display = 'none';
   document.title = '📊 听力任务 · 实时大屏';
-  // 没有 blob 则创建新的数据空间
-  if (!blobId) {
-    writeBlob([]).then(function() {
-      updateStudentLink();
-      startDisplayLoop();
-    });
-  } else {
-    updateStudentLink();
-    startDisplayLoop();
-  }
-}
-
-function updateStudentLink() {
-  if (!blobId) return;
-  var studentUrl = location.origin + location.pathname + '?blob=' + blobId;
-  document.getElementById('studentLink').textContent = studentUrl;
-  document.getElementById('studentLinkBanner').style.display = 'flex';
-}
-
-function copyStudentLink() {
-  var url = document.getElementById('studentLink').textContent;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function() { alert('学生链接已复制！发到班级群即可'); });
-  } else {
-    // Fallback
-    var ta = document.createElement('textarea');
-    ta.value = url;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    alert('学生链接已复制！');
-  }
+  startDisplayLoop();
 }
 
 // ===== Student: Name =====
@@ -475,54 +434,30 @@ function submitToCloud() {
 
   function doSubmit() {
     btn.textContent = '⏳ 提交中...';
-
     var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
-    var entry = {
-      name: studentName,
-      r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t,
-      time: new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})
-    };
-
-    // 先读取现有数据，合并后写回
-    readBlob().then(function(all) {
-      var idx = all.findIndex(function(s) { return s.name === entry.name; });
-      if (idx >= 0) all[idx] = entry; else all.push(entry);
-      return writeBlob(all);
-    }).then(function() {
-      document.getElementById('submitStatus').textContent = '✅ 提交成功！';
-      showToast('✅ 成绩已上传！', 'ok');
-      setTimeout(function(){ resetForNext(); }, 2500);
+    fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'submit',
+        data: { name: studentName, r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t }
+      })
+    }).then(function(r) { return r.json(); }).then(function(res) {
+      if (res.ok) {
+        document.getElementById('submitStatus').textContent = '✅ 提交成功！';
+        showToast('✅ 成绩已上传！', 'ok');
+        setTimeout(function(){ resetForNext(); }, 2500);
+      } else {
+        throw new Error(res.error || '提交失败');
+      }
     }).catch(function(err) {
       console.error('Submit error:', err);
       btn.disabled = false;
       btn.textContent = '📤 提交成绩';
       document.getElementById('submitStatus').textContent = '⚠️ 网络不通，请重试';
-      showToast('提交失败，请检查网络', 'no');
+      showToast('提交失败', 'no');
     });
   }
-}
-
-function readBlob() {
-  if (!blobId) return Promise.resolve([]);
-  return fetch(API_BASE + '/' + blobId).then(function(r) { return r.json(); }).catch(function() { return []; });
-}
-
-function writeBlob(data) {
-  var url = API_BASE + (blobId ? '/' + blobId : '');
-  var method = blobId ? 'PUT' : 'POST';
-  return fetch(url, {
-    method: method,
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(data)
-  }).then(function(r) {
-    var loc = r.headers.get('Location') || '';
-    var id = loc.split('/').pop();
-    if (id && id !== blobId) {
-      blobId = id;
-      localStorage.setItem(BLOB_ID_KEY, id);
-    }
-    return r.json();
-  });
 }
 
 function resetForNext() {
@@ -569,8 +504,12 @@ function startDisplayLoop() {
 function renderDisplay() {
   document.getElementById('connStatus').textContent = '✅ 自动刷新中';
 
-  readBlob().then(function(data) {
-    data = data || [];
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ action: 'list' })
+  }).then(function(r) { return r.json(); }).then(function(res) {
+    var data = (res && res.data) ? res.data : [];
     var n = data.length;
     document.getElementById('dispCount').textContent = n;
 
@@ -612,20 +551,17 @@ function renderDisplay() {
     document.getElementById('stuTbody').innerHTML = rows;
   }).catch(function(err) {
     console.error('Fetch error:', err);
-    document.getElementById('connStatus').textContent = '⚠️ 无法连接 jsonblob，请刷新重试';
+    document.getElementById('connStatus').textContent = '⚠️ 连接失败，确认云函数已部署并开启HTTP访问';
   });
 }
 
 function clearCloudData() {
   if (!confirm('确定要清除所有数据吗？')) return;
-  writeBlob([]).then(function() {
-    renderDisplay();
-    alert('数据已清除');
-  }).catch(function() {
-    blobId = '';
-    localStorage.removeItem(BLOB_ID_KEY);
-    writeBlob([]).then(function() { renderDisplay(); alert('数据已清除'); });
-  });
+  fetch(API_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ action: 'clear' })
+  }).then(function() { renderDisplay(); }).catch(function() {});
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
