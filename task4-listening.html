@@ -298,31 +298,27 @@ body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 </div>
 
 <script>
-// ===== CloudBase Config =====
-var ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
-var COLLECTION = 'task4_listening';
-var app = null, db = null, cloudReady = false;
+// ===== LeanCloud Config =====
+// 注册地址: https://console.leancloud.cn
+// 创建应用后获取 AppID 和 AppKey 填入下方
+var LC_APP_ID = 'YOUR_APP_ID';
+var LC_APP_KEY = 'YOUR_APP_KEY';
+var LC_CLASS = 'Task4Listening';
+var dbReady = false;
 
-// ===== Init CloudBase (async, non-blocking) =====
-(function initCloud() {
-  // Load SDK dynamically so page renders instantly
+// ===== Init LeanCloud (async, non-blocking) =====
+(function initLC() {
   var script = document.createElement('script');
-  script.src = 'https://imgcache.qq.com/qcloud/cloudbase-js-sdk/1.7.0/cloudbase.full.js';
-  script.onload = function() { doConnect(); };
-  script.onerror = function() { console.error('CloudBase SDK load failed'); };
-  document.head.appendChild(script);
-
-  function doConnect() {
+  script.src = 'https://cdn.jsdelivr.net/npm/leancloud-storage@4.15.2/dist/av-min.js';
+  script.onload = function() {
     try {
-      app = cloudbase.init({ env: ENV_ID });
-      app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() {
-        db = app.database();
-        cloudReady = true;
-      }).catch(function(err) {
-        console.error('CloudBase auth error:', err);
-      });
-    } catch(e) { console.error('CloudBase init error:', e); }
-  }
+      AV.init({ appId: LC_APP_ID, appKey: LC_APP_KEY });
+      dbReady = true;
+      console.log('LeanCloud ready');
+    } catch(e) { console.error('LeanCloud init error:', e); }
+  };
+  script.onerror = function() { console.error('LeanCloud SDK load failed'); };
+  document.head.appendChild(script);
 })();
 
 // ===== Config =====
@@ -334,6 +330,7 @@ var AUDIO = {
   'slogans':'audio/slogan.mp3'
 };
 var ANSWERS = ['dress code','allowed','staff','permitted','slogans'];
+var CLASS_NAME = 'Task4Listening';
 var currentRound = 0, scores = [null,null,null], studentName = '', currentAudio = null;
 var listenCounts = {};
 var isDisplay = location.search.indexOf('display') !== -1;
@@ -454,14 +451,13 @@ function submitToCloud() {
   btn.disabled = true;
   document.getElementById('submitStatus').textContent = '';
 
-  if (!cloudReady) {
+  if (!dbReady) {
     btn.textContent = '⏳ 等待连接...';
     document.getElementById('submitStatus').textContent = '正在连接云端，请稍候...';
-    // Wait up to 5 seconds for cloud to be ready
     var waited = 0;
     var waitId = setInterval(function() {
       waited++;
-      if (cloudReady) { clearInterval(waitId); doSubmit(); }
+      if (dbReady) { clearInterval(waitId); doSubmit(); }
       else if (waited > 25) { clearInterval(waitId); btn.disabled = false; btn.textContent = '📤 提交成绩到云端'; document.getElementById('submitStatus').textContent = '⚠️ 网络不通，请稍后重试'; }
     }, 200);
     return;
@@ -471,25 +467,25 @@ function submitToCloud() {
   function doSubmit() {
     btn.textContent = '⏳ 提交中...';
 
-  var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
-  var entry = {
-    name: studentName,
-    time: new Date().toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
-    r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t,
-    createdAt: new Date().toISOString()
-  };
-
-  db.collection(COLLECTION).add(entry).then(function() {
-    document.getElementById('submitStatus').textContent = '✅ 提交成功！';
-    showToast('✅ 成绩已上传云端！', 'ok');
-    setTimeout(function(){ resetForNext(); }, 2500);
-  }).catch(function(err) {
-    console.error('Submit error:', err);
-    btn.disabled = false;
-    btn.textContent = '📤 提交成绩到云端';
-    document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
-    showToast('提交失败，请检查网络', 'no');
-  });
+    var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+    var Record = AV.Object.extend(CLASS_NAME);
+    var record = new Record();
+    record.set('name', studentName);
+    record.set('r1', scores[0]||0);
+    record.set('r2', scores[1]||0);
+    record.set('r3', scores[2]||0);
+    record.set('total', t);
+    record.save().then(function() {
+      document.getElementById('submitStatus').textContent = '✅ 提交成功！';
+      showToast('✅ 成绩已上传云端！', 'ok');
+      setTimeout(function(){ resetForNext(); }, 2500);
+    }).catch(function(err) {
+      console.error('Submit error:', err);
+      btn.disabled = false;
+      btn.textContent = '📤 提交成绩到云端';
+      document.getElementById('submitStatus').textContent = '⚠️ 提交失败，请重试';
+      showToast('提交失败，请检查网络', 'no');
+    });
   }
 }
 
@@ -535,14 +531,17 @@ function startDisplayLoop() {
 }
 
 function renderDisplay() {
-  if (!db) {
-    document.getElementById('connStatus').textContent = '⏳ 正在连接云端...';
+  if (!dbReady) {
+    document.getElementById('connStatus').textContent = '⏳ 正在连接云端（请确认已注册LeanCloud并填入AppID/AppKey）';
     return;
   }
   document.getElementById('connStatus').textContent = '✅ 云端已连接 · 自动刷新中';
 
-  db.collection(COLLECTION).get().then(function(res) {
-    var data = res.data || [];
+  var query = new AV.Query(CLASS_NAME);
+  query.descending('createdAt');
+  query.limit(50);
+  query.find().then(function(results) {
+    var data = results.map(function(r) { return r.attributes; });
     var n = data.length;
     document.getElementById('dispCount').textContent = n;
 
@@ -583,24 +582,24 @@ function renderDisplay() {
     });
     document.getElementById('stuTbody').innerHTML = rows;
   }).catch(function(err) {
-    console.error('Query error:', err);
-    document.getElementById('connStatus').textContent = '⚠️ 查询失败';
+    console.error('LeanCloud query error:', err);
+    document.getElementById('connStatus').textContent = '⚠️ 查询失败: ' + (err.message || '请检查AppID/AppKey');
   });
 }
 
 function clearCloudData() {
   if (!confirm('确定要清除云端所有数据吗？')) return;
-  if (!db) return;
-  db.collection(COLLECTION).get().then(function(res) {
-    var promises = (res.data||[]).map(function(d) {
-      return db.collection(COLLECTION).doc(d._id).remove();
-    });
-    return Promise.all(promises);
+  if (!dbReady) return;
+  var query = new AV.Query(CLASS_NAME);
+  query.limit(100);
+  query.find().then(function(results) {
+    return AV.Object.destroyAll(results);
   }).then(function() {
     renderDisplay();
-    showToast('数据已清除', 'ok');
+    alert('数据已清除');
   }).catch(function(err) {
     console.error('Clear error:', err);
+    alert('清除失败: ' + (err.message || ''));
   });
 }
 
