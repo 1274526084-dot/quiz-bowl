@@ -180,22 +180,20 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
   <div id="displayUI" style="display:none">
     <div class="header"><div class="badge">TASK 4 · 实时数据</div><h2>📊 听力任务 · 大屏展示</h2></div>
     <div class="top-bar"><div><span class="live-dot"></span><span class="live-text">LIVE</span></div><div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div><div class="conn-status" id="connStatus">⏳ 等待数据...</div></div>
-    <div class="stat-cards"><div class="stat-card r1-card"><span class="sc-val rose" id="dR1">—</span><span class="sc-label">📝 R1 语境填空 /5</span></div><div class="stat-card r2-card"><span class="sc-val amber" id="dR2">—</span><span class="sc-label">🎯 R2 听力测试 /5</span></div><div class="stat-card r3-card"><span class="sc-val green" id="dR3">—</span><span class="sc-label">🔊 R3 听音写词 /5</span></div><div class="stat-card tot-card"><span class="sc-val blue" id="dTotal">—</span><span class="sc-label">🏆 平均总分 /15</span></div></div>
+    <!-- 全班进步概览 -->
+    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📋 全班进步概览</div><div class="stat-cards"><div class="stat-card tot-card"><span class="sc-val blue" id="dStudentCount">—</span><span class="sc-label">👥 完成人数</span></div><div class="stat-card r1-card"><span class="sc-val rose" id="dR1">—</span><span class="sc-label">📝 R1 平均分 /5</span></div><div class="stat-card r2-card"><span class="sc-val amber" id="dR2">—</span><span class="sc-label">🎯 R2 平均分 /5</span></div><div class="stat-card r3-card"><span class="sc-val green" id="dR3">—</span><span class="sc-label">🔊 R3 平均分 /5</span></div><div class="stat-card tot-card"><span class="sc-val blue" id="dTotal">—</span><span class="sc-label">🏆 三轮总分 /15</span></div><div class="stat-card" style="border-left-color:#16a34a"><span class="sc-val" style="color:#16a34a" id="dImprove">—</span><span class="sc-label">📈 全班进步分</span></div></div></div>
 
-    <!-- 学生进步追踪（核心） -->
-    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步追踪</div><div id="studentProgress"></div></div>
+    <!-- 扇形图 + 条形图并排 -->
+    <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">
+      <div class="dist-section" style="flex:1;min-width:300px"><div class="dist-title">🍩 各轮得分扇形图</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap" id="pieCharts"></div></div>
+      <div class="dist-section" style="flex:1;min-width:300px"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" style="flex-direction:column" id="distGrid"></div></div>
+    </div>
 
     <!-- 学生进步折线图 -->
     <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步趋势（折线图）</div><div id="lineChart"></div></div>
 
-    <!-- 扇形图 -->
-    <div class="dist-section"><div class="dist-title">🍩 各轮得分扇形图</div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap" id="pieCharts"></div></div>
-
-    <!-- 每轮分数分布图 -->
-    <div class="dist-section"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" id="distGrid"></div></div>
-
-    <!-- 各轮学生完成情况 -->
-    <div class="prog-section"><div class="prog-title">👥 各轮完成情况</div><div class="stu-round-list" id="stuRoundList"></div></div>
+    <!-- 学生进步数据表 -->
+    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">👥 学生进步数据</div><div id="studentProgress"></div></div>
 
     <!-- 提交记录 -->
     <div class="stu-table-wrap"><table class="stu-table"><thead><tr><th>#</th><th>姓名</th><th>环节</th><th>得分</th></tr></thead><tbody id="stuTbody"><tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr></tbody></table></div>
@@ -400,7 +398,7 @@ function refreshDisplay() {
     if (n===0) {
       document.getElementById('dTotal').textContent='—'; document.getElementById('dR1').textContent='—'; document.getElementById('dR2').textContent='—'; document.getElementById('dR3').textContent='—';
       document.getElementById('stuTbody').innerHTML='<tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr>';
-      document.getElementById('distGrid').innerHTML='';document.getElementById('stuRoundList').innerHTML='';document.getElementById('studentProgress').innerHTML=''; return;
+      document.getElementById('distGrid').innerHTML='';document.getElementById('studentProgress').innerHTML='';document.getElementById('lineChart').innerHTML=''; return;
     }
 
     // 按 round 分组
@@ -411,6 +409,11 @@ function refreshDisplay() {
     function avg(arr,key){ if(!arr.length) return '—'; var s=arr.reduce(function(a,b){return a+(b[key]||0);},0); return (s/arr.length).toFixed(1); }
     var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score'),atot=totals.length?avg(totals,'total'):'—';
     document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
+    // 全班进步分（R3均分 - R1均分）
+    var improve = (a1!=='—' && a3!=='—') ? (parseFloat(a3)-parseFloat(a1)).toFixed(1) : '—';
+    document.getElementById('dImprove').textContent = improve!=='—' ? (improve>=0?'+'+improve:improve) : '—';
+    // 完成人数（有三轮总分的人数）
+    document.getElementById('dStudentCount').textContent = totals.length || stuList.filter(function(s){return s.r1!==null&&s.r2!==null&&s.r3!==null;}).length || '0';
 
     // === 学生进步（按姓名聚合） ===
     var stuMap={};
@@ -535,21 +538,6 @@ function refreshDisplay() {
       '<div class="dist-col r1"><h4>📝 Round 1 ('+r1.length+'人)</h4>'+buildDist(r1,'r1')+'</div>'+
       '<div class="dist-col r2"><h4>🎯 Round 2 ('+r2.length+'人)</h4>'+buildDist(r2,'r2')+'</div>'+
       '<div class="dist-col r3"><h4>🔊 Round 3 ('+r3.length+'人)</h4>'+buildDist(r3,'r3')+'</div>';
-
-    // === 各轮学生列表 ===
-    function buildRoundList(arr) {
-      if (!arr.length) return '<div style="color:#94a3b8;text-align:center;padding:20px">暂无数据</div>';
-      var h='';
-      arr.forEach(function(d){
-        var sc=d.score||0, cls=sc>=4?'ok':(sc>=2?'md':'lo');
-        h+='<div class="stu-round-item"><span class="sri-name">'+esc(d.name)+'</span><span class="sri-score '+cls+'">'+sc+'/5</span></div>';
-      });
-      return h;
-    }
-    document.getElementById('stuRoundList').innerHTML=
-      '<div class="stu-round-col r1"><h4>📝 R1 ('+r1.length+'人)</h4>'+buildRoundList(r1)+'</div>'+
-      '<div class="stu-round-col r2"><h4>🎯 R2 ('+r2.length+'人)</h4>'+buildRoundList(r2)+'</div>'+
-      '<div class="stu-round-col r3"><h4>🔊 R3 ('+r3.length+'人)</h4>'+buildRoundList(r3)+'</div>';
 
     // 提交记录表
     var rows='';
