@@ -185,6 +185,9 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
     <!-- 学生进步追踪（核心） -->
     <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步追踪</div><div id="studentProgress"></div></div>
 
+    <!-- 各单词正确率 -->
+    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">🔤 各空正确率</div><div id="wordAccuracy"></div></div>
+
     <!-- 每轮分数分布图 -->
     <div class="dist-section"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" id="distGrid"></div></div>
 
@@ -295,25 +298,28 @@ function playFull(btn){
 
 // ===== Check =====
 function checkRound(r) {
-  var correct=0;
+  var correct=0, details=[];
   for (var i=0;i<ANSWERS.length;i++) {
     var inp=r===2?document.getElementById('d'+i):document.getElementById('b'+r+'_'+i);
     if (!inp) continue;
     var ua=inp.value.trim().toLowerCase(),ex=ANSWERS[i].toLowerCase();
-    if (ua===ex){ inp.classList.add('correct'); inp.classList.remove('wrong'); correct++; }
+    var ok = ua===ex;
+    if (ok){ inp.classList.add('correct'); inp.classList.remove('wrong'); correct++; }
     else { inp.classList.add('wrong'); inp.classList.remove('correct'); if(r<2&&ua==='') inp.placeholder='答案: '+ANSWERS[i]; }
     inp.disabled=true;
-    if (r===2){ var re=document.getElementById('dr'+i); if(re) re.textContent=ua===ex?'✅':'❌'; }
+    details.push(ok ? 1 : 0);
+    if (r===2){ var re=document.getElementById('dr'+i); if(re) re.textContent=ok?'✅':'❌'; }
     if (r<2){ var lb=inp.parentElement.querySelector('.btn-listen'); if(lb) lb.style.display='none'; }
   }
   scores[r]=correct;
-  document.getElementById('score'+(r+1)).textContent=correct+'/5';
+  document.getElementById('score'+(r+1)).textContent=correct+'/5 · '+
+    details.map(function(d,i){return (i+1)+':'+(d?'✅':'❌');}).join(' ');
   if (correct===5) document.getElementById('score'+(r+1)).classList.add('perfect');
   document.getElementById('tab'+(r+1)).classList.add('done');
   showToast(correct===5?'🎉 全对！':correct+'/5', correct===5?'ok':'no');
 
-  // 每轮立即提交
-  submitRound(r, correct);
+  // 每轮立即提交（含逐词对错）
+  submitRound(r, correct, details);
   // 显示已提交状态
   document.getElementById('btnCheck'+r).disabled = true;
   document.getElementById('btnCheck'+r).textContent = '⏳ 提交中...';
@@ -334,13 +340,11 @@ function checkRound(r) {
   }
 }
 
-// 每轮独立提交
-function submitRound(r, score) {
+// 每轮独立提交（含逐词对错）
+function submitRound(r, score, details) {
   var roundNames = ['语境填空','听力测试','听音写词'];
-  jsonp('submit', {name:studentName, round: r+1, roundName: roundNames[r], score: score}, function(res){
-    if (res && res.ok) {
-      console.log('Round '+(r+1)+' submitted: '+score+'/5');
-    }
+  jsonp('submit', {name:studentName, round: r+1, roundName: roundNames[r], score: score, details: (details||[]).join(',')}, function(res){
+    if (res && res.ok) { console.log('Round '+(r+1)+' submitted: '+score+'/5'); }
   });
 }
 
@@ -404,6 +408,35 @@ function refreshDisplay() {
     function avg(arr,key){ if(!arr.length) return '—'; var s=arr.reduce(function(a,b){return a+(b[key]||0);},0); return (s/arr.length).toFixed(1); }
     var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score'),atot=totals.length?avg(totals,'total'):'—';
     document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
+
+    // === 各单词正确率 ===
+    var words=['dress code','allowed','staff','permitted','slogans'];
+    var wordCounts=[{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]},{r1:[0,0],r2:[0,0],r3:[0,0]}]; // [correct,total]
+    all.forEach(function(d){
+      if (!d.details || d.round===0) return;
+      var parts=d.details.split(',').map(function(x){return parseInt(x)||0;});
+      for (var w=0;w<Math.min(5,parts.length);w++) {
+        var key='r'+d.round;
+        wordCounts[w][key][1]++; // total
+        if (parts[w]) wordCounts[w][key][0]++; // correct
+      }
+    });
+    var wHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'+
+      '<tr style="border-bottom:2px solid #e2e8f0"><th style="padding:8px;text-align:left;color:#64748b">空白</th><th style="padding:8px;color:#64748b">单词</th>'+
+      '<th style="padding:8px;color:#ef4444">R1 正确率</th><th style="padding:8px;color:#f59e0b">R2 正确率</th><th style="padding:8px;color:#22c55e">R3 正确率</th></tr>';
+    words.forEach(function(word,i){
+      var wc=wordCounts[i];
+      function pct(key){ var c=wc[key]; return c[1]>0?Math.round(c[0]/c[1]*100):'—'; }
+      function bar(key,rClass){
+        var p=pct(key); if(p==='—') return '<span style="color:#cbd5e1">暂无</span>';
+        return '<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden"><div class="dist-bar-inner '+rClass+'" style="width:'+p+'%;"></div></div><span style="font-weight:700;font-size:12px">'+p+'%</span></div>';
+      }
+      wHTML+='<tr style="border-bottom:1px solid #f1f5f9"><td style="padding:8px;font-weight:700;color:#d97706">('+(i+1)+')</td>'+
+        '<td style="padding:8px;font-weight:600;color:#0f172a">'+word+'</td>'+
+        '<td style="padding:8px">'+bar('r1','r1')+'</td><td style="padding:8px">'+bar('r2','r2')+'</td><td style="padding:8px">'+bar('r3','r3')+'</td></tr>';
+    });
+    wHTML+='</table></div>';
+    document.getElementById('wordAccuracy').innerHTML=wHTML;
 
     // === 学生进步追踪（按姓名聚合） ===
     var stuMap={};
