@@ -9,23 +9,49 @@
 body{
   font-family:'Segoe UI','Microsoft YaHei',sans-serif;
   min-height:100vh;min-height:100dvh;
-  background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 50%,#f1f5f9 100%);
-  padding:16px;
   -webkit-tap-highlight-color:transparent;
   user-select:none;-webkit-user-select:none;
 }
+body.student{ background:linear-gradient(180deg,#fffbeb 0%,#fef3c7 50%,#f1f5f9 100%);padding:16px;}
+body.display{ background:#0f172a;padding:24px;color:#e2e8f0;}
 .container{max-width:720px;margin:0 auto}
+.display .container{max-width:1100px}
 
-.header{text-align:center;margin-bottom:16px}
+/* === Shared === */
+.header{text-align:center;margin-bottom:14px}
 .header .badge{
   display:inline-block;padding:4px 18px;border-radius:20px;
-  background:#d97706;color:#fff;font-size:12px;font-weight:700;letter-spacing:2px;
+  font-size:12px;font-weight:700;letter-spacing:2px;
 }
-.header h2{color:#0f172a;font-size:20px;margin-top:6px}
-.header .sub{color:#64748b;font-size:13px}
+.student .header .badge{background:#d97706;color:#fff}
+.display .header .badge{background:#6366f1;color:#fff}
+.student .header h2{color:#0f172a;font-size:20px;margin-top:6px}
+.display .header h2{color:#e2e8f0;font-size:28px;margin-top:6px}
+.header .sub{font-size:13px;color:#94a3b8}
 
-/* Tabs */
-.tabs{display:flex;gap:4px;margin-bottom:20px}
+/* === Student: Name input === */
+.name-modal{
+  position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.8);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+}
+.name-box{
+  background:#fff;border-radius:20px;padding:32px 24px;text-align:center;
+  width:90%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.name-box h3{font-size:20px;color:#0f172a;margin-bottom:4px}
+.name-box p{font-size:13px;color:#94a3b8;margin-bottom:20px}
+.name-box input{
+  width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;
+  font-size:20px;text-align:center;outline:none;font-weight:600;
+}
+.name-box input:focus{border-color:#d97706}
+.name-box button{
+  margin-top:16px;width:100%;padding:14px;background:#d97706;color:#fff;
+  border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;
+}
+
+/* === Student: Tabs === */
+.tabs{display:flex;gap:4px;margin-bottom:18px}
 .tab{
   flex:1;padding:12px 4px;border:2px solid #e2e8f0;border-radius:12px;
   background:#fff;font-size:13px;font-weight:700;cursor:pointer;
@@ -34,458 +60,570 @@ body{
 .tab.active{background:#d97706;color:#fff;border-color:#d97706}
 .tab .tnum{display:block;font-size:10px;opacity:0.7}
 .tab.done{border-color:#16a34a;background:#f0fdf4;color:#16a34a}
-.tab.done .tnum{color:#16a34a}
 
-/* Panel */
 .panel{display:none}
 .panel.show{display:block}
 
-/* Dialogue card */
+/* === Student: Dialogue & Dict === */
 .dialogue-card{
-  background:#fff;border-radius:16px;padding:20px 18px;margin-bottom:16px;
+  background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;
   border:2px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.04);
 }
-.dialogue-card h3{font-size:16px;color:#d97706;margin-bottom:6px}
-.dialogue-card .ctx{font-size:13px;color:#94a3b8;margin-bottom:12px;line-height:1.5}
-
-.d-line{display:flex;align-items:baseline;gap:4px;margin-bottom:10px;flex-wrap:wrap}
-.d-speaker{font-weight:700;color:#0f172a;font-size:14px;width:36px;flex-shrink:0}
-.d-text{font-size:14px;color:#334155;line-height:1.8;flex:1}
-
-.blank-wrap{display:inline-flex;align-items:center;gap:4px;vertical-align:bottom}
-.blank-num{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:22px;height:22px;border-radius:50%;background:#d97706;color:#fff;
-  font-size:12px;font-weight:700;flex-shrink:0;
-}
+.dialogue-card h3{font-size:16px;color:#d97706;margin-bottom:4px}
+.dialogue-card .ctx{font-size:12px;color:#94a3b8;margin-bottom:10px;line-height:1.5}
+.d-line{display:flex;align-items:baseline;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.d-speaker{font-weight:700;color:#0f172a;font-size:13px;width:34px;flex-shrink:0}
+.d-text{font-size:13px;color:#334155;line-height:1.7;flex:1}
+.blank-wrap{display:inline-flex;align-items:center;gap:3px;vertical-align:bottom}
 .blank-input{
-  width:110px;padding:4px 8px;border:none;border-bottom:3px solid #d97706;
-  font-size:14px;font-weight:600;color:#0f172a;text-align:center;
-  background:transparent;outline:none;transition:all 0.2s;
+  width:100px;padding:2px 6px;border:none;border-bottom:3px solid #d97706;
+  font-size:13px;font-weight:600;color:#0f172a;text-align:center;
+  background:transparent;outline:none;
 }
-.blank-input:focus{border-bottom-color:#d97706;background:rgba(217,119,6,0.05)}
-.blank-input.correct{border-bottom-color:#16a34a;color:#16a34a;background:rgba(22,163,74,0.06)}
+.blank-input.correct{border-bottom-color:#16a34a;color:#16a34a;background:rgba(22,163,74,0.05)}
 .blank-input.wrong{border-bottom-color:#dc2626;color:#dc2626;background:rgba(220,38,38,0.05)}
-.blank-input:disabled{opacity:0.85}
 .btn-listen{
-  width:28px;height:28px;border-radius:50%;border:2px solid #d97706;
-  background:#fff;font-size:14px;cursor:pointer;flex-shrink:0;
+  width:26px;height:26px;border-radius:50%;border:2px solid #d97706;
+  background:#fff;font-size:13px;cursor:pointer;flex-shrink:0;
   display:inline-flex;align-items:center;justify-content:center;
-  transition:all 0.15s;
 }
 .btn-listen:active{transform:scale(0.9);background:#fef3c7}
-.btn-listen.playing{background:#d97706;color:#fff;animation:pulse 0.6s infinite}
+.btn-listen.playing{background:#d97706;animation:pulse 0.6s infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
 
-/* Dictation round 3 */
-.dict-list{display:flex;flex-direction:column;gap:14px}
+.dict-list{display:flex;flex-direction:column;gap:12px}
 .dict-item{
-  display:flex;align-items:center;gap:14px;background:#fff;
-  border-radius:14px;padding:18px 16px;border:2px solid #e2e8f0;
-  box-shadow:0 2px 6px rgba(0,0,0,0.03);
+  display:flex;align-items:center;gap:12px;background:#fff;
+  border-radius:14px;padding:16px;border:2px solid #e2e8f0;
 }
 .dict-num{
-  width:36px;height:36px;border-radius:50%;background:#d97706;color:#fff;
-  font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:32px;height:32px;border-radius:50%;background:#d97706;color:#fff;
+  font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .dict-audio{
-  width:48px;height:48px;border-radius:50%;border:3px solid #d97706;
-  background:#fff;font-size:22px;cursor:pointer;flex-shrink:0;
+  width:44px;height:44px;border-radius:50%;border:3px solid #d97706;
+  background:#fff;font-size:20px;cursor:pointer;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  transition:all 0.15s;
 }
 .dict-audio:active{transform:scale(0.9);background:#fef3c7}
 .dict-audio.playing{background:#d97706;animation:pulse 0.6s infinite}
 .dict-input{
-  flex:1;padding:8px 12px;border:2px solid #e2e8f0;border-radius:10px;
-  font-size:18px;font-weight:600;color:#0f172a;outline:none;
-  transition:all 0.2s;min-width:0;
+  flex:1;padding:10px 12px;border:2px solid #e2e8f0;border-radius:10px;
+  font-size:17px;font-weight:600;color:#0f172a;outline:none;min-width:0;
 }
 .dict-input:focus{border-color:#d97706}
 .dict-input.correct{border-color:#16a34a;color:#16a34a;background:#f0fdf4}
 .dict-input.wrong{border-color:#dc2626;color:#dc2626;background:#fef2f2}
-.dict-result{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+.dict-result{font-size:22px;width:30px;text-align:center;flex-shrink:0}
 
-/* Buttons */
-.btn-row{display:flex;gap:10px;margin-bottom:16px}
-.btn{
-  flex:1;padding:14px;border:none;border-radius:12px;
-  font-size:16px;font-weight:700;cursor:pointer;transition:all 0.15s;
-  font-family:'Microsoft YaHei','Segoe UI',sans-serif;
+/* === Student: Score bar === */
+.score-bar{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+  background:#fff;border-radius:14px;border:2px solid #e2e8f0;margin-bottom:14px;
 }
+.score-bar .s-info{flex:1}
+.score-bar .s-title{font-size:12px;color:#94a3b8;display:block}
+.score-bar .s-val{font-size:20px;font-weight:800;color:#d97706}
+.score-bar .s-val.perfect{color:#16a34a}
+.btn{ padding:12px 20px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Microsoft YaHei','Segoe UI',sans-serif;}
 .btn:active{transform:scale(0.96)}
 .btn-check{background:#d97706;color:#fff}
-.btn-reset{background:#f1f5f9;color:#64748b}
 .btn-next{background:#16a34a;color:#fff;display:none}
 .btn-next.show{display:block}
-.btn-retry{background:#6366f1;color:#fff;display:none}
-.btn-retry.show{display:block}
 
-/* Score display */
-.score-bar{
-  display:flex;align-items:center;gap:12px;padding:14px 16px;
-  background:#fff;border-radius:14px;border:2px solid #e2e8f0;margin-bottom:16px;
+/* === Student: Submit === */
+.submit-section{display:none;text-align:center;padding:20px;background:#fff;border-radius:16px;border:2px solid #16a34a;margin-top:16px}
+.submit-section.show{display:block}
+.submit-section .big-icon{font-size:56px}
+.submit-section h3{font-size:18px;margin:8px 0}
+.submit-section .total-score{font-size:40px;font-weight:900;color:#d97706}
+.submit-section .detail-scores{font-size:14px;color:#64748b;margin:8px 0}
+.btn-submit{
+  margin-top:12px;padding:14px 40px;background:#16a34a;color:#fff;
+  border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;
 }
-.score-bar .s-icon{font-size:28px}
-.score-bar .s-info{flex:1}
-.score-bar .s-title{font-size:13px;color:#94a3b8;display:block}
-.score-bar .s-val{font-size:22px;font-weight:800;color:#d97706}
-.score-bar .s-val.perfect{color:#16a34a}
 
-/* Result summary */
-.result-summary{display:none;text-align:center;padding:20px 0}
-.result-summary.show{display:block}
-.result-summary .big-icon{font-size:64px}
-.result-summary h3{font-size:20px;margin:8px 0}
-.result-summary .big-score{font-size:48px;font-weight:900;color:#d97706}
-
-/* Feedback toast */
+/* === Toast === */
 .toast{
   position:fixed;top:20px;left:50%;transform:translateX(-50%);
   padding:12px 28px;border-radius:24px;font-size:15px;font-weight:700;
-  z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;
+  z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none;
 }
 .toast.show{opacity:1}
 .toast.ok{background:#16a34a;color:#fff}
 .toast.no{background:#dc2626;color:#fff}
 
-.link-row{margin-top:16px;text-align:center}
-.link-row a{
-  display:inline-block;padding:4px 10px;border-radius:6px;
-  border:1px solid #e2e8f0;background:#fff;font-size:11px;
-  font-weight:600;text-decoration:none;color:#64748b;margin:0 2px;
+/* ======================================== */
+/* === DISPLAY MODE (大屏展示) === */
+/* ======================================== */
+.display .top-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.display .live-dot{
+  width:14px;height:14px;border-radius:50%;background:#22c55e;
+  animation:pulse 1.5s infinite;display:inline-block;margin-right:8px;vertical-align:middle;
+}
+.display .live-text{font-size:16px;color:#22c55e;font-weight:700}
+.display .student-count{font-size:14px;color:#94a3b8}
+
+/* Stat cards */
+.stat-cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-card{
+  flex:1;min-width:140px;background:#1e293b;border-radius:14px;
+  padding:20px 16px;text-align:center;border:2px solid #334155;
+}
+.stat-card .sc-val{font-size:44px;font-weight:900;display:block;line-height:1}
+.stat-card .sc-val.green{color:#4ade80}
+.stat-card .sc-val.amber{color:#fbbf24}
+.stat-card .sc-val.blue{color:#60a5fa}
+.stat-card .sc-val.rose{color:#f87171}
+.stat-card .sc-label{font-size:13px;color:#94a3b8;display:block;margin-top:6px}
+
+/* Round comparison bar */
+.round-compare{display:flex;gap:12px;margin-bottom:20px}
+.round-col{
+  flex:1;background:#1e293b;border-radius:14px;padding:16px;
+  border:2px solid #334155;text-align:center;
+}
+.round-col .rc-title{font-size:14px;font-weight:700;color:#e2e8f0;display:block;margin-bottom:10px}
+.round-col .rc-avg{font-size:36px;font-weight:900}
+.round-col.r1 .rc-avg{color:#f87171}
+.round-col.r2 .rc-avg{color:#fbbf24}
+.round-col.r3 .rc-avg{color:#4ade80}
+.round-col .rc-max{font-size:12px;color:#94a3b8}
+
+/* Progress bars per round */
+.prog-section{margin-bottom:20px}
+.prog-section h3{font-size:16px;color:#e2e8f0;margin-bottom:12px}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.prog-label{width:70px;font-size:13px;color:#94a3b8;text-align:right}
+.prog-bar-outer{flex:1;height:22px;background:#334155;border-radius:6px;overflow:hidden}
+.prog-bar-inner{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:13px;font-weight:700;color:#fff;transition:width 0.5s ease}
+.prog-bar-inner.r1{background:linear-gradient(90deg,#dc2626,#f87171)}
+.prog-bar-inner.r2{background:linear-gradient(90deg,#d97706,#fbbf24)}
+.prog-bar-inner.r3{background:linear-gradient(90deg,#16a34a,#4ade80)}
+.prog-val{font-size:13px;font-weight:700;color:#e2e8f0;width:40px}
+
+/* Student table */
+.stu-table-wrap{max-height:400px;overflow-y:auto;border-radius:12px;border:1px solid #334155}
+.stu-table{width:100%;border-collapse:collapse;font-size:13px}
+.stu-table th{
+  position:sticky;top:0;background:#1e293b;padding:10px 6px;
+  text-align:center;color:#94a3b8;font-size:11px;border-bottom:2px solid #334155;
+}
+.stu-table td{padding:8px 6px;text-align:center;color:#e2e8f0;border-bottom:1px solid #1e293b}
+.stu-table .s-name{text-align:left;font-weight:600;color:#e2e8f0}
+.stu-table .s-ok{color:#4ade80;font-weight:700}
+.stu-table .s-md{color:#fbbf24;font-weight:700}
+.stu-table .s-lo{color:#f87171;font-weight:700}
+.stu-table tr:hover{background:rgba(255,255,255,0.03)}
+
+/* Empty */
+.empty-state{text-align:center;padding:60px 20px}
+.empty-state .emp-icon{font-size:64px;display:block;margin-bottom:12px}
+.empty-state .emp-text{font-size:18px;color:#64748b}
+.empty-state .emp-hint{font-size:13px;color:#475569;margin-top:6px}
+
+.ctrl-bar{text-align:center;margin-top:16px}
+.btn-clear{
+  padding:10px 24px;background:#dc2626;color:#fff;border:none;
+  border-radius:10px;font-size:13px;cursor:pointer;
 }
 </style>
 </head>
-<body>
+<body class="student" id="bodyEl">
 <div class="container">
-  <div class="header">
-    <div class="badge">TASK 4 · 守岗</div>
-    <h2>🎧 ECRL Dress Code · 听力任务</h2>
-    <p class="sub">三次任务 · 从填空到听写</p>
-  </div>
+  <!-- ========== STUDENT MODE ========== -->
+  <div id="studentUI">
+    <div class="header">
+      <div class="badge">TASK 4 · 守岗</div>
+      <h2>🎧 ECRL Dress Code · 听力任务</h2>
+      <p class="sub">三次任务 · 从填空到听写 · <span id="stuNameDisplay"></span></p>
+    </div>
 
-  <div class="tabs">
-    <div class="tab active" id="tab1" onclick="switchRound(0)">
-      <span class="tnum">Round 1</span>📝 语境填空
+    <div class="tabs">
+      <div class="tab active" id="tab1" onclick="switchRound(0)"><span class="tnum">Round 1</span>📝 语境填空</div>
+      <div class="tab" id="tab2" onclick="switchRound(1)"><span class="tnum">Round 2</span>🎯 听力测试</div>
+      <div class="tab" id="tab3" onclick="switchRound(2)"><span class="tnum">Round 3</span>🔊 听音写词</div>
     </div>
-    <div class="tab" id="tab2" onclick="switchRound(1)">
-      <span class="tnum">Round 2</span>🎯 听力测试
-    </div>
-    <div class="tab" id="tab3" onclick="switchRound(2)">
-      <span class="tnum">Round 3</span>🔊 听音写词
-    </div>
-  </div>
 
-  <!-- Round 1 & 2: Dialogue fill-in-blank -->
-  <div class="panel show" id="panel0">
-    <div class="dialogue-card">
-      <h3>📋 ECRL Dress Code Conversation</h3>
-      <p class="ctx">🚂 Leo 和 Adam 在讨论 ECRL 的着装规范。听对话并填入正确的单词。</p>
-      <div id="dialogue1"></div>
+    <div class="panel show" id="panel0">
+      <div class="dialogue-card"><h3>📋 语境填空（可反复听）</h3><p class="ctx">🚂 点击 🔊 听单词，填入空白处。</p><div id="dialogue1"></div></div>
+      <div class="score-bar">
+        <span class="s-info"><span class="s-title">Round 1</span><span class="s-val" id="score1">—</span></span>
+        <button class="btn btn-check" onclick="checkRound(0)">✅ 检查</button>
+      </div>
     </div>
-    <div class="score-bar">
-      <span class="s-icon">📊</span>
-      <div class="s-info"><span class="s-title">Round 1 得分</span><span class="s-val" id="score1">—</span></div>
-      <button class="btn btn-check" onclick="checkRound(0)">✅ 检查答案</button>
-    </div>
-  </div>
 
-  <div class="panel" id="panel1">
-    <div class="dialogue-card">
-      <h3>🎯 ECRL Dress Code · 听力测试</h3>
-      <p class="ctx">🚂 先完整听一遍对话，然后凭记忆填入单词。每空只能听一次。</p>
-      <div id="dialogue2"></div>
+    <div class="panel" id="panel1">
+      <div class="dialogue-card"><h3>🎯 听力测试（只听一遍）</h3><p class="ctx" id="r2ctx">🚂 点击下方按钮播放完整对话，然后凭记忆填入单词。</p><div id="r2audio"></div><div id="dialogue2"></div></div>
+      <div class="score-bar">
+        <span class="s-info"><span class="s-title">Round 2</span><span class="s-val" id="score2">—</span></span>
+        <button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button>
+      </div>
     </div>
-    <div class="score-bar">
-      <span class="s-icon">🎯</span>
-      <div class="s-info"><span class="s-title">Round 2 得分</span><span class="s-val" id="score2">—</span></div>
-      <button class="btn btn-check" onclick="checkRound(1)">✅ 提交</button>
-    </div>
-  </div>
 
-  <!-- Round 3: Dictation -->
-  <div class="panel" id="panel2">
-    <div class="dialogue-card">
-      <h3>🔊 听音写单词</h3>
-      <p class="ctx">点击播放按钮听单词发音，在输入框中写出你听到的单词。每个单词可以听 3 遍。</p>
-      <div class="dict-list" id="dictList"></div>
-    </div>
-    <div class="score-bar">
-      <span class="s-icon">🏆</span>
-      <div class="s-info"><span class="s-title">Round 3 得分</span><span class="s-val" id="score3">—</span></div>
-      <button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button>
-    </div>
-    <div class="result-summary" id="resultSummary">
-      <div class="big-icon" id="resultIcon"></div>
-      <h3 id="resultTitle"></h3>
-      <div class="big-score" id="resultScore"></div>
-      <p style="color:#64748b;margin-top:8px" id="resultMsg"></p>
-      <button class="btn btn-retry show" onclick="resetAll()" style="margin-top:16px;display:inline-block;width:auto;padding:14px 32px;">🔄 重新开始</button>
+    <div class="panel" id="panel2">
+      <div class="dialogue-card"><h3>🔊 听音写单词</h3><p class="ctx">点击播放按钮听发音，最多听 3 遍，写出你听到的单词。</p><div class="dict-list" id="dictList"></div></div>
+      <div class="score-bar">
+        <span class="s-info"><span class="s-title">Round 3</span><span class="s-val" id="score3">—</span></span>
+        <button class="btn btn-check" onclick="checkRound(2)">✅ 提交</button>
+      </div>
+      <div class="submit-section" id="submitSection">
+        <div class="big-icon">🏆</div>
+        <h3 id="submitTitle"></h3>
+        <div class="total-score" id="totalScore"></div>
+        <div class="detail-scores" id="detailScores"></div>
+        <button class="btn-submit" onclick="submitData()">📤 提交成绩</button>
+      </div>
     </div>
   </div>
 
-  <div class="link-row">
-    <a href="index.html">🏠 返回主页</a>
+  <!-- ========== DISPLAY MODE ========== -->
+  <div id="displayUI" style="display:none">
+    <div class="header">
+      <div class="badge">TASK 4 · 守岗 · 实时数据</div>
+      <h2>📊 听力任务 · 大屏展示</h2>
+    </div>
+    <div class="top-bar">
+      <div><span class="live-dot"></span><span class="live-text">LIVE 实时更新</span></div>
+      <div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div>
+    </div>
+
+    <div class="stat-cards">
+      <div class="stat-card"><span class="sc-val green" id="dTotal">—</span><span class="sc-label">平均总分 /15</span></div>
+      <div class="stat-card"><span class="sc-val amber" id="dR1">—</span><span class="sc-label">Round 1 均分 /5</span></div>
+      <div class="stat-card"><span class="sc-val rose" id="dR2">—</span><span class="sc-label">Round 2 均分 /5</span></div>
+      <div class="stat-card"><span class="sc-val blue" id="dR3">—</span><span class="sc-label">Round 3 均分 /5</span></div>
+    </div>
+
+    <div class="round-compare" id="roundCompare"></div>
+
+    <div class="stu-table-wrap">
+      <table class="stu-table">
+        <thead><tr><th>#</th><th>姓名</th><th>Round 1</th><th>Round 2</th><th>Round 3</th><th>总分</th><th>评价</th></tr></thead>
+        <tbody id="stuTbody"><tr><td colspan="7" style="padding:40px;color:#64748b">等待学生提交数据...</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="ctrl-bar" style="margin-top:20px">
+      <button class="btn-clear" onclick="clearData()">🗑 清除数据</button>
+      <span style="color:#64748b;font-size:12px;margin-left:10px">提示：学生用手机打开同一网址即可提交</span>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- 姓名输入弹窗 -->
+<div class="name-modal" id="nameModal">
+  <div class="name-box">
+    <h3>👋 请输入你的姓名</h3>
+    <p>用于记录你的听力任务成绩</p>
+    <input id="nameInput" placeholder="输入姓名..." autocomplete="off">
+    <button onclick="confirmName()">开始答题 →</button>
+  </div>
+</div>
+
 <script>
-// ===== Audio map =====
+// ===== Config =====
 var AUDIO = {
-  'dress code': 'audio/dress-code.mp3',
-  'allowed': 'audio/allowed.wav',
-  'staff': 'audio/staff.wav',
-  'permitted': 'audio/permitted.wav',
-  'slogans': 'audio/slogan.mp3'
+  'dress code':'audio/dress-code.mp3',
+  'allowed':'audio/allowed.wav',
+  'staff':'audio/staff.wav',
+  'permitted':'audio/permitted.wav',
+  'slogans':'audio/slogan.mp3'
 };
+var ANSWERS = ['dress code','allowed','staff','permitted','slogans'];
+var STORAGE_KEY = 'task4_listening_data';
+var currentRound = 0, scores = [null,null,null], studentName = '', currentAudio = null;
+var listenCounts = {};
 
-var ANSWERS = ['dress code', 'allowed', 'staff', 'permitted', 'slogans'];
-var currentRound = 0;
-var scores = [null, null, null]; // null = not submitted yet
-var listenCounts = {}; // track per-word listen counts for round 3
+// ===== Mode detection =====
+var isDisplay = location.search.indexOf('display') !== -1;
 
-// ===== Build dialogue HTML =====
-function buildDialogue(roundNum) {
+if (isDisplay) {
+  document.getElementById('bodyEl').className = 'display';
+  document.getElementById('studentUI').style.display = 'none';
+  document.getElementById('displayUI').style.display = 'block';
+  document.getElementById('nameModal').style.display = 'none';
+  document.title = '📊 听力任务 · 实时大屏';
+  startDisplayLoop();
+} else {
+  document.getElementById('nameModal').style.display = 'flex';
+}
+
+// ===== Student: Name =====
+function confirmName() {
+  var name = document.getElementById('nameInput').value.trim();
+  if (!name) { showToast('请输入姓名', 'no'); return; }
+  studentName = name;
+  document.getElementById('stuNameDisplay').textContent = '👤 ' + name;
+  document.getElementById('nameModal').style.display = 'none';
+  initStudentUI();
+}
+
+// ===== Student: Build UI =====
+function initStudentUI() {
+  document.getElementById('dialogue1').innerHTML = buildDialogue(0, true);
+  document.getElementById('r2audio').innerHTML = '<div style="text-align:center;margin-bottom:10px"><button class="btn btn-check" id="btnPlayFull" onclick="playFull(this)" style="display:inline-block;width:auto;padding:10px 24px;font-size:14px">🔊 播放完整对话（仅一次）</button></div>';
+  document.getElementById('dialogue2').innerHTML = buildDialogue(1, false);
+  document.getElementById('dictList').innerHTML = buildDictation();
+}
+
+function buildDialogue(roundNum, showListenBtns) {
+  var blanks = [
+    {num:1, word:'dress code'}, {num:2, word:'allowed'},
+    {num:3, word:'staff'}, {num:4, word:'permitted'}, {num:5, word:'slogans'}
+  ];
   var lines = [
-    { speaker: 'Leo',  text: 'Hi, Adam. Can I have a word, please?' },
-    { speaker: 'Adam', text: 'Sure, Leo.' },
-    { speaker: 'Leo',  text: 'I wanted to remind you about our ECRL <b class="blank-num">(1)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_0" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'dress code\',this)" title="听发音">🔊</button></span>.' },
-    { speaker: 'Adam', text: 'Is there something wrong with what I\'m wearing?' },
-    { speaker: 'Leo',  text: 'Well, you\'re wearing jeans.' },
-    { speaker: 'Adam', text: 'Oh. I think they look quite smart.' },
-    { speaker: 'Leo',  text: 'They\'re smart jeans, yes, but they are still jeans and we\'re not <b class="blank-num">(2)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_1" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'allowed\',this)" title="听发音">🔊</button></span> to wear jeans on duty.' },
-    { speaker: 'Adam', text: 'I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?' },
-    { speaker: 'Leo',  text: 'It\'s on our <b class="blank-num">(3)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_2" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'staff\',this)" title="听发音">🔊</button></span> webpage. I\'ll show you. Look! It says that staff members are not <b class="blank-num">(4)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_3" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'permitted\',this)" title="听发音">🔊</button></span> to wear jeans.' },
-    { speaker: 'Adam', text: 'I see. And no T-shirts with <b class="blank-num">(5)</b> <span class="blank-wrap"><input class="blank-input r'+roundNum+'" id="b'+roundNum+'_4" placeholder="______"><button class="btn-listen r'+roundNum+'" onclick="playWord(\'slogans\',this)" title="听发音">🔊</button></span>, short trousers or baseball caps.' },
-    { speaker: 'Leo',  text: 'Right, except on dress-down Fridays. You can wear what you want then.' },
-    { speaker: 'Adam', text: 'That\'s good to know!' }
+    {s:'Leo', t:'Hi, Adam. Can I have a word, please?'},
+    {s:'Adam', t:'Sure, Leo.'},
+    {s:'Leo', t:blk(0, roundNum, showListenBtns)},
+    {s:'Adam', t:'Is there something wrong with what I\'m wearing?'},
+    {s:'Leo', t:'Well, you\'re wearing jeans.'},
+    {s:'Adam', t:'Oh. I think they look quite smart.'},
+    {s:'Leo', t:blk(1, roundNum, showListenBtns)},
+    {s:'Adam', t:'I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?'},
+    {s:'Leo', t:blk(2, roundNum, showListenBtns)},
+    {s:'Adam', t:'I see. And no T-shirts with ' + blk(4, roundNum, showListenBtns) + ', short trousers or baseball caps.'},
+    {s:'Leo', t:'Right, except on dress-down Fridays. You can wear what you want then.'},
+    {s:'Adam', t:'That\'s good to know!'}
   ];
 
-  if (roundNum === 1) {
-    // Round 2: hide individual listen buttons, add one "play full dialogue" button at top
-    var html = '<div style="text-align:center;margin-bottom:14px"><button class="btn" style="background:#d97706;color:#fff;padding:12px 24px;display:inline-block;width:auto;font-size:15px" onclick="playFullDialogue(this)">🔊 播放完整对话（仅一次）</button></div>';
-    lines.forEach(function(l) {
-      var text = l.text.replace(/<button[^>]*>🔊<\/button>/g, '');
-      html += '<div class="d-line"><span class="d-speaker">' + l.speaker + '</span><span class="d-text">' + text + '</span></div>';
-    });
-    return html;
+  function blk(i, r, show) {
+    var b = blanks[i];
+    var lbtn = show ? '<button class="btn-listen" onclick="playWord(\''+b.word+'\',this)" title="听发音">🔊</button>' : '';
+    return 'our ECRL ' + wrap(b, 0, r, lbtn) + '.' +
+      (i===0?'':'') + (i===1?' to wear jeans on duty.':'') +
+      (i===2?' webpage. I\'ll show you. Look! It says that staff members are not ' + wrap(blanks[3], 3, r, show?'<button class="btn-listen" onclick="playWord(\'permitted\',this)" title="听发音">🔊</button>':'') + ' to wear jeans.':'');
   }
 
+  // Simplify: just build by manually placing blanks
   var html = '';
-  lines.forEach(function(l) {
-    html += '<div class="d-line"><span class="d-speaker">' + l.speaker + '</span><span class="d-text">' + l.text + '</span></div>';
-  });
+  // Line 3 (Leo): dress code
+  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">I wanted to remind you about our ECRL <b style="color:#d97706">(1)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_0" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'dress code\',this)">🔊</button>' : '') + '</span>.</span></div>';
+  // Lines 1-2
+  html = '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Hi, Adam. Can I have a word, please?</span></div>' +
+    '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Sure, Leo.</span></div>' + html;
+  // Line 4-6
+  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Is there something wrong with what I\'m wearing?</span></div>';
+  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Well, you\'re wearing jeans.</span></div>';
+  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">Oh. I think they look quite smart.</span></div>';
+  // Line 7 (Leo): allowed
+  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">They\'re smart jeans, yes, but they are still jeans and we\'re not <b style="color:#d97706">(2)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_1" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'allowed\',this)">🔊</button>' : '') + '</span> to wear jeans on duty.</span></div>';
+  // Adam reply
+  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. Sorry about that. I won\'t wear them again. I haven\'t seen the dress code though. Where can I find it?</span></div>';
+  // Line 9 (Leo): staff + permitted
+  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">It\'s on our <b style="color:#d97706">(3)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_2" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'staff\',this)">🔊</button>' : '') + '</span> webpage. I\'ll show you. Look! It says that staff members are not <b style="color:#d97706">(4)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_3" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'permitted\',this)">🔊</button>' : '') + '</span> to wear jeans.</span></div>';
+  // Line 10 (Adam): slogans
+  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">I see. And no T-shirts with <b style="color:#d97706">(5)</b> <span class="blank-wrap"><input class="blank-input" id="b'+roundNum+'_4" placeholder="______">' + (showListenBtns ? '<button class="btn-listen" onclick="playWord(\'slogans\',this)">🔊</button>' : '') + '</span>, short trousers or baseball caps.</span></div>';
+  html += '<div class="d-line"><span class="d-speaker">Leo</span><span class="d-text">Right, except on dress-down Fridays. You can wear what you want then.</span></div>';
+  html += '<div class="d-line"><span class="d-speaker">Adam</span><span class="d-text">That\'s good to know!</span></div>';
   return html;
 }
 
-// ===== Build dictation list (Round 3) =====
 function buildDictation() {
-  var html = '';
-  ANSWERS.forEach(function(word, i) {
-    html += '<div class="dict-item">' +
-      '<div class="dict-num">' + (i+1) + '</div>' +
-      '<button class="dict-audio" onclick="playDictWord(\'' + word + '\',' + i + ',this)" title="点击听发音">🔊</button>' +
-      '<input class="dict-input" id="d' + i + '" placeholder="输入你听到的单词...">' +
-      '<span class="dict-result" id="dr' + i + '"></span>' +
-      '</div>';
+  var h = '';
+  ANSWERS.forEach(function(w,i) {
+    h += '<div class="dict-item"><div class="dict-num">'+(i+1)+'</div><button class="dict-audio" onclick="playDictWord(\''+w+'\','+i+',this)">🔊</button><input class="dict-input" id="d'+i+'" placeholder="输入你听到的单词..."><span class="dict-result" id="dr'+i+'"></span></div>';
   });
-  return html;
+  return h;
 }
 
-// ===== Audio playback =====
-var currentAudio = null;
-
+// ===== Audio =====
 function playAudio(path, btn) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   if (btn) { btn.classList.add('playing'); }
-  var audio = new Audio(path);
-  currentAudio = audio;
-  audio.onended = function() {
-    if (btn) btn.classList.remove('playing');
-    currentAudio = null;
-  };
-  audio.onerror = function() {
-    if (btn) { btn.classList.remove('playing'); btn.style.opacity = '0.4'; }
-    currentAudio = null;
-    showToast('音频加载失败，请检查网络', 'no');
-  };
-  audio.play().catch(function() {
-    if (btn) btn.classList.remove('playing');
-  });
+  var a = new Audio(path);
+  currentAudio = a;
+  a.onended = function(){ if(btn) btn.classList.remove('playing'); currentAudio=null; };
+  a.onerror = function(){ if(btn){ btn.classList.remove('playing'); btn.style.opacity='0.4'; } currentAudio=null; };
+  a.play().catch(function(){ if(btn) btn.classList.remove('playing'); });
 }
 
-function playWord(word, btn) {
-  listenCounts[word] = (listenCounts[word] || 0) + 1;
-  if (currentRound === 0) {
-    // Round 1: unlimited listens
-  } else {
-    // limit not enforced but tracked
-  }
-  playAudio(AUDIO[word], btn);
-}
+function playWord(word, btn) { playAudio(AUDIO[word], btn); }
 
 function playDictWord(word, idx, btn) {
-  var count = listenCounts['dict_' + idx] = (listenCounts['dict_' + idx] || 0) + 1;
-  if (count > 3) {
-    showToast('该单词已听 ' + (count-1) + ' 遍，最多 3 遍', 'no');
-    return;
-  }
+  var k = 'dict_'+idx;
+  listenCounts[k] = (listenCounts[k]||0)+1;
+  if (listenCounts[k] > 3) { showToast('最多听 3 遍','no'); return; }
   playAudio(AUDIO[word], btn);
 }
 
-function playFullDialogue(btn) {
-  // Play each word in sequence with gaps
+function playFull(btn) {
   if (btn.disabled) return;
   btn.disabled = true;
-  btn.textContent = '🔊 播放中...';
-  btn.style.opacity = '0.6';
-
-  var delay = 0;
-  ANSWERS.forEach(function(word, i) {
-    setTimeout(function() {
-      playAudio(AUDIO[word], null);
-    }, delay);
-    delay += 2500;
+  btn.textContent = '⏳ 播放中...';
+  var d = 0;
+  ANSWERS.forEach(function(w,i) {
+    setTimeout(function(){ playAudio(AUDIO[w], null); }, d);
+    d += 2200;
   });
-  setTimeout(function() {
-    btn.textContent = '✅ 已播放完毕';
-  }, delay);
+  setTimeout(function(){ btn.textContent = '✅ 已播放完毕'; }, d);
 }
 
-// ===== Check answers =====
-function checkRound(roundNum) {
+// ===== Check =====
+function checkRound(r) {
   var correct = 0;
-  for (var i = 0; i < ANSWERS.length; i++) {
-    var input;
-    if (roundNum === 2) {
-      input = document.getElementById('d' + i);
-    } else {
-      input = document.getElementById('b' + roundNum + '_' + i);
-    }
-    if (!input) continue;
-    var userAnswer = input.value.trim().toLowerCase();
-    var expected = ANSWERS[i].toLowerCase();
-    if (userAnswer === expected) {
-      input.classList.add('correct');
-      input.classList.remove('wrong');
-      correct++;
-    } else {
-      input.classList.add('wrong');
-      input.classList.remove('correct');
-      if (roundNum < 2 && userAnswer === '') {
-        input.placeholder = '答案: ' + ANSWERS[i];
-      }
-    }
-    if (roundNum === 2) {
-      var resultEl = document.getElementById('dr' + i);
-      if (resultEl) {
-        resultEl.textContent = userAnswer === expected ? '✅' : '❌';
-      }
-    }
-    input.disabled = true;
-    if (roundNum < 2) {
-      var btn = input.parentElement.querySelector('.btn-listen');
-      if (btn) btn.style.display = 'none';
-    }
+  for (var i=0;i<ANSWERS.length;i++) {
+    var inp = r===2 ? document.getElementById('d'+i) : document.getElementById('b'+r+'_'+i);
+    if (!inp) continue;
+    var ua = inp.value.trim().toLowerCase();
+    var ex = ANSWERS[i].toLowerCase();
+    if (ua === ex) { inp.classList.add('correct'); inp.classList.remove('wrong'); correct++; }
+    else { inp.classList.add('wrong'); inp.classList.remove('correct'); if(r<2&&ua==='') inp.placeholder='答案: '+ANSWERS[i]; }
+    inp.disabled = true;
+    if (r===2) { var re = document.getElementById('dr'+i); if(re) re.textContent = ua===ex?'✅':'❌'; }
+    if (r<2) { var btn = inp.parentElement.querySelector('.btn-listen'); if(btn) btn.style.display='none'; }
   }
-
-  scores[roundNum] = correct;
-  document.getElementById('score' + (roundNum+1)).textContent = correct + ' / ' + ANSWERS.length;
-  if (correct === ANSWERS.length) {
-    document.getElementById('score' + (roundNum+1)).classList.add('perfect');
-  }
-
-  // Mark tab as done
-  document.getElementById('tab' + (roundNum+1)).classList.add('done');
-
-  // Auto-advance after short delay
-  if (roundNum < 2 && correct >= 4) {
-    setTimeout(function() { switchRound(roundNum + 1); }, 1500);
-  }
-
-  // Show overall result after round 3
-  if (roundNum === 2) {
-    showFinalResult();
-  }
-
-  showToast(correct === ANSWERS.length ? '🎉 全部正确！' : correct + '/' + ANSWERS.length + ' 正确', correct === ANSWERS.length ? 'ok' : 'no');
+  scores[r] = correct;
+  document.getElementById('score'+(r+1)).textContent = correct+'/5';
+  if(correct===5) document.getElementById('score'+(r+1)).classList.add('perfect');
+  document.getElementById('tab'+(r+1)).classList.add('done');
+  if (r<2 && correct>=4) setTimeout(function(){ switchRound(r+1); }, 1200);
+  if (r===2) showSubmit();
+  showToast(correct===5?'🎉 全对！':correct+'/5', correct===5?'ok':'no');
 }
 
-// ===== Final result =====
-function showFinalResult() {
-  var total = (scores[0] || 0) + (scores[1] || 0) + (scores[2] || 0);
-  var max = ANSWERS.length * 3;
-  var summary = document.getElementById('resultSummary');
-  summary.classList.add('show');
-
-  var icon, title, msg;
-  if (total === max) {
-    icon = '🏆'; title = '完美通关！'; msg = '三次任务全部满分，听力和词汇都非常扎实！';
-  } else if (total >= max - 3) {
-    icon = '🎉'; title = '表现优秀！'; msg = '得分 ' + total + '/' + max + '，你对 ECRL 着装规范用语掌握得很好！';
-  } else if (total >= max - 6) {
-    icon = '👍'; title = '继续加油！'; msg = '得分 ' + total + '/' + max + '，建议回到 Round 1 再练习一遍。';
-  } else {
-    icon = '📚'; title = '需要更多练习'; msg = '得分 ' + total + '/' + max + '，建议反复听音频，重点记忆这 5 个核心词汇。';
-  }
-
-  document.getElementById('resultIcon').textContent = icon;
-  document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultScore').textContent = total + ' / ' + max;
-  document.getElementById('resultMsg').textContent = msg;
+function showSubmit() {
+  var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+  document.getElementById('totalScore').textContent = t+' / 15';
+  document.getElementById('detailScores').textContent = 'R1: '+(scores[0]||0)+'/5  |  R2: '+(scores[1]||0)+'/5  |  R3: '+(scores[2]||0)+'/5';
+  var icon, title;
+  if (t===15) { icon='🏆'; title='完美通关！'; }
+  else if (t>=12) { icon='🎉'; title='表现优秀！'; }
+  else if (t>=8) { icon='👍'; title='继续加油！'; }
+  else { icon='📚'; title='需要多练习'; }
+  document.getElementById('submitTitle').innerHTML = icon+' '+title;
+  document.getElementById('submitSection').classList.add('show');
 }
 
-// ===== Switch rounds =====
-function switchRound(idx) {
-  currentRound = idx;
-  document.querySelectorAll('.tab').forEach(function(t, i) { t.classList.toggle('active', i === idx); });
-  document.querySelectorAll('.panel').forEach(function(p, i) { p.classList.toggle('show', i === idx); });
-
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+// ===== Submit to localStorage =====
+function submitData() {
+  var t = (scores[0]||0)+(scores[1]||0)+(scores[2]||0);
+  var entry = {
+    name: studentName,
+    time: new Date().toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+    r1: scores[0]||0, r2: scores[1]||0, r3: scores[2]||0, total: t
+  };
+  var all = getStoredData();
+  // 如果同名已存在则覆盖
+  var existIdx = -1;
+  for (var i=0;i<all.length;i++) { if (all[i].name===studentName) { existIdx=i; break; } }
+  if (existIdx>=0) all[existIdx] = entry; else all.push(entry);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  showToast('✅ 提交成功！', 'ok');
+  // 3秒后重置给下一位学生
+  setTimeout(function(){ resetForNext(); }, 2000);
 }
 
-// ===== Reset =====
-function resetAll() {
-  scores = [null, null, null];
-  listenCounts = {};
-  currentRound = 0;
+function getStoredData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); } catch(e) { return []; }
+}
 
-  document.getElementById('dialogue1').innerHTML = buildDialogue(0);
-  document.getElementById('dialogue2').innerHTML = buildDialogue(1);
-  document.getElementById('dictList').innerHTML = buildDictation();
-
-  document.getElementById('score1').textContent = '—';
-  document.getElementById('score2').textContent = '—';
-  document.getElementById('score3').textContent = '—';
-  document.getElementById('score1').classList.remove('perfect');
-  document.getElementById('score2').classList.remove('perfect');
-  document.getElementById('score3').classList.remove('perfect');
-
+function resetForNext() {
+  scores = [null,null,null]; listenCounts = {}; currentRound = 0;
+  document.getElementById('score1').textContent = '—'; document.getElementById('score1').classList.remove('perfect');
+  document.getElementById('score2').textContent = '—'; document.getElementById('score2').classList.remove('perfect');
+  document.getElementById('score3').textContent = '—'; document.getElementById('score3').classList.remove('perfect');
   document.getElementById('tab1').classList.remove('done');
   document.getElementById('tab2').classList.remove('done');
   document.getElementById('tab3').classList.remove('done');
-
-  document.getElementById('resultSummary').classList.remove('show');
-
+  document.getElementById('submitSection').classList.remove('show');
+  document.getElementById('r2audio').innerHTML = '<div style="text-align:center;margin-bottom:10px"><button class="btn btn-check" id="btnPlayFull" onclick="playFull(this)" style="display:inline-block;width:auto;padding:10px 24px;font-size:14px">🔊 播放完整对话（仅一次）</button></div>';
+  document.getElementById('dialogue1').innerHTML = buildDialogue(0, true);
+  document.getElementById('dialogue2').innerHTML = buildDialogue(1, false);
+  document.getElementById('dictList').innerHTML = buildDictation();
   switchRound(0);
+  // 重新输入姓名
+  document.getElementById('nameInput').value = '';
+  document.getElementById('nameModal').style.display = 'flex';
+}
+
+// ===== Round switching =====
+function switchRound(idx) {
+  currentRound = idx;
+  document.querySelectorAll('.tab').forEach(function(t,i){ t.classList.toggle('active',i===idx); });
+  document.querySelectorAll('.panel').forEach(function(p,i){ p.classList.toggle('show',i===idx); });
+  if (currentAudio) { currentAudio.pause(); currentAudio=null; }
 }
 
 // ===== Toast =====
 function showToast(msg, type) {
-  var toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = 'toast show ' + type;
-  clearTimeout(toast._tid);
-  toast._tid = setTimeout(function() { toast.classList.remove('show'); }, 2000);
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+(type||'ok');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function(){ t.classList.remove('show'); }, 2000);
 }
 
-// ===== Init =====
-document.getElementById('dialogue1').innerHTML = buildDialogue(0);
-document.getElementById('dialogue2').innerHTML = buildDialogue(1);
-document.getElementById('dictList').innerHTML = buildDictation();
+// ==========================================
+// ===== DISPLAY MODE (大屏实时展示) =====
+// ==========================================
+function startDisplayLoop() {
+  renderDisplay();
+  setInterval(renderDisplay, 2000);
+  // Listen for cross-tab updates
+  window.addEventListener('storage', function(e) {
+    if (e.key === STORAGE_KEY) renderDisplay();
+  });
+}
+
+function renderDisplay() {
+  var data = getStoredData();
+  var n = data.length;
+  document.getElementById('dispCount').textContent = n;
+
+  if (n === 0) {
+    document.getElementById('dTotal').textContent = '—';
+    document.getElementById('dR1').textContent = '—';
+    document.getElementById('dR2').textContent = '—';
+    document.getElementById('dR3').textContent = '—';
+    document.getElementById('stuTbody').innerHTML = '<tr><td colspan="7" style="padding:40px;color:#64748b">等待学生提交数据...</td></tr>';
+    document.getElementById('roundCompare').innerHTML = '';
+    return;
+  }
+
+  var sumR1=0,sumR2=0,sumR3=0,sumT=0;
+  data.forEach(function(d){ sumR1+=d.r1;sumR2+=d.r2;sumR3+=d.r3;sumT+=d.total; });
+  var avgR1=(sumR1/n).toFixed(1), avgR2=(sumR2/n).toFixed(1), avgR3=(sumR3/n).toFixed(1), avgT=(sumT/n).toFixed(1);
+
+  document.getElementById('dTotal').textContent = avgT;
+  document.getElementById('dR1').textContent = avgR1;
+  document.getElementById('dR2').textContent = avgR2;
+  document.getElementById('dR3').textContent = avgR3;
+
+  // Round comparison bars
+  document.getElementById('roundCompare').innerHTML =
+    '<div class="round-col r1"><span class="rc-title">📝 Round 1 语境填空</span><span class="rc-avg">'+avgR1+'</span><span class="rc-max">满分 5</span></div>' +
+    '<div class="round-col r2"><span class="rc-title">🎯 Round 2 听力测试</span><span class="rc-avg">'+avgR2+'</span><span class="rc-max">满分 5</span></div>' +
+    '<div class="round-col r3"><span class="rc-title">🔊 Round 3 听音写词</span><span class="rc-avg">'+avgR3+'</span><span class="rc-max">满分 5</span></div>' +
+    '<div class="round-col" style="border-color:#6366f1"><span class="rc-title">🏆 三轮总分</span><span class="rc-avg" style="color:#818cf8">'+avgT+'</span><span class="rc-max">满分 15</span></div>';
+
+  // Student table
+  var rows = '';
+  data.slice().reverse().forEach(function(d,i) {
+    var cls = d.total>=14?'s-ok':(d.total>=10?'s-md':'s-lo');
+    var ev = d.total>=14?'🌟':(d.total>=10?'👍':'💪');
+    rows += '<tr><td>'+(data.length-i)+'</td><td class="s-name">'+escHtml(d.name)+'</td>' +
+      '<td class="'+(d.r1>=4?'s-ok':(d.r1>=2?'s-md':'s-lo'))+'">'+d.r1+'/5</td>' +
+      '<td class="'+(d.r2>=4?'s-ok':(d.r2>=2?'s-md':'s-lo'))+'">'+d.r2+'/5</td>' +
+      '<td class="'+(d.r3>=4?'s-ok':(d.r3>=2?'s-md':'s-lo'))+'">'+d.r3+'/5</td>' +
+      '<td class="'+cls+'"><b>'+d.total+'/15</b></td>' +
+      '<td>'+ev+'</td></tr>';
+  });
+  document.getElementById('stuTbody').innerHTML = rows;
+}
+
+function clearData() {
+  if (confirm('确定要清除所有学生数据吗？此操作不可恢复。')) {
+    localStorage.removeItem(STORAGE_KEY);
+    renderDisplay();
+  }
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
