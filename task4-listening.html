@@ -182,6 +182,9 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
     <div class="top-bar"><div><span class="live-dot"></span><span class="live-text">LIVE</span></div><div class="student-count">已收集：<b id="dispCount" style="color:#fbbf24">0</b> 人</div><div class="conn-status" id="connStatus">⏳ 等待数据...</div></div>
     <div class="stat-cards"><div class="stat-card r1-card"><span class="sc-val rose" id="dR1">—</span><span class="sc-label">📝 R1 语境填空 /5</span></div><div class="stat-card r2-card"><span class="sc-val amber" id="dR2">—</span><span class="sc-label">🎯 R2 听力测试 /5</span></div><div class="stat-card r3-card"><span class="sc-val green" id="dR3">—</span><span class="sc-label">🔊 R3 听音写词 /5</span></div><div class="stat-card tot-card"><span class="sc-val blue" id="dTotal">—</span><span class="sc-label">🏆 平均总分 /15</span></div></div>
 
+    <!-- 学生进步追踪（核心） -->
+    <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">📈 学生进步追踪</div><div id="studentProgress"></div></div>
+
     <!-- 每轮分数分布图 -->
     <div class="dist-section"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" id="distGrid"></div></div>
 
@@ -390,7 +393,7 @@ function refreshDisplay() {
     if (n===0) {
       document.getElementById('dTotal').textContent='—'; document.getElementById('dR1').textContent='—'; document.getElementById('dR2').textContent='—'; document.getElementById('dR3').textContent='—';
       document.getElementById('stuTbody').innerHTML='<tr><td colspan="4" style="padding:40px;color:#64748b">⏳ 等待学生提交...</td></tr>';
-      document.getElementById('distGrid').innerHTML='';document.getElementById('stuRoundList').innerHTML=''; return;
+      document.getElementById('distGrid').innerHTML='';document.getElementById('stuRoundList').innerHTML='';document.getElementById('studentProgress').innerHTML=''; return;
     }
 
     // 按 round 分组
@@ -402,11 +405,58 @@ function refreshDisplay() {
     var a1=avg(r1,'score'),a2=avg(r2,'score'),a3=avg(r3,'score'),atot=totals.length?avg(totals,'total'):'—';
     document.getElementById('dR1').textContent=a1==='—'?'—':a1;document.getElementById('dR2').textContent=a2==='—'?'—':a2;document.getElementById('dR3').textContent=a3==='—'?'—':a3;document.getElementById('dTotal').textContent=atot==='—'?'—':atot;
 
+    // === 学生进步追踪（按姓名聚合） ===
+    var stuMap={};
+    all.forEach(function(d){
+      if (d.round===0 || !d.name) return;
+      if (!stuMap[d.name]) stuMap[d.name]={name:d.name,r1:null,r2:null,r3:null};
+      stuMap[d.name]['r'+d.round]=d.score;
+    });
+    var stuList=[];
+    for (var k in stuMap) stuList.push(stuMap[k]);
+    // 按完成的轮数排序
+    stuList.sort(function(a,b){
+      var ca=(a.r1!==null?1:0)+(a.r2!==null?1:0)+(a.r3!==null?1:0);
+      var cb=(b.r1!==null?1:0)+(b.r2!==null?1:0)+(b.r3!==null?1:0);
+      return cb-ca;
+    });
+
+    var progHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px">'+
+      '<tr style="border-bottom:2px solid #e2e8f0"><th style="padding:8px;text-align:left;color:#64748b">姓名</th>'+
+      '<th style="padding:8px;color:#ef4444">📝 R1</th><th style="padding:8px;color:#f59e0b">🎯 R2</th><th style="padding:8px;color:#22c55e">🔊 R3</th>'+
+      '<th style="padding:8px;color:#6366f1">趋势</th></tr>';
+
+    if (stuList.length===0) progHTML+='<tr><td colspan="5" style="padding:20px;text-align:center;color:#94a3b8">等待第一轮提交...</td></tr>';
+
+    stuList.forEach(function(s){
+      var trend='',trendColor='#94a3b8';
+      if (s.r1!==null && s.r3!==null) {
+        if (s.r3 > s.r1) { trend='📈 进步 '+(s.r3-s.r1)+'分'; trendColor='#16a34a'; }
+        else if (s.r3 < s.r1) { trend='📉 下降'; trendColor='#dc2626'; }
+        else { trend='➡ 持平'; trendColor='#64748b'; }
+      } else if (s.r1!==null && s.r2!==null) {
+        if (s.r2 > s.r1) { trend='📈 +'+(s.r2-s.r1); trendColor='#16a34a'; }
+        else if (s.r2 < s.r1) { trend='📉'; trendColor='#dc2626'; }
+        else { trend='➡'; trendColor='#64748b'; }
+      } else { trend='...'; }
+
+      function cell(v,color){
+        if (v===null) return '<td style="padding:8px;text-align:center;color:#cbd5e1">—</td>';
+        var cls=v>=4?'#16a34a':(v>=2?'#d97706':'#dc2626');
+        return '<td style="padding:8px;text-align:center;font-weight:700;color:'+cls+'">'+v+'/5</td>';
+      }
+      progHTML+='<tr style="border-bottom:1px solid #f1f5f9">'+
+        '<td style="padding:8px;font-weight:600;color:#0f172a">'+esc(s.name)+'</td>'+
+        cell(s.r1)+cell(s.r2)+cell(s.r3)+
+        '<td style="padding:8px;text-align:center;font-weight:700;color:'+trendColor+'">'+trend+'</td></tr>';
+    });
+    progHTML+='</table></div>';
+    document.getElementById('studentProgress').innerHTML=progHTML;
+
     // === 分数分布图 ===
     function buildDist(roundData, rClass) {
-      var hist=[0,0,0,0,0,0]; // 0-5分
+      var hist=[0,0,0,0,0,0];
       roundData.forEach(function(d){ var s=d.score||0; if(s>=0&&s<=5) hist[s]++; });
-      var maxH=Math.max.apply(null,hist)||1;
       var h='';
       for (var i=5;i>=0;i--) {
         var pct=Math.round(hist[i]/Math.max(roundData.length,1)*100);
@@ -420,7 +470,7 @@ function refreshDisplay() {
       '<div class="dist-col r3"><h4>🔊 Round 3 ('+r3.length+'人)</h4>'+buildDist(r3,'r3')+'</div>';
 
     // === 各轮学生列表 ===
-    function buildRoundList(arr, rClass) {
+    function buildRoundList(arr) {
       if (!arr.length) return '<div style="color:#94a3b8;text-align:center;padding:20px">暂无数据</div>';
       var h='';
       arr.forEach(function(d){
@@ -430,9 +480,9 @@ function refreshDisplay() {
       return h;
     }
     document.getElementById('stuRoundList').innerHTML=
-      '<div class="stu-round-col r1"><h4>📝 R1 ('+r1.length+'人)</h4>'+buildRoundList(r1,'r1')+'</div>'+
-      '<div class="stu-round-col r2"><h4>🎯 R2 ('+r2.length+'人)</h4>'+buildRoundList(r2,'r2')+'</div>'+
-      '<div class="stu-round-col r3"><h4>🔊 R3 ('+r3.length+'人)</h4>'+buildRoundList(r3,'r3')+'</div>';
+      '<div class="stu-round-col r1"><h4>📝 R1 ('+r1.length+'人)</h4>'+buildRoundList(r1)+'</div>'+
+      '<div class="stu-round-col r2"><h4>🎯 R2 ('+r2.length+'人)</h4>'+buildRoundList(r2)+'</div>'+
+      '<div class="stu-round-col r3"><h4>🔊 R3 ('+r3.length+'人)</h4>'+buildRoundList(r3)+'</div>';
 
     // 提交记录表
     var rows='';
