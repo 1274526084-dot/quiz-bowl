@@ -188,6 +188,9 @@ body.display{background:#f8fafc;padding:24px;color:#1e293b}
     <!-- 各单词正确率 -->
     <div class="dist-section" style="margin-bottom:20px"><div class="dist-title">🔤 各空正确率</div><div id="wordAccuracy"></div></div>
 
+    <!-- 扇形图 -->
+    <div class="dist-section"><div class="dist-title">🍩 各轮得分扇形图</div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap" id="pieCharts"></div></div>
+
     <!-- 每轮分数分布图 -->
     <div class="dist-section"><div class="dist-title">📊 各轮得分分布</div><div class="dist-grid" id="distGrid"></div></div>
 
@@ -485,6 +488,37 @@ function refreshDisplay() {
     });
     progHTML+='</table></div>';
     document.getElementById('studentProgress').innerHTML=progHTML;
+
+    // === 扇形图 ===
+    var pieHTML='';
+    [{data:r1,label:'R1 语境填空',color:'#ef4444',cls:'r1'},
+     {data:r2,label:'R2 听力测试',color:'#f59e0b',cls:'r2'},
+     {data:r3,label:'R3 听音写词',color:'#22c55e',cls:'r3'}].forEach(function(rd){
+      var hist=[0,0,0,0,0,0]; // 0-5分
+      rd.data.forEach(function(d){ var s=d.score||0; if(s>=0&&s<=5) hist[s]++; });
+      var total=rd.data.length||1;
+      var colors=['#e2e8f0','#fecaca','#fca5a5','#fcd34d','#86efac','#4ade80'];
+      var r=54, cx=64, cy=64, sw=18; // donut
+      var circumference=2*Math.PI*(r-sw/2);
+      var offset=0, segments='';
+      for (var i=5;i>=0;i--) {
+        var pct=hist[i]/total;
+        if (pct===0) { segments+=''; continue; }
+        var dashLen=pct*circumference;
+        var dashOffset=circumference-offset;
+        segments+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r-sw/2)+'" fill="none" stroke="'+colors[i]+'" stroke-width="'+sw+'" stroke-dasharray="'+dashLen+' '+(circumference-dashLen)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+cx+' '+cy+')" stroke-linecap="butt"/>';
+        offset+=dashLen;
+      }
+      // center text
+      var avgScore=rd.data.length?(rd.data.reduce(function(a,b){return a+(b.score||0);},0)/rd.data.length).toFixed(1):'—';
+      pieHTML+='<div style="text-align:center"><svg width="140" height="140" viewBox="0 0 128 128">'+
+        '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r-sw/2)+'" fill="none" stroke="#f1f5f9" stroke-width="'+sw+'"/>'+
+        segments+
+        '<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-size="22" font-weight="900" fill="#1e293b">'+avgScore+'</text>'+
+        '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" font-size="10" fill="#94a3b8">/5 · '+rd.data.length+'人</text>'+
+        '</svg><div style="font-size:13px;font-weight:700;color:'+rd.color+';margin-top:4px">'+rd.label+'</div></div>';
+    });
+    document.getElementById('pieCharts').innerHTML=pieHTML;
 
     // === 分数分布图 ===
     function buildDist(roundData, rClass) {
