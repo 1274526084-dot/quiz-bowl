@@ -413,7 +413,13 @@ function refreshDisplay() {
     var improve = (a1!=='—' && a3!=='—') ? (parseFloat(a3)-parseFloat(a1)).toFixed(1) : '—';
     document.getElementById('dImprove').textContent = improve!=='—' ? (improve>=0?'+'+improve:improve) : '—';
     // 完成人数（有三轮总分的人数）
-    document.getElementById('dStudentCount').textContent = totals.length || stuList.filter(function(s){return s.r1!==null&&s.r2!==null&&s.r3!==null;}).length || '0';
+    var completeCount = totals.length;
+    if (!completeCount) {
+      var nameSet={};
+      all.forEach(function(d){ if(d.round!==0&&d.name) nameSet[d.name]=true; });
+      completeCount = Object.keys(nameSet).length;
+    }
+    document.getElementById('dStudentCount').textContent = completeCount || '0';
 
     // === 学生进步（按姓名聚合） ===
     var stuMap={};
