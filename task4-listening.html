@@ -344,8 +344,16 @@ function checkRound(r) {
 // 每轮独立提交（含逐词对错）
 function submitRound(r, score, details) {
   var roundNames = ['语境填空','听力测试','听音写词'];
+  var el = document.getElementById('submitted'+r);
   jsonp('submit', {name:studentName, round: r+1, roundName: roundNames[r], score: score, details: (details||[]).join(',')}, function(res){
-    if (res && res.ok) { console.log('Round '+(r+1)+' submitted: '+score+'/5'); }
+    if (res && res.ok) {
+      console.log('Round '+(r+1)+' OK: '+score+'/5');
+      if (el) { el.style.display='inline'; el.textContent='✓ 已提交'; }
+    } else {
+      console.error('Round '+(r+1)+' FAILED:', res);
+      if (el) { el.style.display='inline'; el.textContent='⚠ 重试'; el.style.color='#dc2626'; el.onclick=function(){ submitRound(r,score,details); }; }
+      showToast('R'+(r+1)+'提交失败','no');
+    }
   });
 }
 
