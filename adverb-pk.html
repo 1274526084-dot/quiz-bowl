@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>乘务场景 · 易混副词PK</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Segoe UI','Microsoft YaHei',sans-serif;
+  min-height:100vh;min-height:100dvh;
+  background:#0f172a;padding:8px;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.container{max-width:900px;margin:0 auto}
+
+.header{text-align:center;padding:8px 0 4px}
+.header .badge{
+  display:inline-block;padding:3px 16px;border-radius:20px;
+  background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:2px;
+}
+.header h2{color:#e2e8f0;font-size:16px;margin-top:4px}
+
+.vs-bar{display:flex;align-items:center;justify-content:center;gap:0;margin:6px 0 10px}
+.vs-player{
+  flex:1;text-align:center;padding:8px 4px;border-radius:12px;
+  font-weight:800;font-size:15px;letter-spacing:1px;
+}
+.vs-player.p1{background:rgba(37,99,235,0.2);color:#60a5fa}
+.vs-player.p2{background:rgba(220,38,38,0.2);color:#f87171}
+.vs-icon{
+  font-size:28px;font-weight:900;padding:0 10px;
+  color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,0.5);flex-shrink:0;
+}
+
+.arena{display:flex;gap:6px}
+.arena-col{
+  flex:1;background:#1e293b;border-radius:16px;padding:12px 10px;
+  display:flex;flex-direction:column;gap:8px;min-width:0;
+}
+.arena-col.p1{border-top:4px solid #3b82f6}
+.arena-col.p2{border-top:4px solid #dc2626}
+
+.p-timer{text-align:center}
+.p-timer .p-label{font-size:10px;color:#94a3b8;letter-spacing:2px}
+.p-timer .p-time{
+  font-size:36px;font-weight:900;font-family:'Courier New',monospace;
+  color:#e2e8f0;line-height:1.1;
+}
+.p1 .p-time{color:#60a5fa}.p2 .p-time{color:#f87171}
+.p-time.running{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+.p-dots{display:flex;justify-content:center;gap:4px}
+.p-dot{width:7px;height:7px;border-radius:50%;background:#334155;transition:all 0.3s}
+.p-dot.done{background:#22c55e}.p-dot.wrong{background:#ef4444}.p-dot.cur{background:#e2e8f0;box-shadow:0 0 0 3px rgba(226,232,240,0.2)}
+
+.q-box{background:rgba(255,255,255,0.04);border:1px solid #334155;border-radius:10px;padding:12px 10px}
+.q-box .q-num{font-size:11px;color:#6366f1;font-weight:700;margin-bottom:6px}
+.q-box .q-context{font-size:11px;color:#94a3b8;line-height:1.5;margin-bottom:8px}
+.q-box .q-sentence{font-size:15px;color:#e2e8f0;font-weight:600;line-height:1.8}
+.q-box .q-blank{
+  display:inline-block;min-width:70px;border-bottom:3px solid #6366f1;
+  margin:0 3px;vertical-align:bottom;color:#818cf8;font-weight:700;
+}
+.q-box .q-hint{font-size:11px;color:#64748b;margin-top:6px;font-style:italic}
+
+.p-choices{display:flex;flex-direction:column;gap:6px}
+.p-choice{
+  padding:18px 8px;border:3px solid #334155;border-radius:10px;
+  background:rgba(255,255,255,0.03);font-size:22px;font-weight:800;
+  cursor:pointer;text-align:center;color:#cbd5e1;
+  transition:all 0.1s;
+}
+.p1 .p-choice:hover{border-color:#60a5fa}
+.p2 .p-choice:hover{border-color:#f87171}
+.p-choice:active{transform:scale(0.96)}
+.p1 .p-choice.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e;pointer-events:none}
+.p1 .p-choice.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444;pointer-events:none;animation:shake 0.4s}
+.p2 .p-choice.correct{border-color:#22c55e;background:rgba(34,197,94,0.15);color:#22c55e;pointer-events:none}
+.p2 .p-choice.wrong{border-color:#ef4444;background:rgba(239,68,68,0.15);color:#ef4444;pointer-events:none;animation:shake 0.4s}
+.p-choice .ch-sub{display:block;font-size:12px;font-weight:400;opacity:0.7;margin-top:2px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.p-fb{min-height:36px;padding:8px 10px;border-radius:8px;font-size:11px;font-weight:600;text-align:center;line-height:1.5;display:none}
+.p-fb.show{display:block}
+.p1 .p-fb.ok{background:rgba(34,197,94,0.15);color:#4ade80}
+.p1 .p-fb.no{background:rgba(239,68,68,0.15);color:#f87171}
+.p2 .p-fb.ok{background:rgba(34,197,94,0.15);color:#4ade80}
+.p2 .p-fb.no{background:rgba(239,68,68,0.15);color:#f87171}
+
+.p-waiting{text-align:center;padding:8px;color:#64748b;font-size:11px;display:none}
+.p-waiting.show{display:block}
+
+.actions-row{text-align:center;margin-top:10px}
+.btn{padding:14px 40px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;font-family:'Microsoft YaHei','Segoe UI',sans-serif}
+.btn:active{transform:scale(0.95)}
+.btn-start{background:linear-gradient(135deg,#f59e0b,#d97706);color:#0f172a;font-size:20px;box-shadow:0 4px 20px rgba(245,158,11,0.4)}
+.btn-next{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;display:none;font-size:16px}
+.btn-next.show{display:inline-block}
+.btn-restart{background:#334155;color:#e2e8f0;display:none;font-size:14px}
+.btn-restart.show{display:inline-block}
+
+.countdown-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(15,23,42,0.95);display:none;
+  align-items:center;justify-content:center;z-index:100;
+}
+.countdown-overlay.show{display:flex}
+.countdown-num{font-size:120px;font-weight:900;color:#fbbf24;animation:countBounce 0.6s ease-out}
+@keyframes countBounce{0%{transform:scale(2);opacity:0}60%{transform:scale(0.9);opacity:1}100%{transform:scale(1);opacity:1}}
+
+.start-wrap{text-align:center;padding:30px 0}
+.start-wrap h3{color:#e2e8f0;font-size:18px;margin-bottom:4px}
+.start-wrap .rule-list{color:#94a3b8;font-size:12px;margin:12px 0 18px;line-height:1.8}
+.start-wrap .rule-list span{display:block}
+
+.result-wrap{display:none;padding:16px 0}
+.result-wrap.show{display:block}
+.result-cards{display:flex;gap:8px;margin-bottom:12px}
+.result-card{flex:1;background:#1e293b;border-radius:14px;padding:16px 12px;text-align:center}
+.result-card.winner{border:3px solid #fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.2)}
+.result-card .r-name{font-size:13px;font-weight:700;margin-bottom:6px}
+.result-card.p1 .r-name{color:#60a5fa}.result-card.p2 .r-name{color:#f87171}
+.result-card .r-score{font-size:40px;font-weight:900;color:#e2e8f0}
+.result-card .r-time{font-size:13px;color:#94a3b8;margin-top:4px}
+.result-card .r-crown{font-size:28px;margin-top:4px}
+.verdict{text-align:center;margin-bottom:10px}
+.verdict h3{font-size:22px;font-weight:800}
+.verdict .win{color:#fbbf24}.verdict .draw{color:#94a3b8}
+.review-table{width:100%;border-collapse:collapse;margin-bottom:8px}
+.review-table th{color:#94a3b8;font-size:10px;padding:6px 4px;border-bottom:1px solid #334155;text-align:center}
+.review-table td{padding:6px 4px;border-bottom:1px solid #1e293b;font-size:12px;text-align:center;color:#e2e8f0}
+.review-table .r-ok{color:#4ade80}.review-table .r-no{color:#f87171}
+
+.link-row{margin-top:8px;text-align:center}
+.link-row a{
+  display:inline-block;padding:4px 10px;border-radius:6px;
+  border:1px solid #334155;background:#1e293b;font-size:11px;
+  font-weight:600;text-decoration:none;color:#94a3b8;margin:0 2px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">ADVERB PK</div>
+    <h2>🚂 乘务场景下易混副词PK</h2>
+  </div>
+
+  <div class="vs-bar">
+    <div class="vs-player p1">🔵 PLAYER 1</div>
+    <div class="vs-icon">⚡VS⚡</div>
+    <div class="vs-player p2">🔴 PLAYER 2</div>
+  </div>
+
+  <div class="start-wrap" id="startWrap">
+    <h3>👥 易混副词 双人PK</h3>
+    <div class="rule-list">
+      <span>📝 4道乘务场景题目</span>
+      <span>⏱ 每题独立计时 · 越快越准</span>
+      <span>🏆 正确数多者胜 · 同分比用时</span>
+    </div>
+    <button class="btn btn-start" onclick="startPK()">⚡ 开始PK</button>
+  </div>
+
+  <div class="arena" id="arena" style="display:none">
+    <div class="arena-col p1" id="col1">
+      <div class="p-timer"><div class="p-label">⏱ TIMER</div><div class="p-time running" id="time1">00:00</div></div>
+      <div class="p-dots" id="dots1"></div>
+      <div class="q-box">
+        <div class="q-num" id="qnum1"></div>
+        <div class="q-context" id="ctx1"></div>
+        <div class="q-sentence" id="sen1"></div>
+        <div class="q-hint" id="hint1"></div>
+      </div>
+      <div class="p-choices" id="choices1"></div>
+      <div class="p-fb" id="fb1"></div>
+      <div class="p-waiting" id="wait1">⏳ 等待对手...</div>
+    </div>
+    <div class="arena-col p2" id="col2">
+      <div class="p-timer"><div class="p-label">⏱ TIMER</div><div class="p-time running" id="time2">00:00</div></div>
+      <div class="p-dots" id="dots2"></div>
+      <div class="q-box">
+        <div class="q-num" id="qnum2"></div>
+        <div class="q-context" id="ctx2"></div>
+        <div class="q-sentence" id="sen2"></div>
+        <div class="q-hint" id="hint2"></div>
+      </div>
+      <div class="p-choices" id="choices2"></div>
+      <div class="p-fb" id="fb2"></div>
+      <div class="p-waiting" id="wait2">⏳ 等待对手...</div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-next" id="btnNext" onclick="nextQ()">下一题 ▶</button>
+    <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">🔄 再来一局</button>
+  </div>
+
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-cards">
+      <div class="result-card p1" id="rcard1">
+        <div class="r-name">🔵 PLAYER 1</div>
+        <div class="r-score" id="rscore1"></div>
+        <div class="r-time" id="rtime1"></div>
+        <div class="r-crown" id="rcrown1"></div>
+      </div>
+      <div class="result-card p2" id="rcard2">
+        <div class="r-name">🔴 PLAYER 2</div>
+        <div class="r-score" id="rscore2"></div>
+        <div class="r-time" id="rtime2"></div>
+        <div class="r-crown" id="rcrown2"></div>
+      </div>
+    </div>
+    <div class="verdict"><h3 id="verdictText"></h3></div>
+    <table class="review-table"><thead><tr><th>#</th><th>题目</th><th>P1 选择</th><th>P1 用时</th><th>P2 选择</th><th>P2 用时</th><th>答案</th></tr></thead><tbody id="reviewTbody"></tbody></table>
+  </div>
+
+  <div class="link-row">
+    <a href="adverb-training.html">发音训练</a>
+    <a href="adverb-quiz.html">单人模式</a>
+    <a href="index.html">主页</a>
+  </div>
+</div>
+
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-num" id="countdownNum">3</div>
+</div>
+
+<script>
+var quizData = [
+  {
+    context:'The train is fully booked today. Crew members are rushing between carriages to help every passenger find their seat and settle in before departure.',
+    sentence:'The crew works very <span class="q-blank">______</span> to serve passengers well.',
+    choices:['hard','hardly'],
+    answer:'hard',
+    explain:'hard = 努力地（副词，表示用力、辛苦）；hardly = 几乎不（否定含义）。句意：乘务员努力服务乘客。',
+    hint:'💡 hard = 努力地 · hardly = 几乎不'
+  },
+  {
+    context:'Over the past few weeks, ECRL passenger numbers have been growing. Many regular commuters now recognize our crew by name.',
+    sentence:'We have met many friendly passengers <span class="q-blank">______</span>.',
+    choices:['late','lately'],
+    answer:'lately',
+    explain:'lately = 最近、近来（时间副词）；late = 迟到、晚（时间副词，表示比预期晚）。句意：最近遇到了很多友好的乘客。',
+    hint:'💡 late = 迟到 · lately = 最近'
+  },
+  {
+    context:'After each journey, passengers fill out feedback forms. The ratings for ECRL service have been consistently outstanding this quarter.',
+    sentence:'All passengers speak <span class="q-blank">______</span> of our service.',
+    choices:['high','highly'],
+    answer:'highly',
+    explain:'highly = 高度地、非常（程度副词，修饰动词 speak）；high = 高（形容词/副词，表示物理高度）。句意：乘客高度评价我们的服务。',
+    hint:'💡 high = 高（物理高度）· highly = 高度地'
+  },
+  {
+    context:'The safety demonstration is about to begin. Every passenger must pay attention — this is a critical moment before departure.',
+    sentence:'Please watch <span class="q-blank">______</span> during the safety demonstration.',
+    choices:['close','closely'],
+    answer:'closely',
+    explain:'closely = 仔细地、密切地（副词，表示仔细/紧密）；close = 近（形容词/副词，表示距离近）。句意：请仔细观看安全演示。',
+    hint:'💡 close = 近（距离）· closely = 仔细地'
+  }
+];
+
+var TOTAL = quizData.length;
+var currentQ = 0;
+var p1 = { results: [], answered: false, timerSec: 0, timerId: null, qStartTime: 0 };
+var p2 = { results: [], answered: false, timerSec: 0, timerId: null, qStartTime: 0 };
+
+function pad(n){ return n<10?'0'+n:''+n; }
+
+function buildDots(pn) {
+  var p = pn===1?p1:p2;
+  var h = '';
+  for (var i=0;i<TOTAL;i++) {
+    var cls = 'p-dot';
+    if (i<currentQ) { var r = p.results[i]; cls += r.correct?' done':' wrong'; }
+    else if (i===currentQ) cls += ' cur';
+    h += '<span class="'+cls+'"></span>';
+  }
+  document.getElementById('dots'+pn).innerHTML = h;
+}
+
+function renderQ(pn) {
+  var q = quizData[currentQ];
+  document.getElementById('qnum'+pn).textContent = 'Q'+(currentQ+1)+' / '+TOTAL;
+  document.getElementById('ctx'+pn).textContent = '🚂 ' + q.context;
+  document.getElementById('sen'+pn).innerHTML = q.sentence;
+  document.getElementById('hint'+pn).textContent = q.hint;
+  var h = '';
+  q.choices.forEach(function(c){
+    h += '<button class="p-choice" onclick="pick('+pn+',\''+c+'\')">'+c+'<span class="ch-sub">'+(c===q.answer?'✓ 正确答案':'')+'</span></button>';
+  });
+  document.getElementById('choices'+pn).innerHTML = h;
+}
+
+function updateTimer(pn) {
+  var p = pn===1?p1:p2;
+  var m = Math.floor(p.timerSec/60), s = p.timerSec%60;
+  document.getElementById('time'+pn).textContent = pad(m)+':'+pad(s);
+}
+
+function startTimer(pn) {
+  var p = pn===1?p1:p2;
+  p.qStartTime = Date.now(); p.timerSec = 0;
+  p.timerId = setInterval(function(){ p.timerSec++; updateTimer(pn); },1000);
+}
+
+function stopTimer(pn) {
+  var p = pn===1?p1:p2;
+  if (p.timerId){ clearInterval(p.timerId); p.timerId=null; }
+}
+
+function startPK() {
+  document.getElementById('startWrap').style.display='none';
+  document.getElementById('arena').style.display='flex';
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnRestart').classList.remove('show');
+  document.getElementById('resultWrap').classList.remove('show');
+  currentQ=0; p1.results=[]; p2.results=[];
+  var overlay=document.getElementById('countdownOverlay');
+  var num=document.getElementById('countdownNum');
+  overlay.classList.add('show');
+  var count=3;
+  num.textContent=count;
+  num.style.animation='none';void num.offsetWidth;num.style.animation='countBounce 0.6s ease-out';
+  var cd=setInterval(function(){
+    count--;
+    if(count<=0){ clearInterval(cd); overlay.classList.remove('show'); beginRound(); return; }
+    num.textContent=count;num.style.animation='none';void num.offsetWidth;num.style.animation='countBounce 0.6s ease-out';
+  },800);
+}
+
+function beginRound() {
+  p1.answered=false; p2.answered=false;
+  document.getElementById('fb1').className='p-fb';document.getElementById('fb2').className='p-fb';
+  document.getElementById('wait1').classList.remove('show');document.getElementById('wait2').classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+  renderQ(1); renderQ(2); buildDots(1); buildDots(2);
+  startTimer(1); startTimer(2);
+  document.getElementById('time1').classList.add('running');document.getElementById('time2').classList.add('running');
+}
+
+function pick(pn, choice) {
+  var p = pn===1?p1:p2;
+  if (p.answered) return;
+  p.answered = true;
+  stopTimer(pn);
+  document.getElementById('time'+pn).classList.remove('running');
+  var elapsed = (Date.now()-p.qStartTime)/1000;
+  var q = quizData[currentQ];
+  var ok = choice===q.answer;
+
+  var btns = document.querySelectorAll('#choices'+pn+' .p-choice');
+  btns.forEach(function(b){
+    b.style.pointerEvents='none';
+    if (b.textContent.replace('✓ 正确答案','')===q.answer) b.classList.add('correct');
+    if (b.textContent.replace('✓ 正确答案','')===choice && !ok) b.classList.add('wrong');
+  });
+
+  var fb = document.getElementById('fb'+pn);
+  if (ok) {
+    fb.className='p-fb show ok';
+    fb.innerHTML='✅ <b>Correct!</b> '+q.explain;
+  } else {
+    fb.className='p-fb show no';
+    fb.innerHTML='❌ <b>'+choice+'</b> 不对。'+q.explain;
+  }
+  p.results.push({choice:choice,correct:ok,elapsed:elapsed});
+
+  if (p1.answered && p2.answered) {
+    document.getElementById('wait1').classList.remove('show');
+    document.getElementById('wait2').classList.remove('show');
+    document.getElementById('btnNext').classList.add('show');
+  } else {
+    document.getElementById('wait'+pn).classList.add('show');
+  }
+}
+
+function nextQ() {
+  currentQ++;
+  if (currentQ>=TOTAL){ showResult(); return; }
+  beginRound();
+}
+
+function fmtTime(sec){ var m=Math.floor(sec/60),s=Math.floor(sec%60); return pad(m)+':'+pad(s); }
+
+function showResult() {
+  document.getElementById('arena').style.display='none';
+  document.getElementById('btnNext').classList.remove('show');
+  document.getElementById('btnRestart').classList.add('show');
+  document.getElementById('resultWrap').classList.add('show');
+
+  var c1=p1.results.filter(function(r){return r.correct;}).length;
+  var c2=p2.results.filter(function(r){return r.correct;}).length;
+  var t1=p1.results.reduce(function(s,r){return s+r.elapsed;},0);
+  var t2=p2.results.reduce(function(s,r){return s+r.elapsed;},0);
+
+  document.getElementById('rscore1').textContent=c1+'/'+TOTAL;
+  document.getElementById('rtime1').textContent='⏱ '+fmtTime(t1);
+  document.getElementById('rscore2').textContent=c2+'/'+TOTAL;
+  document.getElementById('rtime2').textContent='⏱ '+fmtTime(t2);
+  document.getElementById('rcard1').classList.remove('winner');
+  document.getElementById('rcard2').classList.remove('winner');
+  document.getElementById('rcrown1').textContent='';document.getElementById('rcrown2').textContent='';
+
+  var v=document.getElementById('verdictText');
+  if (c1>c2 || (c1===c2 && t1<t2)) {
+    document.getElementById('rcard1').classList.add('winner');document.getElementById('rcrown1').textContent='👑';
+    v.className='win';v.textContent='🔵 PLAYER 1 获胜！';
+  } else if (c2>c1 || (c2===c1 && t2<t1)) {
+    document.getElementById('rcard2').classList.add('winner');document.getElementById('rcrown2').textContent='👑';
+    v.className='win';v.textContent='🔴 PLAYER 2 获胜！';
+  } else {
+    v.className='draw';v.textContent='🤝 平局！势均力敌！';
+  }
+
+  var rows='';
+  for (var i=0;i<TOTAL;i++) {
+    var r1=p1.results[i], r2=p2.results[i], q=quizData[i];
+    var cl1=r1.correct?'r-ok':'r-no', cl2=r2.correct?'r-ok':'r-no';
+    rows+='<tr><td style="color:#94a3b8">Q'+(i+1)+'</td>'+
+      '<td style="color:#94a3b8;font-size:11px;text-align:left;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+q.context.slice(0,40)+'...</td>'+
+      '<td class="'+cl1+'"><b>'+r1.choice+'</b></td><td style="color:#64748b">'+fmtTime(r1.elapsed)+'</td>'+
+      '<td class="'+cl2+'"><b>'+r2.choice+'</b></td><td style="color:#64748b">'+fmtTime(r2.elapsed)+'</td>'+
+      '<td style="color:#fbbf24;font-weight:700">'+q.answer+'</td></tr>';
+  }
+  document.getElementById('reviewTbody').innerHTML=rows;
+}
+</script>
+</body>
+</html>
