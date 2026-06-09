@@ -91,7 +91,7 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
   <div class="answer-grid" id="answerGrid"></div>
 
   <div class="btn-row">
-    <button class="btn btn-submit" id="btnSubmit" onclick="sfxSubmit();startBGM();submitP1()">✅ 提交答案</button>
+    <button class="btn btn-submit" id="btnSubmit" onclick="sfxSubmit();submitP1()">✅ 提交答案</button>
     <button class="btn btn-eval" id="btnEval" onclick="startEval()" style="display:none">👀 请第二个人来评价</button>
     <button class="btn btn-eval" id="btnEvalSubmit" onclick="stopBGM();submitEval()" style="display:none">✅ 评价完成</button>
     <button class="btn btn-restart" id="btnRestart" onclick="location.reload()" style="display:none;margin-left:8px">🔄 重新开始</button>
@@ -219,7 +219,9 @@ function buildAnswerGrid() {
 
 function selectAnswer(i, val) {
   if (phase !== 'p1') return;
+  if (!p1Answers.some(function(a){return !!a;})) startBGM();
   p1Answers[i] = val;
+  sfxClick();
   document.getElementById('btnGood'+i).classList.toggle('sel-good', val==='good');
   document.getElementById('btnWell'+i).classList.toggle('sel-well', val==='well');
 }
@@ -264,6 +266,7 @@ function startEval() {
 
 function evalAnswer(i, val) {
   if (phase !== 'eval') return;
+  sfxClick();
   p2Evals[i] = val;
   document.getElementById('evalRight'+i).classList.toggle('sel-right', val===true);
   document.getElementById('evalWrong'+i).classList.toggle('sel-wrong', val===false);
