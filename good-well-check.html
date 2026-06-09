@@ -91,10 +91,11 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
   <div class="answer-grid" id="answerGrid"></div>
 
   <div class="btn-row">
-    <button class="btn btn-submit" id="btnSubmit" onclick="submitP1()">✅ 提交答案</button>
+    <button class="btn btn-submit" id="btnSubmit" onclick="sfxSubmit();startBGM();submitP1()">✅ 提交答案</button>
     <button class="btn btn-eval" id="btnEval" onclick="startEval()" style="display:none">👀 请第二个人来评价</button>
-    <button class="btn btn-eval" id="btnEvalSubmit" onclick="submitEval()" style="display:none">✅ 评价完成</button>
+    <button class="btn btn-eval" id="btnEvalSubmit" onclick="stopBGM();submitEval()" style="display:none">✅ 评价完成</button>
     <button class="btn btn-restart" id="btnRestart" onclick="location.reload()" style="display:none;margin-left:8px">🔄 重新开始</button>
+    <button class="btn" id="btnMusic" onclick="toggleMusic()" style="background:#fff;color:#64748b;border:1px solid #e2e8f0;font-size:13px;padding:10px 16px;margin-left:6px">🎵 音乐: 开</button>
   </div>
 
   <!-- 评价区 -->
@@ -114,6 +115,72 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
 </div>
 
 <script>
+// ===== 音效 + 背景音乐引擎 =====
+var audioCtx = null, bgmPlaying = false, bgmTimer = null;
+function getCtx() {
+  if (!audioCtx) { try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
+  if (audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+function beep(freq, dur, type, vol, delay) {
+  var ctx = getCtx(); if (!ctx) return;
+  var t = ctx.currentTime + (delay||0);
+  var o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type||'sine'; o.frequency.value = freq||440;
+  g.gain.setValueAtTime(vol||0.15, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t); o.stop(t+dur);
+}
+function note(f,d,v,t,ty){ beep(f,d,ty||'sine',v||0.1,t||0); }
+function chord(notes,dur,vol,delay){ notes.forEach(function(n){ beep(n,dur,'sine',vol||0.06,delay||0); }); }
+
+var bgmBeat=0;
+function startBGM(){
+  if(bgmPlaying) return;
+  bgmPlaying=true;bgmBeat=0;
+  var ctx=getCtx();if(!ctx)return;
+  var chordRoots=[220,175,262,196];
+  var melody=[440,440,523,440,349,349,330,349,523,523,587,523,392,392,349,330,440,523,587,659,523,440,392,349,523,587,659,784,659,523,440,392];
+  var bass=[110,110,87,87,131,131,98,98,110,110,87,87,131,131,98,98];
+  function tick(){
+    if(!bgmPlaying) return;
+    var beat=bgmBeat%32,isDown=beat%4===0,isOff=beat%2===1,chIdx=Math.floor(beat/8);
+    beep(55,0.15,'sine',isDown?0.22:0.12);
+    if(isDown) beep(50,0.08,'triangle',0.1);
+    if(beat%4===2) beep(200,0.08,'square',0.08);
+    beep(8000,0.025,'square',0.04);
+    if(isOff) beep(10000,0.02,'square',0.03);
+    beep(bass[beat%16],0.3,'triangle',0.1);
+    if(beat%4===0){var r=chordRoots[chIdx];chord([r,r*1.25,r*1.5,r*2],0.6,0.04);}
+    beep(melody[beat],0.18,'sine',0.09);
+    if(beat%2===0) beep(melody[beat]*2,0.12,'triangle',0.04);
+    bgmBeat++;
+    bgmTimer=setTimeout(tick,240);
+  }
+  tick();
+}
+function stopBGM(){ bgmPlaying=false;if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null;} }
+
+function playResultBGM(win){
+  var ctx=getCtx();if(!ctx)return;
+  if(win){var n=[523,659,784,1047];n.forEach(function(f,i){note(f,0.3,0.12,i*0.18);});chord([523,659,784],0.8,0.04,n.length*0.18);}
+  else {var n2=[523,494,440,392];n2.forEach(function(f,i){note(f,0.25,0.1,i*0.2,'triangle');});}
+}
+
+function sfxClick(){ beep(800,0.04,'sine',0.06); }
+function sfxCorrect(){ note(523,0.1,0.1,0);note(659,0.1,0.1,0.1);note(784,0.15,0.1,0.2); }
+function sfxWrong(){ note(200,0.25,0.1,0,'sawtooth'); }
+function sfxSubmit(){ chord([523,659,784,1047],0.4,0.06); }
+
+var musicOn = true;
+function toggleMusic() {
+  musicOn = !musicOn;
+  var btn = document.getElementById('btnMusic');
+  btn.textContent = musicOn ? '🎵 音乐: 开' : '🔇 音乐: 关';
+  musicOn ? startBGM() : stopBGM();
+}
+
 // 原文每个空的词（原词）
 var originalWords = ['good','good','good','good','good','well','well','good','good','good'];
 // 正确答案
@@ -245,6 +312,7 @@ function submitEval() {
     ' · '+(p2Correct>=8?'第二人评价很准确！':'第二人有一些误判。');
 
   document.getElementById('resultWrap').classList.add('show');
+  playResultBGM(p1Correct >= 7);
 }
 
 buildAnswerGrid();
