@@ -169,6 +169,7 @@ body{
       <span>🏆 正确数多者胜 · 同分比用时</span>
     </div>
     <button class="btn btn-start" onclick="startPK()">⚡ 开始PK</button>
+    <button class="btn" style="background:#fff;color:#64748b;border:1px solid #e2e8f0;margin-left:8px;font-size:14px;padding:14px 20px" id="btnMusic" onclick="toggleMusic()">🎵 音乐: 开</button>
   </div>
 
   <div class="arena" id="arena" style="display:none">
@@ -237,31 +238,108 @@ body{
 </div>
 
 <script>
-// ===== 音效引擎 =====
-var audioCtx = null;
+// ===== 音效 + 背景音乐引擎 =====
+var audioCtx = null, bgmPlaying = false, bgmTimer = null;
 function getCtx() {
   if (!audioCtx) { try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){} }
+  if (audioCtx && audioCtx.state==='suspended') audioCtx.resume();
   return audioCtx;
 }
 
-function beep(freq, dur, type, vol) {
+function beep(freq, dur, type, vol, delay) {
   var ctx = getCtx(); if (!ctx) return;
+  var t = ctx.currentTime + (delay||0);
   var o = ctx.createOscillator(), g = ctx.createGain();
   o.type = type||'sine'; o.frequency.value = freq||440;
-  g.gain.setValueAtTime(vol||0.15, ctx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+dur);
+  g.gain.setValueAtTime(vol||0.15, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+dur);
   o.connect(g); g.connect(ctx.destination);
-  o.start(ctx.currentTime); o.stop(ctx.currentTime+dur);
+  o.start(t); o.stop(t+dur);
 }
 
-function sfxCountdown() { beep(880,0.15,'square',0.12); }
-function sfxGo() { beep(1200,0.3,'square',0.18); beep(1600,0.2,'square',0.12); }
-function sfxCorrect() { beep(523,0.1,'sine',0.12); setTimeout(function(){beep(659,0.1,'sine',0.12);},100); setTimeout(function(){beep(784,0.15,'sine',0.12);},200); }
-function sfxWrong() { beep(200,0.3,'sawtooth',0.12); }
-function sfxClick() { beep(600,0.05,'sine',0.08); }
-function sfxWin() { beep(523,0.12,'sine',0.15);setTimeout(function(){beep(659,0.12,'sine',0.15);},150);setTimeout(function(){beep(784,0.12,'sine',0.15);},300);setTimeout(function(){beep(1047,0.3,'sine',0.2);},450); }
-function sfxDraw() { beep(440,0.15,'triangle',0.1);setTimeout(function(){beep(440,0.15,'triangle',0.1);},200); }
-function sfxBothDone() { beep(1000,0.08,'sine',0.1); beep(1200,0.08,'sine',0.08); }
+// 播放一个音符（带音量衰减）
+function note(freq, dur, vol, delay, type) {
+  beep(freq, dur, type||'sine', vol||0.1, delay||0);
+}
+
+// 播放和弦
+function chord(notes, dur, vol, delay) {
+  notes.forEach(function(n){ beep(n, dur, 'sine', vol||0.06, delay||0); });
+}
+
+// 背景音乐：竞技节奏 (鼓点 + 贝斯)
+var bgmBeat = 0;
+function startBGM() {
+  if (bgmPlaying) return;
+  bgmPlaying = true; bgmBeat = 0;
+  var ctx = getCtx(); if (!ctx) return;
+
+  function tick() {
+    if (!bgmPlaying) return;
+    // 4/4 拍：每拍一个低鼓，第1拍加强
+    var isStrong = bgmBeat % 4 === 0;
+    var isOffbeat = bgmBeat % 2 === 1;
+    // 低音鼓 (kick)
+    beep(isStrong?55:50, 0.12, 'sine', isStrong?0.14:0.09);
+    // 贝斯线
+    var bassNotes = [65,65,73,65, 65,65,73,65];
+    var bn = bassNotes[bgmBeat % 8];
+    if (bgmBeat % 2 === 0) beep(bn, 0.25, 'triangle', 0.06);
+    // 踩镲 (hi-hat)
+    beep(8000, 0.03, 'square', 0.03);
+    if (isOffbeat) beep(10000, 0.02, 'square', 0.025);
+    bgmBeat++;
+    bgmTimer = setTimeout(tick, 280); // ~128 BPM
+  }
+  tick();
+}
+
+function stopBGM() {
+  bgmPlaying = false;
+  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+}
+
+// 背景音乐：结果揭晓
+function playResultBGM(isWin) {
+  var ctx = getCtx(); if (!ctx) return;
+  var notes;
+  if (isWin) {
+    // 胜利旋律 (C大调上行)
+    notes = [523,659,784,1047];
+    notes.forEach(function(f,i){ note(f, 0.3, 0.12, i*0.18, 'sine'); });
+    chord([523,659,784], 0.8, 0.04, notes.length*0.18);
+  } else {
+    // 平局旋律
+    notes = [523,494,440,392];
+    notes.forEach(function(f,i){ note(f, 0.25, 0.1, i*0.2, 'triangle'); });
+  }
+}
+
+// ===== 音效 =====
+function sfxCountdown() { beep(880,0.12,'square',0.10); beep(60,0.08,'sine',0.08); }
+function sfxGo() { chord([523,659,784],0.3,0.06); beep(1047,0.4,'sine',0.12); }
+function sfxCorrect() { note(523,0.1,0.1,0); note(659,0.1,0.1,0.1); note(784,0.15,0.1,0.2); }
+function sfxWrong() { note(200,0.25,0.1,0,'sawtooth'); note(150,0.2,0.08,0.1,'sawtooth'); }
+function sfxClick() { beep(800,0.04,'sine',0.06); }
+function sfxWin() {
+  note(523,0.15,0.12,0); note(659,0.15,0.12,0.15); note(784,0.15,0.12,0.3);
+  note(1047,0.35,0.15,0.45); chord([523,659,784,1047],0.6,0.04,0.45);
+}
+function sfxDraw() { note(440,0.2,0.08,0,'triangle'); note(440,0.2,0.08,0.25,'triangle'); }
+function sfxBothDone() { note(1000,0.06,0.08,0); note(1200,0.06,0.06,0.06); }
+
+var musicOn = true;
+function toggleMusic() {
+  musicOn = !musicOn;
+  var btn = document.getElementById('btnMusic');
+  if (musicOn) {
+    btn.textContent = '🎵 音乐: 开';
+    if (currentQ < TOTAL && document.getElementById('arena').style.display !== 'none') startBGM();
+  } else {
+    btn.textContent = '🔇 音乐: 关';
+    stopBGM();
+  }
+}
 
 // ===== 题目 =====
 var quizData = [
@@ -355,7 +433,7 @@ function startPK() {
   document.getElementById('btnRestart').classList.remove('show');
   document.getElementById('resultWrap').classList.remove('show');
   currentQ=0; p1.results=[]; p2.results=[];
-  sfxClick();
+  sfxClick(); startBGM();
   var overlay=document.getElementById('countdownOverlay');
   var num=document.getElementById('countdownNum');
   overlay.classList.add('show');
@@ -431,6 +509,7 @@ function nextQ() {
 function fmtTime(sec){ var m=Math.floor(sec/60),s=Math.floor(sec%60); return pad(m)+':'+pad(s); }
 
 function showResult() {
+  stopBGM();
   document.getElementById('arena').style.display='none';
   document.getElementById('btnNext').classList.remove('show');
   document.getElementById('btnRestart').classList.add('show');
@@ -453,14 +532,14 @@ function showResult() {
   if (c1>c2 || (c1===c2 && t1<t2)) {
     document.getElementById('rcard1').classList.add('winner');document.getElementById('rcrown1').textContent='👑';
     v.className='win';v.textContent='🔵 PLAYER 1 获胜！';
-    setTimeout(function(){ sfxWin(); },300);
+    sfxWin(); playResultBGM(true);
   } else if (c2>c1 || (c2===c1 && t2<t1)) {
     document.getElementById('rcard2').classList.add('winner');document.getElementById('rcrown2').textContent='👑';
     v.className='win';v.textContent='🔴 PLAYER 2 获胜！';
-    setTimeout(function(){ sfxWin(); },300);
+    sfxWin(); playResultBGM(true);
   } else {
     v.className='draw';v.textContent='🤝 平局！势均力敌！';
-    setTimeout(function(){ sfxDraw(); },300);
+    sfxDraw(); playResultBGM(false);
   }
 
   var rows='';
