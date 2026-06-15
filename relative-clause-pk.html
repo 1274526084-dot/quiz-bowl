@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>定语从句B级PK</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;min-height:100vh;min-height:100dvh;background:#f1f5f9;padding:12px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.container{max-width:900px;margin:0 auto}
+.header{text-align:center;padding:8px 0 4px}
+.header .badge{display:inline-block;padding:4px 20px;border-radius:20px;background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;font-size:12px;font-weight:700;letter-spacing:2px}
+.header h2{color:#1e293b;font-size:18px;margin-top:6px}
+
+.vs-bar{display:flex;align-items:center;justify-content:center;gap:0;margin:8px 0 12px}
+.vs-player{flex:1;text-align:center;padding:10px 4px;border-radius:12px;font-weight:800;font-size:16px;letter-spacing:1px}
+.vs-player.p1{background:#eff6ff;color:#2563eb;border:2px solid #bfdbfe}
+.vs-player.p2{background:#fef2f2;color:#dc2626;border:2px solid #fecaca}
+.vs-icon{font-size:30px;font-weight:900;padding:0 12px;color:#f59e0b;text-shadow:0 0 8px rgba(245,158,11,0.3);flex-shrink:0}
+
+.arena{display:flex;gap:8px}
+.arena-col{flex:1;background:#fff;border-radius:16px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.arena-col.p1{border-top:4px solid #3b82f6}
+.arena-col.p2{border-top:4px solid #dc2626}
+
+.p-timer{text-align:center}
+.p-timer .p-label{font-size:10px;color:#94a3b8;letter-spacing:2px}
+.p-timer .p-time{font-size:38px;font-weight:900;font-family:'Courier New',monospace;color:#1e293b;line-height:1.1}
+.p1 .p-time{color:#2563eb}.p2 .p-time{color:#dc2626}
+.p-time.running{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+.p-dots{display:flex;justify-content:center;gap:5px}
+.p-dot{width:8px;height:8px;border-radius:50%;background:#e2e8f0;transition:all 0.3s}
+.p-dot.done{background:#22c55e}.p-dot.wrong{background:#ef4444}.p-dot.cur{background:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.2)}
+
+.q-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 12px}
+.q-box .q-num{font-size:12px;color:#0891b2;font-weight:700;margin-bottom:8px}
+.q-box .q-sentence{font-size:15px;color:#1e293b;font-weight:600;line-height:1.8}
+.q-box .q-blank{display:inline-block;min-width:60px;border-bottom:3px solid #0891b2;margin:0 3px;vertical-align:bottom;color:#0891b2;font-weight:700}
+
+.p-choices{display:flex;flex-direction:column;gap:6px}
+.p-choice{padding:18px 8px;border:3px solid #e2e8f0;border-radius:12px;background:#fff;font-size:22px;font-weight:800;cursor:pointer;text-align:center;color:#1e293b;transition:all 0.1s;box-shadow:0 1px 2px rgba(0,0,0,0.04)}
+.p1 .p-choice:hover{border-color:#93c5fd;background:#f8fafc}
+.p2 .p-choice:hover{border-color:#fca5a5;background:#f8fafc}
+.p-choice:active{transform:scale(0.96)}
+.p1 .p-choice.correct{border-color:#22c55e;background:#f0fdf4;color:#16a34a;pointer-events:none;box-shadow:0 0 16px rgba(34,197,94,0.2)}
+.p1 .p-choice.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626;pointer-events:none;animation:shake 0.4s}
+.p2 .p-choice.correct{border-color:#22c55e;background:#f0fdf4;color:#16a34a;pointer-events:none;box-shadow:0 0 16px rgba(34,197,94,0.2)}
+.p2 .p-choice.wrong{border-color:#ef4444;background:#fef2f2;color:#dc2626;pointer-events:none;animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.p-fb{min-height:40px;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;text-align:center;line-height:1.6;display:none}
+.p-fb.show{display:block}
+.p-fb.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.p-fb.no{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+
+.p-waiting{text-align:center;padding:8px;color:#94a3b8;font-size:12px;display:none}
+.p-waiting.show{display:block}
+
+.actions-row{text-align:center;margin-top:12px}
+.btn{padding:14px 40px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;font-family:'Microsoft YaHei','Segoe UI',sans-serif}
+.btn:active{transform:scale(0.95)}
+.btn-start{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:20px;box-shadow:0 4px 20px rgba(245,158,11,0.3)}
+.btn-next{background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;display:none;font-size:16px}
+.btn-next.show{display:inline-block}
+.btn-restart{background:#fff;color:#64748b;border:1px solid #e2e8f0;display:none;font-size:14px}
+.btn-restart.show{display:inline-block}
+
+.countdown-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.95);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column}
+.countdown-overlay.show{display:flex}
+.countdown-num{font-size:120px;font-weight:900;color:#0891b2;animation:countBounce 0.6s ease-out}
+.countdown-label{font-size:16px;color:#94a3b8;margin-top:8px}
+@keyframes countBounce{0%{transform:scale(2);opacity:0}60%{transform:scale(0.9);opacity:1}100%{transform:scale(1);opacity:1}}
+
+.start-wrap{text-align:center;padding:30px 0}
+.start-wrap h3{color:#1e293b;font-size:20px;margin-bottom:4px}
+.start-wrap .rule-list{color:#64748b;font-size:13px;margin:14px 0 20px;line-height:2}
+.start-wrap .rule-list span{display:block}
+
+.result-wrap{display:none;padding:16px 0}
+.result-wrap.show{display:block}
+.result-cards{display:flex;gap:8px;margin-bottom:16px}
+.result-card{flex:1;background:#fff;border-radius:14px;padding:20px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.result-card.winner{border:3px solid #fbbf24;box-shadow:0 0 24px rgba(251,191,36,0.3)}
+.result-card .r-name{font-size:14px;font-weight:700;margin-bottom:8px}
+.result-card.p1 .r-name{color:#2563eb}.result-card.p2 .r-name{color:#dc2626}
+.result-card .r-score{font-size:44px;font-weight:900;color:#1e293b}
+.result-card .r-time{font-size:14px;color:#64748b;margin-top:6px}
+.result-card .r-crown{font-size:32px;margin-top:6px}
+.verdict{text-align:center;margin-bottom:12px}
+.verdict h3{font-size:24px;font-weight:800}
+.verdict .win{color:#f59e0b}.verdict .draw{color:#64748b}
+.review-table{width:100%;border-collapse:collapse;margin-bottom:8px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.review-table th{background:#f8fafc;color:#64748b;font-size:11px;padding:8px 4px;border-bottom:2px solid #e2e8f0;text-align:center}
+.review-table td{padding:8px 4px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:center;color:#475569}
+.review-table .r-ok{color:#16a34a;font-weight:700}.review-table .r-no{color:#dc2626;font-weight:700}
+
+.link-row{margin-top:10px;text-align:center}
+.link-row a{display:inline-block;padding:5px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#fff;font-size:11px;font-weight:600;text-decoration:none;color:#64748b;margin:0 2px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="badge">RELATIVE CLAUSE</div>
+    <h2>📖 定语从句B级练习PK</h2>
+  </div>
+
+  <div class="vs-bar">
+    <div class="vs-player p1">🔵 PLAYER 1</div>
+    <div class="vs-icon">⚡VS⚡</div>
+    <div class="vs-player p2">🔴 PLAYER 2</div>
+  </div>
+
+  <div class="start-wrap" id="startWrap">
+    <h3>👥 定语从句 双人PK</h3>
+    <div class="rule-list">
+      <span>📝 5道定语从句关系词选择题</span>
+      <span>⏱ 每题独立计时 · 越快越准</span>
+      <span>🏆 正确数多者胜 · 同分比用时</span>
+    </div>
+    <button class="btn btn-start" onclick="startPK()">⚡ 开始PK</button>
+    <button class="btn" style="background:#fff;color:#64748b;border:1px solid #e2e8f0;margin-left:8px;font-size:14px;padding:14px 20px" id="btnMusic" onclick="toggleMusic()">🎵 音乐: 开</button>
+  </div>
+
+  <div class="arena" id="arena" style="display:none">
+    <div class="arena-col p1">
+      <div class="p-timer"><div class="p-label">⏱ TIMER</div><div class="p-time running" id="time1">00:00</div></div>
+      <div class="p-dots" id="dots1"></div>
+      <div class="q-box"><div class="q-num" id="qnum1"></div><div class="q-sentence" id="sen1"></div></div>
+      <div class="p-choices" id="choices1"></div>
+      <div class="p-fb" id="fb1"></div>
+      <div class="p-waiting" id="wait1">⏳ 等待对手...</div>
+    </div>
+    <div class="arena-col p2">
+      <div class="p-timer"><div class="p-label">⏱ TIMER</div><div class="p-time running" id="time2">00:00</div></div>
+      <div class="p-dots" id="dots2"></div>
+      <div class="q-box"><div class="q-num" id="qnum2"></div><div class="q-sentence" id="sen2"></div></div>
+      <div class="p-choices" id="choices2"></div>
+      <div class="p-fb" id="fb2"></div>
+      <div class="p-waiting" id="wait2">⏳ 等待对手...</div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn btn-next" id="btnNext" onclick="nextQ()">下一题 ▶</button>
+    <button class="btn btn-restart" id="btnRestart" onclick="location.reload()">🔄 再来一局</button>
+  </div>
+
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-cards">
+      <div class="result-card p1" id="rcard1"><div class="r-name">🔵 PLAYER 1</div><div class="r-score" id="rscore1"></div><div class="r-time" id="rtime1"></div><div class="r-crown" id="rcrown1"></div></div>
+      <div class="result-card p2" id="rcard2"><div class="r-name">🔴 PLAYER 2</div><div class="r-score" id="rscore2"></div><div class="r-time" id="rtime2"></div><div class="r-crown" id="rcrown2"></div></div>
+    </div>
+    <div class="verdict"><h3 id="verdictText"></h3></div>
+    <table class="review-table"><thead><tr><th>#</th><th>P1选择</th><th>P1用时</th><th>P2选择</th><th>P2用时</th><th>答案</th></tr></thead><tbody id="reviewTbody"></tbody></table>
+  </div>
+
+  <div class="link-row"><a href="index.html">🏠 主页</a></div>
+</div>
+
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-num" id="countdownNum">3</div>
+  <div class="countdown-label">准备开始！</div>
+</div>
+
+<script>
+// ===== 音效 + BGM =====
+var audioCtx=null,bgmPlaying=false,bgmTimer=null,musicOn=true;
+function getCtx(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function beep(f,d,ty,v,dl){var ctx=getCtx();if(!ctx)return;var t=ctx.currentTime+(dl||0),o=ctx.createOscillator(),g=ctx.createGain();o.type=ty||'sine';o.frequency.value=f||440;g.gain.setValueAtTime(v||0.15,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+d);}
+function note(f,d,v,t,ty){beep(f,d,ty||'sine',v||0.1,t||0);}
+function chord(ns,d,v,dl){ns.forEach(function(n){beep(n,d,'sine',v||0.06,dl||0);});}
+
+var bgmBeat=0;
+function startBGM(){if(bgmPlaying)return;bgmPlaying=true;bgmBeat=0;var ctx=getCtx();if(!ctx)return;
+  var cr=[220,175,262,196],mel=[440,440,523,440,349,349,330,349,523,523,587,523,392,392,349,330,440,523,587,659,523,440,392,349,523,587,659,784,659,523,440,392],bs=[110,110,87,87,131,131,98,98,110,110,87,87,131,131,98,98];
+  function tick(){if(!bgmPlaying)return;var b=bgmBeat%32,isD=b%4===0,isO=b%2===1,ci=Math.floor(b/8);beep(55,0.15,'sine',isD?0.22:0.12);if(isD)beep(50,0.08,'triangle',0.1);if(b%4===2)beep(200,0.08,'square',0.08);beep(8000,0.025,'square',0.04);if(isO)beep(10000,0.02,'square',0.03);beep(bs[b%16],0.3,'triangle',0.1);if(b%4===0){var r=cr[ci];chord([r,r*1.25,r*1.5,r*2],0.6,0.04);}beep(mel[b],0.18,'sine',0.09);if(b%2===0)beep(mel[b]*2,0.12,'triangle',0.04);bgmBeat++;bgmTimer=setTimeout(tick,240);}tick();}
+function stopBGM(){bgmPlaying=false;if(bgmTimer){clearTimeout(bgmTimer);bgmTimer=null;}}
+
+function sfxCountdown(){beep(880,0.12,'square',0.10);beep(60,0.08,'sine',0.08);}
+function sfxGo(){chord([523,659,784],0.3,0.06);beep(1047,0.4,'sine',0.12);}
+function sfxCorrect(){note(523,0.1,0.1,0);note(659,0.1,0.1,0.1);note(784,0.15,0.1,0.2);}
+function sfxWrong(){note(200,0.25,0.1,0,'sawtooth');note(150,0.2,0.08,0.1,'sawtooth');}
+function sfxClick(){beep(800,0.04,'sine',0.06);}
+function sfxBothDone(){note(1000,0.06,0.08,0);note(1200,0.06,0.06,0.06);}
+function sfxWin(){note(523,0.15,0.12,0);note(659,0.15,0.12,0.15);note(784,0.15,0.12,0.3);note(1047,0.35,0.15,0.45);chord([523,659,784,1047],0.6,0.04,0.45);}
+function sfxDraw(){note(440,0.2,0.08,0,'triangle');note(440,0.2,0.08,0.25,'triangle');}
+
+function toggleMusic(){musicOn=!musicOn;var b=document.getElementById('btnMusic');b.textContent=musicOn?'🎵 音乐: 开':'🔇 音乐: 关';musicOn?startBGM():stopBGM();}
+
+// ===== 题目 =====
+var quizData = [
+  {sentence:'I am a diligent crew member <span class="q-blank">______</span> sticks to service standards and treats all passengers sincerely.',choices:['which','who','whose','what'],answer:'who',explain:'who 指代 crew member（人），在从句中做主语。which 指物，whose 表所属，what 不能引导定语从句。'},
+  {sentence:'Good service awareness <span class="q-blank">______</span> every steward should own is the spirit of dedication to posts.',choices:['that','who','when','where'],answer:'that',explain:'that 指代 awareness（物），在从句中做 own 的宾语。who 指人，when/where 分别指时间/地点。'},
+  {sentence:'We admire those excellent attendants <span class="q-blank">______</span> keep improving their professional skills to strive for excellence.',choices:['which','whom','who','whose'],answer:'who',explain:'who 指代 attendants（人），在从句中做主语。which 指物，whom 做宾语，whose 表所属。'},
+  {sentence:'The training courses <span class="q-blank">______</span> we take help us become more responsible crew staff.',choices:['who','which','whose','when'],answer:'which',explain:'which 指代 courses（物），在从句中做 take 的宾语。who 指人，whose 表所属，when 指时间。'},
+  {sentence:'Anyone <span class="q-blank">______</span> wants to be an outstanding flight attendant must have a strong sense of responsibility.',choices:['which','whom','who','whose'],answer:'who',explain:'who 指代 anyone（人），在从句中做主语。当先行词是 anyone/someone 等不定代词时，只用 who。'}
+];
+
+var TOTAL=quizData.length,currentQ=0;
+var p1={results:[],answered:false,timerSec:0,timerId:null,qStartTime:0};
+var p2={results:[],answered:false,timerSec:0,timerId:null,qStartTime:0};
+
+function pad(n){return n<10?'0'+n:''+n;}
+
+function buildDots(pn){var p=pn===1?p1:p2,h='';for(var i=0;i<TOTAL;i++){var cls='p-dot';if(i<currentQ){var r=p.results[i];cls+=r.correct?' done':' wrong';}else if(i===currentQ)cls+=' cur';h+='<span class="'+cls+'"></span>';}document.getElementById('dots'+pn).innerHTML=h;}
+
+function renderQ(pn){var q=quizData[currentQ];document.getElementById('qnum'+pn).textContent='Q'+(currentQ+1)+' / '+TOTAL;document.getElementById('sen'+pn).innerHTML=q.sentence;var h='';q.choices.forEach(function(c){h+='<button class="p-choice" onclick="pick('+pn+',\''+c+'\')">'+c+'</button>';});document.getElementById('choices'+pn).innerHTML=h;}
+
+function updateTimer(pn){var p=pn===1?p1:p2,m=Math.floor(p.timerSec/60),s=p.timerSec%60;document.getElementById('time'+pn).textContent=pad(m)+':'+pad(s);}
+function startTimer(pn){var p=pn===1?p1:p2;p.qStartTime=Date.now();p.timerSec=0;p.timerId=setInterval(function(){p.timerSec++;updateTimer(pn);},1000);}
+function stopTimer(pn){var p=pn===1?p1:p2;if(p.timerId){clearInterval(p.timerId);p.timerId=null;}}
+
+function startPK(){
+  document.getElementById('startWrap').style.display='none';document.getElementById('arena').style.display='flex';
+  document.getElementById('btnNext').classList.remove('show');document.getElementById('btnRestart').classList.remove('show');
+  document.getElementById('resultWrap').classList.remove('show');currentQ=0;p1.results=[];p2.results=[];
+  sfxClick();startBGM();
+  var overlay=document.getElementById('countdownOverlay'),num=document.getElementById('countdownNum');
+  overlay.classList.add('show');var count=3;num.textContent=count;num.style.animation='none';void num.offsetWidth;num.style.animation='countBounce 0.6s ease-out';sfxCountdown();
+  var cd=setInterval(function(){count--;if(count<=0){clearInterval(cd);overlay.classList.remove('show');sfxGo();beginRound();return;}num.textContent=count;num.style.animation='none';void num.offsetWidth;num.style.animation='countBounce 0.6s ease-out';sfxCountdown();},800);
+}
+
+function beginRound(){p1.answered=false;p2.answered=false;document.getElementById('fb1').className='p-fb';document.getElementById('fb2').className='p-fb';document.getElementById('wait1').classList.remove('show');document.getElementById('wait2').classList.remove('show');document.getElementById('btnNext').classList.remove('show');renderQ(1);renderQ(2);buildDots(1);buildDots(2);startTimer(1);startTimer(2);document.getElementById('time1').classList.add('running');document.getElementById('time2').classList.add('running');}
+
+function pick(pn,choice){
+  var p=pn===1?p1:p2;if(p.answered)return;p.answered=true;stopTimer(pn);document.getElementById('time'+pn).classList.remove('running');
+  var elapsed=(Date.now()-p.qStartTime)/1000,q=quizData[currentQ],ok=choice===q.answer;
+  sfxClick();if(ok){setTimeout(function(){sfxCorrect();},150);}else{setTimeout(function(){sfxWrong();},150);}
+  var btns=document.querySelectorAll('#choices'+pn+' .p-choice');btns.forEach(function(b){b.style.pointerEvents='none';if(b.textContent===q.answer)b.classList.add('correct');if(b.textContent===choice&&!ok)b.classList.add('wrong');});
+  var fb=document.getElementById('fb'+pn);
+  if(ok){fb.className='p-fb show ok';fb.innerHTML='🎉 <b>正确！</b> '+q.explain;}else{fb.className='p-fb show no';fb.innerHTML='❌ <b>'+choice+'</b> 不对。'+q.explain;}
+  p.results.push({choice:choice,correct:ok,elapsed:elapsed});
+  if(p1.answered&&p2.answered){sfxBothDone();document.getElementById('wait1').classList.remove('show');document.getElementById('wait2').classList.remove('show');document.getElementById('btnNext').classList.add('show');}else{document.getElementById('wait'+pn).classList.add('show');}
+}
+
+function nextQ(){sfxClick();currentQ++;if(currentQ>=TOTAL){showResult();return;}beginRound();}
+function fmtTime(sec){var m=Math.floor(sec/60),s=Math.floor(sec%60);return pad(m)+':'+pad(s);}
+
+function showResult(){
+  stopBGM();document.getElementById('arena').style.display='none';document.getElementById('btnNext').classList.remove('show');document.getElementById('btnRestart').classList.add('show');document.getElementById('resultWrap').classList.add('show');
+  var c1=p1.results.filter(function(r){return r.correct;}).length,c2=p2.results.filter(function(r){return r.correct;}).length,t1=p1.results.reduce(function(s,r){return s+r.elapsed;},0),t2=p2.results.reduce(function(s,r){return s+r.elapsed;},0);
+  document.getElementById('rscore1').textContent=c1+'/'+TOTAL;document.getElementById('rtime1').textContent='⏱ '+fmtTime(t1);document.getElementById('rscore2').textContent=c2+'/'+TOTAL;document.getElementById('rtime2').textContent='⏱ '+fmtTime(t2);
+  document.getElementById('rcard1').classList.remove('winner');document.getElementById('rcard2').classList.remove('winner');document.getElementById('rcrown1').textContent='';document.getElementById('rcrown2').textContent='';
+  var v=document.getElementById('verdictText');
+  if(c1>c2||(c1===c2&&t1<t2)){document.getElementById('rcard1').classList.add('winner');document.getElementById('rcrown1').textContent='👑';v.className='win';v.textContent='🔵 PLAYER 1 获胜！';sfxWin();}else if(c2>c1||(c2===c1&&t2<t1)){document.getElementById('rcard2').classList.add('winner');document.getElementById('rcrown2').textContent='👑';v.className='win';v.textContent='🔴 PLAYER 2 获胜！';sfxWin();}else{v.className='draw';v.textContent='🤝 平局！';sfxDraw();}
+  var rows='';for(var i=0;i<TOTAL;i++){var r1=p1.results[i],r2=p2.results[i],q=quizData[i];rows+='<tr><td style="color:#94a3b8">Q'+(i+1)+'</td><td class="'+(r1.correct?'r-ok':'r-no')+'">'+r1.choice+'</td><td style="color:#64748b">'+fmtTime(r1.elapsed)+'</td><td class="'+(r2.correct?'r-ok':'r-no')+'">'+r2.choice+'</td><td style="color:#64748b">'+fmtTime(r2.elapsed)+'</td><td style="color:#0891b2;font-weight:700">'+q.answer+'</td></tr>';}document.getElementById('reviewTbody').innerHTML=rows;
+}
+</script>
+</body>
+</html>
