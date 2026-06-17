@@ -1,0 +1,25 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>句子排序 · ECRL</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-height:100vh;padding:20px}.container{max-width:650px;margin:0 auto}.header{text-align:center;margin-bottom:16px}.header .badge{display:inline-block;padding:4px 18px;border-radius:20px;background:#d97706;color:#fff;font-size:12px;font-weight:700;letter-spacing:2px}.header h2{color:#1e293b;font-size:20px;margin-top:6px}.header .hint{color:#94a3b8;font-size:13px;margin-top:4px}
+.q-box{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;border:2px solid #e2e8f0}.q-num{font-size:12px;color:#d97706;font-weight:700;margin-bottom:8px}.q-zh{font-size:14px;color:#64748b;margin-bottom:12px;line-height:1.6}
+.words{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:48px}.word{padding:10px 16px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.1s;border:2px solid #e2e8f0;background:#fff;color:#1e293b}.word:active{transform:scale(0.95)}.word.placed{background:#eff6ff;border-color:#3b82f6;color:#2563eb}.word.used{opacity:0.3;pointer-events:none}
+.answer-row{display:flex;flex-wrap:wrap;gap:6px;min-height:42px;padding:10px;background:#f8fafc;border-radius:10px;border:2px dashed #e2e8f0;margin-bottom:14px}.answer-word{padding:8px 14px;border-radius:8px;font-size:14px;font-weight:700;background:#eff6ff;color:#2563eb;cursor:pointer}.answer-word:active{background:#fef2f2;color:#dc2626}
+.score-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:14px 16px;border-radius:12px;border:2px solid #e2e8f0}.score{font-size:22px;font-weight:800;color:#d97706}.btn{padding:10px 20px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;background:#d97706;color:#fff}.btn:active{transform:scale(0.95)}
+.link-row{margin-top:16px;text-align:center}.link-row a{color:#64748b;font-size:12px;text-decoration:none}
+</style></head><body><div class="container">
+<div class="header"><div class="badge">SENTENCE SCRAMBLE</div><h2>🔤 句子排序 · ECRL 乘务场景</h2><p class="hint">点击单词按正确顺序排列成句子</p></div>
+<div class="q-box"><div class="q-num" id="qnum">Q1 / 6</div><div class="q-zh" id="qzh"></div><div class="words" id="words"></div><div class="answer-row" id="answer"></div><button class="btn" onclick="checkAnswer()" style="width:100%">✅ 检查答案</button></div>
+<div class="score-bar"><span class="score" id="scoreDisplay">得分: 0/6</span><button class="btn" onclick="resetGame()">🔄 重新开始</button></div>
+<div class="link-row"><a href="hub.html">← 返回任务中心</a></div>
+</div>
+<script>
+var questions=[{zh:'请乘客们注意站台上的安全线。',answer:'Please pay attention to the safety line on the platform.'},{zh:'乘务员每天都以微笑迎接乘客。',answer:'The crew members greet passengers with a smile every day.'},{zh:'我们可以为您提供热茶和咖啡。',answer:'We can offer you hot tea and coffee.'},{zh:'列车将在五分钟内到达下一站。',answer:'The train will arrive at the next station in five minutes.'},{zh:'所有行李必须放在座位上方的行李架上。',answer:'All luggage must be placed on the rack above the seat.'},{zh:'感谢您选择我们的高速铁路服务。',answer:'Thank you for choosing our high-speed railway service.'}];
+var idx=0,score=0,placed=[];
+function shuffle(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=b[i];b[i]=b[j];b[j]=t;}return b;}
+function renderQ(){var q=questions[idx];document.getElementById('qnum').textContent='Q'+(idx+1)+' / '+questions.length;document.getElementById('qzh').textContent='💡 '+q.zh;placed=[];var words=q.answer.split(' ');document.getElementById('words').innerHTML=shuffle(words).map(function(w,i){return '<span class="word" id="w'+i+'" onclick="addWord(this,\''+w+'\')">'+w+'</span>';}).join('');document.getElementById('answer').innerHTML='';}
+function addWord(el,w){if(el.classList.contains('used'))return;el.classList.add('used');placed.push(w);updateAnswer();}
+function updateAnswer(){document.getElementById('answer').innerHTML=placed.map(function(w,i){return '<span class="answer-word" onclick="removeWord('+i+')">'+w+'</span>';}).join(' ');}
+function removeWord(i){var w=placed.splice(i,1)[0];var allWords=document.querySelectorAll('.word.used');allWords.forEach(function(el){if(el.textContent===w&&el.classList.contains('used')){el.classList.remove('used');return;}});updateAnswer();}
+function checkAnswer(){var correct=questions[idx].answer.split(' ').join('|')===placed.join('|');if(correct){score++;document.getElementById('scoreDisplay').textContent='得分: '+score+'/'+questions.length;idx++;if(idx>=questions.length){setTimeout(function(){alert('🎉 全部正确！得分: '+score+'/'+questions.length);},200);}else{renderQ();}}else{alert('❌ 顺序不对，再试试！');}}
+function resetGame(){idx=0;score=0;document.getElementById('scoreDisplay').textContent='得分: 0/6';renderQ();}
+renderQ();
+</script></body></html>

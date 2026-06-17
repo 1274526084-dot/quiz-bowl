@@ -1,250 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECRL 交互任务中心</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ECRL 交互任务中心</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:linear-gradient(180deg,#eef2ff 0%,#fdf2f8 40%,#f8fafc 100%);min-height:100vh;padding:0 0 40rpx}
+body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:linear-gradient(180deg,#eef2ff 0%,#fdf2f8 40%,#f8fafc 100%);min-height:100vh}
 .container{max-width:860px;margin:0 auto}
-
-/* Hero */
 .hero{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 30%,#4338ca 60%,#6366f1 100%);padding:40px 24px 36px;text-align:center;color:#fff}
 .hero .badge{display:inline-block;padding:5px 20px;border-radius:20px;background:rgba(255,255,255,0.15);font-size:12px;font-weight:700;letter-spacing:3px;backdrop-filter:blur(4px)}
 .hero h1{font-size:30px;margin:14px 0 6px;font-weight:900}
 .hero .sub{font-size:15px;color:rgba(255,255,255,0.7);line-height:1.6}
 .hero .counts{display:flex;justify-content:center;gap:28px;margin-top:20px}
-.hero .count-item{text-align:center}
-.hero .count-num{font-size:36px;font-weight:900;display:block}
-.hero .count-label{font-size:12px;color:rgba(255,255,255,0.6);display:block;margin-top:2px}
-
-/* Main content */
+.hero .count-item{text-align:center}.hero .count-num{font-size:36px;font-weight:900;display:block}.hero .count-label{font-size:12px;color:rgba(255,255,255,0.6);display:block;margin-top:2px}
 .main{padding:20px 16px}
-
-/* Section */
 .section{margin-bottom:22px}
 .section-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:0 4px}
-.section-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
-.si-listen{background:#fef2f2;color:#dc2626}
-.si-pk{background:#fef3c7;color:#d97706}
-.si-grammar{background:#fdf2f8;color:#db2777}
-.si-vocab{background:#f0fdf4;color:#16a34a}
-.si-speak{background:#eff6ff;color:#2563eb}
-.si-cn{background:#f5f3ff;color:#7c3aed}
-.section-name{font-size:17px;font-weight:800;color:#1e293b}
-.section-count{font-size:12px;color:#94a3b8;margin-left:auto}
-
-/* Card grid */
+.section-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.si-game{background:#fef3c7;color:#d97706}.si-prac{background:#eff6ff;color:#2563eb}.si-eval{background:#f0fdf4;color:#16a34a}.si-teach{background:#fdf2f8;color:#db2777}
+.section-name{font-size:17px;font-weight:800;color:#1e293b}.section-count{font-size:12px;color:#94a3b8;margin-left:auto}
 .card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.card{
-  background:#fff;border-radius:14px;padding:18px 14px;
-  border:2px solid #e2e8f0;cursor:pointer;transition:all 0.2s;
-  text-decoration:none;display:flex;align-items:center;gap:14px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.03);
-}
+.card{background:#fff;border-radius:14px;padding:18px 14px;border:2px solid #e2e8f0;cursor:pointer;transition:all 0.2s;text-decoration:none;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
 .card:hover{border-color:#818cf8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,0.12)}
 .card:active{transform:scale(0.97)}
-.card .c-icon{
-  width:48px;height:48px;min-width:48px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;font-size:26px;
-  background:#f8fafc;
-}
-.card .c-info{flex:1;min-width:0}
-.card .c-title{font-size:15px;font-weight:700;color:#1e293b;display:block;line-height:1.3}
-.card .c-desc{font-size:12px;color:#94a3b8;display:block;margin-top:2px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .c-icon{width:48px;height:48px;min-width:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;background:#f8fafc}
+.card .c-info{flex:1;min-width:0}.card .c-title{font-size:15px;font-weight:700;color:#1e293b;display:block;line-height:1.3}.card .c-desc{font-size:12px;color:#94a3b8;display:block;margin-top:2px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card .c-tag{padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;flex-shrink:0;margin-left:4px}
-.t-pk{background:#fef3c7;color:#d97706}
-.t-s{background:#eff6ff;color:#2563eb}
-.t-pair{background:#fdf2f8;color:#db2777}
-.t-q{background:#f0fdf4;color:#16a34a}
-.t-l{background:#fef2f2;color:#dc2626}
-
-/* Full width card */
-.card.full{grid-column:1/-1}
-.card.full .c-icon{width:56px;height:56px;min-width:56px;font-size:30px}
-
-.footer{text-align:center;padding:8px 16px 30px;color:#94a3b8;font-size:12px}
-.footer a{color:#6366f1;text-decoration:none}
-
-@media(max-width:500px){
-  .card-grid{grid-template-columns:1fr}
-  .hero h1{font-size:24px}
-  .hero .counts{gap:16px}
-  .hero .count-num{font-size:28px}
-}
-</style>
-</head>
-<body>
+.t-pk{background:#fef3c7;color:#d97706}.t-s{background:#eff6ff;color:#2563eb}.t-pair{background:#fdf2f8;color:#db2777}.t-q{background:#f0fdf4;color:#16a34a}.t-l{background:#fef2f2;color:#dc2626}
+.card.full{grid-column:1/-1}.card.full .c-icon{width:56px;height:56px;min-width:56px;font-size:30px}
+.footer{text-align:center;padding:8px 16px 30px;color:#94a3b8;font-size:12px}.footer a{color:#6366f1;text-decoration:none}
+@media(max-width:500px){.card-grid{grid-template-columns:1fr}.hero h1{font-size:24px}.hero .counts{gap:16px}.hero .count-num{font-size:28px}}
+</style></head><body>
 <div class="hero">
-  <div class="badge">ECRL · INTERACTIVE HUB</div>
-  <h1>🚂 东铁英语 · 交互任务中心</h1>
-  <p class="sub">课前微课预习 · 课堂互动PK · 课后巩固练习<br>覆盖听力、语法、词汇、发音、PK对战等全方位训练</p>
-  <div class="counts">
-    <div class="count-item"><span class="count-num">16</span><span class="count-label">交互任务</span></div>
-    <div class="count-item"><span class="count-num">6</span><span class="count-label">训练分类</span></div>
-    <div class="count-item"><span class="count-num">4</span><span class="count-label">双人PK</span></div>
-    <div class="count-item"><span class="count-num">30</span><span class="count-label">学生可用</span></div>
-  </div>
+<div class="badge">ECRL · INTERACTIVE HUB</div>
+<h1>🚂 东铁英语 · 交互任务中心</h1>
+<p class="sub">课前微课预习 · 课堂互动PK · 课后巩固练习<br>覆盖听力、语法、词汇、发音、阅读全方位训练</p>
+<div class="counts"><div class="count-item"><span class="count-num">21</span><span class="count-label">交互任务</span></div><div class="count-item"><span class="count-num">3</span><span class="count-label">训练大类</span></div><div class="count-item"><span class="count-num">7</span><span class="count-label">双人互动</span></div><div class="count-item"><span class="count-num">30</span><span class="count-label">学生可用</span></div></div>
 </div>
-
 <div class="main">
 
-  <!-- 🎧 听力 -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-listen">🎧</div>
-      <span class="section-name">听力训练</span>
-      <span class="section-count">1 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card full" href="task4-listening.html?v=15" target="_blank">
-        <div class="c-icon" style="background:#fef2f2">🔊</div>
-        <div class="c-info">
-          <span class="c-title">守岗 · 听力任务</span>
-          <span class="c-desc">三段式训练：语境填空 → 听力测试 → 听音写词。ECRL Dress Code 主题，实时数据追踪</span>
-        </div>
-        <span class="c-tag t-l">听力</span>
-      </a>
-    </div>
-  </div>
+<!-- 🎮 游戏类 -->
+<div class="section"><div class="section-head"><div class="section-icon si-game">🎮</div><span class="section-name">游戏类 · 双人对战 & 挑战</span><span class="section-count">10 个任务</span></div>
+<div class="card-grid">
+<a class="card" href="adverb-pk.html?v=7" target="_blank"><div class="c-icon">⚡</div><div class="c-info"><span class="c-title">形副同形PK</span><span class="c-desc">hard/hardly · late/lately · high/highly · close/closely</span></div><span class="c-tag t-pk">双人PK</span></a>
+<a class="card" href="relative-clause-pk.html?v=1" target="_blank"><div class="c-icon">📖</div><div class="c-info"><span class="c-title">定语从句PK</span><span class="c-desc">who / which / that / whose / whom</span></div><span class="c-tag t-pk">双人PK</span></a>
+<a class="card" href="adverb-quiz-pk.html?v=1" target="_blank"><div class="c-icon">🎯</div><div class="c-info"><span class="c-title">副词Quiz双人PK</span><span class="c-desc">patiently / politely / carefully</span></div><span class="c-tag t-pk">双人PK</span></a>
+<a class="card" href="U2-L2-双人单词PK.html" target="_blank"><div class="c-icon">🔤</div><div class="c-info"><span class="c-title">U2-L2 双人单词PK</span><span class="c-desc">单词拼写与发音双人对战</span></div><span class="c-tag t-pk">双人PK</span></a>
+<a class="card" href="good-well-check.html?v=3" target="_blank"><div class="c-icon">🤝</div><div class="c-info"><span class="c-title">good/well 互评</span><span class="c-desc">双人协作语法判断互评</span></div><span class="c-tag t-pair">双人互评</span></a>
+<a class="card" href="vocab-match.html" target="_blank"><div class="c-icon">🧩</div><div class="c-info"><span class="c-title">词汇配对</span><span class="c-desc">英文单词 ↔ 中文释义 点击配对</span></div><span class="c-tag t-q">配对</span></a>
+<a class="card" href="sentence-scramble.html" target="_blank"><div class="c-icon">🔤</div><div class="c-info"><span class="c-title">句子排序</span><span class="c-desc">乱序单词重组成句</span></div><span class="c-tag t-q">排序</span></a>
+<a class="card" href="speed-quiz.html" target="_blank"><div class="c-icon">⏱</div><div class="c-info"><span class="c-title">限时速答</span><span class="c-desc">8秒倒计时 · 极限挑战</span></div><span class="c-tag t-q">挑战</span></a>
+<a class="card" href="U2-L2-单词PK大挑战.html" target="_blank"><div class="c-icon">🏆</div><div class="c-info"><span class="c-title">U2-L2 单词大挑战</span><span class="c-desc">单词测试单人挑战模式</span></div><span class="c-tag t-q">挑战</span></a>
+<a class="card" href="铁路情景英语问答挑战.html" target="_blank"><div class="c-icon">❓</div><div class="c-info"><span class="c-title">铁路英语问答</span><span class="c-desc">铁路情景问答挑战</span></div><span class="c-tag t-q">挑战</span></a>
+</div></div>
 
-  <!-- ⚡ 双人PK -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-pk">⚡</div>
-      <span class="section-name">双人PK对战</span>
-      <span class="section-count">4 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card" href="adverb-pk.html?v=7" target="_blank">
-        <div class="c-icon">⚡</div>
-        <div class="c-info"><span class="c-title">形副同形PK</span><span class="c-desc">hard/hardly · late/lately · high/highly · close/closely</span></div>
-        <span class="c-tag t-pk">PK</span>
-      </a>
-      <a class="card" href="relative-clause-pk.html?v=1" target="_blank">
-        <div class="c-icon">📖</div>
-        <div class="c-info"><span class="c-title">定语从句PK</span><span class="c-desc">who / which / that / whose / whom 乘务场景</span></div>
-        <span class="c-tag t-pk">PK</span>
-      </a>
-      <a class="card" href="adverb-quiz-pk.html?v=1" target="_blank">
-        <div class="c-icon">🎯</div>
-        <div class="c-info"><span class="c-title">副词Quiz双人PK</span><span class="c-desc">patiently / politely / carefully 场景选择</span></div>
-        <span class="c-tag t-pk">PK</span>
-      </a>
-      <a class="card" href="U2-L2-双人单词PK.html" target="_blank">
-        <div class="c-icon">🔤</div>
-        <div class="c-info"><span class="c-title">U2-L2 双人单词PK</span><span class="c-desc">单词拼写与发音双人对战</span></div>
-        <span class="c-tag t-pk">PK</span>
-      </a>
-    </div>
-  </div>
+<!-- 📝 练习类 -->
+<div class="section"><div class="section-head"><div class="section-icon si-prac">📝</div><span class="section-name">练习类 · 听力 & 词汇 & 语法 & 阅读</span><span class="section-count">9 个任务</span></div>
+<div class="card-grid">
+<a class="card full" href="task4-listening.html?v=15" target="_blank"><div class="c-icon" style="background:#fef2f2">🔊</div><div class="c-info"><span class="c-title">守岗 · 听力任务</span><span class="c-desc">三段式：语境填空 → 听力测试 → 听音写词 · ECRL Dress Code</span></div><span class="c-tag t-l">听力</span></a>
+<a class="card" href="quiz.html" target="_blank"><div class="c-icon">🧠</div><div class="c-info"><span class="c-title">Quiz Bowl</span><span class="c-desc">乘务词汇猜词挑战</span></div><span class="c-tag t-s">词汇</span></a>
+<a class="card" href="adverb-quiz.html" target="_blank"><div class="c-icon">📋</div><div class="c-info"><span class="c-title">副词选择题</span><span class="c-desc">场景化词汇理解训练</span></div><span class="c-tag t-s">词汇</span></a>
+<a class="card" href="flashcards.html" target="_blank"><div class="c-icon">📇</div><div class="c-info"><span class="c-title">Flashcards 闪卡</span><span class="c-desc">核心词汇图文闪卡复习</span></div><span class="c-tag t-s">词汇</span></a>
+<a class="card" href="word-forms.html" target="_blank"><div class="c-icon">📐</div><div class="c-info"><span class="c-title">词形变化</span><span class="c-desc">名词→形容词→副词 变形练习</span></div><span class="c-tag t-s">语法</span></a>
+<a class="card" href="reading-comp.html" target="_blank"><div class="c-icon">📖</div><div class="c-info"><span class="c-title">阅读理解</span><span class="c-desc">ECRL乘务员的一天 · 5道题</span></div><span class="c-tag t-s">阅读</span></a>
+<a class="card" href="pronounce.html" target="_blank"><div class="c-icon">🎙️</div><div class="c-info"><span class="c-title">发音评测</span><span class="c-desc">跟读评分 · 语音对比</span></div><span class="c-tag t-s">发音</span></a>
+<a class="card" href="adverb-training.html" target="_blank"><div class="c-icon">🔊</div><div class="c-info"><span class="c-title">副词发音训练</span><span class="c-desc">乘务副词专项发音</span></div><span class="c-tag t-s">发音</span></a>
+<a class="card" href="phonetic-analyzer.html" target="_blank"><div class="c-icon">🔍</div><div class="c-info"><span class="c-title">音变分析</span><span class="c-desc">音节拆解 · 连读弱读</span></div><span class="c-tag t-s">发音</span></a>
+</div></div>
 
-  <!-- 📝 语法 -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-grammar">📝</div>
-      <span class="section-name">语法互评</span>
-      <span class="section-count">1 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card full" href="good-well-check.html?v=3" target="_blank">
-        <div class="c-icon" style="background:#fdf2f8">🤝</div>
-        <div class="c-info">
-          <span class="c-title">good / well 双人互评</span>
-          <span class="c-desc">第一个人判断10处用法正误 → 第二个人评价对错。双人协作，互评学习</span>
-        </div>
-        <span class="c-tag t-pair">互评</span>
-      </a>
-    </div>
-  </div>
+<!-- 📊 教师数据 -->
+<div class="section"><div class="section-head"><div class="section-icon si-teach">📊</div><span class="section-name">教师数据入口</span><span class="section-count">2 个入口</span></div>
+<div class="card-grid">
+<a class="card" href="teacher-dashboard.html" target="_blank"><div class="c-icon" style="background:#fdf2f8">📈</div><div class="c-info"><span class="c-title">前测/后测看板</span><span class="c-desc">30人微课视频学习前后对比分析</span></div><span class="c-tag t-pair">教师</span></a>
+<a class="card" href="task4-listening.html?display&v=15" target="_blank"><div class="c-icon" style="background:#fdf2f8">📊</div><div class="c-info"><span class="c-title">听力任务实时大屏</span><span class="c-desc">学生提交数据实时展示</span></div><span class="c-tag t-pair">教师</span></a>
+</div></div>
 
-  <!-- 🧠 词汇 -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-vocab">🧠</div>
-      <span class="section-name">词汇练习</span>
-      <span class="section-count">4 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card" href="quiz.html" target="_blank">
-        <div class="c-icon">🧠</div>
-        <div class="c-info"><span class="c-title">Quiz Bowl</span><span class="c-desc">乘务词汇猜词挑战</span></div>
-        <span class="c-tag t-q">Quiz</span>
-      </a>
-      <a class="card" href="adverb-quiz.html" target="_blank">
-        <div class="c-icon">📋</div>
-        <div class="c-info"><span class="c-title">副词选择题</span><span class="c-desc">场景化词汇理解训练</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-      <a class="card" href="flashcards.html" target="_blank">
-        <div class="c-icon">📇</div>
-        <div class="c-info"><span class="c-title">Flashcards 闪卡</span><span class="c-desc">核心词汇图文闪卡复习</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-      <a class="card" href="U2-L2-单词PK大挑战.html" target="_blank">
-        <div class="c-icon">🏆</div>
-        <div class="c-info"><span class="c-title">U2-L2 单词大挑战</span><span class="c-desc">单词测试单人挑战模式</span></div>
-        <span class="c-tag t-q">挑战</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- 🗣️ 发音 -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-speak">🗣️</div>
-      <span class="section-name">发音训练</span>
-      <span class="section-count">4 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card" href="pronounce.html" target="_blank">
-        <div class="c-icon">🎙️</div>
-        <div class="c-info"><span class="c-title">发音评测</span><span class="c-desc">跟读评分 · 语音对比反馈</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-      <a class="card" href="adverb-training.html" target="_blank">
-        <div class="c-icon">🔊</div>
-        <div class="c-info"><span class="c-title">副词发音训练</span><span class="c-desc">乘务副词专项发音练习</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-      <a class="card" href="phonetic-analyzer.html" target="_blank">
-        <div class="c-icon">🔍</div>
-        <div class="c-info"><span class="c-title">音变分析</span><span class="c-desc">音节拆解 · 连读弱读规则</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-      <a class="card" href="U2-L2-新生词跟读.html" target="_blank">
-        <div class="c-icon">📢</div>
-        <div class="c-info"><span class="c-title">U2-L2 新生词跟读</span><span class="c-desc">新词汇发音跟读训练</span></div>
-        <span class="c-tag t-s">单人</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- 🏫 铁路中文 -->
-  <div class="section">
-    <div class="section-head">
-      <div class="section-icon si-cn">🏫</div>
-      <span class="section-name">铁路场景中文</span>
-      <span class="section-count">2 个任务</span>
-    </div>
-    <div class="card-grid">
-      <a class="card" href="铁路场景中文选词挑战.html" target="_blank">
-        <div class="c-icon">📝</div>
-        <div class="c-info"><span class="c-title">中文选词挑战</span><span class="c-desc">铁路场景 · 12词选择题</span></div>
-        <span class="c-tag t-q">中文</span>
-      </a>
-      <a class="card" href="铁路情景英语问答挑战.html" target="_blank">
-        <div class="c-icon">❓</div>
-        <div class="c-info"><span class="c-title">英语问答挑战</span><span class="c-desc">铁路情景英语问答练习</span></div>
-        <span class="c-tag t-q">问答</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="footer">
-    <a href="index.html">← 词汇四件套</a> &nbsp;·&nbsp; <a href="teacher-dashboard.html">教师看板</a> &nbsp;·&nbsp; ECRL 东铁英语教学资源
-  </div>
+<div class="footer"><a href="index.html">← 词汇四件套</a> &nbsp;·&nbsp; ECRL 东铁英语教学资源 &nbsp;·&nbsp; 21个交互任务</div>
 </div>
-</body>
-</html>
+</body></html>

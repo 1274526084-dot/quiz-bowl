@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>词形变化 · ECRL</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-height:100vh;padding:20px}.container{max-width:700px;margin:0 auto}.header{text-align:center;margin-bottom:20px}.header .badge{display:inline-block;padding:4px 18px;border-radius:20px;background:#7c3aed;color:#fff;font-size:12px;font-weight:700;letter-spacing:2px}.header h2{color:#1e293b;font-size:20px;margin-top:6px}.header .sub{color:#94a3b8;font-size:13px;margin-top:4px}
+.section{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;border:2px solid #e2e8f0}.section h3{font-size:15px;color:#7c3aed;margin-bottom:14px}
+.table{width:100%;border-collapse:collapse;font-size:13px}.table th{background:#f8fafc;padding:8px 6px;text-align:center;color:#94a3b8;font-size:11px;border-bottom:2px solid #e2e8f0}.table td{padding:8px 6px;text-align:center;border-bottom:1px solid #f1f5f9;color:#475569}.table .word{font-weight:700;color:#7c3aed}.table input{width:90px;padding:6px 8px;border:2px solid #e2e8f0;border-radius:8px;text-align:center;font-size:13px;font-weight:600;outline:none}.table input:focus{border-color:#7c3aed}.table input.correct{border-color:#22c55e;background:#f0fdf4;color:#16a34a}.table input.wrong{border-color:#dc2626;background:#fef2f2;color:#dc2626}
+.score-bar{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:14px 16px;border-radius:12px;border:2px solid #e2e8f0;margin-bottom:14px}.score{font-size:22px;font-weight:800;color:#7c3aed}.btn{padding:10px 24px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;background:#7c3aed;color:#fff}.btn:active{transform:scale(0.95)}
+.link-row{margin-top:16px;text-align:center}.link-row a{color:#64748b;font-size:12px;text-decoration:none}
+</style></head><body><div class="container">
+<div class="header"><div class="badge">WORD FORMS</div><h2>📐 词形变化 · 名词 → 形容词 → 副词</h2><p class="sub">填入正确的词形完成表格</p></div>
+<div class="score-bar"><span class="score" id="scoreDisplay">—</span><button class="btn" onclick="checkAll()">✅ 检查全部</button></div>
+<div class="section"><h3>📋 乘务英语核心词汇变形</h3>
+<div style="overflow-x:auto">
+<table class="table" id="formTable">
+<thead><tr><th>名词 (Noun)</th><th>形容词 (Adjective)</th><th>副词 (Adverb)</th><th>中文</th></tr></thead>
+<tbody id="formBody"></tbody></table>
+</div></div>
+<div class="link-row"><a href="hub.html">← 返回任务中心</a></div>
+</div>
+<script>
+var data=[{noun:'safety',adj:'safe',adv:'safely',zh:'安全'},{noun:'care',adj:'careful',adv:'carefully',zh:'仔细'},{noun:'politeness',adj:'polite',adv:'politely',zh:'礼貌'},{noun:'patience',adj:'patient',adv:'patiently',zh:'耐心'},{noun:'correctness',adj:'correct',adv:'correctly',zh:'正确'},{noun:'closeness',adj:'close',adv:'closely',zh:'紧密'},{noun:'attention',adj:'attentive',adv:'attentively',zh:'专注'},{noun:'kindness',adj:'kind',adv:'kindly',zh:'友善'}];
+var ans=[];
+function build(){var rows='';data.forEach(function(d,i){var hide=i%3===0?'adj':(i%3===1?'adv':'noun');rows+='<tr><td class="word">'+d.noun+'</td><td><input id="adj'+i+'" placeholder="形容词"></td><td><input id="adv'+i+'" placeholder="副词"></td><td style="color:#94a3b8">'+d.zh+'</td></tr>';});document.getElementById('formBody').innerHTML=rows;}
+function checkAll(){var c=0,t=0;data.forEach(function(d,i){['adj','adv'].forEach(function(type){t++;var inp=document.getElementById(type+i),val=inp.value.trim().toLowerCase(),exp=d[type].toLowerCase();if(val===exp){inp.classList.add('correct');inp.classList.remove('wrong');c++;}else{inp.classList.add('wrong');inp.classList.remove('correct');}});});document.getElementById('scoreDisplay').textContent=c+'/'+t+' 正确'+(c===t?' 🎉':'');}
+build();
+</script></body></html>
