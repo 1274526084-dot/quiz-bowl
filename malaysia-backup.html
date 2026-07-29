@@ -1,472 +1,377 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <title>马来西亚学生中文学习数据采集</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-height:100vh;padding:16px}
 .container{max-width:560px;margin:0 auto}
-.header{text-align:center;margin-bottom:16px}
-.header h2{color:#0d9488;font-size:20px}.header p{color:#94a3b8;font-size:13px;margin-top:4px}
-
-/* Login */
+.header{text-align:center;margin-bottom:14px}.header h2{color:#0d9488;font-size:19px}.header p{color:#94a3b8;font-size:13px;margin-top:2px}
 .login-box{background:#fff;border-radius:16px;padding:24px;border:2px solid #e2e8f0;margin-bottom:16px}
-.login-box h3{font-size:18px;color:#1e293b;margin-bottom:16px}
-.login-box label{font-size:14px;color:#64748b;display:block;margin:10px 0 4px}
-.login-box input,.login-box select{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;outline:none}
+.login-box h3{font-size:17px;color:#1e293b;margin-bottom:14px}
+.login-box label{font-size:13px;color:#64748b;display:block;margin:10px 0 4px;font-weight:600}
+.login-box input{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;outline:none}
 .login-box input:focus{border-color:#0d9488}
-.check-row{display:flex;align-items:center;gap:8px;margin:16px 0;font-size:14px;color:#475569}
-.check-row input{width:auto}
-.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer}
-.btn-go{background:#0d9488;color:#fff;margin-top:8px}
-.btn-go:disabled{background:#94a3b8}
-.btn-submit{background:#6366f1;color:#fff;margin-top:8px}
-.btn-record{background:#dc2626;color:#fff}
-.btn-skip{background:#94a3b8;color:#fff;margin-top:4px}
-
-/* Task list */
-.day-list{margin-bottom:16px}
-.day-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:8px;border:2px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;gap:12px}
+.check-row{display:flex;align-items:center;gap:8px;margin:16px 0;font-size:13px;color:#475569}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-go{background:#0d9488;color:#fff}.btn-go:disabled{background:#94a3b8}
+.btn-submit{background:#6366f1;color:#fff}.btn-draft{background:#f59e0b;color:#fff}
+.btn-back{background:#f1f5f9;color:#64748b}.btn-record{background:#dc2626;color:#fff}
+.day-list{margin-bottom:12px}
+.day-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:6px;border:2px solid #e2e8f0;display:flex;align-items:center;gap:12px}
+.day-card.done{background:#f0fdf4;border-color:#bbf7d0}.day-card.draft{background:#fffbeb;border-color:#fde68a}
 .day-card:active{background:#f8fafc}
-.day-card.done{background:#f0fdf4;border-color:#bbf7d0}
-.dc-num{width:40px;height:40px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#64748b;flex-shrink:0}
-.day-card.done .dc-num{background:#22c55e;color:#fff}
-.dc-info{flex:1}.dc-title{font-size:15px;font-weight:700;color:#1e293b}.dc-sub{font-size:12px;color:#94a3b8;margin-top:2px}
-
-/* Day panel */
+.dc-num{width:38px;height:38px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#64748b;flex-shrink:0}
+.day-card.done .dc-num{background:#22c55e;color:#fff}.day-card.draft .dc-num{background:#f59e0b;color:#fff}
+.dc-info{flex:1}.dc-title{font-size:14px;font-weight:700;color:#1e293b}.dc-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.dc-status{font-size:12px;font-weight:600}
 .overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:100}
 .overlay.show{display:block}
-.panel{display:none;position:fixed;top:20px;left:12px;right:12px;bottom:20px;background:#f8fafc;border-radius:20px;z-index:101;overflow-y:auto}
+.panel{display:none;position:fixed;top:15px;left:8px;right:8px;bottom:15px;background:#f8fafc;border-radius:20px;z-index:101;overflow-y:auto}
 .panel.show{display:block}
-.panel-header{background:#0d9488;padding:20px;border-radius:20px 20px 0 0;color:#fff;position:sticky;top:0;z-index:1}
-.panel-close{position:absolute;top:14px;right:16px;font-size:28px;cursor:pointer}
-.panel-day{font-size:13px;opacity:0.7}.panel-title{font-size:18px;font-weight:800;margin-top:4px}
-
-.task-block{background:#fff;border-radius:12px;padding:16px;margin:12px;border:2px solid #e2e8f0}
-.task-block.done{background:#f0fdf4;border-color:#bbf7d0}
-.task-block h4{font-size:15px;color:#1e293b;margin-bottom:8px}
-.task-block .hint{font-size:12px;color:#94a3b8;margin-bottom:12px;display:block}
-.mc-q{font-size:14px;color:#1e293b;font-weight:600;margin:10px 0 6px}
-.mc-opts{display:flex;flex-wrap:wrap;gap:8px}
-.mc-opt{font-size:14px;color:#64748b;display:flex;align-items:center;gap:4px;cursor:pointer}
-.fill-input{width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;margin-top:4px}
-.writing-area{width:100%;min-height:100px;padding:10px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;resize:vertical}
-.eval-opts{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.eval-opt{font-size:14px;display:flex;align-items:center;gap:4px;cursor:pointer}
-.done-tag{display:block;text-align:center;color:#16a34a;font-weight:700;font-size:14px;padding:8px}
-.photo-preview{max-width:100%;max-height:200px;border-radius:8px;margin-top:8px;display:none}
-.photo-preview.show{display:block}
-
-.status{text-align:center;color:#16a34a;font-size:13px;padding:8px;display:none}
-.status.show{display:block}
-
-/* Records */
-.records{background:#fff;border-radius:12px;padding:16px;border:2px solid #e2e8f0;margin-top:12px}
-.records h3{font-size:16px;margin-bottom:8px}.rec-item{font-size:13px;color:#64748b;padding:4px 0}
+.panel-header{background:#0d9488;padding:18px;border-radius:20px 20px 0 0;color:#fff;position:sticky;top:0;z-index:1}
+.panel-close{position:absolute;top:12px;right:14px;font-size:24px;cursor:pointer}
+.panel-day{font-size:12px;opacity:0.7}.panel-title{font-size:17px;font-weight:800;margin-top:2px}
+.task-block{background:#fff;border-radius:12px;padding:14px;margin:10px 10px 0;border:2px solid #e2e8f0}.task-block.done{background:#f0fdf4;border-color:#bbf7d0}
+.task-block h4{font-size:14px;color:#1e293b;margin-bottom:6px}.task-block .hint{font-size:12px;color:#94a3b8;margin-bottom:10px;display:block;white-space:pre-wrap;line-height:1.6}
+.mc-q{font-size:13px;color:#1e293b;font-weight:600;margin:10px 0 5px;line-height:1.5}
+.mc-opts{display:flex;flex-wrap:wrap;gap:6px}.mc-opt{font-size:13px;color:#64748b;display:flex;align-items:center;gap:4px;cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0}
+.fill-input{width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;margin:4px 0 8px}
+.writing-area{width:100%;min-height:80px;padding:10px;border:2px solid #e2e8f0;border-radius:8px;font-size:14px;resize:vertical}
+.writing-scaffold{background:#f8fafc;border-radius:8px;padding:10px;font-size:12px;color:#64748b;line-height:1.8;margin-bottom:8px;white-space:pre-wrap;border:1px dashed #e2e8f0}
+.done-tag{display:block;text-align:center;color:#16a34a;font-weight:700;font-size:13px;padding:6px}
+.eval-opts{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}.eval-opt{font-size:13px;display:flex;align-items:center;gap:3px;cursor:pointer}
+.status-msg{text-align:center;color:#16a34a;font-size:13px;padding:6px;display:none}.status-msg.show{display:block}
+.word-list{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.word-tag{background:#eff6ff;color:#2563eb;padding:4px 10px;border-radius:10px;font-size:13px}
+.bottom-bar{display:flex;gap:8px;padding:12px 10px;position:sticky;bottom:0;background:#f8fafc;border-top:1px solid #e2e8f0}
+.bottom-bar button{flex:1;padding:12px;font-size:14px}
 </style>
 </head>
-<body>
-<div class="container" id="app">
-  <div class="header"><h2>🇲🇾 马来西亚学生中文学习数据采集</h2><p>ECRL · 东铁跨境语言学习记录</p></div>
-
-  <!-- Login -->
-  <div class="login-box" id="loginBox">
-    <h3>📝 信息登记</h3>
-    <label>学生编号 Student ID *</label><input id="studentId" placeholder="如 MY2026001">
-    <label>中文姓名 Chinese Name *</label><input id="chineseName" placeholder="如：陈小明">
-    <label>英文姓名 Malaysian Name *</label><input id="studentName" placeholder="如：Ahmad">
-    <label>班级口令 Class Code *</label><input id="classCode" placeholder="班级口令" type="password">
-    <div class="check-row"><input type="checkbox" id="consent"><span>我已了解并同意提交课程学习数据（仅用于教学与课题研究）</span></div>
-    <button class="btn btn-go" id="btnLogin" onclick="login()">确认并进入任务</button>
-    <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:8px">默认口令：MY2026</p>
-  </div>
-
-  <!-- Task list -->
-  <div id="taskList" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-weight:700;color:#1e293b">📅 七天学习任务</span>
-      <span style="font-size:13px;color:#94a3b8" id="stuInfo"></span>
-    </div>
-    <div class="day-list" id="dayList"></div>
-    <div class="status" id="cloudStatus"></div>
-    <div class="records" id="recordsBox"></div>
-    <div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px">数据来源：h5_backup · 与小程序数据同步</div>
-  </div>
+<body><div class="container" id="app">
+<div class="header"><h2>🇲🇾 马来西亚学生中文学习数据采集</h2><p>ECRL · 一周学习任务 · 每天独立提交</p></div>
+<div class="login-box" id="loginBox">
+<h3>📝 学生登录 Student Login</h3>
+<label>学生编号 Student ID *</label><input id="studentId" placeholder="如 MY2026001">
+<label>中文姓名 Chinese Name</label><input id="chineseName" placeholder="如 陈小明">
+<label>英文姓名 Malaysian Name *</label><input id="studentName" placeholder="如 Ahmad">
+<label>班级口令 Class Code *</label><input id="classCode" type="password" placeholder="班级口令">
+<div class="check-row"><input type="checkbox" id="consent"><span>我已了解并同意提交课程学习数据（仅用于教学与课题研究）</span></div>
+<button class="btn btn-go" id="btnLogin" onclick="login()">确认并进入任务</button>
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">默认口令：MY2026</p>
 </div>
-
-<!-- Day panel overlay -->
-<div class="overlay" id="overlay" onclick="closePanel()"></div>
-<div class="panel" id="panel"></div>
+<div id="taskList" style="display:none">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:700;color:#1e293b">📅 七天学习任务</span><span style="font-size:13px;color:#94a3b8" id="stuInfo"></span></div>
+<div class="day-list" id="dayList"></div>
+<div style="text-align:center;color:#94a3b8;font-size:11px;padding:10px">每天独立提交 · 已提交数据老师可实时查看</div>
+</div></div>
+<div class="overlay" id="overlay"></div><div class="panel" id="panel"></div>
 
 <script>
 var API = 'https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
-var student = null;
-var taskStatus = {}; // {1:{mc:true,fill:true,write:true,speak:true,eval:true},...}
-var answers = {}; // {1:{mc:{},fill:{},write:'',speak:false},...}
-var selfEvals = {}; // {1:{diff:'',conf:'',feel:''},...}
+var student = null, dayStatus = {}, dayDrafts = {};
 
-// ===== Login =====
-function login() {
-  var id = document.getElementById('studentId').value.trim();
-  var name = document.getElementById('studentName').value.trim();
-  var cnName = document.getElementById('chineseName').value.trim();
-  var code = document.getElementById('classCode').value.trim();
-  var consent = document.getElementById('consent').checked;
-  if (!id || !name || !cnName) { alert('请填写学生编号、中文姓名和英文姓名'); return; }
-  if (code !== 'MY2026') { alert('班级口令错误'); return; }
-  if (!consent) { alert('请勾选隐私同意'); return; }
-  student = { id: id, name: name, chineseName: cnName, learnerType: 'international_student', learningTrack: 'chinese_track', country: 'Malaysia', source: 'h5_backup' };
-  // Load saved state
-  var saved = localStorage.getItem('my_backup_' + id);
-  if (saved) { var s = JSON.parse(saved); taskStatus = s.taskStatus || {}; answers = s.answers || {}; selfEvals = s.selfEvals || {}; }
-  document.getElementById('loginBox').style.display = 'none';
-  document.getElementById('taskList').style.display = 'block';
-  document.getElementById('stuInfo').textContent = '👤 ' + cnName + ' / ' + name + ' (' + id + ')';
-  buildDayList();
-}
-
-function saveLocal() {
-  if (!student) return;
-  localStorage.setItem('my_backup_' + student.id, JSON.stringify({ taskStatus: taskStatus, answers: answers, selfEvals: selfEvals }));
-}
-
-// ===== Day list =====
+// ===== DAYS DATA =====
 var DAYS = [
-  {n:1,t:'《再见，李可乐》任务单复盘',s:'movie',mc:[
-    {q:'电影里有一只____。',o:['小狗','小猫','小鸟','小鱼'],a:'A'},
-    {q:'女儿因为____很难过。',o:['考试','妈妈','朋友','学校'],a:'B'},
-    {q:'我很____。',o:['快乐','难过','高兴','兴奋'],a:'B'},
-    {q:'家人____很重要。',o:['喜欢','陪伴','学习','帮助'],a:'B'},
-    {q:'最后学会____。',o:['学习','告别','想念','陪伴'],a:'B'}
-  ],fill:[
-    {q:'电影里有一只____。',a:'小狗'},{q:'我很____。',a:'难过'},
-    {q:'____很重要。',a:'陪伴'},{q:'我____妈妈。',a:'想念'},
-    {q:'学会____。',a:'告别'}
-  ],write:'这部电影讲了____。\n我最喜欢的人物是____。\n我觉得____很感人。\n因为____，所以____。\n看完电影以后，我想____。',review:true},
-  {n:2,t:'《你好，李焕英》任务单复盘',s:'movie',mc:[
-    {q:'____我还不懂事。',o:['以前','以后','现在','昨天'],a:'A'},
-    {q:'____我会更努力。',o:['以前','以后','现在','过去'],a:'B'},
-    {q:'我____妈妈能快乐。',o:['希望','难过','改变','理解'],a:'A'},
-    {q:'看完电影我很____。',o:['高兴','兴奋','难过','生气'],a:'C'},
-    {q:'我想____自己。',o:['希望','难过','改变','快乐'],a:'C'}
-  ],fill:[
-    {q:'____我错了。',a:'以前'},{q:'____会更好。',a:'以后'},
-    {q:'我____你快乐。',a:'希望'},{q:'我很____。',a:'难过'},
-    {q:'我____了。',a:'改变'}
-  ],write:'妈妈，我想对你说____。\n谢谢你____。\n我知道你很____。\n以前我____，以后我会____。\n我希望你____。',review:true},
-  {n:3,t:'HSK3基础复习与小测',s:'course',mc:[
-    {q:'出门前别忘了____空调。',o:['开','关','买','看'],a:'B'},
-    {q:'你____早点睡觉。',o:['忘记','应该','可以','问题'],a:'B'},
-    {q:'____很重要。',o:['帮助','问题','安全','忘记'],a:'C'},
-    {q:'____有问题，可以问我。',o:['应该','需要','如果','因为'],a:'C'},
-    {q:'____下雨，____不去了。',o:['虽然但是','因为所以','如果就','不但而且'],a:'B'}
-  ],fill:[
-    {q:'别忘了____空调。',a:'关'},{q:'你____做完。',a:'应该'},
-    {q:'____有问题告诉我。',a:'如果'},{q:'____下雨____不去了。',a:'因为所以'},
-    {q:'____很难____我会努力。',a:'虽然但是'}
-  ],write:'请用以下句型各写一句话：\n别忘了……\n如果……可以……\n因为……所以……\n虽然……但是……'},
-  {n:4,t:'口语交流活动：介绍同学',s:'speaking',mc:[
-    {q:'____是我的朋友。',o:['这','那','哪','什么'],a:'A'},
-    {q:'他____马来西亚。',o:['是','来自','去','在'],a:'B'},
-    {q:'她____学习中文。',o:['喜欢','名字','朋友','觉得'],a:'A'},
-    {q:'我____他很友好。',o:['喜欢','觉得','介绍','认识'],a:'B'},
-    {q:'很高兴____你！',o:['认识','介绍','学习','觉得'],a:'A'}
-  ],fill:[
-    {q:'这是____。',a:'我的朋友'},{q:'他____马来西亚。',a:'来自'},
-    {q:'他____踢足球。',a:'喜欢'},{q:'我____她很好。',a:'觉得'},
-    {q:'很高兴____你。',a:'认识'}
-  ],write:'请写3-5句话，介绍一位同学。\n这是……\n他/她来自……\n他/她喜欢……\n我觉得他/她……'},
-  {n:5,t:'文化体验活动：橡皮篆刻中文名字印章',s:'culture',mc:[
-    {q:'我刻了一个____。',o:['名字','汉字','印章','文化'],a:'C'},
-    {q:'____很有趣！',o:['名字','汉字','文化','困难'],a:'B'},
-    {q:'我觉得刻印章很____。',o:['容易','名字','文化','完成'],a:'A'},
-    {q:'我____了这个活动。',o:['喜欢','困难','名字','汉字'],a:'A'},
-    {q:'我____了印章。',o:['完成','觉得','喜欢','文化'],a:'A'}
-  ],fill:[
-    {q:'我刻了____。',a:'印章'},{q:'这是我的____。',a:'名字'},
-    {q:'我觉得____有趣。',a:'很'},{q:'这个____很好玩。',a:'活动'},
-    {q:'我____了。',a:'完成'}
-  ],write:'请写3句话介绍你的印章：\n我刻了……\n我觉得……\n这个活动……',photo:true},
-  {n:6,t:'东铁服务场景',s:'railway',mc:[
-    {q:'请问____在哪儿？',o:['车站','乘客','时间','帮助'],a:'A'},
-    {q:'我想____一张票。',o:['买','卖','看','拿'],a:'A'},
-    {q:'____什么时候出发？',o:['你','我','他','她'],a:'A'},
-    {q:'我可以____你。',o:['帮助','问题','需要','买票'],a:'A'},
-    {q:'火车____8点到。',o:['在','是','有','想'],a:'A'}
-  ],fill:[
-    {q:'请问____在哪儿？',a:'车站'},{q:'我想____票。',a:'买'},
-    {q:'____什么时候出发？',a:'你'},{q:'我____帮助你。',a:'可以'},
-    {q:'____上午出发。',a:'我'}
-  ],write:'写一段车站服务对话：\nA：请问……在哪儿？\nB：……\nA：我想买……\nB：好的，……\nA：谢谢你！'},
-  {n:7,t:'学习总结',s:'summary',mc:[
-    {q:'这周我____了很多。',o:['学习','觉得','完成','继续'],a:'A'},
-    {q:'我觉得____比较难。',o:['听力','写作','阅读','口语'],a:'B'},
-    {q:'我的中文有____。',o:['提高','困难','容易','完成'],a:'A'},
-    {q:'我对中文有____。',o:['信心','困难','觉得','学习'],a:'A'},
-    {q:'《再见，李可乐》让我很____。',o:['感动','高兴','生气','讨厌'],a:'A'},
-    {q:'____很重要。',o:['陪伴','忘记','问题','困难'],a:'A'},
-    {q:'《你好，李焕英》里____很伟大。',o:['爸爸','妈妈','女儿','小狗'],a:'B'},
-    {q:'在车站我可以用中文____。',o:['帮助','学习','觉得','完成'],a:'A'},
-    {q:'刻印章是____体验。',o:['文化','学习','电影','服务'],a:'A'},
-    {q:'以后我想____学习。',o:['觉得','完成','提高','继续'],a:'D'}
-  ],fill:[
-    {q:'这周我____了中文。',a:'学习'},{q:'我____写作比较难。',a:'觉得'},
-    {q:'我的中文____了。',a:'提高'},{q:'我有____了。',a:'信心'},
-    {q:'以后我____学习。',a:'继续'}
-  ],write:'写5句话总结这周：\n这周我学习了……\n我觉得……比较难。\n我觉得……比较容易。\n我的中文有……\n以后我想……'}
+{n:1,t:'《再见，李可乐》任务单复盘',s:'movie', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">请根据电影《再见，李可乐》完成任务。不会写完整句时，可以先写词语。</span>';
+  h+='<div class="task-block"><h4>1. 主要人物选择</h4>';
+  [{q:'李妍是谁？',o:['A. 爸爸','B. 妈妈','C. 女儿','D. 小狗'],a:'C'},
+   {q:'李博宇是谁？',o:['A. 爸爸','B. 妈妈','C. 女儿','D. 小狗'],a:'A'},
+   {q:'潘雁秋是谁？',o:['A. 爸爸','B. 妈妈','C. 女儿','D. 小狗'],a:'B'},
+   {q:'可乐是谁？',o:['A. 爸爸','B. 妈妈','C. 女儿','D. 小狗'],a:'D'}].forEach(function(q,i){
+    h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';
+    q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d1m1_'+i+'" value="'+v+'" '+(ans['m1_'+i]===v?'checked':'')+'> '+o+'</label>';});
+    h+='</div>';
+  });h+='</div>';
+
+  h+='<div class="task-block"><h4>2. 电影开始：李妍想做什么？</h4>';
+  h+='<div class="mc-q">李妍很想去：</div><div class="mc-opts">';
+  ['A. 看电影','B. 滑雪','C. 买东西','D. 上汉语课'].forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d1m5" value="'+v+'" '+(ans.m5===v?'checked':'')+'> '+o+'</label>';});
+  h+='</div></div>';
+
+  h+='<div class="task-block"><h4>3. 填空</h4>';
+  h+='<div class="mc-q">爸爸想完成李妍的一个____。他们一起去了____。</div>';
+  h+='<span class="hint">可选词语：心愿、阿勒泰、学校、医院</span>';
+  h+='<input class="fill-input" placeholder="第1空" id="d1f0" value="'+(ans.f0||'')+'">';
+  h+='<input class="fill-input" placeholder="第2空" id="d1f1" value="'+(ans.f1||'')+'"></div>';
+
+  h+='<div class="task-block"><h4>4. 后来发生了什么？</h4>';
+  h+='<div class="mc-q">爸爸：</div><div class="mc-opts">';
+  ['A. 去国外工作了','B. 生气离开了家','C. 发生了意外','D. 买了一只猫'].forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d1m6" value="'+v+'" '+(ans.m6===v?'checked':'')+'> '+o+'</label>';});
+  h+='</div></div>';
+
+  h+='<div class="task-block"><h4>5. 李妍的心情怎么样？（选2个）</h4>';
+  ['难过','想念','开心','生气','害怕','高兴'].forEach(function(w,i){h+='<label class="mc-opt"><input type="checkbox" name="d1c'+i+'" value="'+w+'" '+((ans['c'+i]||'')===w?'checked':'')+'> '+w+'</label>';});
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>6. 小狗可乐出现以后</h4>';
+  h+='<div class="mc-q">小狗的名字叫____。它陪伴了____和妈妈。它让这个家慢慢有了新的____。</div>';
+  h+='<span class="hint">可选词语：可乐、李妍、爸爸、变化</span>';
+  h+='<input class="fill-input" placeholder="第1空" id="d1f2" value="'+(ans.f2||'')+'"><input class="fill-input" placeholder="第2空" id="d1f3" value="'+(ans.f3||'')+'"><input class="fill-input" placeholder="第3空" id="d1f4" value="'+(ans.f4||'')+'"></div>';
+
+  h+='<div class="task-block"><h4>7. 情节排序（请写1-4）</h4>';
+  ['爸爸发生了意外。','小狗可乐来到李妍身边。','爸爸带李妍去完成心愿。','李妍慢慢理解妈妈，也学会告别。'].forEach(function(t,i){h+='<div class="mc-q">第'+(i+1)+'步：<input class="fill-input" placeholder="请写1-4排序" id="d1s'+i+'" value="'+(ans['s'+i]||'')+'"></div><span class="hint" style="margin-left:10px">'+t+'</span>';});
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>8. 写作任务（3-5句话）</h4>';
+  h+='<div class="writing-scaffold">我觉得这部电影很____。\n我最喜欢的人物是____，因为____。\n我觉得可乐是一只____的小狗。\n看完电影以后，我想到了____。</div>';
+  h+='<span class="hint">参考词语：爸爸、妈妈、女儿、小狗、滑雪、意外、难过、生气、陪伴、想念、理解、告别</span>';
+  h+='<textarea class="writing-area" placeholder="请在这里写中文..." id="d1write">'+(ans.write||'')+'</textarea></div>';
+
+  h+='<div class="task-block"><h4>9. 口语任务</h4><span class="hint">请录音30秒，说一个你印象最深的情节。（手机录音后将音频链接或文件名粘贴在下方）</span>';
+  h+='<input class="fill-input" placeholder="粘贴音频链接或文件名" id="d1speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:2,t:'《你好，李焕英》任务单复盘',s:'movie', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">请根据电影《你好，李焕英》完成任务。重点看人物、时间、事情、心情和妈妈。</span>';
+  h+='<div class="task-block"><h4>一、HSK3词语准备</h4>';
+  h+='<div class="word-list">';
+  ['妈妈','女儿','年轻','以前','以后','机会','帮助','希望','决定','快乐','难过','知道','理解','改变','终于'].forEach(function(w){h+='<span class="word-tag">'+w+'</span>';});
+  h+='</div><span class="hint">可用句型：因为……所以…… / 虽然……但是…… / 我觉得…… / 我想对妈妈说……</span></div>';
+
+  h+='<div class="task-block"><h4>二、人物关系选择</h4>';
+  [{q:'贾晓玲是谁？',o:['A. 妈妈','B. 女儿','C. 朋友'],a:'B'},
+   {q:'李焕英是谁？',o:['A. 妈妈','B. 女儿','C. 朋友'],a:'A'},
+   {q:'沈光林是谁？',o:['A. 年轻时认识的人','B. 医生','C. 老师'],a:'A'},
+   {q:'冷特是谁？',o:['A. 朋友','B. 爸爸','C. 同学'],a:'A'}].forEach(function(q,i){
+    h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';
+    q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d2m1_'+i+'" value="'+v+'" '+(ans['m1_'+i]===v?'checked':'')+'> '+o+'</label>';});
+    h+='</div>';
+  });h+='</div>';
+
+  h+='<div class="task-block"><h4>三、跟着情节填一填</h4>';
+  [{q:'电影开始，贾晓玲最想让____高兴。',o:['A. 妈妈','B. 老师','C. 朋友'],a:'A'},
+   {q:'后来，李焕英发生了____，贾晓玲很____。','fill':true,words:'意外、难过、快乐、考试'},
+   {q:'贾晓玲回到了____年的工厂，见到了年轻的____。','fill':true,words:'1981、2020、李焕英、李妍'},
+   {q:'贾晓玲希望妈妈以后可以过得更____。',o:['A. 开心','B. 忙','C. 累'],a:'A'}].forEach(function(q,i){
+    if(q.fill){
+      h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><span class="hint">可选词语：'+q.words+'</span>';
+      h+='<input class="fill-input" placeholder="第1空" id="d2f'+i+'a" value="'+(ans['f'+i+'a']||'')+'"><input class="fill-input" placeholder="第2空" id="d2f'+i+'b" value="'+(ans['f'+i+'b']||'')+'">';
+    }else{
+      h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';
+      q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d2m2_'+i+'" value="'+v+'" '+(ans['m2_'+i]===v?'checked':'')+'> '+o+'</label>';});
+      h+='</div>';
+    }
+  });h+='</div>';
+
+  h+='<div class="task-block"><h4>四、情节排序（请写1-4）</h4>';
+  ['贾晓玲回到过去，见到年轻的妈妈。','李焕英发生意外。','贾晓玲想帮助妈妈改变生活。','贾晓玲明白了妈妈对自己的爱。'].forEach(function(t,i){h+='<div class="mc-q">第'+(i+1)+'步：<input class="fill-input" placeholder="1-4" id="d2s'+i+'" value="'+(ans['s'+i]||'')+'"></div><span class="hint">'+t+'</span>';});
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>五、HSK3词语练习：选词填空</h4>';
+  h+='<span class="hint">词语：因为、所以、虽然、但是、希望、帮助、知道、终于</span>';
+  [{q:'____妈妈爱她，____贾晓玲很想让妈妈高兴。',n:2},{q:'____贾晓玲做了很多事，____妈妈最希望女儿快乐。',n:2},{q:'贾晓玲想____年轻的妈妈。',n:1},{q:'看完电影以后，我____更理解妈妈了。',n:1},{q:'最后，贾晓玲____明白了妈妈的爱。',n:1}].forEach(function(q,i){h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div>';for(var j=0;j<q.n;j++)h+='<input class="fill-input" placeholder="第'+(j+1)+'空" id="d2w'+i+'_'+j+'" value="'+(ans['w'+i+'_'+j]||'')+'">';});
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>六、判断题</h4>';
+  [{q:'贾晓玲很爱自己的妈妈。',a:true},{q:'李焕英年轻的时候不认识贾晓玲。',a:false},{q:'贾晓玲想让妈妈有更好的生活。',a:true},{q:'这部电影只是在讲考试。',a:false}].forEach(function(q,i){h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts"><label class="mc-opt"><input type="radio" name="d2t'+i+'" value="true" '+(ans['t'+i]==='true'?'checked':'')+'> ✅ 对</label><label class="mc-opt"><input type="radio" name="d2t'+i+'" value="false" '+(ans['t'+i]==='false'?'checked':'')+'> ✗ 错</label></div>';});
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>七、写作：我想对妈妈说（5-6句话）</h4>';
+  h+='<div class="writing-scaffold">妈妈，我想对你说：____。\n谢谢你____。\n我知道你很____。\n以前我____，以后我会____。\n我希望你____。</div>';
+  h+='<textarea class="writing-area" placeholder="请在这里写..." id="d2write">'+(ans.write||'')+'</textarea></div>';
+
+  h+='<div class="task-block"><h4>八、口语任务</h4><span class="hint">请录音30-60秒，读出你想对妈妈说的话。</span>';
+  h+='<input class="fill-input" placeholder="粘贴音频链接或文件名" id="d2speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:3,t:'日常口语训练：认识新同学',s:'speaking', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">今天练习日常口语。请介绍自己，也可以介绍一位同学。句子可以简单。题目来源《第1课-认识新同学》。</span>';
+
+  h+='<div class="task-block"><h4>一、词语轻复习</h4>';
+  h+='<div class="word-list">';
+  ['考试','通过','复习','听力','阅读','写作','口语','词语','语法','错题','提高','希望','计划','坚持','进步'].forEach(function(w){h+='<span class="word-tag">'+w+'</span>';});
+  h+='</div><span class="hint">请选3个词，各写1个句子。</span>';
+  for(var i=0;i<3;i++){h+='<input class="fill-input" placeholder="词语'+(i+1)+'" id="d3tw'+i+'" value="'+(ans['tw'+i]||'')+'"><input class="fill-input" placeholder="句子'+(i+1)+'" id="d3ts'+i+'" value="'+(ans['ts'+i]||'')+'">';}
+  h+='</div>';
+
+  h+='<div class="task-block"><h4>二、HSK3学习情况</h4>';
+  [{q:'HSK3考试哪一部分最难？',o:['A. 听力','B. 阅读','C. 写作','D. 词语','E. 口语'],id:'d3q1'},
+   {q:'你最想提高什么？',o:['A. 听力','B. 阅读','C. 写作','D. 口语','E. 词语'],id:'d3q2'}].forEach(function(q){
+    h+='<div class="mc-q">'+q.q+'</div><div class="mc-opts">';
+    q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="'+q.id+'" value="'+v+'" '+(ans[q.id]===v?'checked':'')+'> '+o+'</label>';});
+    h+='</div>';
+  });
+  h+='<div class="mc-q">请写一句话：</div>';
+  h+='<input class="fill-input" placeholder="我觉得____比较难。我想提高我的____。我希望我的中文越来越好。" id="d3s1" value="'+(ans.s1||'')+'"></div>';
+
+  h+='<div class="task-block"><h4>三、自我介绍（3-5句话）</h4>';
+  h+='<div class="writing-scaffold">我叫____。\n我来自____。\n我学习____专业。\n我喜欢____。\n我希望以后____。</div>';
+  h+='<textarea class="writing-area" placeholder="请写自我介绍..." id="d3intro">'+(ans.intro||'')+'</textarea></div>';
+
+  h+='<div class="task-block"><h4>四、介绍一位同学（3-5句话）</h4>';
+  h+='<div class="writing-scaffold">这是我的同学____。\n他/她来自____。\n他/她学习____专业。\n他/她喜欢____。\n我觉得他/她____。</div>';
+  h+='<textarea class="writing-area" placeholder="请介绍一位同学..." id="d3classmate">'+(ans.classmate||'')+'</textarea></div>';
+
+  h+='<div class="task-block"><h4>五、口语录音（二选一）</h4>';
+  h+='<span class="hint">A. 录音30秒：介绍自己  B. 录音30秒：介绍一位同学</span>';
+  h+='<input class="fill-input" placeholder="粘贴音频链接或文件名" id="d3speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:4,t:'文化体验活动：橡皮篆刻中文名字印章',s:'culture', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">用橡皮刻你的中文名字印章，体验中国传统文化。</span>';
+  h+='<div class="task-block"><h4>1. 小测</h4>';
+  [{q:'我刻了一个____。',o:['A. 名字','B. 汉字','C. 印章','D. 文化'],a:'C'},{q:'____很有趣！',o:['A. 名字','B. 汉字','C. 文化','D. 困难'],a:'B'},{q:'我觉得刻印章很____。',o:['A. 容易','B. 名字','C. 文化','D. 完成'],a:'A'},{q:'我____了这个活动。',o:['A. 喜欢','B. 困难','C. 名字','D. 汉字'],a:'A'},{q:'我____了印章。',o:['A. 完成','B. 觉得','C. 喜欢','D. 文化'],a:'A'}].forEach(function(q,i){h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d4m'+i+'" value="'+v+'" '+(ans['m'+i]===v?'checked':'')+'> '+o+'</label>';});h+='</div>';});
+  h+='</div>';
+  h+='<div class="task-block"><h4>2. 上传印章照片</h4><input type="file" accept="image/*" id="d4photo"><span class="hint" style="margin-top:4px">照片保存到本地，文件名记录提交</span></div>';
+  h+='<div class="task-block"><h4>3. 写3句话介绍印章</h4><textarea class="writing-area" placeholder="我刻了...我觉得...这个活动..." id="d4write">'+(ans.write||'')+'</textarea></div>';
+  h+='<div class="task-block"><h4>4. 口语：介绍印章</h4><input class="fill-input" placeholder="粘贴音频链接" id="d4speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:5,t:'东铁服务场景',s:'railway', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">学习在火车站和列车上用中文为乘客提供服务。</span>';
+  h+='<div class="task-block"><h4>1. 小测</h4>';
+  [{q:'请问____在哪儿？',o:['A. 车站','B. 乘客','C. 时间','D. 帮助'],a:'A'},{q:'我想____一张票。',o:['A. 买','B. 卖','C. 看','D. 拿'],a:'A'},{q:'____什么时候出发？',o:['A. 你','B. 我','C. 他','D. 她'],a:'A'},{q:'我可以____你。',o:['A. 帮助','B. 问题','C. 需要','D. 买票'],a:'A'},{q:'火车____8点到。',o:['A. 在','B. 是','C. 有','D. 想'],a:'A'}].forEach(function(q,i){h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d5m'+i+'" value="'+v+'" '+(ans['m'+i]===v?'checked':'')+'> '+o+'</label>';});h+='</div>';});
+  h+='</div>';
+  h+='<div class="task-block"><h4>2. 写一段车站服务对话</h4><textarea class="writing-area" placeholder="A：请问...在哪儿？\nB：...\nA：我想买...\nB：好的，..." id="d5write">'+(ans.write||'')+'</textarea></div>';
+  h+='<div class="task-block"><h4>3. 口语：模拟帮助乘客</h4><input class="fill-input" placeholder="粘贴音频链接" id="d5speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:6,t:'学习总结',s:'summary', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">总结这一周的学习收获。</span>';
+  h+='<div class="task-block"><h4>1. 综合小测（10题）</h4>';
+  [{q:'这周我____了很多。',o:['A. 学习','B. 觉得','C. 完成','D. 继续'],a:'A'},{q:'我觉得____比较难。',o:['A. 听力','B. 写作','C. 阅读','D. 口语'],a:'B'},{q:'我的中文有____。',o:['A. 提高','B. 困难','C. 容易','D. 完成'],a:'A'},{q:'我对中文有____。',o:['A. 信心','B. 困难','C. 觉得','D. 学习'],a:'A'},{q:'《再见，李可乐》让我很____。',o:['A. 感动','B. 高兴','C. 生气','D. 讨厌'],a:'A'},{q:'____很重要。',o:['A. 陪伴','B. 忘记','C. 问题','D. 困难'],a:'A'},{q:'《你好，李焕英》里____很伟大。',o:['A. 爸爸','B. 妈妈','C. 女儿','D. 小狗'],a:'B'},{q:'在车站我可以用中文____。',o:['A. 帮助','B. 学习','C. 觉得','D. 完成'],a:'A'},{q:'刻印章是____体验。',o:['A. 文化','B. 学习','C. 电影','D. 服务'],a:'A'},{q:'以后我想____学习。',o:['A. 觉得','B. 完成','C. 提高','D. 继续'],a:'D'}].forEach(function(q,i){h+='<div class="mc-q">'+(i+1)+'. '+q.q+'</div><div class="mc-opts">';q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="d6m'+i+'" value="'+v+'" '+(ans['m'+i]===v?'checked':'')+'> '+o+'</label>';});h+='</div>';});
+  h+='</div>';
+  h+='<div class="task-block"><h4>2. 写5句话总结这周</h4><textarea class="writing-area" placeholder="这周我学习了...\n我觉得...比较难。\n我觉得...比较容易。\n我的中文有...\n以后我想..." id="d6write">'+(ans.write||'')+'</textarea></div>';
+  h+='<div class="task-block"><h4>3. 口语：60秒总结</h4><input class="fill-input" placeholder="粘贴音频链接" id="d6speak" value="'+(ans.speak||'')+'"></div>';
+  return h;
+}},
+{n:7,t:'补交与学习反馈',s:'feedback', content:function(day,ans){
+  ans=ans||{}; var h='';
+  h+='<span class="hint">查看未完成任务，补交并填写学习反馈。</span>';
+  h+='<div class="task-block"><h4>学习反馈</h4>';
+  [{q:'这几天你最喜欢哪个任务？',o:['A. 电影任务','B. 口语训练','C. 文化体验','D. 服务场景'],id:'d7q1'},{q:'你觉得哪个任务最难？',o:['A. 电影理解','B. 写句子','C. 录音','D. 小测'],id:'d7q2'}].forEach(function(q){h+='<div class="mc-q">'+q.q+'</div><div class="mc-opts">';q.o.forEach(function(o,j){var v=String.fromCharCode(65+j);h+='<label class="mc-opt"><input type="radio" name="'+q.id+'" value="'+v+'" '+(ans[q.id]===v?'checked':'')+'> '+o+'</label>';});h+='</div>';});
+  h+='<div class="mc-q">请写一句话：</div>';
+  h+='<input class="fill-input" placeholder="我觉得____最有意思。我觉得____最难。以后我想继续练习____。" id="d7comment" value="'+(ans.comment||'')+'"></div>';
+  return h;
+}}
 ];
 
-function buildDayList() {
-  var html = '';
-  DAYS.forEach(function(d) {
-    var st = taskStatus[d.n] || {};
-    var done = st.mc && st.fill && st.write && st.speak && st.eval;
-    html += '<div class="day-card'+(done?' done':'')+'" onclick="openDay('+d.n+')"><div class="dc-num">'+(done?'✓':d.n)+'</div><div class="dc-info"><div class="dc-title">Day '+d.n+': '+d.t+'</div><div class="dc-sub">'+d.s+'</div></div></div>';
+// ===== Login =====
+function login(){
+  var id=document.getElementById('studentId').value.trim();
+  var cn=document.getElementById('chineseName').value.trim();
+  var name=document.getElementById('studentName').value.trim();
+  var code=document.getElementById('classCode').value.trim();
+  var c=document.getElementById('consent').checked;
+  if(!id||!name){alert('请填写学生编号和英文姓名');return;}
+  if(code!=='MY2026'){alert('班级口令错误');return;}
+  if(!c){alert('请勾选隐私同意');return;}
+  student={id:id,name:name,chineseName:cn,learnerType:'international_student',learningTrack:'chinese_track',country:'Malaysia',source:'h5_backup'};
+  localStorage.setItem('my_student_'+id,JSON.stringify(student));
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('taskList').style.display='block';
+  document.getElementById('stuInfo').textContent='👤 '+(cn||name)+' ('+id+')';
+  loadStatus();
+}
+
+function loadStatus(){
+  if(!student) return;
+  var key='my_status_'+student.id;
+  var saved=localStorage.getItem(key);
+  if(saved){var s=JSON.parse(saved);dayStatus=s.dayStatus||{};dayDrafts=s.dayDrafts||{};}
+  // Also check from cloud
+  checkCloudStatus();
+  renderDayList();
+}
+
+function checkCloudStatus(){
+  if(!student) return;
+  var cb='_cs_'+Date.now();window[cb]=function(res){if(res&&res.data){res.data.forEach(function(r){if(r.studentId===student.id||r.name===student.name){var d=r.day;if(!dayStatus[d])dayStatus[d]=r.submitStatus||'submitted';}});saveLocal();renderDayList();}delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},5000);
+}
+
+function saveLocal(){if(!student)return;var key='my_status_'+student.id;localStorage.setItem(key,JSON.stringify({dayStatus:dayStatus,dayDrafts:dayDrafts}));}
+
+function renderDayList(){
+  var h='';DAYS.forEach(function(d){
+    var st=dayStatus[d.n];
+    var cls='',statusText='';
+    if(st==='submitted'){cls='done';statusText='✅ 已完成';}else if(st==='draft'){cls='draft';statusText='📝 草稿';}else{statusText='⬜ 去完成';}
+    h+='<div class="day-card '+cls+'" onclick="openDay('+d.n+')"><div class="dc-num">'+(st==='submitted'?'✓':d.n)+'</div><div class="dc-info"><div class="dc-title">Day '+d.n+': '+d.t+'</div><div class="dc-sub">'+d.s+'</div></div><div class="dc-status">'+statusText+'</div></div>';
   });
-  document.getElementById('dayList').innerHTML = html;
-  updateRecords();
+  document.getElementById('dayList').innerHTML=h;
 }
 
-function updateRecords() {
-  var html = '<h3>📊 提交记录</h3>';
-  var count = 0;
-  for (var d=1;d<=7;d++) { var st=taskStatus[d]||{}; if(st.mc&&st.fill&&st.write&&st.speak&&st.eval){count++;html+='<div class="rec-item">✅ Day '+d+' - '+DAYS[d-1].t+'</div>';} }
-  if (count===0) html += '<div class="rec-item" style="color:#94a3b8">暂无提交记录</div>';
-  document.getElementById('recordsBox').innerHTML = html;
-}
-
-// ===== Day panel =====
-function openDay(day) {
-  var d = DAYS[day-1];
-  var st = taskStatus[day] = taskStatus[day] || {};
-  var ans = answers[day] = answers[day] || {mc:{},fill:{},write:'',speak:false};
-  var ev = selfEvals[day] = selfEvals[day] || {};
-  var hasPhoto = d.s==='culture';
-  var needsReview = d.s==='movie';
-  var needsWrite = true;
-  var speakOptional = (day===3);
-  var isReview = needsReview;
-
-  var html = '<div class="panel-header"><span class="panel-close" onclick="closePanel()">✕</span><div class="panel-day">Day '+day+' · '+d.s+'</div><div class="panel-title">'+d.t+'</div></div>';
-
-  // Task sheet review (movie)
-  if (needsReview) {
-    html += '<div class="task-block'+(st.review?' done':'')+'"><h4>📋 任务单回顾 Task Sheet Review</h4>';
-    html += '<span class="hint">请完成电影任务单题目后提交</span>';
-    html += '<textarea class="writing-area" placeholder="请填写任务单内容（人物关系、情节选择、填空等）..." id="review'+day+'">'+(ans.review||'')+'</textarea>';
-    html += '<button class="btn btn-submit" onclick="saveReview('+day+')">✓ 提交任务单</button>';
-    if (st.review) html += '<span class="done-tag">✅ 已完成</span>';
-    html += '</div>';
-  }
-
-  // MC questions
-  if (!needsReview && d.mc) {
-    html += '<div class="task-block'+(st.mc?' done':'')+'"><h4>📝 词语选择 Vocabulary Choice</h4>';
-    d.mc.forEach(function(q, i) {
-      html += '<div class="mc-q">'+(i+1)+'. '+q.q+'</div>';
-      html += '<div class="mc-opts">';
-      q.o.forEach(function(o, j) {
-        var val = String.fromCharCode(65+j);
-        html += '<label class="mc-opt"><input type="radio" name="mc'+day+'_'+i+'" value="'+val+'" '+(ans.mc['q'+i]===val?'checked':'')+'> '+val+'. '+o+'</label>';
-      });
-      html += '</div>';
-    });
-    html += '<button class="btn btn-submit" onclick="saveMC('+day+')">✓ 提交选择题</button>';
-    if (st.mc) html += '<span class="done-tag">✅ 已完成</span>';
-    html += '</div>';
-
-    // Fill blanks
-    if (d.fill) {
-      html += '<div class="task-block'+(st.fill?' done':'')+'"><h4>✏️ 情境填空 Fill Blanks</h4>';
-      d.fill.forEach(function(q, j) {
-        html += '<div class="mc-q">'+(j+1)+'. '+q.q+'</div>';
-        html += '<input class="fill-input" placeholder="输入答案..." id="fill'+day+'_'+j+'" value="'+(ans.fill['f'+j]||'')+'">';
-      });
-      html += '<button class="btn btn-submit" onclick="saveFill('+day+')">✓ 提交填空</button>';
-      if (st.fill) html += '<span class="done-tag">✅ 已完成</span>';
-      html += '</div>';
-    }
-  }
-
-  // Writing
-  html += '<div class="task-block'+(st.write?' done':'')+'"><h4>🖊️ 写作 Writing</h4>';
-  html += '<span class="hint" style="white-space:pre-wrap">'+(d.write||'')+'</span>';
-  html += '<textarea class="writing-area" placeholder="请在这里写中文..." id="write'+day+'">'+(ans.write||'')+'</textarea>';
-  html += '<button class="btn btn-submit" onclick="saveWrite('+day+')">✓ 提交写作</button>';
-  if (st.write) html += '<span class="done-tag">✅ 已完成</span>';
-  html += '</div>';
-
-  // Speaking
-  html += '<div class="task-block'+(st.speak?' done':'')+'"><h4>🎙️ 口语 Speaking'+(speakOptional?'（可选）':'')+'</h4>';
-  html += '<span class="hint">请用手机录音后，将音频文件链接粘贴在下方，或直接点录音（仅支持部分浏览器）</span>';
-  html += '<input class="fill-input" placeholder="粘贴音频链接或文件名..." id="speak'+day+'" value="'+(ans.speak||'')+'">';
-  html += '<button class="btn btn-submit" onclick="saveSpeak('+day+')">✓ 提交口语</button>';
-  if (speakOptional) html += '<button class="btn btn-skip" onclick="skipSpeak('+day+')">跳过（可选）</button>';
-  if (st.speak) html += '<span class="done-tag">✅ 已完成</span>';
-  html += '</div>';
-
-  // Photo (culture)
-  if (hasPhoto) {
-    html += '<div class="task-block'+(st.photo?' done':'')+'"><h4>📸 上传印章照片</h4>';
-    html += '<input type="file" accept="image/*" id="photo'+day+'" onchange="previewPhoto('+day+')"><img class="photo-preview" id="photoPreview'+day+'">';
-    html += '<button class="btn btn-submit" onclick="savePhoto('+day+')">✓ 提交照片</button>';
-    if (st.photo) html += '<span class="done-tag">✅ 已完成</span>';
-    html += '</div>';
-  }
-
+// ===== Open day panel =====
+function openDay(day){
+  var d=DAYS[day-1];var st=dayStatus[day]||'';var draft=dayDrafts[day]||{};
+  var submitted=st==='submitted';
+  var h='<div class="panel-header"><span class="panel-close" onclick="closeDay('+day+')">✕</span><div class="panel-day">Day '+day+' · '+d.s+'</div><div class="panel-title">'+d.t+'</div></div>';
+  if(submitted)h+='<div class="task-block done"><span class="done-tag">✅ 已提交，老师可以查看</span></div>';
+  h+=d.content(day,draft);
   // Self eval
-  html += '<div class="task-block'+(st.eval?' done':'')+'"><h4>💭 自我评价</h4>';
-  html += '<span class="hint">难度（1=简单,5=困难）：</span><div class="eval-opts">';
-  for (var k=1;k<=5;k++) html += '<label class="eval-opt"><input type="radio" name="diff'+day+'" value="'+k+'" '+(ev.diff==k?'checked':'')+'> '+k+'</label>';
-  html += '</div>';
-  html += '<span class="hint">信心（1=低,5=高）：</span><div class="eval-opts">';
-  for (var m=1;m<=5;m++) html += '<label class="eval-opt"><input type="radio" name="conf'+day+'" value="'+m+'" '+(ev.conf==m?'checked':'')+'> '+m+'</label>';
-  html += '</div>';
-  html += '<span class="hint">感受：</span><div class="eval-opts"><label class="eval-opt"><input type="radio" name="feel'+day+'" value="good" '+(ev.feel==='good'?'checked':'')+'> 😊 好</label><label class="eval-opt"><input type="radio" name="feel'+day+'" value="okay" '+(ev.feel==='okay'?'checked':'')+'> 😐 一般</label><label class="eval-opt"><input type="radio" name="feel'+day+'" value="difficult" '+(ev.feel==='difficult'?'checked':'')+'> 😰 困难</label></div>';
-  html += '<button class="btn btn-submit" onclick="saveEval('+day+')">✓ 提交自评</button>';
-  if (st.eval) html += '<span class="done-tag">✅ 已完成</span>';
-  html += '</div>';
+  h+='<div class="task-block"><h4>💭 自评 Self Evaluation</h4>';
+  h+='<span class="hint">难度（1=简单,5=困难）:</span><div class="eval-opts">';for(var i=1;i<=5;i++)h+='<label class="eval-opt"><input type="radio" name="diff'+day+'" value="'+i+'" '+(draft.diff==i?'checked':'')+'> '+i+'</label>';h+='</div>';
+  h+='<span class="hint">信心（1=低,5=高）:</span><div class="eval-opts">';for(var i=1;i<=5;i++)h+='<label class="eval-opt"><input type="radio" name="conf'+day+'" value="'+i+'" '+(draft.conf==i?'checked':'')+'> '+i+'</label>';h+='</div>';
+  h+='<span class="hint">今天我想说：</span><input class="fill-input" placeholder="..." id="comment'+day+'" value="'+(draft.comment||'')+'"></div>';
 
-  document.getElementById('panel').innerHTML = html;
+  h+='<div class="bottom-bar">';
+  if(!submitted)h+='<button class="btn btn-draft" onclick="saveDraft('+day+')">💾 保存草稿</button>';
+  h+='<button class="btn btn-submit" onclick="submitDay('+day+')">'+(submitted?'🔄 重新提交':'📤 提交今天任务')+'</button>';
+  h+='<button class="btn btn-back" onclick="closeDay('+day+')">← 返回列表</button></div>';
+
+  h+='<div class="status-msg" id="msg'+day+'"></div>';
+  document.getElementById('panel').innerHTML=h;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('panel').classList.add('show');
 }
 
-function closePanel() {
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('panel').classList.remove('show');
+function closeDay(day){document.getElementById('overlay').classList.remove('show');document.getElementById('panel').classList.remove('show');}
+
+// ===== Collect answers =====
+function collectAnswers(day){
+  var ans={};var inputs=document.querySelectorAll('#panel input[type="radio"]:checked, #panel input[type="checkbox"]:checked, #panel input.fill-input, #panel textarea');
+  inputs.forEach(function(el){
+    var id=el.id||el.name;if(!id)return;
+    if(el.type==='radio'||el.type==='checkbox')ans[id]=el.value;
+    else ans[id]=el.value;
+  });
+  ans.diff=document.querySelector('input[name="diff'+day+'"]:checked');ans.diff=ans.diff?ans.diff.value:'';
+  ans.conf=document.querySelector('input[name="conf'+day+'"]:checked');ans.conf=ans.conf?ans.conf.value:'';
+  ans.comment=document.getElementById('comment'+day);ans.comment=ans.comment?ans.comment.value:'';
+  return ans;
 }
 
-function previewPhoto(day) {
-  var f = document.getElementById('photo'+day).files[0];
-  if (f) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = document.getElementById('photoPreview'+day);
-      img.src = e.target.result; img.classList.add('show');
-    };
-    reader.readAsDataURL(f);
+// ===== Save draft =====
+function saveDraft(day){
+  var ans=collectAnswers(day);dayDrafts[day]=ans;dayStatus[day]='draft';
+  saveLocal();renderDayList();
+  var m=document.getElementById('msg'+day);m.textContent='✅ 草稿已保存';m.className='status-msg show';
+  setTimeout(function(){m.className='status-msg';},2000);
+}
+
+// ===== Submit to cloud =====
+function submitDay(day){
+  if(dayStatus[day]==='submitted'){
+    if(!confirm('今天已经提交过。确定要重新提交吗？'))return;
   }
-}
-
-// ===== Save functions =====
-function saveMC(day) {
-  var ans = answers[day] = answers[day] || {};
-  var d = DAYS[day-1];
-  var count = d.mc ? d.mc.length : 5;
-  for (var i=0;i<count;i++) {
-    var r = document.querySelector('input[name="mc'+day+'_'+i+'"]:checked');
-    if (r) ans.mc['q'+i] = r.value;
-  }
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].mc = true;
-  saveLocal(); buildDayList(); closePanel();
-}
-
-function saveFill(day) {
-  var ans = answers[day] = answers[day] || {};
-  var d = DAYS[day-1];
-  var count = d.fill ? d.fill.length : 5;
-  for (var j=0;j<count;j++) {
-    var v = document.getElementById('fill'+day+'_'+j);
-    if (v) ans.fill['f'+j] = v.value;
-  }
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].fill = true;
-  saveLocal(); buildDayList(); closePanel();
-}
-
-function saveReview(day) {
-  var v = document.getElementById('review'+day);
-  var ans = answers[day] = answers[day] || {};
-  ans.review = v ? v.value : '';
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].review = true;
-  saveLocal(); buildDayList(); closePanel();
-}
-
-function saveWrite(day) {
-  var v = document.getElementById('write'+day);
-  var ans = answers[day] = answers[day] || {};
-  ans.write = v ? v.value : '';
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].write = true;
-  saveLocal(); submitToCloud(day); buildDayList(); closePanel();
-}
-
-function saveSpeak(day) {
-  var v = document.getElementById('speak'+day);
-  var ans = answers[day] = answers[day] || {};
-  ans.speak = v ? v.value : 'recorded';
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].speak = true;
-  saveLocal(); submitToCloud(day); buildDayList(); closePanel();
-}
-
-function skipSpeak(day) {
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].speak = true;
-  saveLocal(); buildDayList(); closePanel();
-}
-
-function savePhoto(day) {
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].photo = true;
-  saveLocal(); buildDayList(); closePanel();
-}
-
-function saveEval(day) {
-  var ev = selfEvals[day] = selfEvals[day] || {};
-  var d = document.querySelector('input[name="diff'+day+'"]:checked');
-  var c = document.querySelector('input[name="conf'+day+'"]:checked');
-  var f = document.querySelector('input[name="feel'+day+'"]:checked');
-  ev.diff = d ? parseInt(d.value) : ''; ev.conf = c ? parseInt(c.value) : ''; ev.feel = f ? f.value : '';
-  taskStatus[day] = taskStatus[day] || {}; taskStatus[day].eval = true;
-  saveLocal(); submitToCloud(day); buildDayList(); closePanel();
-}
-
-// ===== Submit to CloudBase (JSONP, no CORS) =====
-function submitToCloud(day) {
-  if (!student) return;
-  var ans = answers[day] || {};
-  var ev = selfEvals[day] || {};
-  var st = taskStatus[day] || {};
-  if (!(st.mc||st.review) || !st.write || !st.speak || !st.eval) return;
-
-  var params = {
-    action: 'submit',
-    name: student.name,
-    studentName: student.name,
-    studentId: student.id,
-    chineseName: student.chineseName,
-    learnerType: student.learnerType,
-    learningTrack: student.learningTrack,
-    country: student.country,
-    source: 'h5_backup',
-    weekId: 'MY_WEEK_001',
-    day: day,
-    activityType: DAYS[day-1].s,
-    taskTitle: DAYS[day-1].t,
-    writingText: ans.write || '',
-    audioFileID: ans.speak || '',
-    selfDifficulty: ev.diff || '',
-    selfConfidence: ev.conf || '',
-    selfComment: ev.feel || '',
-    submitTime: new Date().toISOString()
+  var ans=collectAnswers(day);
+  var d=DAYS[day-1];
+  var params={
+    action:'submit',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName,learnerType:student.learnerType,learningTrack:student.learningTrack,country:student.country,source:'h5_backup',weekId:'MY_WEEK_001',day:day,taskTitle:d.t,activityType:d.s,
+    choiceAnswers:JSON.stringify(ans),fillAnswers:JSON.stringify(ans),writingText:(ans['d'+day+'write']||ans.write||''),speakingText:(ans['d'+day+'speak']||ans.speak||''),
+    selfDifficulty:ans.diff||'',selfConfidence:ans.conf||'',selfComment:ans.comment||'',
+    submitStatus:'submitted',submitTime:new Date().toISOString()
   };
-
-  var cb = '_cb_' + Date.now();
-  var statusEl = document.getElementById('cloudStatus');
-  if (statusEl) { statusEl.textContent = '⏳ 同步中...'; statusEl.className = 'status show'; }
-  window[cb] = function(res) {
-    console.log('Cloud OK:', res);
-    if (statusEl) { statusEl.textContent = '✅ 已同步到云端'; statusEl.className = 'status show'; setTimeout(function(){ statusEl.className = 'status'; }, 3000); }
-    delete window[cb];
+  var cb='_sub_'+Date.now();window[cb]=function(res){
+    if(res&&res.ok){dayStatus[day]='submitted';dayDrafts[day]=ans;saveLocal();renderDayList();
+      var m=document.getElementById('msg'+day);m.textContent='✅ 提交成功，老师已经可以看到你的学习记录。';m.className='status-msg show';setTimeout(function(){m.className='status-msg';},3000);}
+    else{alert('提交失败，请重试');}delete window[cb];
   };
-  var qs = 'callback=' + cb;
-  for (var k in params) { qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }
-  var s = document.createElement('script');
-  s.src = API + '?' + qs;
-  s.onerror = function() { console.log('Cloud fail'); };
-  document.head.appendChild(s);
-  setTimeout(function() { if (s.parentNode) s.parentNode.removeChild(s); }, 5000);
+  var qs='callback='+cb;for(var k in params){qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}
+  var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},5000);
 }
 
-buildDayList();
+renderDayList();
 </script>
-</body>
-</html>
+</body></html>
