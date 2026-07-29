@@ -133,13 +133,88 @@ function saveLocal() {
 
 // ===== Day list =====
 var DAYS = [
-  {n:1,t:'《再见，李可乐》任务单复盘',s:'movie'},
-  {n:2,t:'《你好，李焕英》任务单复盘',s:'movie'},
-  {n:3,t:'HSK3基础复习与小测',s:'course'},
-  {n:4,t:'口语交流活动：介绍同学',s:'speaking'},
-  {n:5,t:'文化体验活动：橡皮篆刻中文名字印章',s:'culture'},
-  {n:6,t:'东铁服务场景',s:'railway'},
-  {n:7,t:'学习总结',s:'summary'}
+  {n:1,t:'《再见，李可乐》任务单复盘',s:'movie',mc:[
+    {q:'电影里有一只____。',o:['小狗','小猫','小鸟','小鱼'],a:'A'},
+    {q:'女儿因为____很难过。',o:['考试','妈妈','朋友','学校'],a:'B'},
+    {q:'我很____。',o:['快乐','难过','高兴','兴奋'],a:'B'},
+    {q:'家人____很重要。',o:['喜欢','陪伴','学习','帮助'],a:'B'},
+    {q:'最后学会____。',o:['学习','告别','想念','陪伴'],a:'B'}
+  ],fill:[
+    {q:'电影里有一只____。',a:'小狗'},{q:'我很____。',a:'难过'},
+    {q:'____很重要。',a:'陪伴'},{q:'我____妈妈。',a:'想念'},
+    {q:'学会____。',a:'告别'}
+  ],write:'这部电影讲了____。\n我最喜欢的人物是____。\n我觉得____很感人。\n因为____，所以____。\n看完电影以后，我想____。',review:true},
+  {n:2,t:'《你好，李焕英》任务单复盘',s:'movie',mc:[
+    {q:'____我还不懂事。',o:['以前','以后','现在','昨天'],a:'A'},
+    {q:'____我会更努力。',o:['以前','以后','现在','过去'],a:'B'},
+    {q:'我____妈妈能快乐。',o:['希望','难过','改变','理解'],a:'A'},
+    {q:'看完电影我很____。',o:['高兴','兴奋','难过','生气'],a:'C'},
+    {q:'我想____自己。',o:['希望','难过','改变','快乐'],a:'C'}
+  ],fill:[
+    {q:'____我错了。',a:'以前'},{q:'____会更好。',a:'以后'},
+    {q:'我____你快乐。',a:'希望'},{q:'我很____。',a:'难过'},
+    {q:'我____了。',a:'改变'}
+  ],write:'妈妈，我想对你说____。\n谢谢你____。\n我知道你很____。\n以前我____，以后我会____。\n我希望你____。',review:true},
+  {n:3,t:'HSK3基础复习与小测',s:'course',mc:[
+    {q:'出门前别忘了____空调。',o:['开','关','买','看'],a:'B'},
+    {q:'你____早点睡觉。',o:['忘记','应该','可以','问题'],a:'B'},
+    {q:'____很重要。',o:['帮助','问题','安全','忘记'],a:'C'},
+    {q:'____有问题，可以问我。',o:['应该','需要','如果','因为'],a:'C'},
+    {q:'____下雨，____不去了。',o:['虽然但是','因为所以','如果就','不但而且'],a:'B'}
+  ],fill:[
+    {q:'别忘了____空调。',a:'关'},{q:'你____做完。',a:'应该'},
+    {q:'____有问题告诉我。',a:'如果'},{q:'____下雨____不去了。',a:'因为所以'},
+    {q:'____很难____我会努力。',a:'虽然但是'}
+  ],write:'请用以下句型各写一句话：\n别忘了……\n如果……可以……\n因为……所以……\n虽然……但是……'},
+  {n:4,t:'口语交流活动：介绍同学',s:'speaking',mc:[
+    {q:'____是我的朋友。',o:['这','那','哪','什么'],a:'A'},
+    {q:'他____马来西亚。',o:['是','来自','去','在'],a:'B'},
+    {q:'她____学习中文。',o:['喜欢','名字','朋友','觉得'],a:'A'},
+    {q:'我____他很友好。',o:['喜欢','觉得','介绍','认识'],a:'B'},
+    {q:'很高兴____你！',o:['认识','介绍','学习','觉得'],a:'A'}
+  ],fill:[
+    {q:'这是____。',a:'我的朋友'},{q:'他____马来西亚。',a:'来自'},
+    {q:'他____踢足球。',a:'喜欢'},{q:'我____她很好。',a:'觉得'},
+    {q:'很高兴____你。',a:'认识'}
+  ],write:'请写3-5句话，介绍一位同学。\n这是……\n他/她来自……\n他/她喜欢……\n我觉得他/她……'},
+  {n:5,t:'文化体验活动：橡皮篆刻中文名字印章',s:'culture',mc:[
+    {q:'我刻了一个____。',o:['名字','汉字','印章','文化'],a:'C'},
+    {q:'____很有趣！',o:['名字','汉字','文化','困难'],a:'B'},
+    {q:'我觉得刻印章很____。',o:['容易','名字','文化','完成'],a:'A'},
+    {q:'我____了这个活动。',o:['喜欢','困难','名字','汉字'],a:'A'},
+    {q:'我____了印章。',o:['完成','觉得','喜欢','文化'],a:'A'}
+  ],fill:[
+    {q:'我刻了____。',a:'印章'},{q:'这是我的____。',a:'名字'},
+    {q:'我觉得____有趣。',a:'很'},{q:'这个____很好玩。',a:'活动'},
+    {q:'我____了。',a:'完成'}
+  ],write:'请写3句话介绍你的印章：\n我刻了……\n我觉得……\n这个活动……',photo:true},
+  {n:6,t:'东铁服务场景',s:'railway',mc:[
+    {q:'请问____在哪儿？',o:['车站','乘客','时间','帮助'],a:'A'},
+    {q:'我想____一张票。',o:['买','卖','看','拿'],a:'A'},
+    {q:'____什么时候出发？',o:['你','我','他','她'],a:'A'},
+    {q:'我可以____你。',o:['帮助','问题','需要','买票'],a:'A'},
+    {q:'火车____8点到。',o:['在','是','有','想'],a:'A'}
+  ],fill:[
+    {q:'请问____在哪儿？',a:'车站'},{q:'我想____票。',a:'买'},
+    {q:'____什么时候出发？',a:'你'},{q:'我____帮助你。',a:'可以'},
+    {q:'____上午出发。',a:'我'}
+  ],write:'写一段车站服务对话：\nA：请问……在哪儿？\nB：……\nA：我想买……\nB：好的，……\nA：谢谢你！'},
+  {n:7,t:'学习总结',s:'summary',mc:[
+    {q:'这周我____了很多。',o:['学习','觉得','完成','继续'],a:'A'},
+    {q:'我觉得____比较难。',o:['听力','写作','阅读','口语'],a:'B'},
+    {q:'我的中文有____。',o:['提高','困难','容易','完成'],a:'A'},
+    {q:'我对中文有____。',o:['信心','困难','觉得','学习'],a:'A'},
+    {q:'《再见，李可乐》让我很____。',o:['感动','高兴','生气','讨厌'],a:'A'},
+    {q:'____很重要。',o:['陪伴','忘记','问题','困难'],a:'A'},
+    {q:'《你好，李焕英》里____很伟大。',o:['爸爸','妈妈','女儿','小狗'],a:'B'},
+    {q:'在车站我可以用中文____。',o:['帮助','学习','觉得','完成'],a:'A'},
+    {q:'刻印章是____体验。',o:['文化','学习','电影','服务'],a:'A'},
+    {q:'以后我想____学习。',o:['觉得','完成','提高','继续'],a:'D'}
+  ],fill:[
+    {q:'这周我____了中文。',a:'学习'},{q:'我____写作比较难。',a:'觉得'},
+    {q:'我的中文____了。',a:'提高'},{q:'我有____了。',a:'信心'},
+    {q:'以后我____学习。',a:'继续'}
+  ],write:'写5句话总结这周：\n这周我学习了……\n我觉得……比较难。\n我觉得……比较容易。\n我的中文有……\n以后我想……'}
 ];
 
 function buildDayList() {
@@ -185,27 +260,38 @@ function openDay(day) {
     html += '</div>';
   }
 
-  // MC questions (simplified)
-  if (!needsReview) {
-    html += '<div class="task-block'+(st.mc?' done':'')+'"><h4>📝 小测</h4><span class="hint">选择题 + 填空题</span>';
-    for (var i=1;i<=5;i++) {
-      html += '<div class="mc-q">'+i+'. 选择题</div>';
-      html += '<div class="mc-opts"><label class="mc-opt"><input type="radio" name="mc'+day+'_'+i+'" value="A" '+(ans.mc['q'+i]==='A'?'checked':'')+'> A</label><label class="mc-opt"><input type="radio" name="mc'+day+'_'+i+'" value="B" '+(ans.mc['q'+i]==='B'?'checked':'')+'> B</label><label class="mc-opt"><input type="radio" name="mc'+day+'_'+i+'" value="C" '+(ans.mc['q'+i]==='C'?'checked':'')+'> C</label></div>';
-    }
-    html += '<button class="btn btn-submit" onclick="saveMC('+day+')">✓ 提交小测</button>';
+  // MC questions
+  if (!needsReview && d.mc) {
+    html += '<div class="task-block'+(st.mc?' done':'')+'"><h4>📝 词语选择 Vocabulary Choice</h4>';
+    d.mc.forEach(function(q, i) {
+      html += '<div class="mc-q">'+(i+1)+'. '+q.q+'</div>';
+      html += '<div class="mc-opts">';
+      q.o.forEach(function(o, j) {
+        var val = String.fromCharCode(65+j);
+        html += '<label class="mc-opt"><input type="radio" name="mc'+day+'_'+i+'" value="'+val+'" '+(ans.mc['q'+i]===val?'checked':'')+'> '+val+'. '+o+'</label>';
+      });
+      html += '</div>';
+    });
+    html += '<button class="btn btn-submit" onclick="saveMC('+day+')">✓ 提交选择题</button>';
     if (st.mc) html += '<span class="done-tag">✅ 已完成</span>';
     html += '</div>';
 
     // Fill blanks
-    html += '<div class="task-block'+(st.fill?' done':'')+'"><h4>✏️ 填空</h4>';
-    for (var j=1;j<=5;j++) { html += '<input class="fill-input" placeholder="第'+j+'题答案..." id="fill'+day+'_'+j+'" value="'+(ans.fill['f'+j]||'')+'">'; }
-    html += '<button class="btn btn-submit" onclick="saveFill('+day+')">✓ 提交填空</button>';
-    if (st.fill) html += '<span class="done-tag">✅ 已完成</span>';
-    html += '</div>';
+    if (d.fill) {
+      html += '<div class="task-block'+(st.fill?' done':'')+'"><h4>✏️ 情境填空 Fill Blanks</h4>';
+      d.fill.forEach(function(q, j) {
+        html += '<div class="mc-q">'+(j+1)+'. '+q.q+'</div>';
+        html += '<input class="fill-input" placeholder="输入答案..." id="fill'+day+'_'+j+'" value="'+(ans.fill['f'+j]||'')+'">';
+      });
+      html += '<button class="btn btn-submit" onclick="saveFill('+day+')">✓ 提交填空</button>';
+      if (st.fill) html += '<span class="done-tag">✅ 已完成</span>';
+      html += '</div>';
+    }
   }
 
   // Writing
   html += '<div class="task-block'+(st.write?' done':'')+'"><h4>🖊️ 写作 Writing</h4>';
+  html += '<span class="hint" style="white-space:pre-wrap">'+(d.write||'')+'</span>';
   html += '<textarea class="writing-area" placeholder="请在这里写中文..." id="write'+day+'">'+(ans.write||'')+'</textarea>';
   html += '<button class="btn btn-submit" onclick="saveWrite('+day+')">✓ 提交写作</button>';
   if (st.write) html += '<span class="done-tag">✅ 已完成</span>';
@@ -267,7 +353,9 @@ function previewPhoto(day) {
 // ===== Save functions =====
 function saveMC(day) {
   var ans = answers[day] = answers[day] || {};
-  for (var i=1;i<=5;i++) {
+  var d = DAYS[day-1];
+  var count = d.mc ? d.mc.length : 5;
+  for (var i=0;i<count;i++) {
     var r = document.querySelector('input[name="mc'+day+'_'+i+'"]:checked');
     if (r) ans.mc['q'+i] = r.value;
   }
@@ -277,7 +365,9 @@ function saveMC(day) {
 
 function saveFill(day) {
   var ans = answers[day] = answers[day] || {};
-  for (var j=1;j<=5;j++) {
+  var d = DAYS[day-1];
+  var count = d.fill ? d.fill.length : 5;
+  for (var j=0;j<count;j++) {
     var v = document.getElementById('fill'+day+'_'+j);
     if (v) ans.fill['f'+j] = v.value;
   }
