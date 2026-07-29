@@ -74,7 +74,8 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
   <div class="login-box" id="loginBox">
     <h3>📝 信息登记</h3>
     <label>学生编号 Student ID *</label><input id="studentId" placeholder="如 MY2026001">
-    <label>姓名 Name *</label><input id="studentName" placeholder="英文姓名">
+    <label>中文姓名 Chinese Name *</label><input id="chineseName" placeholder="如：陈小明">
+    <label>英文姓名 Malaysian Name *</label><input id="studentName" placeholder="如：Ahmad">
     <label>班级口令 Class Code *</label><input id="classCode" placeholder="班级口令" type="password">
     <div class="check-row"><input type="checkbox" id="consent"><span>我已了解并同意提交课程学习数据（仅用于教学与课题研究）</span></div>
     <button class="btn btn-go" id="btnLogin" onclick="login()">确认并进入任务</button>
@@ -109,18 +110,19 @@ var selfEvals = {}; // {1:{diff:'',conf:'',feel:''},...}
 function login() {
   var id = document.getElementById('studentId').value.trim();
   var name = document.getElementById('studentName').value.trim();
+  var cnName = document.getElementById('chineseName').value.trim();
   var code = document.getElementById('classCode').value.trim();
   var consent = document.getElementById('consent').checked;
-  if (!id || !name) { alert('请填写学生编号和姓名'); return; }
+  if (!id || !name || !cnName) { alert('请填写学生编号、中文姓名和英文姓名'); return; }
   if (code !== 'MY2026') { alert('班级口令错误'); return; }
   if (!consent) { alert('请勾选隐私同意'); return; }
-  student = { id: id, name: name, learnerType: 'international_student', learningTrack: 'chinese_track', country: 'Malaysia', source: 'h5_backup' };
+  student = { id: id, name: name, chineseName: cnName, learnerType: 'international_student', learningTrack: 'chinese_track', country: 'Malaysia', source: 'h5_backup' };
   // Load saved state
   var saved = localStorage.getItem('my_backup_' + id);
   if (saved) { var s = JSON.parse(saved); taskStatus = s.taskStatus || {}; answers = s.answers || {}; selfEvals = s.selfEvals || {}; }
   document.getElementById('loginBox').style.display = 'none';
   document.getElementById('taskList').style.display = 'block';
-  document.getElementById('stuInfo').textContent = '👤 ' + name + ' (' + id + ')';
+  document.getElementById('stuInfo').textContent = '👤 ' + cnName + ' / ' + name + ' (' + id + ')';
   buildDayList();
 }
 
@@ -340,6 +342,7 @@ function submitToCloud(day) {
     name: student.name,
     studentName: student.name,
     studentId: student.id,
+    chineseName: student.chineseName,
     learnerType: student.learnerType,
     learningTrack: student.learningTrack,
     country: student.country,
