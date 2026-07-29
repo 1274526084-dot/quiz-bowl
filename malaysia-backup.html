@@ -88,6 +88,7 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
       <span style="font-size:13px;color:#94a3b8" id="stuInfo"></span>
     </div>
     <div class="day-list" id="dayList"></div>
+    <div class="status" id="cloudStatus"></div>
     <div class="records" id="recordsBox"></div>
     <div style="text-align:center;padding:16px;color:#94a3b8;font-size:12px">数据来源：h5_backup · 与小程序数据同步</div>
   </div>
@@ -326,34 +327,50 @@ function saveEval(day) {
   saveLocal(); submitToCloud(day); buildDayList(); closePanel();
 }
 
-// ===== Submit to CloudBase =====
+// ===== Submit to CloudBase (JSONP, no CORS) =====
 function submitToCloud(day) {
   if (!student) return;
   var ans = answers[day] || {};
   var ev = selfEvals[day] || {};
   var st = taskStatus[day] || {};
-  // Only submit if day is complete
   if (!(st.mc||st.review) || !st.write || !st.speak || !st.eval) return;
 
-  fetch(API, {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ action:'submit', data: {
-      name: student.name, studentName: student.name,
-      studentId: student.id, learnerType: student.learnerType,
-      learningTrack: student.learningTrack, country: student.country,
-      source: 'h5_backup',
-      weekId: 'MY_WEEK_001', day: day,
-      activityType: DAYS[day-1].s,
-      taskTitle: DAYS[day-1].t,
-      writingText: ans.write || '',
-      audioFileID: ans.speak || '',
-      selfDifficulty: ev.diff || '', selfConfidence: ev.conf || '',
-      selfComment: ev.feel || '',
-      submitTime: new Date().toISOString()
-    }})
-  }).then(function(r){ return r.json(); }).then(function(res){
-    console.log('Cloud submit OK:', res);
-  }).catch(function(e){ console.log('Cloud submit failed:', e); });
+  var params = {
+    action: 'submit',
+    name: student.name,
+    studentName: student.name,
+    studentId: student.id,
+    learnerType: student.learnerType,
+    learningTrack: student.learningTrack,
+    country: student.country,
+    source: 'h5_backup',
+    weekId: 'MY_WEEK_001',
+    day: day,
+    activityType: DAYS[day-1].s,
+    taskTitle: DAYS[day-1].t,
+    writingText: ans.write || '',
+    audioFileID: ans.speak || '',
+    selfDifficulty: ev.diff || '',
+    selfConfidence: ev.conf || '',
+    selfComment: ev.feel || '',
+    submitTime: new Date().toISOString()
+  };
+
+  var cb = '_cb_' + Date.now();
+  var statusEl = document.getElementById('cloudStatus');
+  if (statusEl) { statusEl.textContent = '⏳ 同步中...'; statusEl.className = 'status show'; }
+  window[cb] = function(res) {
+    console.log('Cloud OK:', res);
+    if (statusEl) { statusEl.textContent = '✅ 已同步到云端'; statusEl.className = 'status show'; setTimeout(function(){ statusEl.className = 'status'; }, 3000); }
+    delete window[cb];
+  };
+  var qs = 'callback=' + cb;
+  for (var k in params) { qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }
+  var s = document.createElement('script');
+  s.src = API + '?' + qs;
+  s.onerror = function() { console.log('Cloud fail'); };
+  document.head.appendChild(s);
+  setTimeout(function() { if (s.parentNode) s.parentNode.removeChild(s); }, 5000);
 }
 
 buildDayList();
