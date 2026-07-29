@@ -17,7 +17,7 @@ body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f8fafc;min-
 .btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
 .btn-go{background:#0d9488;color:#fff}.btn-go:disabled{background:#94a3b8}
 .btn-submit{background:#6366f1;color:#fff}.btn-draft{background:#f59e0b;color:#fff}
-.btn-back{background:#f1f5f9;color:#64748b}.btn-record{background:#dc2626;color:#fff}
+.btn-back{background:#f1f5f9;color:#64748b}.btn-record{background:#dc2626;color:#fff;animation:recPulse 1.2s infinite}@keyframes recPulse{0%,100%{opacity:1}50%{opacity:0.7}}.btn-play{background:#16a34a;color:#fff}.audio-player{width:100%;margin-top:8px;display:none}.audio-player.show{display:block}.rec-status{font-size:13px;color:#dc2626;font-weight:600;text-align:center;padding:8px;display:none}.rec-status.show{display:block;animation:recPulse 1.2s infinite}
 .day-list{margin-bottom:12px}
 .day-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:6px;border:2px solid #e2e8f0;display:flex;align-items:center;gap:12px}
 .day-card.done{background:#f0fdf4;border-color:#bbf7d0}.day-card.draft{background:#fffbeb;border-color:#fde68a}
@@ -308,6 +308,22 @@ function openDay(day){
   var h='<div class="panel-header"><span class="panel-close" onclick="closeDay('+day+')">✕</span><div class="panel-day">Day '+day+' · '+d.s+'</div><div class="panel-title">'+d.t+'</div></div>';
   if(submitted)h+='<div class="task-block done"><span class="done-tag">✅ 已提交，老师可以查看</span></div>';
   h+=d.content(day,draft);
+  // Audio recording (after all tasks, before self-eval)
+  var audioKey='my_audio_'+student.id+'_'+day;
+  var savedAudio=localStorage.getItem(audioKey);
+  h+='<div class="task-block">';
+  h+='<h4>🎙️ 口语录音 Speaking</h4>';
+  h+='<span class="hint">点击开始录音，说完后点停止。录音会保存，教师可以听到。</span>';
+  h+='<div style="display:flex;gap:8px;margin:8px 0">';
+  h+='<button class="btn btn-record" onclick="startRecording('+day+')" style="flex:1">🎤 开始录音</button>';
+  h+='<button class="btn btn-back" onclick="stopRecording('+day+')" style="flex:1">⏹ 停止录音</button>';
+  h+='</div>';
+  h+='<div class="rec-status" id="recStatus'+day+'"></div>';
+  h+='<span class="done-tag" id="audioStatus'+day+'">'+(savedAudio?'✅ 已录音':'')+'</span>';
+  h+='<audio class="audio-player'+(savedAudio?' show':'')+'" id="audioPlayer'+day+'" controls></audio>';
+  if(savedAudio)h+='<script>setTimeout(function(){document.getElementById("audioPlayer'+day+'").src="'+savedAudio+'";},100)<\/script>';
+  h+='</div>';
+
   // Self eval
   h+='<div class="task-block"><h4>💭 自评 Self Evaluation</h4>';
   h+='<span class="hint">难度（1=简单,5=困难）:</span><div class="eval-opts">';for(var i=1;i<=5;i++)h+='<label class="eval-opt"><input type="radio" name="diff'+day+'" value="'+i+'" '+(draft.diff==i?'checked':'')+'> '+i+'</label>';h+='</div>';
@@ -326,6 +342,42 @@ function openDay(day){
 }
 
 function closeDay(day){document.getElementById('overlay').classList.remove('show');document.getElementById('panel').classList.remove('show');}
+
+// ===== Audio Recorder =====
+var mediaRecorder=null,audioChunks=[],currentRecordDay=null;
+function startRecording(day){
+  if(!navigator.mediaDevices){alert('您的浏览器不支持录音，请用手机浏览器打开');return;}
+  currentRecordDay=day;
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    mediaRecorder=new MediaRecorder(stream,{mimeType:'audio/webm'});
+    audioChunks=[];
+    mediaRecorder.ondataavailable=function(e){if(e.data.size>0)audioChunks.push(e.data);};
+    mediaRecorder.onstop=function(){
+      var blob=new Blob(audioChunks,{type:'audio/webm'});
+      var reader=new FileReader();
+      reader.onloadend=function(){
+        var base64=reader.result;
+        var key='my_audio_'+student.id+'_'+day;
+        localStorage.setItem(key,base64);
+        document.getElementById('audioStatus'+day).textContent='✅ 已录音（'+(blob.size/1024).toFixed(0)+'KB）';
+        document.getElementById('audioStatus'+day).className='done-tag';
+        document.getElementById('audioPlayer'+day).src=base64;
+        document.getElementById('audioPlayer'+day).className='audio-player show';
+      };
+      reader.readAsDataURL(blob);
+      stream.getTracks().forEach(function(t){t.stop();});
+      mediaRecorder=null;
+    };
+    mediaRecorder.start();
+    document.getElementById('recStatus'+day).className='rec-status show';
+    document.getElementById('recStatus'+day).textContent='🔴 录音中...点击停止';
+  }).catch(function(e){alert('无法访问麦克风：'+e.message);});
+}
+function stopRecording(day){
+  if(mediaRecorder&&mediaRecorder.state==='recording'){mediaRecorder.stop();}
+  document.getElementById('recStatus'+day).className='rec-status';
+  document.getElementById('recStatus'+day).textContent='';
+}
 
 // ===== Collect answers =====
 function collectAnswers(day){
@@ -358,7 +410,7 @@ function submitDay(day){
   var d=DAYS[day-1];
   var params={
     action:'submit',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName,learnerType:student.learnerType,learningTrack:student.learningTrack,country:student.country,source:'h5_backup',weekId:'MY_WEEK_001',day:day,taskTitle:d.t,activityType:d.s,
-    choiceAnswers:JSON.stringify(ans),fillAnswers:JSON.stringify(ans),writingText:(ans['d'+day+'write']||ans.write||''),speakingText:(ans['d'+day+'speak']||ans.speak||''),
+    choiceAnswers:JSON.stringify(ans),fillAnswers:JSON.stringify(ans),writingText:(ans['d'+day+'write']||ans.write||''),audioFileID:localStorage.getItem('my_audio_'+student.id+'_'+day)||'recorded',speakingText:'recorded',
     selfDifficulty:ans.diff||'',selfConfidence:ans.conf||'',selfComment:ans.comment||'',
     submitStatus:'submitted',submitTime:new Date().toISOString()
   };
