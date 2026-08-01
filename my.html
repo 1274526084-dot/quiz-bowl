@@ -27,6 +27,8 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 .panel .phead{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:12px;border-radius:16px 16px 0 0;display:flex;align-items:center;gap:8px;position:sticky;top:0}.phead .pback{font-size:18px;cursor:pointer}.phead .ptitle{flex:1;font-size:14px;font-weight:700}.phead .phome{font-size:16px;cursor:pointer}.pbody{padding:12px}
 .modal-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}.modal-mask.show{display:flex}.modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px;text-align:center}.modal-box h3{font-size:17px;color:#1e293b;margin-bottom:12px}.modal-box p{font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6}.modal-box .btn{margin-top:8px}
 .big-num{font-size:38px;font-weight:900;color:#2563eb;text-align:center;display:block}.big-label{font-size:12px;color:#64748b;text-align:center;display:block;margin-top:2px}
+.ext-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+.ext-card{background:#f8fafc;border-radius:10px;padding:14px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px;cursor:pointer;min-width:0;overflow:hidden}.ext-card:active{background:#eff6ff}.ext-card .ec-icon{font-size:24px;display:block;margin-bottom:4px}.ext-card .ec-title{font-size:13px;color:#1e293b;font-weight:600;display:block}.ext-card .ec-status{font-size:11px;color:#94a3b8;margin-top:3px;display:block}.ext-card .ec-status.open{color:#16a34a;font-weight:600}
 </style></head><body><div class="container" id="app">
 <div class="topbar"><span class="back" id="topBack" onclick="goBack()">←</span><span class="title" id="topTitle">马来西亚学生中文学习端</span><span class="home-btn" onclick="goHome()">🏠</span></div>
 
@@ -68,8 +70,8 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
       <div class="row"><span>累计</span><span class="val"><span id="extTodayTotal">0</span>次</span></div>
       <button class="btn btn-primary" style="margin-top:8px;font-size:14px;min-height:40px" onclick="openTodayExtension()">📖 开始今日拓展</button>
     </div>
-    <div class="section-card"><h3>🏮 中华文化</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">["每日一书","每日一曲","每日一地","每日一物"].forEach(function(t,i){document.write('<div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:12px;cursor:pointer" onclick="alert(\'内容由教师每日发布。\')"><span style="font-size:22px;display:block;margin-bottom:4px">'+['📖','🎵','📍','🏺'][i]+'</span>'+t+'</div>');});</div></div>
-    <div class="section-card"><h3>🚂 跨境铁路中文 · 信号</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">["每日一站","每日一词","每日一岗","每日一知识"].forEach(function(t,i){document.write('<div style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:12px;cursor:pointer" onclick="'+(t==='每日一词'?'openTodayExtension()':'alert(\'内容由教师每日发布。\')')+'"><span style="font-size:22px;display:block;margin-bottom:4px">'+['🚉','📝','👷','📋'][i]+'</span>'+t+'</div>');});</div></div>
+    <div class="section-card"><h3>🏮 中华文化</h3><div class="ext-grid" id="cultureList"></div></div>
+    <div class="section-card"><h3>🚂 跨境铁路中文 · 信号</h3><div class="ext-grid" id="railwayList"></div></div>
     <div class="section-card"><h3>👣 我的拓展足迹</h3><div class="grid-2" id="extFootprint"></div><div id="extCards"></div></div>
   </div>
 
@@ -210,6 +212,18 @@ function updateArchive(){
 function generateSummary(){alert('阶段总结报告生成中...\n\n基于'+Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length+'个课程任务和'+extTotal+'次中文拓展。\n\n此功能后续开放。');}
 
 // ===== Extensions =====
+function renderExtensionGrids(){
+  try{
+    var cultureList=document.getElementById('cultureList'),railwayList=document.getElementById('railwayList');
+    if(!cultureList||!railwayList)return;
+    var cultureItems=[{id:'daily_book',title:'每日一书',icon:'📖'},{id:'daily_song',title:'每日一曲',icon:'🎵'},{id:'daily_place',title:'每日一地',icon:'📍'},{id:'daily_object',title:'每日一物',icon:'🏺'}];
+    var railwayItems=[{id:'railway_station',title:'每日一站',icon:'🚉'},{id:'railway_word',title:'每日一词',icon:'📝',open:true,action:'openTodayExtension()'},{id:'railway_job',title:'每日一岗',icon:'👷'},{id:'railway_knowledge',title:'每日一知识',icon:'📋'}];
+    var buildCard=function(item){return'<div class="ext-card" onclick="'+(item.open?item.action:'alert(\'该内容由教师后续开放。\')')+'"><span class="ec-icon">'+item.icon+'</span><span class="ec-title">'+item.title+'</span><span class="ec-status'+(item.open?' open':'')+'">'+(item.open?'已开放':'教师后续开放')+'</span></div>';};
+    cultureList.innerHTML=cultureItems.map(buildCard).join('');
+    railwayList.innerHTML=railwayItems.map(buildCard).join('');
+  }catch(e){console.log('Grid render error:',e);}
+}
+
 function renderExtensions(){
   document.getElementById('extFootprint').innerHTML='<div class="grid-item"><span class="num">'+extTotal+'</span><span class="lbl">完成拓展</span></div><div class="grid-item"><span class="num">0</span><span class="lbl">中华文化</span></div><div class="grid-item"><span class="num">'+extTotal+'</span><span class="lbl">铁路中文</span></div><div class="grid-item"><span class="num">0</span><span class="lbl">新词收藏</span></div>';
   var cards='';extRecords.slice(-5).reverse().forEach(function(r){cards+='<div class="learning-card"><b>📅 '+r.date+'</b> '+r.title+'<br>选词：'+(r.word||'—')+' · 句子：'+(r.sentence||'—')+'<br><span style="color:#94a3b8;font-size:10px">'+r.time+'</span></div>';});
@@ -243,7 +257,7 @@ function submitExtension(){
   var qs='callback='+cb;for(var k in params)qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
 
-function renderAll(){renderTasks();renderExtensions();updateHomeProgress();}
+function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();updateHomeProgress();}
 
 // Auto-restore
 (function(){var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}})();
