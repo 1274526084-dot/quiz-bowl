@@ -205,11 +205,11 @@ function previewHskImport(){
 }
 function cancelHskImport(){pendingHsk=[];document.getElementById('hskPreview').style.display='none';document.getElementById('hskActions').style.display='none';}
 function confirmHskImport(){
-  if(!pendingHsk.length)return;var done=0,skip=0,total=pendingHsk.filter(function(r){return r.status==='matched';}).length;var idx=0;
-  function next(){if(idx>=pendingHsk.length){alert('✅ HSK导入完成：'+done+'条成功，'+skip+'条跳过');cancelHskImport();loadData();return;}
-    var r=pendingHsk[idx];idx++;if(!r.studentUid){skip++;next();return;}
-    var cb='_hsk'+Date.now()+'_'+idx;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next();delete window[cb];};
-    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_assessment&studentUid='+r.studentUid+'&studentId='+r.studentId+'&officialName='+encodeURIComponent(r.officialName||'')+'&listeningScore='+r.listeningScore+'&readingScore='+r.readingScore+'&writingScore='+r.writingScore+'&totalScore='+r.totalScore+'&examDate='+encodeURIComponent(r.examDate)+'&passStatus='+(r.passStatus==='合格'?'pass':(r.passStatus==='不合格'?'fail':r.passStatus));document.head.appendChild(s);
+  if(!pendingHsk.length)return;var done=0,skip=0,total=pendingHsk.length;var idx=0;
+  function next(){if(idx>=total){alert('✅ HSK导入完成：'+done+'条成功，'+skip+'条跳过');cancelHskImport();loadData();return;}
+    var r=pendingHsk[idx];idx++;var cb='_hsk'+Date.now()+'_'+idx;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next();delete window[cb];};
+    // Send all params; cloud function matches by officialName or studentUid
+    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_assessment&studentUid='+encodeURIComponent(r.studentUid||'')+'&studentId='+encodeURIComponent(r.studentId||'')+'&officialName='+encodeURIComponent(r.officialName||r.englishName||'')+'&listeningScore='+r.listeningScore+'&readingScore='+r.readingScore+'&writingScore='+r.writingScore+'&totalScore='+r.totalScore+'&examDate='+encodeURIComponent(r.examDate)+'&passStatus='+(r.passStatus==='合格'?'pass':(r.passStatus==='不合格'?'fail':r.passStatus));document.head.appendChild(s);
   }next();
 }
 
