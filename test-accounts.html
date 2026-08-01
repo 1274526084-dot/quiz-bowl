@@ -1,0 +1,13 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>创建测试账号</title>
+<style>body{font-family:monospace;padding:20px;max-width:500px;margin:0 auto}.ok{color:green}</style></head><body>
+<h2>创建测试账号</h2><div id="status"></div><div id="results"></div>
+<script>
+var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
+var tests=[{sid:'MY001',en:'Test Student A',cn:'测试学生A'},{sid:'MY002',en:'Test Student B',cn:'测试学生B'},{sid:'MY003',en:'Test Student C',cn:'测试学生C'}];
+function next(i){if(i>=tests.length){document.getElementById('status').textContent='✅ 完成';return;}
+  var t=tests[i];var cb='_t'+Date.now()+i;window[cb]=function(res){
+    document.getElementById('results').innerHTML+='<div class="'+(res&&res.success?'ok':'')+'">'+t.sid+' → '+(res&&res.success?'✅ 初始口令: '+res.initialPin:'❌'+(res?res.error:''))+'</div>';
+    delete window[cb];next(i+1);
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+t.sid+'&englishName='+encodeURIComponent(t.en)+'&chineseName='+encodeURIComponent(t.cn)+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
+}next(0);</script></body></html>
