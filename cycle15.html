@@ -68,24 +68,14 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
     </div>
   </div>
 
-  <!-- ====== 学习页 ====== -->
+  <!-- ====== 课程任务页 ====== -->
   <div class="page" id="pageLearn">
-    <div class="section-card"><h3>A. 每日小练</h3><div class="empty-state"><span class="icon">📝</span>教师布置后显示</div></div>
-    <div class="section-card"><h3>B. 课堂与项目任务</h3><div class="empty-state"><span class="icon">📋</span>教师布置后显示</div></div>
-    <div class="section-card"><h3>C. 阶段测试</h3><div class="row"><span>测试一</span><span class="val tag tag-gray">未开放</span></div><div class="row"><span>测试二</span><span class="val tag tag-gray">未开放</span></div><div class="row"><span>测试三</span><span class="val tag tag-gray">未开放</span></div></div>
-    <div class="section-card"><h3>D. 主题学习</h3>
-      <div style="font-size:14px;font-weight:600;color:#475569;margin:10px 0 6px">中华文化</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🏮</span>传统节日 · 待开放</div><div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🍵</span>茶文化 · 待开放</div></div>
-      <div style="font-size:14px;font-weight:600;color:#475569;margin:14px 0 6px">跨境铁路中文</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚉</span>客运服务 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚂</span>运输组织 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚦</span>铁路信号 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🔧</span>机车车辆 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">⚡</span>牵引供电 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🛡️</span>安全应急 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🏗️</span>车站设施 · 待开放</div>
-        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🌏</span>跨文化沟通 · 待开放</div>
-      </div>
+    <div class="section-card">
+      <h3>📋 课程任务</h3>
+      <div style="text-align:center;padding:8px 0"><span class="big-num"><span id="taskDone">0</span>/10</span><span class="big-label">已完成任务</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskBar"></div></div>
     </div>
+    <div id="taskCards"></div>
   </div>
 
   <!-- ====== 打卡页 ====== -->
@@ -150,8 +140,22 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
-var student=null,totalTasks=10,completedTasks=0;
+var student=null,totalTasks=10;
 var checkinToday=null,checkinHistory=[];
+var taskStatuses={};// {1:'submitted',2:null,...}
+var TASK_DEFS=[
+  {no:1,title:'任务一',category:'general_chinese',desc:'通用中文基础学习',estMin:20,icon:'📝'},
+  {no:2,title:'任务二',category:'speaking',desc:'口语表达练习',estMin:20,icon:'🎙️'},
+  {no:3,title:'任务三',category:'culture',desc:'中华文化体验',estMin:25,icon:'🏮'},
+  {no:4,title:'任务四',category:'movie',desc:'电影中文学习',estMin:30,icon:'🎬'},
+  {no:5,title:'任务五',category:'writing',desc:'写作表达训练',estMin:20,icon:'✍️'},
+  {no:6,title:'任务六',category:'railway',desc:'铁路中文 · 客运服务',estMin:25,icon:'🚉'},
+  {no:7,title:'任务七',category:'railway',desc:'铁路中文 · 信号与安全',estMin:25,icon:'🚦'},
+  {no:8,title:'任务八',category:'speaking',desc:'口语任务 · 介绍与交流',estMin:20,icon:'🗣️'},
+  {no:9,title:'任务九',category:'exam',desc:'阶段测试',estMin:30,icon:'📋'},
+  {no:10,title:'任务十',category:'summary',desc:'学习总结与反思',estMin:20,icon:'📊'}
+];
+var CAT_NAMES={general_chinese:'通用中文',speaking:'口语任务',culture:'中华文化',movie:'电影中文',writing:'写作任务',railway:'铁路中文',exam:'阶段测试',summary:'学习总结'};
 
 // ===== Content options =====
 var CONTENT_OPTS=['HSK词语','听力','阅读','写作','口语','中文电影','中国文化','铁路中文','课堂复习','其他'];
@@ -168,7 +172,8 @@ function login(){
   localStorage.setItem('cycle15_student',JSON.stringify(student));
   document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';
   document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
-  initCheckinForm();loadCheckins();updateProgress();
+  var ts=localStorage.getItem('task_status_'+student.id);if(ts)taskStatuses=JSON.parse(ts);
+  initCheckinForm();loadCheckins();renderTasks();updateHomeProgress();
 }
 
 // ===== Init check-in form =====
@@ -279,7 +284,53 @@ function loadCheckins(){
   }
 }
 
-// ===== Progress =====
+// ===== Task cards =====
+function renderTasks(){
+  var submitted=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
+  document.getElementById('taskDone').textContent=submitted;
+  document.getElementById('taskBar').style.width=(submitted/totalTasks*100)+'%';
+  var h='';TASK_DEFS.forEach(function(t){
+    var st=taskStatuses[t.no]||'';
+    var statusTag='',statusText='';
+    if(!st){statusTag='tag-gray';statusText='未开始';}
+    else if(st==='draft'){statusTag='tag-amber';statusText='进行中';}
+    else if(st==='submitted'){statusTag='tag-green';statusText='已提交';}
+    else if(st==='feedback'){statusTag='tag-blue';statusText='已反馈';}
+    h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#e2e8f0')+'"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:32px">'+t.icon+'</span><div style="flex:1"><div style="font-size:15px;font-weight:700;color:#1e293b">'+t.title+'</div><div style="font-size:12px;color:#94a3b8">'+t.desc+' · '+t.estMin+'分钟 · '+CAT_NAMES[t.category]+'</div></div><span class="tag '+statusTag+'">'+statusText+'</span></div>'+(st==='submitted'?'<button class="btn btn-outline" style="margin-top:8px;font-size:13px;min-height:36px;padding:6px" onclick="viewTask('+t.no+')">查看结果</button>':'<button class="btn btn-primary" style="margin-top:8px;font-size:13px;min-height:36px;padding:6px" onclick="openTask('+t.no+')">'+((st==='draft')?'继续完成':'去完成')+'</button>')+'</div>';
+  });
+  document.getElementById('taskCards').innerHTML=h;
+  updateHomeProgress();
+}
+
+function openTask(no){
+  var t=TASK_DEFS[no-1];
+  alert(t.title+'\n\n'+t.desc+'\n\n分类：'+CAT_NAMES[t.category]+'\n预计用时：'+t.estMin+'分钟\n\n题目由教师布置后显示。\n\n当前可以先记录为"已提交"。');
+  // Simulate submit for framework testing
+  if(confirm('标记任务 '+no+' 为已提交？（用于测试进度）')){
+    taskStatuses[no]='submitted';
+    var key='task_status_'+student.id;localStorage.setItem(key,JSON.stringify(taskStatuses));
+    renderTasks();
+  }
+}
+function viewTask(no){alert('任务 '+no+' 已提交。教师反馈后此处显示结果。');}
+
+// ===== Update home progress (from tasks, not checkins) =====
+function updateHomeProgress(){
+  var submitted=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
+  var pct=Math.round(submitted/totalTasks*100);
+  document.getElementById('doneTasks').textContent=submitted;
+  document.getElementById('pendingTasks').textContent=totalTasks-submitted;
+  document.getElementById('taskProgress').style.width=pct+'%';
+  if(submitted>=totalTasks){
+    document.getElementById('profileLocked').style.display='none';
+    document.getElementById('profileReady').style.display='block';
+  }else{
+    document.getElementById('profileLocked').style.display='block';
+    document.getElementById('profileReady').style.display='none';
+  }
+}
+
+// ===== Progress (old - kept for compatibility) =====
 function updateProgress(){
   var done=completedTasks,pct=Math.round(done/totalTasks*100);
   document.getElementById('doneTasks').textContent=done;document.getElementById('pendingTasks').textContent=totalTasks-done;document.getElementById('taskProgress').style.width=pct+'%';
@@ -292,7 +343,7 @@ function switchTab(idx){
 
 (function(){
   var stu=localStorage.getItem('cycle15_student');
-  if(stu){student=JSON.parse(stu);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';initCheckinForm();loadCheckins();updateProgress();}
+  if(stu){student=JSON.parse(stu);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';var ts=localStorage.getItem('task_status_'+student.id);if(ts)taskStatuses=JSON.parse(ts);initCheckinForm();loadCheckins();renderTasks();updateHomeProgress();}
 })();
 </script>
 </body></html>
