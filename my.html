@@ -45,7 +45,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div id="previewBanner" style="display:none;background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b">🔍 教师只读预览模式 · 数据不可修改</div><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -208,7 +208,7 @@ function login(){
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
   setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
-function enterApp(){if(window._pvReady&&window._pvStudent){student=window._pvStudent;_isPreview=true;window._pvReady=false;}if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
+function enterApp(){if(window._pvReady&&window._pvStudent){student=window._pvStudent;window._pvReady=false;document.getElementById('tabBar').style.display='none';var pb=document.createElement('div');pb.id='previewBanner';pb.style.cssText='background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b';pb.textContent='🔍 教师只读预览模式 · 数据不可修改';var mc=document.getElementById('mainContent');if(mc)mc.insertBefore(pb,mc.firstChild);}if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
   document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(isPreviewMode){document.getElementById('previewBanner').classList.add('show');document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}
   document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';
   if(!isPreviewMode){taskStatuses=loadS('taskStatuses')||{};}else{taskStatuses={};}if(!isPreviewMode){var er=loadS('extRecords');extRecords=er||[];}else{extRecords=[];}extTotal=extRecords.length;renderAll();updateHomeProgress();
@@ -326,7 +326,7 @@ function openTodayExtension(){
 function pickExtWord(i){document.querySelectorAll('#extWords .chip').forEach(function(c){c.classList.remove('sel');});document.getElementById('ew_'+i).classList.add('sel');window._extSelWord=['信号机','红灯','绿灯','停车','通过'][i];}
 function closeExt(){document.getElementById('extOverlay').classList.remove('show');document.getElementById('extPanel').style.display='none';}
 
-function submitExtension(){if(_isPreview){alert('教师预览模式下不可提交');return;}if(isPreviewMode){alert('教师预览模式下不可提交');return;}
+function submitExtension(){if(window._pvStudent){alert('教师预览模式下不可提交');return;}if(isPreviewMode){alert('教师预览模式下不可提交');return;}
   if(!student)return;var word=window._extSelWord||'',sentence=document.getElementById('extSentence').value.trim();
   var today=new Date().toISOString().split('T')[0],now=new Date().toLocaleString('zh-CN'),record={date:today,title:'每日一词：信号机',category:'railway',word:word,sentence:sentence,time:now};
   extRecords.push(record);extTotal++;saveS('extRecords',extRecords);
@@ -340,42 +340,26 @@ function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();upd
 // Auto-restore
 // ===== Teacher preview mode =====
 function tryPreviewMode(){
-  var lb=document.getElementById("loginBox");
-  if(!lb){return false;}
-  lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>🔍 教师只读预览模式</h3><p style=\"color:#64748b\">正在验证预览链接…</p></div>";
-  var previewToken="";
-  try{
-    var params=new URLSearchParams(window.location.search);
-    previewToken=params.get("previewToken")||params.get("preview")||"";
-  }catch(e){
-    var m=window.location.search.match(/[?&]previewToken=([^&]+)/)||window.location.search.match(/[?&]preview=([^&]+)/);
-    if(m)previewToken=decodeURIComponent(m[1]);
-  }
-  if(!previewToken){
-    lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>⛔ 预览链接已失效</h3><p style=\"color:#dc2626;margin:12px 0\">未检测到预览令牌，请返回教师看板重新点击预览。</p><button class=\"btn btn-outline\" onclick=\"window.close()\">← 返回教师看板</button></div>";
-    return false;
-  }
-  var cb="_pv"+Date.now();
-  window[cb]=function(res){
+  var params=new URLSearchParams(window.location.search);
+  var previewToken=params.get('preview')||'';
+  var uid=params.get('uid')||'';
+  if(!previewToken||!uid)return false;
+  var cb='_pv'+Date.now();window[cb]=function(res){
     if(res&&res.success){
       isPreviewMode=true;
-      student={id:res.studentId,uid:res.studentUid,name:res.englishName||"",chineseName:res.chineseName||"",sessionToken:"preview_"+previewToken,classId:"",className:"",isPreview:true};
+      student={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',sessionToken:'preview_'+previewToken,classId:'',className:'',isPreview:true};
       enterApp();
-    }else{
-      lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>⛔ 预览链接已失效</h3><p style=\"color:#dc2626;margin:12px 0\">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style=\"font-size:11px;color:#94a3b8\">错误："+(res&&res.error||"未知")+"</p><button class=\"btn btn-outline\" onclick=\"window.close()\">← 返回教师看板</button></div>";
-    }
+    }else{console.log('Preview validation failed');}
     delete window[cb];
   };
-  var s=document.createElement("script");
-  s.src=API+"?callback="+cb+"&action=validate_preview_token&previewToken="+encodeURIComponent(previewToken);
-  document.head.appendChild(s);
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_session&studentUid='+encodeURIComponent(uid);document.head.appendChild(s);
   return true;
 }
+
 // Auto-restore (skip if preview mode)
 (function(){
-  if((window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1)){tryPreviewMode();return;}
-  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(_isPreview){var pb=document.getElementById('previewBanner');if(pb)pb.style.display='block';document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
+  if(window.location.search.indexOf('preview=')!==-1){tryPreviewMode();return;}
+  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
 }
-
 </script></body></html>
