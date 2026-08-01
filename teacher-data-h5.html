@@ -1,155 +1,73 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>马来西亚学生 · 教师数据看板</title>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>马来西亚学生 · 教师数据看板</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI','Microsoft YaHei',sans-serif;background:#f1f5f9;min-height:100vh;padding:16px}
+body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#f1f5f9;min-height:100vh;padding:14px}
 .container{max-width:960px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:24px 20px;border-radius:16px;color:#fff;text-align:center;margin-bottom:16px}
-.header h2{font-size:22px}.header p{font-size:13px;opacity:0.7;margin-top:4px}
-
-/* Auth */
-.auth-box{background:#fff;border-radius:14px;padding:24px;max-width:360px;margin:40px auto;text-align:center;border:2px solid #e2e8f0}
-.auth-box input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;text-align:center;margin:8px 0;outline:none}
-.auth-box input:focus{border-color:#2563eb}
-.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
-.btn-auth{background:#2563eb;color:#fff}
-
-/* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.stat-card{background:#fff;border-radius:12px;padding:18px 12px;text-align:center;border:2px solid #e2e8f0}.stat-num{font-size:32px;font-weight:900;color:#1e293b;display:block}.stat-label{font-size:12px;color:#94a3b8;display:block;margin-top:4px}
-
-/* Toolbar */
-.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.toolbar input,.toolbar select{padding:10px;border:2px solid #e2e8f0;border-radius:8px;font-size:13px;flex:1;min-width:100px}.toolbar button{padding:10px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
-
-/* Table */
-.table-wrap{background:#fff;border-radius:14px;overflow:hidden;border:2px solid #e2e8f0;max-height:500px;overflow-y:auto}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#f8fafc;padding:8px 6px;text-align:center;color:#64748b;font-size:11px;border-bottom:2px solid #e2e8f0;position:sticky;top:0;z-index:1}
-td{padding:6px 4px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}
-td.name{text-align:left;font-weight:600;color:#1e293b}
-td.ok{color:#16a34a;font-weight:700}td.md{color:#d97706;font-weight:700}td.lo{color:#dc2626;font-weight:700}
-tr:hover{background:#f8fafc}
-.day-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 2px}.day-dot.d{background:#22c55e}.day-dot.n{background:#e2e8f0}
-
-.export-bar{text-align:right;padding:12px 0}.export-bar button{padding:10px 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;margin-left:8px}
-.loading{text-align:center;padding:40px;color:#94a3b8}.error{text-align:center;padding:20px;color:#dc2626}
-.info-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;color:#64748b}
+.header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:20px;border-radius:14px;color:#fff;text-align:center;margin-bottom:14px}.header h2{font-size:20px}.header p{font-size:12px;opacity:0.7;margin-top:4px}
+.auth-box{background:#fff;border-radius:14px;padding:24px;max-width:360px;margin:40px auto;text-align:center;border:2px solid #e2e8f0}.auth-box input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;text-align:center;margin:8px 0}.btn{padding:14px 24px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer}.btn-auth{width:100%;background:#2563eb;color:#fff}.btn-refresh{background:#16a34a;color:#fff}.btn-export{background:#fff;color:#2563eb;border:2px solid #2563eb}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.stat-card{background:#fff;border-radius:10px;padding:14px 10px;text-align:center;border:1.5px solid #e2e8f0}.stat-num{font-size:28px;font-weight:900;color:#1e293b;display:block}.stat-label{font-size:11px;color:#94a3b8;margin-top:4px;display:block}
+.toolbar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}.toolbar input,.toolbar select{padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;flex:1;min-width:80px;background:#fff}.refreshed{font-size:11px;color:#94a3b8;white-space:nowrap}
+.tabs{display:flex;gap:4px;margin-bottom:10px}.tab-btn{flex:1;padding:10px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;cursor:pointer;text-align:center;font-weight:600;color:#64748b}.tab-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.table-wrap{background:#fff;border-radius:12px;overflow:hidden;border:1.5px solid #e2e8f0;max-height:450px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;padding:6px 4px;text-align:center;color:#64748b;font-size:10px;border-bottom:2px solid #e2e8f0;position:sticky;top:0;z-index:1}td{padding:5px 3px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}td.name{text-align:left;font-weight:600;color:#1e293b}td.ok{color:#16a34a;font-weight:700}td.err{color:#dc2626}tr:hover{background:#f8fafc}
+.loading{text-align:center;padding:30px;color:#94a3b8}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 </style>
-</head>
-<body>
-<div class="container" id="app">
-  <div class="auth-box" id="authBox">
-    <h3>🔐 教师验证</h3>
-    <p style="color:#94a3b8;font-size:13px;margin-bottom:12px">请输入口令进入数据看板</p>
-    <input type="password" id="pwd" placeholder="请输入口令">
-    <button class="btn btn-auth" onclick="auth()">验证进入</button>
-  </div>
-
-  <div id="dashboard" style="display:none">
-    <div class="header"><h2>📊 马来西亚学生 · 教师数据看板</h2><p id="connStatus">⏳ 加载中...</p></div>
-    <div class="stats-row">
-      <div class="stat-card"><span class="stat-num" id="sTotal">0</span><span class="stat-label">学生总数</span></div>
-      <div class="stat-card"><span class="stat-num" id="sToday">0</span><span class="stat-label">今日提交</span></div>
-      <div class="stat-card"><span class="stat-num" id="sWeek">0%</span><span class="stat-label">任务完成率</span></div>
-      <div class="stat-card"><span class="stat-num" id="sSubs">0</span><span class="stat-label">总提交数</span></div>
-    </div>
-    <div class="toolbar">
-      <input type="text" id="filterName" placeholder="搜索学生姓名..." oninput="renderTable()">
-      <select id="filterDay" onchange="renderTable()"><option value="">全部 Day</option><option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option><option value="4">Day 4</option><option value="5">Day 5</option><option value="6">Day 6</option><option value="7">Day 7</option></select>
-      <button onclick="loadData()">🔄 刷新</button>
-    </div>
-    <div class="info-bar"><span id="infoText"></span><span>每30秒自动刷新</span></div>
-    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>编号</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5</th><th>D6</th><th>D7</th><th>完成</th><th>写作</th><th>口语</th><th>最后提交</th></tr></thead><tbody id="tbody"><tr><td colspan="12" class="loading">加载中...</td></tbody></table></div>
-    <div class="export-bar">
-      <button onclick="exportCSV('full')">📤 导出全部数据</button>
-      <button onclick="exportCSV('summary')">📋 导出学生汇总</button>
-      <button onclick="exportCSV('writing')">📝 导出写作文本</button>
-    </div>
-  </div>
+</head><body><div class="container" id="app">
+<div class="auth-box" id="authBox"><h3>🔐 教师验证</h3><p style="color:#94a3b8;font-size:13px;margin-bottom:10px">请输入口令</p><input type="password" id="pwd" placeholder="口令"><button class="btn btn-auth" onclick="auth()">验证进入</button></div>
+<div id="dashboard" style="display:none">
+<div class="header"><h2>📊 马来西亚学生 · 教师数据看板</h2><p>信号班中文学习记录 · 实时数据</p></div>
+<div class="stats-row">
+  <div class="stat-card"><span class="stat-num" id="sTotal">0</span><span class="stat-label">学生总数</span></div>
+  <div class="stat-card"><span class="stat-num" id="sToday">0</span><span class="stat-label">今日提交</span></div>
+  <div class="stat-card"><span class="stat-num" id="sExt">0</span><span class="stat-label">拓展记录</span></div>
+  <div class="stat-card"><span class="stat-num" id="sSubs">0</span><span class="stat-label">总记录</span></div>
 </div>
-
+<div class="toolbar">
+  <input type="text" id="filterSearch" placeholder="搜索 studentId/姓名/submissionId..." oninput="renderTable()">
+  <select id="filterType" onchange="renderTable()"><option value="">全部类型</option><option value="extension_record">每日拓展</option><option value="course_task_submission">课程任务</option><option value="submission">其他提交</option></select>
+  <button class="btn btn-refresh" onclick="loadData()">🔄 刷新</button>
+  <span class="refreshed" id="refreshTime"></span>
+  <button class="btn btn-export" onclick="exportCSV()">📤 导出CSV</button>
+</div>
+<div class="tabs">
+  <div class="tab-btn active" onclick="setTab('all')">全部</div>
+  <div class="tab-btn" onclick="setTab('extension_record')">每日拓展</div>
+  <div class="tab-btn" onclick="setTab('course_task_submission')">课程任务</div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>姓名</th><th>编号</th><th>类型</th><th>拓展标题</th><th>选词</th><th>句子</th><th>提交编号</th><th>提交时间</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">加载中...</td></tbody></table></div>
+</div></div>
 <script>
-var API = 'https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
-var allData = [];
+var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
+var allData=[],filterTab='all',refreshTimer=null;
 
-function auth(){
-  if(document.getElementById('pwd').value==='ECRL2026'){
-    document.getElementById('authBox').style.display='none';
-    document.getElementById('dashboard').style.display='block';
-    loadData();setInterval(loadData,30000);
-  }else{alert('口令错误');}
-}
+function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);}else{alert('口令错误');}}
+function setTab(t){filterTab=t;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',(i===0&&t==='all')||(i===1&&t==='extension_record')||(i===2&&t==='course_task_submission'));});renderTable();}
 
 function loadData(){
-  document.getElementById('connStatus').textContent='⏳ 加载中...';
   var cb='_t_'+Date.now();window[cb]=function(res){
-    if(res&&res.data){allData=res.data.filter(function(r){return r.country==='Malaysia'||!r.country;});}
-    document.getElementById('connStatus').textContent='✅ 已连接 · '+allData.length+'条记录';
-    updateStats();renderTable();
-    delete window[cb];
+    if(res&&res.data){allData=res.data.filter(function(r){return (r.country==='Malaysia'||!r.country)&&r.source==='h5';});}
+    updateStats();renderTable();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');delete window[cb];
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);
-  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},5000);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
 }
 
 function updateStats(){
-  var today=new Date().toISOString().split('T')[0];
-  var todaySubs=allData.filter(function(r){return (r.submitTime||'').indexOf(today)!==-1;}).length;
-  var names={};allData.forEach(function(r){if(r.studentName||r.name)names[r.studentName||r.name]=true;});
-  var stuCount=Object.keys(names).length;
-  var completed={};allData.forEach(function(r){if(r.submitStatus==='submitted'){var k=r.studentName||r.name;completed[k]=Math.max(completed[k]||0,r.day||0);}});
-  var totalDays=0,stuWithData=0;for(var k in completed){totalDays+=completed[k];stuWithData++;}
-  var rate=stuWithData>0?Math.round(totalDays/(stuWithData*7)*100):0;
-  document.getElementById('sTotal').textContent=stuCount;
-  document.getElementById('sToday').textContent=todaySubs;
-  document.getElementById('sWeek').textContent=rate+'%';
-  document.getElementById('sSubs').textContent=allData.length;
-  document.getElementById('infoText').textContent='学生:'+stuCount+' 提交:'+allData.length;
+  var today=new Date().toISOString().split('T')[0];var names={},extCount=0,todayCount=0;
+  var seen={};allData=allData.filter(function(r){var key=r.submissionId||(r.studentId+'_'+(r.dataType||'')+'_'+(r.extensionId||''));if(seen[key])return false;seen[key]=true;return true;});
+  allData.forEach(function(r){var n=r.studentName||r.name;if(n)names[n]=true;if(r.dataType==='extension_record')extCount++;if((r.submitTime||'').indexOf(today)!==-1)todayCount++;});
+  document.getElementById('sTotal').textContent=Object.keys(names).length;document.getElementById('sToday').textContent=todayCount;document.getElementById('sExt').textContent=extCount;document.getElementById('sSubs').textContent=allData.length;
 }
 
 function renderTable(){
-  var filterName=(document.getElementById('filterName').value||'').toLowerCase();
-  var filterDay=document.getElementById('filterDay').value;
-  var filtered=allData.filter(function(r){
-    if(filterName&&(r.studentName||r.name||'').toLowerCase().indexOf(filterName)===-1)return false;
-    if(filterDay&&r.day!=filterDay)return false;
-    return true;
-  });
-  // Group by student
-  var stuMap={};
-  filtered.forEach(function(r){var n=r.studentName||r.name||'未知';if(!stuMap[n])stuMap[n]={name:n,id:r.studentId||'',days:{},writes:0,speaks:0,last:''};var s=stuMap[n];if(r.submitStatus==='submitted'){s.days[r.day]=true;s.last=r.submitTime||s.last;}
-  if(r.writingText)s.writes++;if(r.speakingText||r.audioFileID)s.speaks++;});
-  var rows='';var list=[];for(var k in stuMap)list.push(stuMap[k]);
-  list.sort(function(a,b){return Object.keys(b.days).length-Object.keys(a.days).length;});
-  list.forEach(function(s){
-    var done=Object.keys(s.days).length;
-    rows+='<tr><td class="name">'+s.name+'</td><td style="font-size:11px;color:#94a3b8">'+(s.id||'—')+'</td>';
-    for(var d=1;d<=7;d++)rows+='<td><span class="day-dot '+(s.days[d]?'d':'n')+'"></span></td>';
-    rows+='<td class="'+(done>=6?'ok':(done>=3?'md':'lo'))+'">'+done+'/7</td><td>'+(s.writes||0)+'</td><td>'+(s.speaks||0)+'</td><td style="font-size:10px;color:#94a3b8">'+(s.last?new Date(s.last).toLocaleDateString('zh-CN'):'—')+'</td></tr>';
-  });
-  document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="12" class="loading">暂无数据</td></tr>';
+  var search=(document.getElementById('filterSearch').value||'').toLowerCase();
+  var typeFilter=document.getElementById('filterType').value;
+  var filtered=allData.filter(function(r){if(search&&(r.studentName||r.name||'').toLowerCase().indexOf(search)===-1&&(r.studentId||'').toLowerCase().indexOf(search)===-1&&(r.submissionId||'').toLowerCase().indexOf(search)===-1)return false;if(typeFilter&&r.dataType!==typeFilter)return false;if(filterTab!=='all'&&r.dataType!==filterTab)return false;return true;});
+  var rows='';filtered.forEach(function(r){rows+='<tr><td class="name">'+(r.studentName||r.name||'—')+'</td><td style="font-size:10px;color:#94a3b8">'+(r.studentId||'—')+'</td><td>'+(r.dataType==='extension_record'?'🌱拓展':(r.dataType==='course_task_submission'?'📋任务':'📝其他'))+'</td><td>'+(r.extensionTitle||'—')+'</td><td>'+(r.selectedWord||'—')+'</td><td style="font-size:11px">'+(r.studentSentence||r.writingText||'—')+'</td><td style="font-size:9px;color:#94a3b8">'+(r.submissionId||'—').slice(0,20)+'</td><td style="font-size:10px;color:#94a3b8">'+(r.submitTime||'').slice(0,16).replace('T',' ')+'</td></tr>';});
+  document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="8" class="loading">暂无数据</td></tr>';
 }
 
-function exportCSV(type){
-  var csv='';
-  if(type==='full'){
-    csv='studentId,studentName,chineseName,country,weekId,day,taskTitle,activityType,writingText,speakingText,selfDifficulty,selfConfidence,selfComment,submitStatus,submitTime,source\n';
-    allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.chineseName||'',r.country||'Malaysia',r.weekId||'MY_WEEK_001',r.day||'',r.taskTitle||'',r.activityType||'',(r.writingText||'').replace(/"/g,'""'),r.speakingText||r.audioFileID||'',r.selfDifficulty||'',r.selfConfidence||'',r.selfComment||'',r.submitStatus||'submitted',r.submitTime||'',r.source||'h5_backup'].join(',')+'\n';});
-  }else if(type==='summary'){
-    csv='studentName,studentId,completedDays,writingCount,speakingCount,lastSubmit\n';
-    var map={};allData.forEach(function(r){var n=r.studentName||r.name;if(!map[n])map[n]={name:n,id:r.studentId||'',days:{},w:0,s:0,l:''};if(r.submitStatus==='submitted'){map[n].days[r.day]=true;map[n].l=r.submitTime||map[n].l;}});
-    for(var k in map){var m=map[k];csv+=[m.name,m.id,Object.keys(m.days).length,m.w,m.s,m.l].join(',')+'\n';}
-  }else{
-    csv='studentName,day,writingText\n';
-    allData.filter(function(r){return r.writingText||r.writingText;}).forEach(function(r){csv+=[r.studentName||r.name||'',r.day||'',(r.writingText||'').replace(/"/g,'""')].join(',')+'\n';});
-  }
-  navigator.clipboard.writeText(csv).then(function(){alert('CSV已复制到剪贴板，可直接粘贴到Excel');}).catch(function(){alert('复制失败，请手动选择文本');});
-  // Also show in a textarea for manual copy
-  var ta=document.createElement('textarea');ta.value=csv;ta.style.cssText='position:fixed;top:10%;left:10%;width:80%;height:60%;z-index:9999;background:#fff;border:2px solid #2563eb;border-radius:8px;padding:16px;font-family:monospace;font-size:11px';ta.id='csvExport';document.body.appendChild(ta);
-  setTimeout(function(){var el=document.getElementById('csvExport');if(el)el.remove();},30000);
-}
-</script>
-</body></html>
+function exportCSV(){var csv='studentId,studentName,dataType,extensionTitle,selectedWord,studentSentence,submissionId,submitTime,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',(r.studentSentence||r.writingText||'').replace(/"/g,'""'),r.submissionId||'',r.submitTime||'',r.serverTime||''].join(',')+'\n';});navigator.clipboard.writeText(csv).then(function(){alert('CSV已复制')}).catch(function(){var ta=document.createElement('textarea');ta.value=csv;ta.style.cssText='position:fixed;top:10%;left:10%;width:80%;height:60%;background:#fff;border:2px solid #2563eb;border-radius:8px;padding:16px;font-family:monospace;font-size:11px;z-index:9999';document.body.appendChild(ta);});}
+</script></body></html>
