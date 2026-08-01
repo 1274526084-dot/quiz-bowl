@@ -47,9 +47,13 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
 </div>
 <div id="studentMgmt" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0"><h3 style="font-size:15px;margin-bottom:10px">👥 学生账号管理</h3><div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input id="newEn" placeholder="英文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newCn" placeholder="中文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newSid" placeholder="学生编号 如MY001" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><button class="btn btn-refresh" onclick="createStudent()" style="width:100%;margin-top:4px;font-size:12px">✅ 新增</button></div><div style="flex:1;min-width:180px;background:#f8fafc;border-radius:10px;padding:12px"><label style="font-size:11px;color:#64748b;font-weight:600">批量生成</label><input id="batchCount" value="3" type="number" min="1" max="50" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin:8px 0"><label style="font-size:10px;color:#94a3b8">自动编号 MY001 / MY002 / ...</label><button class="btn btn-refresh" onclick="batchCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 批量生成</button></div></div>
 <div style="background:#f0fdf4;border-radius:8px;padding:12px;margin-bottom:8px"><h4 style="font-size:13px;color:#16a34a;margin-bottom:6px">📤 上传学生名单 Excel/CSV</h4><label style="font-size:11px;color:#64748b">文件格式：第一列英文名，第二列中文名（不要表头）</label>
-  <input type="file" id="uploadFile" accept=".csv,.txt,.xlsx" onchange="handleFileUpload()" style="margin:8px 0;font-size:12px">
+  <input type="file" id="uploadFile" accept=".csv,.txt" onchange="handleFileUpload()" style="margin:8px 0;font-size:12px">
+  <p style="font-size:10px;color:#94a3b8">请用记事本保存为 .csv 文件（UTF-8编码）。Excel直接另存为CSV。</p>
   <div id="uploadPreview" style="font-size:11px;max-height:100px;overflow-y:auto;margin:6px 0"></div>
   <button class="btn btn-refresh" onclick="batchUploadCreate()" style="width:100%;font-size:12px">⚡ 上传并批量生成</button>
+  <p style="font-size:10px;color:#94a3b8;margin-top:6px">或直接粘贴学生名单（一行一个：英文名,中文名）</p>
+  <textarea id="pasteArea" placeholder="Ahmad,陈小明&#10;Siti,黄小丽&#10;Ravi,李小华" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-top:4px;resize:vertical" oninput="handlePaste()"></textarea>
+  <button class="btn btn-refresh" onclick="batchPasteCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 粘贴并批量生成</button>
 </div></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
 
 <div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
@@ -127,6 +131,17 @@ function handleFileUpload(){
   };
   reader.readAsArrayBuffer(file);
 }
+var pasteStudents=[];
+function handlePaste(){
+  var text=document.getElementById('pasteArea').value;var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});pasteStudents=[];var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
+  lines.forEach(function(line,i){var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});if(cols[0])pasteStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});});
+  document.getElementById('uploadPreview').innerHTML='识别到 '+pasteStudents.length+' 个学生';
+}
+function batchPasteCreate(){
+  if(!pasteStudents.length){alert('请先粘贴名单');return;}
+  uploadStudents=pasteStudents;batchUploadCreate();
+}
+
 function batchUploadCreate(){
   if(!uploadStudents.length){alert('请先上传文件');return;}
   var results=[];var total=uploadStudents.length;
