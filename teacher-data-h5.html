@@ -43,6 +43,7 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <span class="refreshed" id="refreshTime"></span>
   <button class="btn btn-outline" onclick="toggleRawTable()">📋 原始数据</button>
   <button class="btn btn-outline" onclick="toggleStudentMgmt()">👥 账号管理</button>
+  <button class="btn btn-outline" onclick="toggleImportCenter()">📥 数据导入</button>
   <button class="btn btn-outline" onclick="exportExcel()">📤 导出Excel</button>
 </div>
 <div id="studentMgmt" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0"><h3 style="font-size:15px;margin-bottom:10px">👥 学生账号管理</h3><div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input id="newEn" placeholder="英文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newCn" placeholder="中文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newSid" placeholder="学生编号 如MY001" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><button class="btn btn-refresh" onclick="createStudent()" style="width:100%;margin-top:4px;font-size:12px">✅ 新增</button></div><div style="flex:1;min-width:180px;background:#f8fafc;border-radius:10px;padding:12px"><label style="font-size:11px;color:#64748b;font-weight:600">批量生成</label><input id="batchCount" value="3" type="number" min="1" max="50" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin:8px 0"><label style="font-size:10px;color:#94a3b8">自动编号 MY001 / MY002 / ...</label><button class="btn btn-refresh" onclick="batchCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 批量生成</button></div></div>
@@ -62,6 +63,28 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
     <button class="btn btn-outline" onclick="cancelPreview()" style="flex:1;font-size:12px">← 返回修改</button>
   </div>
 </div></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
+
+<!-- 数据导入中心 -->
+<div id="importCenter" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0">
+<h3 style="font-size:15px;margin-bottom:10px">📥 教师历史数据导入中心</h3>
+<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">导入旧Excel/CSV数据 · 自动匹配studentUid · 重复跳过 · 不影响现有数据</p>
+<div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+  <div style="flex:2;min-width:200px">
+    <label style="font-size:11px;color:#64748b">数据类型 Data Type</label>
+    <select id="importDataType" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;margin:4px 0 8px;font-size:12px">
+      <option value="extension_record">中文拓展记录</option><option value="course_task_submission">课程任务提交</option><option value="practice_submission">每日练习</option><option value="exam_submission">阶段测试</option><option value="writing_speaking">写作和口语</option><option value="teacher_feedback">教师反馈</option>
+    </select>
+    <label style="font-size:11px;color:#64748b">粘贴导入数据（每行一条：studentId,activityTitle,score,time）</label>
+    <textarea id="importData" placeholder="MY004,每日一词：信号机,5,2026-08-01" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;margin-top:4px;resize:vertical"></textarea>
+    <button class="btn btn-refresh" onclick="previewImport()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览导入</button>
+  </div>
+</div>
+<div id="importPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
+<div id="importActions" style="display:none;margin-top:6px;display:flex;gap:8px">
+  <button class="btn btn-refresh" onclick="confirmImport()" style="flex:1;font-size:12px">✅ 确认导入</button>
+  <button class="btn btn-outline" onclick="cancelImport()" style="flex:1;font-size:12px">← 取消</button>
+</div>
+</div>
 
 <div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
 <div class="table-wrap" id="rawTable"><table><thead><tr><th>姓名</th><th>编号</th><th>UID</th><th>类型</th><th>标题</th><th>选词</th><th>句子</th><th>时间</th></tr></thead><tbody id="tbody"></tbody></table></div>
@@ -105,6 +128,38 @@ function renderStudents(){
 function toggleDetail(id){var el=document.getElementById(id);if(el)el.classList.toggle('show');}
 function toggleRawTable(){document.getElementById('rawTable').classList.toggle('show');}
 function toggleStudentMgmt(){document.getElementById('studentMgmt').style.display=document.getElementById('studentMgmt').style.display==='none'?'block':'none';}
+function toggleImportCenter(){document.getElementById('importCenter').style.display=document.getElementById('importCenter').style.display==='none'?'block':'none';}
+
+var pendingImport=[];
+function previewImport(){
+  var dtype=document.getElementById('importDataType').value;var text=document.getElementById('importData').value.trim();
+  if(!text){alert('请粘贴导入数据');return;}
+  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
+  pendingImport=[];var skipped=0;
+  lines.forEach(function(line,i){
+    var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
+    if(cols.length>=1&&cols[0]){
+      var sid=cols[0],title=cols[1]||'',score=parseInt(cols[2])||0,time=cols[3]||new Date().toISOString().slice(0,10);
+      // Find studentUid from existing data
+      var found=allData.find(function(r){return r.studentId===sid;});
+      var uid=found?found.studentUid:'';
+      pendingImport.push({studentId:sid,studentUid:uid,activityTitle:title,score:score,submitTime:time,dataType:dtype,status:uid?'matched':'no_uid'});
+      if(!uid)skipped++;
+    }
+  });
+  var h='<div style="font-weight:700;margin-bottom:6px">📋 '+pendingImport.length+'条 · 匹配成功 '+(pendingImport.length-skipped)+' · 待匹配 '+skipped+'</div>';
+  pendingImport.forEach(function(r,i){h+='<div style="padding:2px 0;color:'+(r.status==='matched'?'#16a34a':'#d97706')+'">'+(i+1)+'. '+r.studentId+' → '+r.studentUid.slice(0,12)+' · '+r.activityTitle+'</div>';});
+  document.getElementById('importPreview').innerHTML=h;document.getElementById('importPreview').style.display='block';document.getElementById('importActions').style.display='flex';
+}
+function cancelImport(){pendingImport=[];document.getElementById('importPreview').style.display='none';document.getElementById('importActions').style.display='none';}
+function confirmImport(){
+  if(!pendingImport.length)return;var done=0,skip=0,total=pendingImport.length;
+  function next(i){if(i>=total){alert('✅ 导入完成：'+done+'条成功，'+skip+'条跳过');cancelImport();loadData();return;}
+    var r=pendingImport[i];if(!r.studentUid){skip++;next(i+1);return;}
+    var cb='_im'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next(i+1);delete window[cb];};
+    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_data&studentUid='+r.studentUid+'&studentId='+r.studentId+'&dataType='+r.dataType+'&activityTitle='+encodeURIComponent(r.activityTitle)+'&score='+r.score+'&submitTime='+r.submitTime+'&sourceRecordId=import_'+i+'_'+Date.now();document.head.appendChild(s);
+  }next(0);
+}
 
 function createStudent(){
   var en=document.getElementById('newEn').value.trim(),cn=document.getElementById('newCn').value.trim(),sid=document.getElementById('newSid').value.trim();
