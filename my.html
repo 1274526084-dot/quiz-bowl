@@ -84,13 +84,24 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
       <div class="row"><span>档案状态</span><span class="val"><span id="profileStatusTag" class="tag tag-green">动态更新中</span></span></div>
       <div class="row"><span>课程任务</span><span class="val"><span id="archTaskCount">0</span>/10</span></div>
       <div class="row"><span>中文拓展</span><span class="val"><span id="archExtCount">0</span>次</span></div>
-      <div class="row"><span>写作/录音</span><span class="val"><span id="archOutputCount">0</span></span></div>
       <div class="row"><span>最近更新</span><span class="val" id="archLastUpdate">—</span></div>
       <div id="summaryReady" style="display:none;text-align:center;margin-top:12px"><span style="color:#16a34a;font-weight:600;font-size:14px;display:block">✅ 已完成全部10个课程任务</span><button class="btn btn-submit" style="margin-top:8px;width:auto;display:inline-block;padding:10px 28px" onclick="generateSummary()">📊 生成阶段总结报告</button></div>
     </div>
 
+    <!-- 入项前汉语基础 -->
+    <div class="section-card" style="border-left:4px solid #f59e0b"><h3>📋 入项前汉语基础</h3><div id="baselineSection"><span class="empty-state" style="font-size:12px">加载中...</span></div></div>
+
+    <!-- 前置学习经历 -->
+    <div class="section-card"><h3>📚 前置学习经历</h3><div id="priorCourses"><span class="empty-state" style="font-size:12px">前置课程信息待教师补充。</span></div></div>
+
+    <!-- 当前项目学习 -->
+    <div class="section-card"><h3>📖 当前项目学习</h3><div id="currentProject"><span class="empty-state" style="font-size:12px">课程任务尚未开始。</span></div></div>
+
+    <!-- 学习变化 -->
+    <div class="section-card" style="border-left:4px solid #6366f1"><h3>📈 学习发展变化</h3><div id="learningChange"><span style="font-size:12px;color:#64748b;line-height:1.8;display:block">已建立入项前汉语学习基线。完成课程任务和学习活动后，系统将持续生成学习变化。</span></div></div>
+
     <!-- 学习时间轴 -->
-    <div class="section-card"><h3>📅 学习时间轴</h3><div id="timeline"><span class="empty-state" style="font-size:12px">完成第一项学习活动后，时间轴将自动显示。</span></div></div>
+    <div class="section-card"><h3>📅 学习时间轴</h3><div id="timeline"><span class="empty-state" style="font-size:12px">加载中...</span></div></div>
 
     <!-- 中文能力雷达 -->
     <div class="section-card"><h3>🎯 中文能力分析</h3>
@@ -200,7 +211,9 @@ function enterApp(){if(!student){var s=localStorage.getItem('activeStudentSessio
   fetchCloudRecords();
 }
 function fetchCloudRecords(){
-  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);renderAll();updateHomeProgress();}delete window[cb];};var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+function updateArchiveDisplay(){
+  var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
 }
 function showSwitchModal(){document.getElementById('switchModal').classList.add('show');}
 function closeSwitchModal(){document.getElementById('switchModal').classList.remove('show');}
