@@ -52,8 +52,13 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <div id="uploadPreview" style="font-size:11px;max-height:100px;overflow-y:auto;margin:6px 0"></div>
   <button class="btn btn-refresh" onclick="batchUploadCreate()" style="width:100%;font-size:12px">⚡ 上传并批量生成</button>
   <p style="font-size:10px;color:#94a3b8;margin-top:6px">或直接粘贴学生名单（一行一个：英文名,中文名）</p>
-  <textarea id="pasteArea" placeholder="Ahmad,陈小明&#10;Siti,黄小丽&#10;Ravi,李小华" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-top:4px;resize:vertical" oninput="handlePaste()"></textarea>
-  <button class="btn btn-refresh" onclick="batchPasteCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 粘贴并批量生成</button>
+  <textarea id="pasteArea" placeholder="Ahmad,陈小明&#10;Siti,黄小丽&#10;Ravi,李小华" style="width:100%;min-height:100px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-top:4px;resize:vertical"></textarea>
+  <button class="btn btn-refresh" id="pastePreviewBtn" onclick="previewRoster()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览名单</button>
+  <div id="rosterPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
+  <div id="rosterActions" style="display:none;margin-top:6px;display:flex;gap:8px">
+    <button class="btn btn-refresh" onclick="confirmGenerate()" style="flex:1;font-size:12px">✅ 确认生成</button>
+    <button class="btn btn-outline" onclick="cancelPreview()" style="flex:1;font-size:12px">← 返回修改</button>
+  </div>
 </div></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
 
 <div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
@@ -131,20 +136,45 @@ function handleFileUpload(){
   };
   reader.readAsArrayBuffer(file);
 }
-var pasteStudents=[];
-function handlePaste(){
-  var text=document.getElementById('pasteArea').value;var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});pasteStudents=[];var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
-  lines.forEach(function(line,i){var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});if(cols[0])pasteStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});});
-  document.getElementById('uploadPreview').innerHTML='识别到 '+pasteStudents.length+' 个学生';
+function parseRoster(rawText){
+  var text=(rawText||'').replace(/\r\n?/g,'\n').trim();if(!text)return[];
+  var lines=text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
+  var students=[],errors=[];
+  lines.forEach(function(line,i){
+    var cols=line.split(/[,，;\t]/).map(function(c){return c.trim();});
+    if(cols.length>=1&&cols[0]){
+      var en=cols[0],cn=cols[1]||'';
+      // Skip header row
+      if((en==='英文名'||en==='englishName'||en==='English Name')&&i===0)return;
+      students.push({englishName:en,chineseName:cn,line:i+1});
+    }else{errors.push(i+1);}
+    console.log('Roster line '+(i+1)+':',cols[0],cols[1]);
+  });
+  console.log('Parsed '+students.length+' students, '+errors.length+' errors');
+  return {students:students,errors:errors,total:lines.length};
 }
-function batchPasteCreate(){
-  var text=document.getElementById('pasteArea').value;
-  if(!text.trim()){alert('请先粘贴名单');return;}
-  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
-  uploadStudents=[];var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
-  lines.forEach(function(line,i){var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});if(cols[0])uploadStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});});
-  document.getElementById('uploadPreview').innerHTML='识别到 '+uploadStudents.length+' 个学生，正在生成...';
-  batchUploadCreate();
+
+var pendingRoster=[];
+function previewRoster(){
+  var textarea=document.getElementById('pasteArea');if(!textarea)return;
+  var rawText=textarea.value;console.log('textarea value length:',rawText.length);
+  if(!rawText.trim()){alert('请先粘贴学生名单。');return;}
+  var result=parseRoster(rawText);
+  if(!result.students.length){alert('已读取到文字，但没有解析出有效学生。请检查逗号或制表符分隔。');return;}
+  pendingRoster=result.students;
+  var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
+  var html='<div style="font-weight:700;margin-bottom:6px">📋 共识别 '+result.students.length+' 名学生'+(result.errors.length?'，'+result.errors.length+'行格式错误':'')+'</div>';
+  html+='<div style="font-size:10px;color:#94a3b8;margin-bottom:6px">从 MY'+String(startNum).padStart(3,'0')+' 开始编号</div>';
+  result.students.forEach(function(s,i){html+='<div style="padding:2px 0">MY'+String(startNum+i).padStart(3,'0')+' · '+s.englishName+(s.chineseName?' · '+s.chineseName:'')+'</div>';});
+  if(result.errors.length){html+='<div style="color:#dc2626;margin-top:4px">⚠ 第 '+result.errors.join(',')+' 行格式不正确</div>';}
+  document.getElementById('rosterPreview').innerHTML=html;document.getElementById('rosterPreview').style.display='block';document.getElementById('rosterActions').style.display='flex';
+}
+function cancelPreview(){pendingRoster=[];document.getElementById('rosterPreview').style.display='none';document.getElementById('rosterActions').style.display='none';}
+function confirmGenerate(){
+  if(!pendingRoster.length){alert('没有待生成的学生');return;}
+  uploadStudents=pendingRoster;batchUploadCreate();
+  document.getElementById('rosterActions').style.display='none';
+  document.getElementById('rosterPreview').innerHTML+='<div style="color:#2563eb;margin-top:6px">⏳ 正在生成账号...</div>';
 }
 
 function batchUploadCreate(){
