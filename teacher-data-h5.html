@@ -138,8 +138,13 @@ function handlePaste(){
   document.getElementById('uploadPreview').innerHTML='识别到 '+pasteStudents.length+' 个学生';
 }
 function batchPasteCreate(){
-  if(!pasteStudents.length){alert('请先粘贴名单');return;}
-  uploadStudents=pasteStudents;batchUploadCreate();
+  var text=document.getElementById('pasteArea').value;
+  if(!text.trim()){alert('请先粘贴名单');return;}
+  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
+  uploadStudents=[];var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
+  lines.forEach(function(line,i){var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});if(cols[0])uploadStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});});
+  document.getElementById('uploadPreview').innerHTML='识别到 '+uploadStudents.length+' 个学生，正在生成...';
+  batchUploadCreate();
 }
 
 function batchUploadCreate(){
