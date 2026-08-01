@@ -132,13 +132,39 @@ function loadS(key){if(!student)return null;var v=localStorage.getItem(key+'_'+s
 function saveS(key,data){if(!student)return;localStorage.setItem(key+'_'+student.id,JSON.stringify(data));}
 
 // ===== Login =====
+function showIdentityConfirm(res){
+  var h='<div style="text-align:center"><h3 style="margin-bottom:16px">👋 请确认你的信息</h3>';
+  h+='<div class="section-card" style="text-align:left"><div class="row"><span>英文名</span><span class="val">'+(res.englishName||'—')+'</span></div><div class="row"><span>中文名</span><span class="val">'+(res.chineseName||'—')+'</span></div><div class="row"><span>学生编号</span><span class="val">'+res.studentId+'</span></div><div class="row"><span>班级</span><span class="val">'+(res.className||'马来西亚学生中文学习班')+'</span></div></div>';
+  h+='<p style="font-size:13px;color:#64748b;margin:16px 0">这是你吗？</p>';
+  h+='<button class="btn btn-submit" onclick="confirmIdentity()">✅ 这是我</button><button class="btn btn-danger" style="margin-top:8px" onclick="notMe()">不是我，退出</button></div>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+  window._pendingRes=res;
+}
+function confirmIdentity(){
+  var res=window._pendingRes;if(!res)return;
+  var h='<div style="text-align:center"><h3 style="margin-bottom:16px">🔐 设置个人密码</h3><p style="font-size:13px;color:#64748b;margin-bottom:16px">请设置4-6位数字密码，用于以后登录。</p>';
+  h+='<label>新密码（4-6位数字）</label><input type="password" id="newPin1" placeholder="输入新密码" maxlength="6">';
+  h+='<label>再次输入密码</label><input type="password" id="newPin2" placeholder="再次输入" maxlength="6">';
+  h+='<button class="btn btn-submit" onclick="setNewPin()">✅ 确认设置</button></div>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+}
+function setNewPin(){
+  var p1=document.getElementById('newPin1').value.trim(),p2=document.getElementById('newPin2').value.trim();
+  if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请输入4-6位数字密码');return;}
+  if(p1!==p2){alert('两次密码不一致');return;}
+  var res=window._pendingRes;
+  var cb='_pin'+Date.now();window[cb]=function(r){if(r&&r.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName,chineseName:res.chineseName,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}else{alert('设置失败');}delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_set_pin&studentUid='+encodeURIComponent(res.studentUid)+'&newPin='+encodeURIComponent(p1);document.head.appendChild(s);
+}
+function notMe(){localStorage.removeItem('activeStudentSession');student=null;location.reload();}
+
 function login(){
   var sid=document.getElementById('studentId').value.trim(),pin=document.getElementById('loginPin').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim();
   if(!sid){alert('请输入学生编号');return;}if(!pin){alert('请输入个人口令');return;}if(!document.getElementById('consent').checked){alert('请勾选同意');return;}
   // Cloud auth
   var params='action=student_login&studentId='+encodeURIComponent(sid)+'&loginPin='+encodeURIComponent(pin)+(sn?'&englishName='+encodeURIComponent(sn):'')+(cn?'&chineseName='+encodeURIComponent(cn):'');
   var cb='_login'+Date.now();window[cb]=function(res){
-    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}
+    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(res.needsSetup){showIdentityConfirm(res);}else{localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}}
     else{alert((res&&res.error)||'登录失败');}delete window[cb];
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
