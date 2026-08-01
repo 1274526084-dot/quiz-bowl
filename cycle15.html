@@ -7,13 +7,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#eef2ff;min-height:100vh}
 .container{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
-
-/* Top bar */
 .topbar{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
 .topbar h1{font-size:18px;font-weight:700}.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
-.topbar .cycle-info{font-size:11px;opacity:0.6;margin-top:2px}
-
-/* Login */
 .login-card{margin:16px;background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e2e8f0}
 .login-card h3{font-size:17px;color:#1e293b;margin-bottom:14px;text-align:center}
 .login-card label{font-size:14px;color:#475569;display:block;margin:10px 0 4px;font-weight:600}
@@ -21,48 +16,32 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 .login-card input:focus{border-color:#2563eb}
 .check-row{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:13px;color:#475569}
 .btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;min-height:48px}.btn-primary{background:#2563eb;color:#fff}
-
-/* Main content */
 .main{flex:1;overflow-y:auto;padding-bottom:20px}
 .info-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b}
 .info-bar b{color:#1e293b}
-
-/* Cards */
 .section-card{background:#fff;border-radius:12px;padding:16px;margin:10px 12px;border:1.5px solid #e2e8f0}
 .section-card h3{font-size:16px;color:#1e293b;margin-bottom:10px}
 .section-card .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#475569}
-.section-card .row:last-child{border-bottom:none}
-.section-card .row .val{font-weight:600;color:#1e293b}
+.section-card .row:last-child{border-bottom:none}.section-card .row .val{font-weight:600;color:#1e293b}
 .tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600}
 .tag-green{background:#f0fdf4;color:#16a34a}.tag-amber{background:#fffbeb;color:#d97706}.tag-blue{background:#eff6ff;color:#2563eb}.tag-gray{background:#f1f5f9;color:#64748b}
-
-.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:8px 0;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:4px;transition:width 0.3s}
-
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid-item{background:#f8fafc;border-radius:10px;padding:14px;text-align:center}.grid-item .num{font-size:28px;font-weight:800;color:#2563eb;display:block}.grid-item .lbl{font-size:12px;color:#94a3b8;margin-top:4px}
-
+.progress-bar{height:10px;background:#e2e8f0;border-radius:5px;margin:8px 0;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:5px;transition:width 0.3s}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid-item{background:#f8fafc;border-radius:10px;padding:14px;text-align:center}.grid-item .num{font-size:28px;font-weight:800;color:#2563eb;display:block}.grid-item .lbl{font-size:12px;color:#94a3b8;margin-top:4px}
 .empty-state{text-align:center;padding:30px 20px;color:#94a3b8;font-size:14px}.empty-state .icon{font-size:40px;display:block;margin-bottom:8px}
-
-/* 主题列表 */
-.theme-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.theme-card{background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b}
-.theme-card .icon{font-size:28px;display:block;margin-bottom:6px}
-.theme-card .name{font-weight:600;color:#1e293b}
-
-/* Calendar mini */
-.cal-dots{display:flex;flex-wrap:wrap;gap:4px}.cal-dot{width:24px;height:24px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#94a3b8}.cal-dot.done{background:#22c55e;color:#fff}.cal-dot.clock{background:#f59e0b;color:#fff}.cal-dot.today{border:2px solid #2563eb;font-weight:700}
-
-/* Tab bar */
-.tabbar{display:flex;background:#fff;border-top:1px solid #e2e8f0;position:sticky;bottom:0;z-index:10}
-.tab{flex:1;text-align:center;padding:10px 4px;font-size:11px;color:#94a3b8;cursor:pointer}.tab .icon{font-size:22px;display:block;margin-bottom:2px}.tab.active{color:#2563eb;font-weight:600}
-
+.theme-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}.theme-card{background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b}.theme-card .icon{font-size:28px;display:block;margin-bottom:6px}.theme-card .name{font-weight:600;color:#1e293b}
+.cal-dots{display:flex;flex-wrap:wrap;gap:6px}.cal-dot{width:28px;height:28px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8}.cal-dot.done{background:#22c55e;color:#fff}.cal-dot.clock{background:#f59e0b;color:#fff}.cal-dot.today{border:2px solid #2563eb;font-weight:700}
+.tabbar{display:flex;background:#fff;border-top:1px solid #e2e8f0;position:sticky;bottom:0;z-index:10}.tab{flex:1;text-align:center;padding:10px 4px;font-size:11px;color:#94a3b8;cursor:pointer}.tab .icon{font-size:22px;display:block;margin-bottom:2px}.tab.active{color:#2563eb;font-weight:600}
 .page{display:none}.page.show{display:block}
+.big-num{font-size:48px;font-weight:900;color:#2563eb;text-align:center;display:block;line-height:1}
+.big-label{font-size:13px;color:#64748b;text-align:center;display:block;margin-top:4px}
+.task-done{width:100%;text-align:center;padding:20px 0}
+.task-done .icon{font-size:56px;display:block;margin-bottom:8px}
+.task-done .msg{font-size:15px;color:#16a34a;font-weight:600}
 </style>
 </head>
 <body><div class="container" id="app">
-<div class="topbar"><h1>汉语学习2 · 信号班</h1><div class="sub">学习纪录生成 · Signal Class</div><div class="cycle-info" id="cycleInfo"></div></div>
+<div class="topbar"><h1>汉语学习2 · 信号班</h1><div class="sub">学习纪录生成 · Signal Class</div></div>
 
-<!-- Login -->
 <div id="loginBox"><div class="login-card"><h3>📝 学生登录</h3>
 <label>学生编号 *</label><input id="studentId" placeholder="MY2026001">
 <label>英文姓名 *</label><input id="studentName" placeholder="Ahmad">
@@ -71,49 +50,44 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学）</span></div>
 <button class="btn btn-primary" onclick="login()">确认进入</button></div></div>
 
-<!-- Main pages -->
 <div class="main" id="mainContent" style="display:none">
-  <!-- Page 0: 首页 -->
+  <!-- 首页 -->
   <div class="page show" id="pageHome">
-    <div class="info-bar"><span>👤 <b id="stuName"></b></span><span id="cycleTitle">—</span></div>
+    <div class="info-bar"><span>👤 <b id="stuName"></b></span><span>信号班学习纪录</span></div>
 
     <div class="section-card">
-      <h3>📋 今日任务 Today's Task</h3>
+      <h3>📋 今日任务</h3>
       <div class="row"><span>任务名称</span><span class="val" id="todayTask">—</span></div>
       <div class="row"><span>预计用时</span><span class="val">15-20分钟</span></div>
-      <div class="row"><span>截止时间</span><span class="val">今天 23:59</span></div>
       <div class="row"><span>状态</span><span class="val"><span class="tag tag-gray" id="todayStatus">未开始</span></span></div>
       <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">📝 去学习</button>
     </div>
 
     <div class="section-card">
-      <h3>⏱ 今日小练 Daily Practice</h3>
+      <h3>⏱ 今日小练</h3>
       <div class="row"><span>题目数量</span><span class="val">5-10 题</span></div>
       <div class="row"><span>预计时间</span><span class="val">10分钟</span></div>
       <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">去练习</button>
     </div>
 
     <div class="section-card">
-      <h3>✅ 今日打卡 Check-in</h3>
+      <h3>✅ 今日打卡</h3>
       <div class="row"><span>状态</span><span class="val" id="checkinStatus"><span class="tag tag-gray">未打卡</span></span></div>
       <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去打卡</button>
     </div>
 
     <div class="section-card">
-      <h3>📊 15天学习进度</h3>
-      <div class="grid-2">
-        <div class="grid-item"><span class="num" id="doneDays">0</span><span class="lbl">已完成天数</span></div>
-        <div class="grid-item"><span class="num" id="clockDays">0</span><span class="lbl">实时打卡</span></div>
-        <div class="grid-item"><span class="num" id="backfillDays">0</span><span class="lbl">补录天数</span></div>
-        <div class="grid-item"><span class="num" id="pendingTasks">15</span><span class="lbl">待完成</span></div>
-      </div>
-      <div class="progress-bar" style="margin-top:10px"><div class="progress-fill" style="width:0%" id="cycleProgress"></div></div>
+      <h3>📊 课程任务进度</h3>
+      <div style="text-align:center;padding:8px 0"><span class="big-num"><span id="doneTasks">0</span>/10</span><span class="big-label">已完成任务</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskProgress"></div></div>
+      <div class="row"><span>待完成任务</span><span class="val" id="pendingTasks">10</span></div>
+      <div class="row"><span>最近提交</span><span class="val" id="lastSubmit">—</span></div>
     </div>
   </div>
 
-  <!-- Page 1: 学习 -->
+  <!-- 学习 -->
   <div class="page" id="pageLearn">
-    <div class="section-card"><h3>A. 每日小练 Daily Practice</h3><div class="empty-state"><span class="icon">📝</span>教师布置后显示</div></div>
+    <div class="section-card"><h3>A. 每日小练</h3><div class="empty-state"><span class="icon">📝</span>教师布置后显示</div></div>
     <div class="section-card"><h3>B. 课堂与项目任务</h3><div class="empty-state"><span class="icon">📋</span>教师布置后显示</div></div>
     <div class="section-card"><h3>C. 三次阶段测试</h3>
       <div class="row"><span>测试一</span><span class="val tag tag-gray">未开放</span></div>
@@ -140,39 +114,41 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
     </div>
   </div>
 
-  <!-- Page 2: 打卡 -->
+  <!-- 打卡 -->
   <div class="page" id="pageCheckin">
-    <div class="section-card"><h3>✅ 今日打卡</h3>
-      <div class="row"><span>状态</span><span class="val" id="checkStatus"><span class="tag tag-gray">未打卡</span></span></div>
-      <div class="cal-dots" style="margin-top:10px">
-        <script>for(var i=1;i<=15;i++)document.write('<span class="cal-dot'+(i===1?' today':'')+'">'+i+'</span>');</script>
-      </div>
+    <div class="section-card"><h3>✅ 自主学习打卡</h3>
+      <div class="row"><span>打卡状态</span><span class="val"><span class="tag tag-gray">未打卡</span></span></div>
+      <div class="row"><span>说明</span><span class="val" style="font-size:13px;color:#64748b">打卡天数由你自己决定</span></div>
     </div>
     <div class="section-card"><h3>📊 打卡统计</h3>
       <div class="grid-2">
-        <div class="grid-item"><span class="num">0</span><span class="lbl">实时打卡</span></div>
-        <div class="grid-item"><span class="num">0</span><span class="lbl">补录</span></div>
-        <div class="grid-item"><span class="num">15</span><span class="lbl">剩余</span></div>
-        <div class="grid-item"><span class="num">0%</span><span class="lbl">打卡率</span></div>
+        <div class="grid-item"><span class="num">0</span><span class="lbl">打卡天数</span></div>
+        <div class="grid-item"><span class="num">—</span><span class="lbl">连续打卡</span></div>
       </div>
     </div>
   </div>
 
-  <!-- Page 3: 档案 -->
+  <!-- 档案 -->
   <div class="page" id="pageProfile">
-    <div class="section-card"><h3>📅 15天学习日历</h3><div class="cal-dots"><script>for(var i=1;i<=15;i++)document.write('<span class="cal-dot'+(i===1?' today':'')+'">'+i+'</span>');</script></div></div>
-    <div class="section-card"><h3>📊 打卡统计</h3><div class="empty-state"><span class="icon">📊</span>数据不足</div></div>
-    <div class="section-card"><h3>📝 每日小练统计</h3><div class="empty-state"><span class="icon">📝</span>数据不足</div></div>
-    <div class="section-card"><h3>📈 三次测试成绩</h3><div class="empty-state"><span class="icon">📈</span>数据不足</div></div>
-    <div class="section-card"><h3>🎙️ 写作和录音次数</h3><div class="empty-state"><span class="icon">🎙️</span>数据不足</div></div>
-    <div class="section-card"><h3>🎨 文化任务完成</h3><div class="empty-state"><span class="icon">🎨</span>数据不足</div></div>
-    <div class="section-card"><h3>🚂 铁路中文任务</h3><div class="empty-state"><span class="icon">🚂</span>数据不足</div></div>
-    <div class="section-card"><h3>🎯 中文能力雷达图</h3><div class="empty-state"><span class="icon">🎯</span>数据不足</div></div>
+    <div class="section-card"><h3>📊 我的中文学习发展档案</h3>
+      <div class="task-done" id="profileLocked">
+        <span class="icon">🔒</span>
+        <span class="msg">完成全部10个课程任务后</span>
+        <span style="font-size:14px;color:#64748b;display:block;margin-top:4px">系统将根据你的任务、练习、测试和自主打卡数据生成中文学习发展档案。</span>
+      </div>
+      <div class="task-done" id="profileReady" style="display:none">
+        <span class="icon">✅</span>
+        <span class="msg">10个课程任务已完成</span>
+        <button class="btn btn-primary" style="margin-top:12px;width:auto;display:inline-block;padding:12px 32px">📊 生成学习档案</button>
+      </div>
+    </div>
+    <div class="section-card"><h3>📝 学习记录</h3><div class="empty-state"><span class="icon">📝</span>数据不足</div></div>
+    <div class="section-card"><h3>📈 测试成绩</h3><div class="empty-state"><span class="icon">📈</span>数据不足</div></div>
+    <div class="section-card"><h3>🎯 中文能力</h3><div class="empty-state"><span class="icon">🎯</span>数据不足</div></div>
     <div class="section-card"><h3>💬 教师反馈</h3><div class="empty-state"><span class="icon">💬</span>暂无反馈</div></div>
   </div>
 </div>
 
-<!-- Bottom tab bar -->
 <div class="tabbar" id="tabBar" style="display:none">
   <div class="tab active" onclick="switchTab(0)"><span class="icon">🏠</span>首页</div>
   <div class="tab" onclick="switchTab(1)"><span class="icon">📖</span>学习</div>
@@ -182,7 +158,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 </div>
 
 <script>
-var student=null;
+var student=null,totalTasks=10,completedTasks=0;
 
 function login(){
   var sid=document.getElementById('studentId').value.trim();
@@ -199,8 +175,18 @@ function login(){
   document.getElementById('mainContent').style.display='block';
   document.getElementById('tabBar').style.display='flex';
   document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
-  document.getElementById('cycleTitle').textContent='信号班学习纪录生成';
-  document.getElementById('cycleInfo').textContent='信号班 · 第1天/15天';
+  updateProgress();
+}
+
+function updateProgress(){
+  var done=completedTasks;var pct=Math.round(done/totalTasks*100);
+  document.getElementById('doneTasks').textContent=done;
+  document.getElementById('pendingTasks').textContent=totalTasks-done;
+  document.getElementById('taskProgress').style.width=pct+'%';
+  if(done>=totalTasks){
+    document.getElementById('profileLocked').style.display='none';
+    document.getElementById('profileReady').style.display='block';
+  }
 }
 
 function switchTab(idx){
@@ -208,7 +194,6 @@ function switchTab(idx){
   document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
 }
 
-// Auto-restore
 (function(){
   var stu=localStorage.getItem('cycle15_student');
   if(stu){student=JSON.parse(stu);
@@ -216,7 +201,7 @@ function switchTab(idx){
     document.getElementById('mainContent').style.display='block';
     document.getElementById('tabBar').style.display='flex';
     document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';
-    document.getElementById('cycleInfo').textContent='信号班 · 第1天/15天';
+    updateProgress();
   }
 })();
 </script>
