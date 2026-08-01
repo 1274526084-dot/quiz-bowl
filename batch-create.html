@@ -15,9 +15,10 @@ function next(i){
   if(i>=students.length){document.getElementById('status').innerHTML='✅ 完成！已生成 '+results.filter(function(r){return r.ok;}).length+'/'+students.length+' 个账号';showTable();return;}
   var parts=students[i].split(',');var en=parts[0].trim(),cn=(parts[1]||'').trim();var sid='MY'+String(i+4).padStart(3,'0');
   var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){
-    results.push({sid:sid,en:en,cn:cn,pin:res&&res.initialPin?res.initialPin:'FAIL',ok:!!(res&&res.success)});
+    var errMsg=res?res.error||JSON.stringify(res).slice(0,80):'无响应';
+    results.push({sid:sid,en:en,cn:cn,pin:res&&res.initialPin?res.initialPin:errMsg,ok:!!(res&&res.success)});
     document.getElementById('status').textContent='生成中... '+(i+1)+'/'+students.length;
-    document.getElementById('results').innerHTML+='<div class="item '+(res&&res.success?'ok':'fail')+'">'+(i+1)+'. '+sid+' '+en+' → '+(res&&res.success?'✅ '+res.initialPin:'❌')+'</div>';
+    document.getElementById('results').innerHTML+='<div class="item '+(res&&res.success?'ok':'fail')+'">'+(i+1)+'. '+sid+' '+en+' → '+(res&&res.success?'✅ '+res.initialPin:'❌ '+errMsg)+'</div>';
     delete window[cb];next(i+1);
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
