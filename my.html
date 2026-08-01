@@ -225,7 +225,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
 	var isPreviewMode=false;
-var TASK_DEFS=[{no:1,title:'任务一',cat:'通用中文',icon:'📝'},{no:2,title:'任务二',cat:'口语任务',icon:'🎙️'},{no:3,title:'任务三',cat:'中华文化',icon:'🏮'},{no:4,title:'任务四',cat:'电影中文',icon:'🎬'},{no:5,title:'任务五',cat:'写作任务',icon:'✍️'},{no:6,title:'任务六',cat:'铁路中文·客运',icon:'🚉'},{no:7,title:'任务七',cat:'铁路中文·信号',icon:'🚦'},{no:8,title:'任务八',cat:'口语交流',icon:'🗣️'},{no:9,title:'任务九',cat:'阶段测试',icon:'📋'},{no:10,title:'任务十',cat:'学习总结',icon:'📊'}];
+var TASK_DEFS=[{no:1,title:'HSK三级阅读与书写练习',cat:'阅读30题 + 书写10题',icon:'📝'},{no:2,title:'任务二',cat:'口语任务',icon:'🎙️'},{no:3,title:'任务三',cat:'中华文化',icon:'🏮'},{no:4,title:'任务四',cat:'电影中文',icon:'🎬'},{no:5,title:'任务五',cat:'写作任务',icon:'✍️'},{no:6,title:'任务六',cat:'铁路中文·客运',icon:'🚉'},{no:7,title:'任务七',cat:'铁路中文·信号',icon:'🚦'},{no:8,title:'任务八',cat:'口语交流',icon:'🗣️'},{no:9,title:'任务九',cat:'阶段测试',icon:'📋'},{no:10,title:'任务十',cat:'学习总结',icon:'📊'}];
 var navStack=[];
 
 // ===== Storage keys (student-scoped) =====
@@ -320,15 +320,48 @@ function switchTab(idx,track){
 }
 
 // ===== Tasks =====
-function renderTasks(){var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
+function renderTasks(){
+  var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
   document.getElementById('taskDone2').textContent=sub;document.getElementById('taskBar2').style.width=(sub/totalTasks*100)+'%';
-  var h='';TASK_DEFS.forEach(function(t){var st=taskStatuses[t.no]||'',tag='',txt='',btn='';
-    if(!st){tag='tag-gray';txt='未开始';btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask('+t.no+')">去完成</button>';}
-    else if(st==='submitted'){tag='tag-green';txt='已提交';btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask('+t.no+')">查看结果</button>';}
-    h+='<div class="section-card" style="border-left:3px solid '+(st==='submitted'?'#22c55e':'#e2e8f0')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#94a3b8">'+t.cat+' · 教师后续发布</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';});
-  document.getElementById('taskCards').innerHTML=h;}
-function openTask(no){if(isPreviewMode){alert('教师预览模式下不可提交');return;}if(confirm('标记任务'+no+'为已提交？（测试用）')){taskStatuses[no]='submitted';saveS('taskStatuses',taskStatuses);renderAll();updateHomeProgress();updateArchive();}}
-function viewTask(no){alert('任务'+no+'已提交。教师反馈后显示结果。');}
+  var h='';
+  TASK_DEFS.forEach(function(t){
+    var st=taskStatuses[t.no]||'',tag='',txt='',btn='';
+    if(t.no===1){
+      // Real Task 1 card
+      if(!st){
+        tag='tag-gray';txt='未开始';
+        btn='<div style="margin-top:6px"><span style="font-size:11px;color:#64748b;display:block">40道题 · 建议45分钟 · 阅读100分 + 书写100分 = 总分200分</span><button class="btn btn-primary" style="margin-top:6px;font-size:13px;min-height:36px" onclick="startTask1()">📝 开始答题</button></div>';
+      } else if(st==='submitted'){
+        tag='tag-green';txt='已提交';
+        btn='<button class="btn btn-outline" style="margin-top:6px;font-size:13px;min-height:36px" onclick="viewTask1Result()">📊 查看结果</button>';
+      }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn;
+      h+='<div style="font-size:10px;color:#cbd5e1;margin-top:4px">版本：TASK1-02</div></div>';
+    } else {
+      // Placeholder for tasks 2-10
+      if(!st){tag='tag-gray';txt='未开始';btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask('+t.no+')">去完成</button>';}
+      else if(st==='submitted'){tag='tag-green';txt='已提交';btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask('+t.no+')">查看结果</button>';}
+      h+='<div class="section-card" style="border-left:3px solid '+(st==='submitted'?'#22c55e':'#e2e8f0')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#94a3b8">'+t.cat+' · 教师后续发布</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    }
+  });
+  document.getElementById('taskCards').innerHTML=h;
+}
+function openTask(no){
+  if(isPreviewMode){alert('教师预览模式下不可答题');return;}
+  if(Number(no)===1){
+    startTask1();
+    return;
+  }
+  alert('该任务由教师后续开放。');
+}
+function viewTask(no){
+  if(Number(no)===1){
+    viewTask1Result();
+    return;
+  }
+  alert('该任务暂未开放。');
+}
 function updateHomeProgress(){var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length,pct=Math.round(sub/totalTasks*100);
   document.getElementById('doneTasks').textContent=sub;document.getElementById('pendingTasks').textContent=totalTasks-sub;document.getElementById('taskProgress').style.width=pct+'%';
   updateArchive();}
@@ -458,25 +491,7 @@ var quizState = {
   submitting: false, submitted: false
 };
 
-// Override openTask for Task 1
-var _openTaskOrig = openTask;
-openTask = function(no) {
-  if (no === 1 && !isPreviewMode) {
-    startTask1();
-    return;
-  }
-  _openTaskOrig(no);
-};
-
-// Override viewTask for Task 1
-var _viewTaskOrig = viewTask;
-viewTask = function(no) {
-  if (no === 1 && !isPreviewMode) {
-    viewTask1Result();
-    return;
-  }
-  _viewTaskOrig(no);
-};
+// (openTask and viewTask handle Task 1 directly — no overrides needed)
 
 function getDraftKey() {
   return 'draft_' + (student ? student.uid : 'anon') + '_TASK_HSK3_RW_01';
@@ -508,6 +523,7 @@ function clearQuizDraft() {
 }
 
 function startTask1() {
+  console.log('TASK1_BUILD_20260802_02');
   if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
   if (!student) { alert('请先登录'); return; }
 
@@ -516,6 +532,13 @@ function startTask1() {
     viewTask1Result();
     return;
   }
+
+  // Show loading
+  var loadingMsg = document.createElement('div');
+  loadingMsg.id = 'task1Loading';
+  loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:24px 36px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;text-align:center;font-size:15px;color:#1e293b';
+  loadingMsg.innerHTML = '⏳<br>正在加载40道题……';
+  document.body.appendChild(loadingMsg);
 
   // Load draft
   var draft = loadQuizDraft();
@@ -545,6 +568,9 @@ function startTask1() {
 function fetchTaskAndStart() {
   var cb = '_gt' + Date.now();
   window[cb] = function(res) {
+    // Remove loading indicator
+    var ld = document.getElementById('task1Loading');
+    if (ld) ld.remove();
     if (res && res.success) {
       if (res.submissionStatus === 'submitted') {
         // Already submitted on server - show results
@@ -559,7 +585,8 @@ function fetchTaskAndStart() {
       showQuizOverlay();
       renderQuizStep(quizState.currentStep);
     } else {
-      alert('加载任务失败：' + (res ? res.error : '未知错误'));
+      var errMsg = '加载任务失败：' + (res ? (res.error || '未知错误') : '网络请求失败，请检查网络后重试');
+      alert(errMsg);
       quizState.active = false;
     }
     delete window[cb];
@@ -1296,36 +1323,5 @@ function closeResult() {
   updateHomeProgress();
 }
 
-// ===== Task card rendering override =====
-var _renderTasksOrig = renderTasks;
-renderTasks = function() {
-  var sub = Object.values(taskStatuses).filter(function(s) { return s === 'submitted'; }).length;
-  document.getElementById('taskDone2').textContent = sub;
-  document.getElementById('taskBar2').style.width = (sub / totalTasks * 100) + '%';
-
-  var h = '';
-  TASK_DEFS.forEach(function(t) {
-    var st = taskStatuses[t.no] || '';
-    var tag = '', txt = '', btn = '';
-
-    if (t.no === 1) {
-      // Real Task 1 card
-      if (!st) {
-        tag = 'tag-gray'; txt = '未开始';
-        btn = '<div style="margin-top:6px"><span style="font-size:11px;color:#64748b;display:block">40道题 · 建议45分钟 · 阅读100分 + 书写100分 = 总分200分</span><button class="btn btn-primary" style="margin-top:6px;font-size:13px;min-height:36px" onclick="startTask1()">📝 开始答题</button></div>';
-      } else if (st === 'submitted') {
-        tag = 'tag-green'; txt = '已提交';
-        btn = '<button class="btn btn-outline" style="margin-top:6px;font-size:13px;min-height:36px" onclick="viewTask1Result()">📊 查看结果</button>';
-      }
-      h += '<div class="section-card" style="border-left:4px solid ' + (st === 'submitted' ? '#22c55e' : '#2563eb') + '">';
-      h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag ' + tag + '">' + txt + '</span></div>' + btn + '</div>';
-    } else {
-      // Placeholder for other tasks
-      if (!st) { tag = 'tag-gray'; txt = '未开始'; btn = '<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask(' + t.no + ')">去完成</button>'; }
-      else if (st === 'submitted') { tag = 'tag-green'; txt = '已提交'; btn = '<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask(' + t.no + ')">查看结果</button>'; }
-      h += '<div class="section-card" style="border-left:3px solid ' + (st === 'submitted' ? '#22c55e' : '#e2e8f0') + '"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">' + t.icon + '</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务' + t.no + ': ' + t.title + '</div><div style="font-size:11px;color:#94a3b8">' + t.cat + ' · 教师后续发布</div></div><span class="tag ' + tag + '">' + txt + '</span></div>' + btn + '</div>';
-    }
-  });
-  document.getElementById('taskCards').innerHTML = h;
-};
+// (renderTasks handles Task 1 directly — no override needed)
 </script></body></html>
