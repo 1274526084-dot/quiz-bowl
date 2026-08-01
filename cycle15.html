@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>马来西亚学生15天中文学习</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#eef2ff;min-height:100vh}
+.container{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+
+/* Top bar */
+.topbar{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:16px;text-align:center;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:18px;font-weight:700}.topbar .sub{font-size:12px;opacity:0.75;margin-top:2px}
+.topbar .cycle-info{font-size:11px;opacity:0.6;margin-top:2px}
+
+/* Login */
+.login-card{margin:16px;background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e2e8f0}
+.login-card h3{font-size:17px;color:#1e293b;margin-bottom:14px;text-align:center}
+.login-card label{font-size:14px;color:#475569;display:block;margin:10px 0 4px;font-weight:600}
+.login-card input{width:100%;padding:14px;border:1.5px solid #d1d5db;border-radius:10px;font-size:16px;outline:none;background:#f9fafb}
+.login-card input:focus{border-color:#2563eb}
+.check-row{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:13px;color:#475569}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;min-height:48px}.btn-primary{background:#2563eb;color:#fff}
+
+/* Main content */
+.main{flex:1;overflow-y:auto;padding-bottom:20px}
+.info-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b}
+.info-bar b{color:#1e293b}
+
+/* Cards */
+.section-card{background:#fff;border-radius:12px;padding:16px;margin:10px 12px;border:1.5px solid #e2e8f0}
+.section-card h3{font-size:16px;color:#1e293b;margin-bottom:10px}
+.section-card .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#475569}
+.section-card .row:last-child{border-bottom:none}
+.section-card .row .val{font-weight:600;color:#1e293b}
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600}
+.tag-green{background:#f0fdf4;color:#16a34a}.tag-amber{background:#fffbeb;color:#d97706}.tag-blue{background:#eff6ff;color:#2563eb}.tag-gray{background:#f1f5f9;color:#64748b}
+
+.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:8px 0;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:4px;transition:width 0.3s}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-item{background:#f8fafc;border-radius:10px;padding:14px;text-align:center}.grid-item .num{font-size:28px;font-weight:800;color:#2563eb;display:block}.grid-item .lbl{font-size:12px;color:#94a3b8;margin-top:4px}
+
+.empty-state{text-align:center;padding:30px 20px;color:#94a3b8;font-size:14px}.empty-state .icon{font-size:40px;display:block;margin-bottom:8px}
+
+/* 主题列表 */
+.theme-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-card{background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b}
+.theme-card .icon{font-size:28px;display:block;margin-bottom:6px}
+.theme-card .name{font-weight:600;color:#1e293b}
+
+/* Calendar mini */
+.cal-dots{display:flex;flex-wrap:wrap;gap:4px}.cal-dot{width:24px;height:24px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#94a3b8}.cal-dot.done{background:#22c55e;color:#fff}.cal-dot.clock{background:#f59e0b;color:#fff}.cal-dot.today{border:2px solid #2563eb;font-weight:700}
+
+/* Tab bar */
+.tabbar{display:flex;background:#fff;border-top:1px solid #e2e8f0;position:sticky;bottom:0;z-index:10}
+.tab{flex:1;text-align:center;padding:10px 4px;font-size:11px;color:#94a3b8;cursor:pointer}.tab .icon{font-size:22px;display:block;margin-bottom:2px}.tab.active{color:#2563eb;font-weight:600}
+
+.page{display:none}.page.show{display:block}
+</style>
+</head>
+<body><div class="container" id="app">
+<div class="topbar"><h1>马来西亚学生15天中文学习</h1><div class="sub">成长记录 · Learning Journey</div><div class="cycle-info" id="cycleInfo"></div></div>
+
+<!-- Login -->
+<div id="loginBox"><div class="login-card"><h3>📝 学生登录</h3>
+<label>学生编号 *</label><input id="studentId" placeholder="MY2026001">
+<label>英文姓名 *</label><input id="studentName" placeholder="Ahmad">
+<label>中文姓名</label><input id="chineseName" placeholder="陈小明">
+<label>班级口令 *</label><input id="classCode" type="password" placeholder="MY2026">
+<div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学）</span></div>
+<button class="btn btn-primary" onclick="login()">确认进入</button></div></div>
+
+<!-- Main pages -->
+<div class="main" id="mainContent" style="display:none">
+  <!-- Page 0: 首页 -->
+  <div class="page show" id="pageHome">
+    <div class="info-bar"><span>👤 <b id="stuName"></b></span><span id="cycleTitle">—</span></div>
+
+    <div class="section-card">
+      <h3>📋 今日任务 Today's Task</h3>
+      <div class="row"><span>任务名称</span><span class="val" id="todayTask">—</span></div>
+      <div class="row"><span>预计用时</span><span class="val">15-20分钟</span></div>
+      <div class="row"><span>截止时间</span><span class="val">今天 23:59</span></div>
+      <div class="row"><span>状态</span><span class="val"><span class="tag tag-gray" id="todayStatus">未开始</span></span></div>
+      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">📝 去学习</button>
+    </div>
+
+    <div class="section-card">
+      <h3>⏱ 今日小练 Daily Practice</h3>
+      <div class="row"><span>题目数量</span><span class="val">5-10 题</span></div>
+      <div class="row"><span>预计时间</span><span class="val">10分钟</span></div>
+      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">去练习</button>
+    </div>
+
+    <div class="section-card">
+      <h3>✅ 今日打卡 Check-in</h3>
+      <div class="row"><span>状态</span><span class="val" id="checkinStatus"><span class="tag tag-gray">未打卡</span></span></div>
+      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去打卡</button>
+    </div>
+
+    <div class="section-card">
+      <h3>📊 15天学习进度</h3>
+      <div class="grid-2">
+        <div class="grid-item"><span class="num" id="doneDays">0</span><span class="lbl">已完成天数</span></div>
+        <div class="grid-item"><span class="num" id="clockDays">0</span><span class="lbl">实时打卡</span></div>
+        <div class="grid-item"><span class="num" id="backfillDays">0</span><span class="lbl">补录天数</span></div>
+        <div class="grid-item"><span class="num" id="pendingTasks">15</span><span class="lbl">待完成</span></div>
+      </div>
+      <div class="progress-bar" style="margin-top:10px"><div class="progress-fill" style="width:0%" id="cycleProgress"></div></div>
+    </div>
+  </div>
+
+  <!-- Page 1: 学习 -->
+  <div class="page" id="pageLearn">
+    <div class="section-card"><h3>A. 每日小练 Daily Practice</h3><div class="empty-state"><span class="icon">📝</span>教师布置后显示</div></div>
+    <div class="section-card"><h3>B. 课堂与项目任务</h3><div class="empty-state"><span class="icon">📋</span>教师布置后显示</div></div>
+    <div class="section-card"><h3>C. 三次阶段测试</h3>
+      <div class="row"><span>测试一</span><span class="val tag tag-gray">未开放</span></div>
+      <div class="row"><span>测试二</span><span class="val tag tag-gray">未开放</span></div>
+      <div class="row"><span>测试三</span><span class="val tag tag-gray">未开放</span></div>
+    </div>
+    <div class="section-card"><h3>D. 主题学习</h3>
+      <div style="font-size:14px;font-weight:600;color:#475569;margin:10px 0 6px">1. 中华文化</div>
+      <div class="theme-list">
+        <div class="theme-card"><span class="icon">🏮</span><span class="name">传统节日</span>待开放</div>
+        <div class="theme-card"><span class="icon">🍵</span><span class="name">茶文化</span>待开放</div>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#475569;margin:14px 0 6px">2. 跨境铁路中文</div>
+      <div class="theme-list">
+        <div class="theme-card"><span class="icon">🚉</span><span class="name">客运服务</span>待开放</div>
+        <div class="theme-card"><span class="icon">🚂</span><span class="name">运输组织</span>待开放</div>
+        <div class="theme-card"><span class="icon">🚦</span><span class="name">铁路信号</span>待开放</div>
+        <div class="theme-card"><span class="icon">🔧</span><span class="name">机车车辆</span>待开放</div>
+        <div class="theme-card"><span class="icon">⚡</span><span class="name">牵引供电</span>待开放</div>
+        <div class="theme-card"><span class="icon">🛡️</span><span class="name">安全应急</span>待开放</div>
+        <div class="theme-card"><span class="icon">🏗️</span><span class="name">车站设施</span>待开放</div>
+        <div class="theme-card"><span class="icon">🌏</span><span class="name">跨文化沟通</span>待开放</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 2: 打卡 -->
+  <div class="page" id="pageCheckin">
+    <div class="section-card"><h3>✅ 今日打卡</h3>
+      <div class="row"><span>状态</span><span class="val" id="checkStatus"><span class="tag tag-gray">未打卡</span></span></div>
+      <div class="cal-dots" style="margin-top:10px">
+        <script>for(var i=1;i<=15;i++)document.write('<span class="cal-dot'+(i===1?' today':'')+'">'+i+'</span>');</script>
+      </div>
+    </div>
+    <div class="section-card"><h3>📊 打卡统计</h3>
+      <div class="grid-2">
+        <div class="grid-item"><span class="num">0</span><span class="lbl">实时打卡</span></div>
+        <div class="grid-item"><span class="num">0</span><span class="lbl">补录</span></div>
+        <div class="grid-item"><span class="num">15</span><span class="lbl">剩余</span></div>
+        <div class="grid-item"><span class="num">0%</span><span class="lbl">打卡率</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 3: 档案 -->
+  <div class="page" id="pageProfile">
+    <div class="section-card"><h3>📅 15天学习日历</h3><div class="cal-dots"><script>for(var i=1;i<=15;i++)document.write('<span class="cal-dot'+(i===1?' today':'')+'">'+i+'</span>');</script></div></div>
+    <div class="section-card"><h3>📊 打卡统计</h3><div class="empty-state"><span class="icon">📊</span>数据不足</div></div>
+    <div class="section-card"><h3>📝 每日小练统计</h3><div class="empty-state"><span class="icon">📝</span>数据不足</div></div>
+    <div class="section-card"><h3>📈 三次测试成绩</h3><div class="empty-state"><span class="icon">📈</span>数据不足</div></div>
+    <div class="section-card"><h3>🎙️ 写作和录音次数</h3><div class="empty-state"><span class="icon">🎙️</span>数据不足</div></div>
+    <div class="section-card"><h3>🎨 文化任务完成</h3><div class="empty-state"><span class="icon">🎨</span>数据不足</div></div>
+    <div class="section-card"><h3>🚂 铁路中文任务</h3><div class="empty-state"><span class="icon">🚂</span>数据不足</div></div>
+    <div class="section-card"><h3>🎯 中文能力雷达图</h3><div class="empty-state"><span class="icon">🎯</span>数据不足</div></div>
+    <div class="section-card"><h3>💬 教师反馈</h3><div class="empty-state"><span class="icon">💬</span>暂无反馈</div></div>
+  </div>
+</div>
+
+<!-- Bottom tab bar -->
+<div class="tabbar" id="tabBar" style="display:none">
+  <div class="tab active" onclick="switchTab(0)"><span class="icon">🏠</span>首页</div>
+  <div class="tab" onclick="switchTab(1)"><span class="icon">📖</span>学习</div>
+  <div class="tab" onclick="switchTab(2)"><span class="icon">✅</span>打卡</div>
+  <div class="tab" onclick="switchTab(3)"><span class="icon">📊</span>档案</div>
+</div>
+</div>
+
+<script>
+var student=null;
+
+function login(){
+  var sid=document.getElementById('studentId').value.trim();
+  var sn=document.getElementById('studentName').value.trim();
+  var cn=document.getElementById('chineseName').value.trim();
+  var code=document.getElementById('classCode').value.trim();
+  var c=document.getElementById('consent').checked;
+  if(!sid||!sn){alert('请填写学生编号和英文姓名');return;}
+  if(code!=='MY2026'){alert('班级口令错误');return;}
+  if(!c){alert('请勾选同意');return;}
+  student={id:sid,name:sn,chineseName:cn,learnerType:'international_student',learningTrack:'chinese_track',country:'Malaysia'};
+  localStorage.setItem('cycle15_student',JSON.stringify(student));
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('tabBar').style.display='flex';
+  document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
+  document.getElementById('cycleTitle').textContent='15天中文学习成长记录';
+  document.getElementById('cycleInfo').textContent='学习周期 · 第1天/15天';
+}
+
+function switchTab(idx){
+  document.querySelectorAll('.page').forEach(function(p,i){p.classList.toggle('show',i===idx);});
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
+}
+
+// Auto-restore
+(function(){
+  var stu=localStorage.getItem('cycle15_student');
+  if(stu){student=JSON.parse(stu);
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('mainContent').style.display='block';
+    document.getElementById('tabBar').style.display='flex';
+    document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';
+    document.getElementById('cycleInfo').textContent='学习周期 · 第1天/15天';
+  }
+})();
+</script>
+</body></html>
