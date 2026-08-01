@@ -107,6 +107,11 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   </div>
 </div>
 <div class="page" id="page-coursetasks">
+  <div class="toolbar" style="margin-bottom:8px">
+    <button class="btn btn-small" id="ctFilterFormal" style="background:#2563eb;color:#fff;font-weight:700" onclick="switchCtFilter('formal')">📋 正式学生</button>
+    <button class="btn btn-small" id="ctFilterTest" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtFilter('test')">🧪 测试账号</button>
+    <button class="btn btn-small" id="ctFilterAll" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtFilter('all')">📊 全部账号</button>
+  </div>
   <div class="stats-row" id="ctStatsRow"></div>
   <div class="stats-row" id="ctStatsRow2"></div>
   <div class="chart-card" style="margin-bottom:8px"><h4>📊 分析</h4><div id="ctAnalysis"></div></div>
@@ -296,6 +301,15 @@ function exportHskTemplate(){
 
 // ===== Course Task 1 Stats =====
 var ctStatsData = null;
+var ctCurrentFilter = 'formal';
+
+function switchCtFilter(cat) {
+  ctCurrentFilter = cat;
+  document.getElementById('ctFilterFormal').style.cssText = cat === 'formal' ? 'background:#2563eb;color:#fff;font-weight:700' : 'background:#fff;color:#64748b;border:1.5px solid #e2e8f0';
+  document.getElementById('ctFilterTest').style.cssText = cat === 'test' ? 'background:#2563eb;color:#fff;font-weight:700' : 'background:#fff;color:#64748b;border:1.5px solid #e2e8f0';
+  document.getElementById('ctFilterAll').style.cssText = cat === 'all' ? 'background:#2563eb;color:#fff;font-weight:700' : 'background:#fff;color:#64748b;border:1.5px solid #e2e8f0';
+  loadCourseTaskStats();
+}
 
 function loadCourseTaskStats() {
   var cb = '_cts' + Date.now();
@@ -310,38 +324,41 @@ function loadCourseTaskStats() {
     delete window[cb];
   };
   var s = document.createElement('script');
-  s.src = API + '?callback=' + cb + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01';
+  s.src = API + '?callback=' + cb + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01&accountCategory=' + ctCurrentFilter;
   document.head.appendChild(s);
 }
+
+function fmtVal(v) { return (v != null && v !== '') ? v : '暂无'; }
 
 function renderCourseTaskStats() {
   var st = ctStatsData;
   if (!st) return;
+  var catLabel = ctCurrentFilter === 'formal' ? '正式学生' : (ctCurrentFilter === 'test' ? '测试账号' : '全部账号');
   var r1 = '';
-  r1 += '<div class="stat-card blue"><span class="num">' + st.totalFormal + '</span><span class="lbl">正式学生</span></div>';
+  r1 += '<div class="stat-card blue"><span class="num">' + st.studentCount + '</span><span class="lbl">' + catLabel + '</span></div>';
   r1 += '<div class="stat-card"><span class="num">' + st.startedCount + '</span><span class="lbl">已开始</span></div>';
   r1 += '<div class="stat-card green"><span class="num">' + st.submittedCount + '</span><span class="lbl">已提交</span></div>';
   r1 += '<div class="stat-card red"><span class="num">' + st.unsubmittedCount + '</span><span class="lbl">未提交</span></div>';
   r1 += '<div class="stat-card amber"><span class="num">' + st.completionRate + '%</span><span class="lbl">完成率</span></div>';
   document.getElementById('ctStatsRow').innerHTML = r1;
   var r2 = '';
-  r2 += '<div class="stat-card blue"><span class="num">' + st.readingAvg + '</span><span class="lbl">阅读平均分</span></div>';
-  r2 += '<div class="stat-card"><span class="num">' + st.writingAvg + '</span><span class="lbl">书写平均分</span></div>';
-  r2 += '<div class="stat-card green"><span class="num">' + st.totalAvg + '</span><span class="lbl">总分平均</span></div>';
-  r2 += '<div class="stat-card"><span class="num">' + st.totalMax + '</span><span class="lbl">最高分</span></div>';
-  r2 += '<div class="stat-card red"><span class="num">' + st.totalMin + '</span><span class="lbl">最低分</span></div>';
+  r2 += '<div class="stat-card blue"><span class="num">' + fmtVal(st.readingAvg) + '</span><span class="lbl">阅读平均分</span></div>';
+  r2 += '<div class="stat-card"><span class="num">' + fmtVal(st.writingAvg) + '</span><span class="lbl">书写平均分</span></div>';
+  r2 += '<div class="stat-card green"><span class="num">' + fmtVal(st.totalAvg) + '</span><span class="lbl">总分平均</span></div>';
+  r2 += '<div class="stat-card"><span class="num">' + fmtVal(st.totalMax) + '</span><span class="lbl">最高分</span></div>';
+  r2 += '<div class="stat-card red"><span class="num">' + fmtVal(st.totalMin) + '</span><span class="lbl">最低分</span></div>';
   document.getElementById('ctStatsRow2').innerHTML = r2;
-  var durMin = st.avgDurationSeconds ? Math.floor(st.avgDurationSeconds / 60) : 0;
+  var durMin = st.avgDurationSeconds ? Math.floor(st.avgDurationSeconds / 60) : null;
   var a = '<div style="font-size:12px;line-height:2">';
-  a += '<b>阅读部分正确率：</b>第一部分 ' + st.readingPart1Rate + '% · 第二部分 ' + st.readingPart2Rate + '% · 第三部分 ' + st.readingPart3Rate + '%<br>';
-  a += '<b>书写得分率：</b>完成句子 ' + st.writingPart1Rate + '% · 填写汉字 ' + st.writingPart2Rate + '%<br>';
-  a += '<b>总分中位数：</b>' + st.totalMedian + ' · <b>平均答题时间：</b>' + durMin + '分钟';
+  a += '<b>阅读部分正确率：</b>第一部分 ' + fmtVal(st.readingPart1Rate) + (st.readingPart1Rate != null ? '%' : '') + ' · 第二部分 ' + fmtVal(st.readingPart2Rate) + (st.readingPart2Rate != null ? '%' : '') + ' · 第三部分 ' + fmtVal(st.readingPart3Rate) + (st.readingPart3Rate != null ? '%' : '') + '<br>';
+  a += '<b>书写得分率：</b>完成句子 ' + fmtVal(st.writingPart1Rate) + (st.writingPart1Rate != null ? '%' : '') + ' · 填写汉字 ' + fmtVal(st.writingPart2Rate) + (st.writingPart2Rate != null ? '%' : '') + '<br>';
+  a += '<b>总分中位数：</b>' + fmtVal(st.totalMedian) + ' · <b>平均答题时间：</b>' + (durMin != null ? durMin + '分钟' : '暂无');
   a += '</div>';
   document.getElementById('ctAnalysis').innerHTML = a;
   var te = '';
   if (st.topErrors && st.topErrors.length > 0) {
     st.topErrors.forEach(function(e) {
-      te += '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><b>' + e.questionId + '</b> — 正确率 ' + e.rate + '%（' + e.wrong + '人答错）</div>';
+      te += '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><b>' + e.questionId + '</b> — 正确率 ' + fmtVal(e.rate) + (e.rate != null ? '%' : '') + '（' + e.wrong + '人答错）</div>';
     });
   } else { te = '<div style="font-size:12px;color:#94a3b8">暂无数据</div>'; }
   document.getElementById('ctTopErrors').innerHTML = te;
@@ -350,7 +367,7 @@ function renderCourseTaskStats() {
     st.unsubmittedList.forEach(function(s) {
       us += '<span style="display:inline-block;background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:11px;margin:2px">' + s.studentId + ' ' + (s.chineseName || s.englishName || '') + '</span>';
     });
-  } else { us = '<div style="font-size:12px;color:#16a34a">✅ 所有正式学生已提交</div>'; }
+  } else { us = '<div style="font-size:12px;color:#16a34a">✅ 所有' + catLabel + '已提交</div>'; }
   document.getElementById('ctUnsubmitted').innerHTML = us;
 }
 
@@ -360,17 +377,19 @@ function renderCourseTaskTable() {
   var students = ctStatsData ? ctStatsData.studentTable : [];
   students.forEach(function(stu) {
     if (search && stu.studentId.toLowerCase().indexOf(search) === -1 && (stu.chineseName || '').indexOf(search) === -1 && (stu.englishName || '').toLowerCase().indexOf(search) === -1) return;
+    var isTest = stu.accountCategory === 'test';
     var dur = stu.durationSeconds ? Math.floor(stu.durationSeconds / 60) + '分' : '—';
     var subTime = stu.submittedAt ? stu.submittedAt.replace('T', ' ').slice(0, 19) : '—';
     var statusTag = stu.hasSubmitted ? '<span style="color:#16a34a">✅</span>' : (stu.hasStarted ? '<span style="color:#f59e0b">进行中</span>' : '<span style="color:#94a3b8">未开始</span>');
     var startTag = stu.hasStarted ? '✅' : '—';
     var subTag = stu.hasSubmitted ? '✅' : '—';
+    var idDisplay = stu.studentId + (isTest ? ' <span style="color:#f59e0b;font-size:9px;font-weight:700">测试</span>' : '');
     var ops = '';
     if (stu.hasSubmitted) {
       ops = '<button class="btn btn-small btn-outline" onclick="viewStudentAnswers(\'' + stu.studentUid + '\',\'' + (stu.englishName || stu.studentId) + '\')">📋 答卷</button> ';
       ops += '<button class="btn btn-small" style="background:#fef2f2;color:#dc2626" onclick="resetStudentTask(\'' + stu.studentUid + '\',\'' + stu.studentId + '\')">🔄 重置</button>';
     }
-    rows += '<tr><td>' + stu.studentId + '</td><td class="name">' + (stu.englishName || '') + '</td><td>' + (stu.chineseName || '') + '</td><td>' + statusTag + '</td><td>' + startTag + '</td><td>' + subTag + '</td><td>' + (stu.readingCorrectCount != null ? stu.readingCorrectCount + '/30' : '—') + '</td><td>' + (stu.readingScore != null ? stu.readingScore : '—') + '</td><td>' + (stu.writingScore != null ? stu.writingScore : '—') + '</td><td><b>' + (stu.totalScore != null ? stu.totalScore : '—') + '</b></td><td>' + dur + '</td><td style="font-size:10px">' + subTime + '</td><td>' + ops + '</td></tr>';
+    rows += '<tr><td>' + idDisplay + '</td><td class="name">' + (stu.englishName || '') + '</td><td>' + (stu.chineseName || '') + '</td><td>' + statusTag + '</td><td>' + startTag + '</td><td>' + subTag + '</td><td>' + (stu.readingCorrectCount != null ? stu.readingCorrectCount + '/30' : '—') + '</td><td>' + (stu.readingScore != null ? stu.readingScore : '—') + '</td><td>' + (stu.writingScore != null ? stu.writingScore : '—') + '</td><td><b>' + (stu.totalScore != null ? stu.totalScore : '—') + '</b></td><td>' + dur + '</td><td style="font-size:10px">' + subTime + '</td><td>' + ops + '</td></tr>';
   });
   document.getElementById('ctTbody').innerHTML = rows || '<tr><td colspan="13" style="padding:12px;color:#94a3b8">加载中或暂无数据</td></tr>';
 }
@@ -442,7 +461,7 @@ function exportCourseTaskCsv() {
       delete window[cb2];
     };
     var s2 = document.createElement('script');
-    s2.src = API + '?callback=' + cb2 + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01';
+    s2.src = API + '?callback=' + cb2 + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01&accountCategory=' + ctCurrentFilter;
     document.head.appendChild(s2);
     return;
   }
@@ -450,11 +469,11 @@ function exportCourseTaskCsv() {
 }
 
 function doExportCsv() {
-  var csv = '﻿studentId,englishName,chineseName,readingCorrectCount,readingScore,writingScore,totalScore,durationSeconds,submittedAt\n';
+  var csv = '﻿studentId,englishName,chineseName,accountCategory,readingCorrectCount,readingScore,writingScore,totalScore,durationSeconds,submittedAt\n';
   var students = ctStatsData ? ctStatsData.studentTable : [];
   students.forEach(function(s) {
     if (!s.hasSubmitted) return;
-    csv += [s.studentId, s.englishName, s.chineseName,
+    csv += [s.studentId, s.englishName, s.chineseName, s.accountCategory || '',
       s.readingCorrectCount != null ? s.readingCorrectCount : '',
       s.readingScore != null ? s.readingScore : '',
       s.writingScore != null ? s.writingScore : '',
@@ -465,7 +484,7 @@ function doExportCsv() {
   var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '任务一成绩_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = '任务一成绩_' + ctCurrentFilter + '_' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
 }
 </script></body></html>
