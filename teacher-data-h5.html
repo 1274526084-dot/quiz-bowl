@@ -42,7 +42,7 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <button class="btn btn-refresh" onclick="loadData()">🔄 刷新</button>
   <span class="refreshed" id="refreshTime"></span>
   <button class="btn btn-outline" onclick="toggleRawTable()">📋 原始数据</button>
-  <button class="btn btn-outline" onclick="exportCSV()">📤 导出CSV</button>
+  <button class="btn btn-outline" onclick="exportExcel()">📤 导出Excel</button>
 </div>
 <div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
 <div class="table-wrap" id="rawTable"><table><thead><tr><th>姓名</th><th>编号</th><th>UID</th><th>类型</th><th>标题</th><th>选词</th><th>句子</th><th>时间</th></tr></thead><tbody id="tbody"></tbody></table></div>
@@ -91,5 +91,5 @@ function renderRawTable(){
   document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="8" style="padding:20px;color:#94a3b8">暂无</td></tr>';
 }
 
-function exportCSV(){var csv='studentId,studentName,studentUid,dataType,extensionTitle,selectedWord,studentSentence,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.studentUid||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',(r.studentSentence||'').replace(/"/g,'""'),r.serverTime||r.submitTime||''].join(',')+'\n';});navigator.clipboard.writeText(csv).then(function(){alert('CSV已复制')});}
+function exportExcel(){var BOM='﻿';var csv='studentId,studentName,studentUid,dataType,extensionTitle,selectedWord,studentSentence,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.studentUid||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',(r.studentSentence||'').replace(/"/g,'""'),r.serverTime||r.submitTime||''].join(',')+'\n';});var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='马来西亚学生数据_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);}
 </script></body></html>
