@@ -7,27 +7,20 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 .header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:14px 18px;border-radius:12px;color:#fff;margin-bottom:10px}.header h2{font-size:18px}.header p{font-size:11px;opacity:0.7;margin-top:2px}
 .auth-box{background:#fff;border-radius:14px;padding:24px;max-width:360px;margin:40px auto;text-align:center;border:2px solid #e2e8f0}.auth-box input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;text-align:center;margin:8px 0}
 .btn{padding:10px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}.btn-auth{width:100%;background:#2563eb;color:#fff;padding:14px;font-size:14px}.btn-refresh{background:#16a34a;color:#fff}.btn-outline{background:#fff;color:#2563eb;border:1.5px solid #2563eb}.btn-small{padding:4px 10px;font-size:11px;min-height:28px}
-
 .tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}.tab-btn{flex:1;min-width:60px;padding:8px 6px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;cursor:pointer;text-align:center;font-weight:600;color:#64748b}.tab-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
 .page{display:none}.page.show{display:block}
-
 .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}.stat-card{background:#fff;border-radius:8px;padding:10px 8px;text-align:center;border:1.5px solid #e2e8f0}.stat-card .num{font-size:22px;font-weight:800;color:#1e293b;display:block}.stat-card .lbl{font-size:10px;color:#94a3b8;margin-top:2px}
 .stat-card.green{border-left:3px solid #22c55e}.stat-card.amber{border-left:3px solid #f59e0b}.stat-card.blue{border-left:3px solid #2563eb}.stat-card.red{border-left:3px solid #ef4444}
-
 .toolbar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}.toolbar input{padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;flex:1;min-width:80px;background:#fff}.refreshed{font-size:10px;color:#94a3b8;white-space:nowrap}
-
 table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-radius:8px;overflow:hidden}th{background:#f8fafc;padding:6px 4px;text-align:center;color:#64748b;font-size:10px;border-bottom:2px solid #e2e8f0}td{padding:5px 3px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}td.name{text-align:left;font-weight:600;color:#1e293b}tr:hover{background:#f8fafc}
 .tbl-wrap{max-height:400px;overflow-y:auto;border-radius:8px;border:1.5px solid #e2e8f0;margin-bottom:10px}
-
 .chart-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .chart-card{flex:1;min-width:200px;background:#fff;border-radius:10px;padding:12px;border:1.5px solid #e2e8f0;text-align:center}
 .chart-card h4{font-size:12px;color:#64748b;margin-bottom:6px}
 .bar-row{display:flex;align-items:center;gap:6px;margin:4px 0}.bar-label{font-size:10px;color:#64748b;width:35px}.bar-outer{flex:1;height:12px;background:#e2e8f0;border-radius:4px;overflow:hidden}.bar-inner{height:100%;border-radius:4px}.bar-val{font-size:10px;color:#475569;width:30px;text-align:right}
 .donut{width:100px;height:100px;border-radius:50%;margin:8px auto;position:relative}
 .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:800}
-
 .hsk-type{display:inline-block;padding:2px 6px;border-radius:6px;font-size:9px;font-weight:600;margin:1px}.hsk-type.bal{background:#eff6ff;color:#2563eb}.hsk-type.lis{background:#f0fdf4;color:#16a34a}.hsk-type.rea{background:#fef3c7;color:#d97706}.hsk-type.wri{background:#fdf2f8;color:#db2777}.hsk-type.weak{background:#fef2f2;color:#dc2626}
-
 .student-mgmt{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
 .import-panel{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
 </style>
@@ -50,26 +43,29 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <span class="refreshed" id="refreshTime"></span>
 </div>
 
-<!-- 总览 -->
 <div class="page show" id="page-overview">
   <div class="stats-row">
     <div class="stat-card blue"><span class="num" id="ovFormal">0</span><span class="lbl">正式学生</span></div>
     <div class="stat-card"><span class="num" id="ovTest">0</span><span class="lbl">测试账号</span></div>
     <div class="stat-card amber"><span class="num" id="ovPending">0</span><span class="lbl">待激活</span></div>
     <div class="stat-card green"><span class="num" id="ovActive">0</span><span class="lbl">已激活</span></div>
-    <div class="stat-card"><span class="num" id="ovHsk">0</span><span class="lbl">HSK记录</span></div>
+    <div class="stat-card blue"><span class="num" id="ovHsk">0</span><span class="lbl">正式HSK</span></div>
   </div>
   <div class="stats-row">
-    <div class="stat-card green"><span class="num" id="ovBaseline">0</span><span class="lbl">前置基线</span></div>
+    <div class="stat-card"><span class="num" id="ovHskTest">0</span><span class="lbl">测试HSK</span></div>
+    <div class="stat-card green"><span class="num" id="ovBaseline">0</span><span class="lbl">正式基线</span></div>
+    <div class="stat-card"><span class="num" id="ovBaseTest">0</span><span class="lbl">测试基线</span></div>
     <div class="stat-card"><span class="num" id="ovTasks">0</span><span class="lbl">课程提交</span></div>
     <div class="stat-card"><span class="num" id="ovExt">0</span><span class="lbl">拓展提交</span></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><span class="num" id="ovAllSubs">0</span><span class="lbl">项目总提交</span></div>
     <div class="stat-card red"><span class="num" id="ovAnomaly">0</span><span class="lbl">异常记录</span></div>
-    <div class="stat-card"><span class="num" id="ovAllSubs">0</span><span class="lbl">总提交记录</span></div>
+    <div class="stat-card"></div><div class="stat-card"></div><div class="stat-card"></div>
   </div>
   <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>HSK总分</th><th>结果</th><th>任务</th><th>拓展</th><th>最近</th><th>操作</th></tr></thead><tbody id="overviewTbody"></tbody></table></div>
 </div>
 
-<!-- HSK分析 -->
 <div class="page" id="page-hsk">
   <div class="stats-row">
     <div class="stat-card blue"><span class="num" id="hskCount">0</span><span class="lbl">参考人数</span></div>
@@ -93,33 +89,28 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <div class="chart-card"><h4>成绩特征分型（描述性统计）</h4><div id="hskTypes"></div></div>
 </div>
 
-<!-- 学生档案 -->
 <div class="page" id="page-students">
   <div class="toolbar"><input type="text" id="stuSearch" placeholder="搜索..." oninput="renderStudentTable()"><select id="stuFilter" onchange="renderStudentTable()"><option value="">全部</option><option value="formal">正式学生</option><option value="test">测试账号</option></select></div>
   <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>HSK</th><th>听力</th><th>阅读</th><th>写作</th><th>总分</th><th>结果</th><th>操作</th></tr></thead><tbody id="studentTbody"></tbody></table></div>
 </div>
 
-<!-- 账号管理 -->
 <div class="page" id="page-accounts"><div class="student-mgmt" style="display:block" id="acctPanel"></div></div>
-
-<!-- 数据导入 -->
 <div class="page" id="page-import"><div class="import-panel" style="display:block" id="importPanel"></div></div>
-
-<!-- 导出 -->
 <div class="page" id="page-export">
   <div class="chart-card" style="margin-bottom:8px"><h4>导出选项</h4>
-    <button class="btn btn-outline" onclick="exportExcel()" style="margin:4px;width:auto;display:inline-block">📤 导出学习数据Excel</button>
-    <button class="btn btn-outline" onclick="exportAccountMap()" style="margin:4px;width:auto;display:inline-block">📋 导出账号映射表</button>
-    <button class="btn btn-outline" onclick="exportHskTemplate()" style="margin:4px;width:auto;display:inline-block">📝 导出HSK模板</button>
+    <button class="btn btn-outline" onclick="exportExcel()">📤 导出学习数据Excel</button>
+    <button class="btn btn-outline" onclick="exportAccountMap()">📋 导出账号映射表</button>
+    <button class="btn btn-outline" onclick="exportHskTemplate()">📝 导出HSK模板</button>
   </div>
 </div>
 </div></div>
 
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
-var allData=[],refreshTimer=null,activeTab='overview';
+var allData=[],assessmentData=[],studentsData=[],refreshTimer=null,activeTab='overview';
 var FORMAL_SIDS=['MY004','MY005','MY006','MY007','MY008','MY009','MY010','MY011','MY012','MY013','MY014','MY015','MY016','MY017','MY018','MY019','MY020','MY021','MY022','MY023','MY024','MY025','MY026','MY027','MY028','MY029','MY030','MY031','MY032','MY033','MY034','MY035','MY036','MY037','MY038','MY039','MY040'];
 var TEST_SIDS=['MY001','MY002','MY003'];
+var stuMaster={};
 
 function isFormal(sid){return FORMAL_SIDS.indexOf(sid)!==-1;}
 function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);setupAccountPanel();setupImportPanel();}else{alert('口令错误');}}
@@ -127,37 +118,75 @@ function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.g
 function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(['总览','HSK分析','学生档案','账号管理','数据导入','导出'][['overview','hsk','students','accounts','import','export'].indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();}
 
 function loadData(){
-  var cb='_t_'+Date.now();window[cb]=function(res){if(res&&res.data){allData=res.data.filter(function(r){return r.projectId==='ECRL_MY_CHINESE'&&r.schemaVersion===2;});}updateAllViews();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');delete window[cb];};
-  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+  var loaded=0;
+  function checkDone(){loaded++;if(loaded>=3){buildMaps();updateAllViews();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');}}
+  var cb1='_s'+Date.now();window[cb1]=function(res){if(res&&res.data){allData=res.data;}checkDone();delete window[cb1];};
+  var s1=document.createElement('script');s1.src=API+'?callback='+cb1+'&action=list';document.head.appendChild(s1);
+  var cb2='_a'+Date.now();window[cb2]=function(res){if(res&&res.data){assessmentData=res.data;}checkDone();delete window[cb2];};
+  var s2=document.createElement('script');s2.src=API+'?callback='+cb2+'&action=list_assessments';document.head.appendChild(s2);
+  var cb3='_u'+Date.now();window[cb3]=function(res){if(res&&res.data){studentsData=res.data;}checkDone();delete window[cb3];};
+  var s3=document.createElement('script');s3.src=API+'?callback='+cb3+'&action=list_students';document.head.appendChild(s3);
+  setTimeout(function(){if(s1.parentNode)s1.parentNode.removeChild(s1);if(s2.parentNode)s2.parentNode.removeChild(s2);if(s3.parentNode)s3.parentNode.removeChild(s3);},6000);
+}
+function buildMaps(){
+  stuMaster={};(studentsData||[]).forEach(function(s){stuMaster[s.studentId]=s;if(s.studentUid)stuMaster[s.studentUid]=s;});
+}
+function getEName(r){
+  if(r.studentId&&stuMaster[r.studentId])return stuMaster[r.studentId].englishName||'';
+  if(r.studentUid&&stuMaster[r.studentUid])return stuMaster[r.studentUid].englishName||'';
+  return r.studentName||r.name||'';
+}
+function getCName(r){
+  if(r.studentId&&stuMaster[r.studentId])return stuMaster[r.studentId].chineseName||'';
+  if(r.studentUid&&stuMaster[r.studentUid])return stuMaster[r.studentUid].chineseName||'';
+  return r.chineseName||'';
 }
 
 function updateAllViews(){updateOverview();updateHskAnalysis();renderStudentTable();}
 
 // ===== Overview =====
 function updateOverview(){
-  var formal=allData.filter(function(r){return r.studentId&&isFormal(r.studentId);});
-  var test=allData.filter(function(r){return r.studentId&&TEST_SIDS.indexOf(r.studentId)!==-1;});
-  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test';});
-  var base=allData.filter(function(r){return r.baselineType==='pre_project';});
+  var hsk=assessmentData.filter(function(r){return r.assessmentType==='language_proficiency_test';});
+  var base=assessmentData.filter(function(r){return r.baselineType==='pre_project';});
   var ext=allData.filter(function(r){return r.dataType==='extension_record';});
-  var formalUids={};formal.forEach(function(r){if(r.studentUid)formalUids[r.studentUid]=true;});
-  var testUids={};test.forEach(function(r){if(r.studentUid)testUids[r.studentUid]=true;});
-  document.getElementById('ovFormal').textContent=Object.keys(formalUids).length||37;
-  document.getElementById('ovTest').textContent=Object.keys(testUids).length;
-  document.getElementById('ovPending').textContent=37;
-  document.getElementById('ovActive').textContent=Object.keys(testUids).length;
-  document.getElementById('ovHsk').textContent=hsk.length;
-  document.getElementById('ovBaseline').textContent=base.length;
-  document.getElementById('ovTasks').textContent=0;
-  document.getElementById('ovExt').textContent=ext.length;
-  document.getElementById('ovAnomaly').textContent=Math.max(0,hsk.length-38);
-  document.getElementById('ovAllSubs').textContent=allData.length;
+  var tasks=allData.filter(function(r){return r.dataType==='course_task_submission';});
+  var hskFormal=hsk.filter(function(r){return isFormal(r.studentId);});
+  var hskTest=hsk.filter(function(r){return TEST_SIDS.indexOf(r.studentId)!==-1;});
+  var baseFormal=base.filter(function(r){return isFormal(r.studentId);});
+  var baseTest=base.filter(function(r){return TEST_SIDS.indexOf(r.studentId)!==-1;});
+  var extFormal=ext.filter(function(r){return isFormal(r.studentId);});
 
-  var rows='';formal.slice(0,20).forEach(function(r){rows+='<tr><td>'+r.studentId+'</td><td class="name">'+(r.studentName||r.name||'—')+'</td><td>'+(r.chineseName||'—')+'</td><td><span style="color:#d97706">pending</span></td><td>'+(r.totalScore||'—')+'</td><td>'+(r.passStatus==='pass'?'✅':'')+'</td><td>0</td><td>0</td><td>—</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(r.studentUid||'')+'\')">👁 预览</button></td></tr>';});
+  var formalStudents=(studentsData||[]).filter(function(s){return isFormal(s.studentId);});
+  var testStudents=(studentsData||[]).filter(function(s){return TEST_SIDS.indexOf(s.studentId)!==-1;});
+  document.getElementById('ovFormal').textContent=formalStudents.length||37;
+  document.getElementById('ovTest').textContent=testStudents.length;
+  document.getElementById('ovPending').textContent=formalStudents.filter(function(s){return s.accountStatus==='pending_activation';}).length;
+  document.getElementById('ovActive').textContent=formalStudents.filter(function(s){return s.accountStatus==='active';}).length;
+  document.getElementById('ovHsk').textContent=hskFormal.length;
+  document.getElementById('ovHskTest').textContent=hskTest.length;
+  document.getElementById('ovBaseline').textContent=baseFormal.length;
+  document.getElementById('ovBaseTest').textContent=baseTest.length;
+  document.getElementById('ovTasks').textContent=tasks.length;
+  document.getElementById('ovExt').textContent=ext.length;
+  document.getElementById('ovAllSubs').textContent=ext.length+tasks.length;
+  // Anomalies: same studentId with mismatched studentUid
+  var anomalies=0;
+  formalStudents.forEach(function(stu){
+    var h=hsk.find(function(r){return r.studentId===stu.studentId;});
+    var b=base.find(function(r){return r.studentId===stu.studentId;});
+    if(h&&h.studentUid!==stu.studentUid)anomalies++;
+    if(b&&b.studentUid!==stu.studentUid)anomalies++;
+  });
+  document.getElementById('ovAnomaly').textContent=anomalies;
+
+  var hskBySid={};hsk.forEach(function(r){if(r.studentId)hskBySid[r.studentId]=r;});
+  var rows='';formalStudents.slice(0,20).forEach(function(stu){
+    var h=hskBySid[stu.studentId];
+    rows+='<tr><td>'+stu.studentId+'</td><td class="name">'+(stu.englishName||'')+'</td><td>'+(stu.chineseName||'')+'</td><td><span style="color:'+(stu.accountStatus==='active'?'#16a34a':'#d97706')+'">'+(stu.accountStatus==='active'?'active':'pending')+'</span></td><td>'+(h?h.totalScore:'—')+'</td><td>'+(h?(h.passStatus==='pass'?'✅':''):'')+'</td><td>0</td><td>0</td><td>—</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(stu.studentUid||'')+'\')">👁 预览</button></td></tr>';
+  });
   document.getElementById('overviewTbody').innerHTML=rows||'<tr><td colspan="10">加载中</td></tr>';
 }
 
-// ===== Teacher preview =====
 function previewStudent(uid){
   if(!uid){alert('studentUid不存在');return;}
   var cb='_pv'+Date.now();window[cb]=function(res){
@@ -168,11 +197,11 @@ function previewStudent(uid){
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=create_preview_token&studentUid='+uid;document.head.appendChild(s);
 }
 
-// ===== HSK Analysis =====
+// ===== HSK Analysis (formal students only) =====
 function updateHskAnalysis(){
-  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test'&&r.studentId&&isFormal(r.studentId);});
+  var hsk=assessmentData.filter(function(r){return r.assessmentType==='language_proficiency_test'&&r.studentId&&isFormal(r.studentId);});
   if(!hsk.length){document.getElementById('hskCount').textContent='0';return;}
-  var uidSeen={};var valid=[];hsk.forEach(function(r){var k=r.studentUid+'_'+r.examDate;if(!uidSeen[k]){uidSeen[k]=true;valid.push(r);}});
+  var valid=hsk;
   var n=valid.length;document.getElementById('hskCount').textContent=n;
   var pass=valid.filter(function(r){return r.passStatus==='pass';}).length;
   document.getElementById('hskPass').textContent=pass;document.getElementById('hskFail').textContent=n-pass;
@@ -184,25 +213,17 @@ function updateHskAnalysis(){
   var lAvg=Math.round(valid.reduce(function(a,b){return a+(b.listeningScore||0);},0)/n);
   var rAvg=Math.round(valid.reduce(function(a,b){return a+(b.readingScore||0);},0)/n);
   document.getElementById('hskLAvg').textContent=lAvg;document.getElementById('hskRAvg').textContent=rAvg;
-
-  // Charts
   var subHTML='<div class="bar-row"><span class="bar-label">听力</span><div class="bar-outer"><div class="bar-inner" style="width:'+lAvg+'%;background:#3b82f6"></div></div><span class="bar-val">'+lAvg+'</span></div>';
   subHTML+='<div class="bar-row"><span class="bar-label">阅读</span><div class="bar-outer"><div class="bar-inner" style="width:'+rAvg+'%;background:#22c55e"></div></div><span class="bar-val">'+rAvg+'</span></div>';
   var wAvg=Math.round(valid.reduce(function(a,b){return a+(b.writingScore||0);},0)/n);
   subHTML+='<div class="bar-row"><span class="bar-label">写作</span><div class="bar-outer"><div class="bar-inner" style="width:'+wAvg+'%;background:#f59e0b"></div></div><span class="bar-val">'+wAvg+'</span></div>';
   document.getElementById('subScoreChart').innerHTML=subHTML;
-
-  // Pass chart (simple donut)
   var passPct=Math.round(pass/n*100);
   document.getElementById('passChart').innerHTML='<div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(#22c55e 0deg '+(passPct*3.6)+'deg,#ef4444 '+(passPct*3.6)+'deg 360deg);margin:4px auto"></div><div style="font-size:12px">合格 '+pass+' · 未合格 '+(n-pass)+'</div>';
-
-  // Distribution
   var bins={};valid.forEach(function(r){var t=r.totalScore||0;var bin=Math.floor(t/30)*30;bins[bin]=(bins[bin]||0)+1;});
   var distHTML='';var binKeys=Object.keys(bins).sort(function(a,b){return a-b;});var maxBin=Math.max.apply(null,Object.values(bins))||1;
   binKeys.forEach(function(b){var w=Math.round(bins[b]/maxBin*100);distHTML+='<div class="bar-row"><span class="bar-label">'+b+'-'+((parseInt(b)+29))+'</span><div class="bar-outer"><div class="bar-inner" style="width:'+w+'%;background:#6366f1"></div></div><span class="bar-val">'+bins[b]+'人</span></div>';});
   document.getElementById('distChart').innerHTML=distHTML;
-
-  // Types
   var types={};valid.forEach(function(r){var l=r.listeningScore||0,rd=r.readingScore||0,w=r.writingScore||0;var tags=[];var max3=Math.max(l,rd,w),min3=Math.min(l,rd,w);
     if(max3-min3<=10)tags.push({t:'均衡型',c:'bal'});
     if(l>=(rd+w)/2+10)tags.push({t:'听力优势',c:'lis'});if(rd>=(l+w)/2+10)tags.push({t:'阅读优势',c:'rea'});
@@ -210,43 +231,44 @@ function updateHskAnalysis(){
     if(r.passStatus==='fail')tags.push({t:'综合待加强',c:'weak'});
     tags.forEach(function(t){types[t.t]=(types[t.t]||0)+1;});
   });
-  var tHTML='';for(var k in types){tHTML+='<span class="hsk-type '+Object.keys({bal:'bal',lis:'lis',rea:'rea',wri:'wri',weak:'weak'})[k]||'bal'+(k in {bal:1,lis:1,rea:1,wri:1,weak:1}?'"'+k:'')+'">'+k+' '+types[k]+'人</span>';}
+  var clsMap={bal:'bal',lis:'lis',rea:'rea',wri:'wri',weak:'weak'};
+  var tHTML='';for(var k in types){tHTML+='<span class="hsk-type '+clsMap[k]+'">'+k+' '+types[k]+'人</span>';}
   document.getElementById('hskTypes').innerHTML=tHTML||'加载中';
 }
 
-// ===== Student table =====
+// ===== Student table (from ecrl_students master, one row per student) =====
 function renderStudentTable(){
   var search=(document.getElementById('stuSearch')?document.getElementById('stuSearch').value:'').toLowerCase();
   var filter=document.getElementById('stuFilter')?document.getElementById('stuFilter').value:'';
-  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test';});
-  var studentMap={};
-  hsk.forEach(function(r){var sid=r.studentId||'';if(!studentMap[sid])studentMap[sid]=r;});
-  var rows='';FORMAL_SIDS.forEach(function(sid){
-    if(filter==='test')return;var s=studentMap[sid];
-    if(search&&sid.toLowerCase().indexOf(search)===-1&&(!s||(s.studentName||'').toLowerCase().indexOf(search)===-1))return;
-    rows+='<tr><td>'+sid+'</td><td class="name">'+(s?s.studentName||s.name:'—')+'</td><td>'+(s?s.chineseName:'—')+'</td><td><span style="color:#d97706">pending</span></td><td>'+(s?'✅':'—')+'</td><td>'+(s?s.listeningScore:'—')+'</td><td>'+(s?s.readingScore:'—')+'</td><td>'+(s?s.writingScore:'—')+'</td><td>'+(s?s.totalScore:'—')+'</td><td>'+(s?(s.passStatus==='pass'?'✅合格':'未合格'):'—')+'</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(s?s.studentUid:'')+'\')">👁 预览</button></td></tr>';
-  });
-  TEST_SIDS.forEach(function(sid){
-    if(filter==='formal')return;var s=studentMap[sid];
-    rows+='<tr><td>'+sid+' <span style="color:#f59e0b;font-size:9px">TEST</span></td><td class="name">'+(s?s.studentName||s.name:'—')+'</td><td>'+(s?s.chineseName:'—')+'</td><td><span style="color:#16a34a">active</span></td><td>'+(s?'✅':'—')+'</td><td>'+(s?s.listeningScore:'—')+'</td><td>'+(s?s.readingScore:'—')+'</td><td>'+(s?s.writingScore:'—')+'</td><td>'+(s?s.totalScore:'—')+'</td><td>'+(s?(s.passStatus==='pass'?'✅合格':'未合格'):'—')+'</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(s?s.studentUid:'')+'\')">👁 预览</button></td></tr>';
+  var hskBySid={};assessmentData.filter(function(r){return r.assessmentType==='language_proficiency_test';}).forEach(function(r){if(r.studentId)hskBySid[r.studentId]=r;});
+  var students=studentsData||[];
+  var rows='';
+  students.forEach(function(stu){
+    var sid=stu.studentId;if(!sid)return;
+    if(filter==='formal'&&!isFormal(sid))return;
+    if(filter==='test'&&isFormal(sid))return;
+    var en=stu.englishName||'',cn=stu.chineseName||'';
+    if(search&&sid.toLowerCase().indexOf(search)===-1&&en.toLowerCase().indexOf(search)===-1)return;
+    var s=hskBySid[sid];
+    var isTest=TEST_SIDS.indexOf(sid)!==-1;
+    var statusTag=stu.accountStatus==='active'?'<span style="color:#16a34a">active</span>':'<span style="color:#d97706">pending</span>';
+    rows+='<tr><td>'+sid+(isTest?' <span style="color:#f59e0b;font-size:9px">TEST</span>':'')+'</td><td class="name">'+en+'</td><td>'+cn+'</td><td>'+statusTag+'</td><td>'+(s?'✅':'—')+'</td><td>'+(s?s.listeningScore:'—')+'</td><td>'+(s?s.readingScore:'—')+'</td><td>'+(s?s.writingScore:'—')+'</td><td>'+(s?s.totalScore:'—')+'</td><td>'+(s?(s.passStatus==='pass'?'✅合格':'未合格'):'—')+'</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(stu.studentUid||'')+'\')">👁 预览</button></td></tr>';
   });
   document.getElementById('studentTbody').innerHTML=rows||'<tr><td colspan="11">暂无</td></tr>';
 }
 
-// ===== Account & Import panels (placeholder references) =====
 function setupAccountPanel(){document.getElementById('acctPanel').innerHTML='<h4>👥 学生账号管理</h4><p style="font-size:12px;color:#94a3b8">账号管理功能通过顶部「👥 账号管理」按钮打开。</p>';}
 function setupImportPanel(){document.getElementById('importPanel').innerHTML='<h4>📥 数据导入</h4><p style="font-size:12px;color:#94a3b8">数据导入功能通过顶部「📥 数据导入」按钮打开。</p>';}
 
-// Reuse existing export functions
-function exportExcel(){var BOM='﻿';var csv='studentId,studentName,dataType,extensionTitle,selectedWord,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',r.serverTime||r.submitTime||''].join(',')+'\n';});var blob=new Blob([BOM+csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='数据导出_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
+function exportExcel(){var BOM='﻿';var csv='studentId,englishName,chineseName,dataType,extensionTitle,selectedWord,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',getEName(r),getCName(r),r.dataType||'',r.extensionTitle||'',r.selectedWord||'',r.serverTime||r.submitTime||''].join(',')+'\n';});var blob=new Blob([BOM+csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='数据导出_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 function exportAccountMap(){
-  var csv='﻿studentUid,studentId,englishName,chineseName,accountStatus\n';var seen={};
-  allData.forEach(function(r){if(r.studentUid&&!seen[r.studentUid]){seen[r.studentUid]=true;csv+=r.studentUid+','+(r.studentId||'')+','+(r.studentName||r.name||'')+','+(r.chineseName||'')+',pending\n';}});
+  var csv='﻿studentUid,studentId,englishName,chineseName,accountStatus\n';
+  (studentsData||[]).forEach(function(s){csv+=s.studentUid+','+s.studentId+','+(s.englishName||'')+','+(s.chineseName||'')+','+(s.accountStatus||'')+'\n';});
   var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='账号映射_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 function exportHskTemplate(){
-  var csv='﻿studentUid,studentId,englishName,chineseName,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus\n';var seen={};
-  allData.forEach(function(r){if(r.studentUid&&!seen[r.studentUid]){seen[r.studentUid]=true;csv+=r.studentUid+','+(r.studentId||'')+','+(r.studentName||r.name||'')+','+(r.chineseName||'')+',,,,,,\n';}});
+  var csv='﻿studentUid,studentId,englishName,chineseName,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus\n';
+  (studentsData||[]).forEach(function(s){csv+=s.studentUid+','+s.studentId+','+(s.englishName||'')+','+(s.chineseName||'')+',,,,,,\n';});
   var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HSK模板_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 </script></body></html>
