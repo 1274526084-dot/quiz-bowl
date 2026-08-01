@@ -15,28 +15,28 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 .login-card input{width:100%;padding:14px;border:1.5px solid #d1d5db;border-radius:10px;font-size:16px;outline:none;background:#f9fafb}
 .login-card input:focus{border-color:#2563eb}
 .check-row{display:flex;align-items:flex-start;gap:8px;margin:14px 0;font-size:13px;color:#475569}
-.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;min-height:48px}.btn-primary{background:#2563eb;color:#fff}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;min-height:48px}.btn-primary{background:#2563eb;color:#fff}.btn-submit{background:#16a34a;color:#fff}.btn-outline{background:#fff;color:#2563eb;border:2px solid #2563eb}.btn-small{padding:8px 14px;font-size:13px;min-height:40px;width:auto;display:inline-block;border-radius:10px}
 .main{flex:1;overflow-y:auto;padding-bottom:20px}
-.info-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b}
-.info-bar b{color:#1e293b}
-.section-card{background:#fff;border-radius:12px;padding:16px;margin:10px 12px;border:1.5px solid #e2e8f0}
-.section-card h3{font-size:16px;color:#1e293b;margin-bottom:10px}
-.section-card .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#475569}
-.section-card .row:last-child{border-bottom:none}.section-card .row .val{font-weight:600;color:#1e293b}
-.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600}
-.tag-green{background:#f0fdf4;color:#16a34a}.tag-amber{background:#fffbeb;color:#d97706}.tag-blue{background:#eff6ff;color:#2563eb}.tag-gray{background:#f1f5f9;color:#64748b}
+.info-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b}.info-bar b{color:#1e293b}
+
+.section-card{background:#fff;border-radius:12px;padding:16px;margin:10px 12px;border:1.5px solid #e2e8f0}.section-card h3{font-size:16px;color:#1e293b;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#475569}.row:last-child{border-bottom:none}.row .val{font-weight:600;color:#1e293b}
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600}.tag-green{background:#f0fdf4;color:#16a34a}.tag-amber{background:#fffbeb;color:#d97706}.tag-blue{background:#eff6ff;color:#2563eb}.tag-gray{background:#f1f5f9;color:#64748b}
 .progress-bar{height:10px;background:#e2e8f0;border-radius:5px;margin:8px 0;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:5px;transition:width 0.3s}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid-item{background:#f8fafc;border-radius:10px;padding:14px;text-align:center}.grid-item .num{font-size:28px;font-weight:800;color:#2563eb;display:block}.grid-item .lbl{font-size:12px;color:#94a3b8;margin-top:4px}
 .empty-state{text-align:center;padding:30px 20px;color:#94a3b8;font-size:14px}.empty-state .icon{font-size:40px;display:block;margin-bottom:8px}
-.theme-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}.theme-card{background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b}.theme-card .icon{font-size:28px;display:block;margin-bottom:6px}.theme-card .name{font-weight:600;color:#1e293b}
-.cal-dots{display:flex;flex-wrap:wrap;gap:6px}.cal-dot{width:28px;height:28px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8}.cal-dot.done{background:#22c55e;color:#fff}.cal-dot.clock{background:#f59e0b;color:#fff}.cal-dot.today{border:2px solid #2563eb;font-weight:700}
+
+/* Check-in form */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.chip{padding:6px 12px;border-radius:16px;font-size:13px;border:1.5px solid #e2e8f0;cursor:pointer;background:#fff;color:#64748b;transition:all 0.15s}.chip.sel{background:#eff6ff;color:#2563eb;border-color:#2563eb}
+.radio-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.radio-opt{padding:8px 14px;border-radius:10px;font-size:13px;border:1.5px solid #e2e8f0;cursor:pointer;background:#fff;color:#64748b}.radio-opt.sel{background:#eff6ff;color:#2563eb;border-color:#2563eb}
+.eval-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.eval-opt{padding:8px 12px;border-radius:10px;font-size:13px;border:1.5px solid #e2e8f0;cursor:pointer;background:#fff;color:#64748b}.eval-opt.sel{background:#eff6ff;color:#2563eb;border-color:#2563eb}
+.write-input{width:100%;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;margin-top:5px}
+.msg{text-align:center;font-size:14px;padding:8px;display:none}.msg.show{display:block}.msg.ok{color:#16a34a}.msg.err{color:#dc2626}
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:60px;margin:8px 0}.mini-bar{flex:1;background:linear-gradient(180deg,#2563eb,#6366f1);border-radius:3px 3px 0 0;min-height:4px;position:relative}.mini-bar span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:9px;color:#94a3b8}
+.history-item{font-size:13px;color:#64748b;padding:6px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
 .tabbar{display:flex;background:#fff;border-top:1px solid #e2e8f0;position:sticky;bottom:0;z-index:10}.tab{flex:1;text-align:center;padding:10px 4px;font-size:11px;color:#94a3b8;cursor:pointer}.tab .icon{font-size:22px;display:block;margin-bottom:2px}.tab.active{color:#2563eb;font-weight:600}
 .page{display:none}.page.show{display:block}
-.big-num{font-size:48px;font-weight:900;color:#2563eb;text-align:center;display:block;line-height:1}
-.big-label{font-size:13px;color:#64748b;text-align:center;display:block;margin-top:4px}
-.task-done{width:100%;text-align:center;padding:20px 0}
-.task-done .icon{font-size:56px;display:block;margin-bottom:8px}
-.task-done .msg{font-size:15px;color:#16a34a;font-weight:600}
+.big-num{font-size:48px;font-weight:900;color:#2563eb;text-align:center;display:block;line-height:1}.big-label{font-size:13px;color:#64748b;text-align:center;display:block;margin-top:4px}
 </style>
 </head>
 <body><div class="container" id="app">
@@ -51,100 +51,91 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <button class="btn btn-primary" onclick="login()">确认进入</button></div></div>
 
 <div class="main" id="mainContent" style="display:none">
-  <!-- 首页 -->
+  <!-- ====== 首页 ====== -->
   <div class="page show" id="pageHome">
     <div class="info-bar"><span>👤 <b id="stuName"></b></span><span>信号班学习纪录</span></div>
+    <div class="section-card"><h3>📋 今日任务</h3><div class="row"><span>任务名称</span><span class="val">—</span></div><div class="row"><span>预计用时</span><span class="val">15-20分钟</span></div><div class="row"><span>状态</span><span class="val"><span class="tag tag-gray">未开始</span></span></div><button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">📝 去学习</button></div>
 
-    <div class="section-card">
-      <h3>📋 今日任务</h3>
-      <div class="row"><span>任务名称</span><span class="val" id="todayTask">—</span></div>
-      <div class="row"><span>预计用时</span><span class="val">15-20分钟</span></div>
-      <div class="row"><span>状态</span><span class="val"><span class="tag tag-gray" id="todayStatus">未开始</span></span></div>
-      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">📝 去学习</button>
-    </div>
-
-    <div class="section-card">
-      <h3>⏱ 今日小练</h3>
-      <div class="row"><span>题目数量</span><span class="val">5-10 题</span></div>
-      <div class="row"><span>预计时间</span><span class="val">10分钟</span></div>
-      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(1)">去练习</button>
-    </div>
-
-    <div class="section-card">
-      <h3>✅ 今日打卡</h3>
-      <div class="row"><span>状态</span><span class="val" id="checkinStatus"><span class="tag tag-gray">未打卡</span></span></div>
-      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去打卡</button>
-    </div>
-
-    <div class="section-card">
-      <h3>📊 课程任务进度</h3>
+    <div class="section-card"><h3>📊 课程任务进度</h3>
       <div style="text-align:center;padding:8px 0"><span class="big-num"><span id="doneTasks">0</span>/10</span><span class="big-label">已完成任务</span></div>
       <div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskProgress"></div></div>
-      <div class="row"><span>待完成任务</span><span class="val" id="pendingTasks">10</span></div>
-      <div class="row"><span>最近提交</span><span class="val" id="lastSubmit">—</span></div>
+      <div class="row"><span>待完成</span><span class="val" id="pendingTasks">10</span></div></div>
+
+    <div class="section-card"><h3>✅ 自主学习打卡</h3>
+      <div class="row"><span>今日状态</span><span class="val" id="checkinHomeStatus"><span class="tag tag-gray">未打卡</span></span></div>
+      <div class="row"><span>累计打卡</span><span class="val" id="checkinHomeTotal">0天</span></div>
+      <button class="btn btn-outline" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去打卡 / 查看记录</button>
     </div>
   </div>
 
-  <!-- 学习 -->
+  <!-- ====== 学习页 ====== -->
   <div class="page" id="pageLearn">
     <div class="section-card"><h3>A. 每日小练</h3><div class="empty-state"><span class="icon">📝</span>教师布置后显示</div></div>
     <div class="section-card"><h3>B. 课堂与项目任务</h3><div class="empty-state"><span class="icon">📋</span>教师布置后显示</div></div>
-    <div class="section-card"><h3>C. 三次阶段测试</h3>
-      <div class="row"><span>测试一</span><span class="val tag tag-gray">未开放</span></div>
-      <div class="row"><span>测试二</span><span class="val tag tag-gray">未开放</span></div>
-      <div class="row"><span>测试三</span><span class="val tag tag-gray">未开放</span></div>
-    </div>
+    <div class="section-card"><h3>C. 阶段测试</h3><div class="row"><span>测试一</span><span class="val tag tag-gray">未开放</span></div><div class="row"><span>测试二</span><span class="val tag tag-gray">未开放</span></div><div class="row"><span>测试三</span><span class="val tag tag-gray">未开放</span></div></div>
     <div class="section-card"><h3>D. 主题学习</h3>
-      <div style="font-size:14px;font-weight:600;color:#475569;margin:10px 0 6px">1. 中华文化</div>
-      <div class="theme-list">
-        <div class="theme-card"><span class="icon">🏮</span><span class="name">传统节日</span>待开放</div>
-        <div class="theme-card"><span class="icon">🍵</span><span class="name">茶文化</span>待开放</div>
-      </div>
-      <div style="font-size:14px;font-weight:600;color:#475569;margin:14px 0 6px">2. 跨境铁路中文</div>
-      <div class="theme-list">
-        <div class="theme-card"><span class="icon">🚉</span><span class="name">客运服务</span>待开放</div>
-        <div class="theme-card"><span class="icon">🚂</span><span class="name">运输组织</span>待开放</div>
-        <div class="theme-card"><span class="icon">🚦</span><span class="name">铁路信号</span>待开放</div>
-        <div class="theme-card"><span class="icon">🔧</span><span class="name">机车车辆</span>待开放</div>
-        <div class="theme-card"><span class="icon">⚡</span><span class="name">牵引供电</span>待开放</div>
-        <div class="theme-card"><span class="icon">🛡️</span><span class="name">安全应急</span>待开放</div>
-        <div class="theme-card"><span class="icon">🏗️</span><span class="name">车站设施</span>待开放</div>
-        <div class="theme-card"><span class="icon">🌏</span><span class="name">跨文化沟通</span>待开放</div>
+      <div style="font-size:14px;font-weight:600;color:#475569;margin:10px 0 6px">中华文化</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🏮</span>传统节日 · 待开放</div><div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🍵</span>茶文化 · 待开放</div></div>
+      <div style="font-size:14px;font-weight:600;color:#475569;margin:14px 0 6px">跨境铁路中文</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚉</span>客运服务 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚂</span>运输组织 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🚦</span>铁路信号 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🔧</span>机车车辆 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">⚡</span>牵引供电 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🛡️</span>安全应急 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🏗️</span>车站设施 · 待开放</div>
+        <div style="background:#f8fafc;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;font-size:13px;color:#64748b"><span style="font-size:28px;display:block;margin-bottom:6px">🌏</span>跨文化沟通 · 待开放</div>
       </div>
     </div>
   </div>
 
-  <!-- 打卡 -->
+  <!-- ====== 打卡页 ====== -->
   <div class="page" id="pageCheckin">
-    <div class="section-card"><h3>✅ 自主学习打卡</h3>
-      <div class="row"><span>打卡状态</span><span class="val"><span class="tag tag-gray">未打卡</span></span></div>
-      <div class="row"><span>说明</span><span class="val" style="font-size:13px;color:#64748b">打卡天数由你自己决定</span></div>
+    <div class="section-card"><h3>✅ 自主中文学习打卡</h3>
+      <span style="font-size:13px;color:#64748b;display:block;margin-bottom:12px">记录你今天自主学习中文的情况。打卡不影响课程任务进度，你可以根据自己的学习情况参加。</span>
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">1. 今天学习了什么？（可多选）</label>
+      <div class="chips" id="studyContent"></div>
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">2. 今天学习了多长时间？</label>
+      <div class="radio-row" id="studyMinutes"></div>
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">3. 今天觉得难不难？（1-5）</label>
+      <div class="eval-row" id="difficulty"></div>
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">4. 今天有多少学习信心？（1-5）</label>
+      <div class="eval-row" id="confidence"></div>
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">5. 今天学会了什么？（选填）</label>
+      <input class="write-input" id="reflection" placeholder="写一句简单的话...">
+
+      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">6. 今天是否完成了自己的学习计划？</label>
+      <div class="radio-row" id="planCompletion"></div>
+
+      <div class="msg" id="checkinMsg"></div>
+      <button class="btn btn-submit" onclick="submitCheckin()" style="margin-top:12px">📤 提交打卡</button>
     </div>
+
+    <!-- 打卡统计 -->
     <div class="section-card"><h3>📊 打卡统计</h3>
       <div class="grid-2">
-        <div class="grid-item"><span class="num">0</span><span class="lbl">打卡天数</span></div>
-        <div class="grid-item"><span class="num">—</span><span class="lbl">连续打卡</span></div>
+        <div class="grid-item"><span class="num" id="totalCheckins">0</span><span class="lbl">累计打卡天数</span></div>
+        <div class="grid-item"><span class="num" id="weekCheckins">0</span><span class="lbl">本周打卡</span></div>
+        <div class="grid-item"><span class="num" id="totalMinutes">0分钟</span><span class="lbl">总学习时长</span></div>
+        <div class="grid-item"><span class="num" id="avgDiff">—</span><span class="lbl">平均难度</span></div>
       </div>
     </div>
+
+    <div class="section-card"><h3>📈 最近打卡记录</h3><div id="recentCheckins" style="font-size:13px;color:#64748b"></div></div>
   </div>
 
-  <!-- 档案 -->
+  <!-- ====== 档案页 ====== -->
   <div class="page" id="pageProfile">
     <div class="section-card"><h3>📊 我的中文学习发展档案</h3>
-      <div class="task-done" id="profileLocked">
-        <span class="icon">🔒</span>
-        <span class="msg">完成全部10个课程任务后</span>
-        <span style="font-size:14px;color:#64748b;display:block;margin-top:4px">系统将根据你的任务、练习、测试和自主打卡数据生成中文学习发展档案。</span>
-      </div>
-      <div class="task-done" id="profileReady" style="display:none">
-        <span class="icon">✅</span>
-        <span class="msg">10个课程任务已完成</span>
-        <button class="btn btn-primary" style="margin-top:12px;width:auto;display:inline-block;padding:12px 32px">📊 生成学习档案</button>
-      </div>
+      <div style="text-align:center;padding:20px 0" id="profileLocked"><span style="font-size:56px;display:block;margin-bottom:8px">🔒</span><span style="font-size:15px;color:#16a34a;font-weight:600;display:block">完成全部10个课程任务后</span><span style="font-size:14px;color:#64748b;display:block;margin-top:4px">系统将根据你的任务、练习、测试和自主打卡数据生成中文学习发展档案。</span></div>
+      <div style="display:none;text-align:center;padding:20px 0" id="profileReady"><span style="font-size:56px;display:block;margin-bottom:8px">✅</span><span style="font-size:15px;color:#16a34a;font-weight:600;display:block">10个课程任务已完成</span><button class="btn btn-primary" style="margin-top:12px;width:auto;display:inline-block;padding:12px 32px">📊 生成学习档案</button></div>
     </div>
     <div class="section-card"><h3>📝 学习记录</h3><div class="empty-state"><span class="icon">📝</span>数据不足</div></div>
     <div class="section-card"><h3>📈 测试成绩</h3><div class="empty-state"><span class="icon">📈</span>数据不足</div></div>
-    <div class="section-card"><h3>🎯 中文能力</h3><div class="empty-state"><span class="icon">🎯</span>数据不足</div></div>
     <div class="section-card"><h3>💬 教师反馈</h3><div class="empty-state"><span class="icon">💬</span>暂无反馈</div></div>
   </div>
 </div>
@@ -158,35 +149,140 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 </div>
 
 <script>
+var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,completedTasks=0;
+var checkinToday=null,checkinHistory=[];
 
+// ===== Content options =====
+var CONTENT_OPTS=['HSK词语','听力','阅读','写作','口语','中文电影','中国文化','铁路中文','课堂复习','其他'];
+var MINUTE_OPTS=['10分钟以内','10—20分钟','20—30分钟','30—60分钟','60分钟以上'];
+var PLAN_OPTS=['已完成','完成一部分','没有完成'];
+
+// ===== Login =====
 function login(){
-  var sid=document.getElementById('studentId').value.trim();
-  var sn=document.getElementById('studentName').value.trim();
-  var cn=document.getElementById('chineseName').value.trim();
-  var code=document.getElementById('classCode').value.trim();
-  var c=document.getElementById('consent').checked;
+  var sid=document.getElementById('studentId').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim(),code=document.getElementById('classCode').value.trim();
   if(!sid||!sn){alert('请填写学生编号和英文姓名');return;}
   if(code!=='MY2026'){alert('班级口令错误');return;}
-  if(!c){alert('请勾选同意');return;}
+  if(!document.getElementById('consent').checked){alert('请勾选同意');return;}
   student={id:sid,name:sn,chineseName:cn,learnerType:'international_student',learningTrack:'chinese_track',country:'Malaysia'};
   localStorage.setItem('cycle15_student',JSON.stringify(student));
-  document.getElementById('loginBox').style.display='none';
-  document.getElementById('mainContent').style.display='block';
-  document.getElementById('tabBar').style.display='flex';
+  document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';
   document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
-  updateProgress();
+  initCheckinForm();loadCheckins();updateProgress();
 }
 
-function updateProgress(){
-  var done=completedTasks;var pct=Math.round(done/totalTasks*100);
-  document.getElementById('doneTasks').textContent=done;
-  document.getElementById('pendingTasks').textContent=totalTasks-done;
-  document.getElementById('taskProgress').style.width=pct+'%';
-  if(done>=totalTasks){
-    document.getElementById('profileLocked').style.display='none';
-    document.getElementById('profileReady').style.display='block';
+// ===== Init check-in form =====
+function initCheckinForm(){
+  var h='';CONTENT_OPTS.forEach(function(o,i){h+='<span class="chip" id="c_'+i+'" onclick="toggleChip('+i+')">'+o+'</span>';});document.getElementById('studyContent').innerHTML=h;
+  h='';MINUTE_OPTS.forEach(function(o,i){h+='<span class="radio-opt" id="m_'+i+'" onclick="pickRadio(\'m\','+i+')">'+o+'</span>';});document.getElementById('studyMinutes').innerHTML=h;
+  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="d_'+i+'" onclick="pickRadio(\'d\','+i+')">'+i+'</span>';document.getElementById('difficulty').innerHTML=h;
+  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="cf_'+i+'" onclick="pickRadio(\'cf\','+i+')">'+i+'</span>';document.getElementById('confidence').innerHTML=h;
+  h='';PLAN_OPTS.forEach(function(o,i){h+='<span class="radio-opt" id="p_'+i+'" onclick="pickRadio(\'p\','+i+')">'+o+'</span>';});document.getElementById('planCompletion').innerHTML=h;
+}
+
+// ===== Interaction =====
+var selChips=[],selMinute=null,selDiff=null,selConf=null,selPlan=null;
+function toggleChip(i){var el=document.getElementById('c_'+i);var idx=selChips.indexOf(i);if(idx===-1){selChips.push(i);el.classList.add('sel');}else{selChips.splice(idx,1);el.classList.remove('sel');}}
+function pickRadio(group,val){
+  var prefix='';if(group==='m'){selMinute=val;prefix='m_';}else if(group==='d'){selDiff=val;prefix='d_';}else if(group==='cf'){selConf=val;prefix='cf_';}else if(group==='p'){selPlan=val;prefix='p_';}
+  document.querySelectorAll('.radio-opt,.eval-opt').forEach(function(el){if(el.id.indexOf(prefix)===0)el.classList.remove('sel');});
+  document.getElementById(prefix+val).classList.add('sel');
+}
+
+// ===== Submit check-in =====
+function submitCheckin(){
+  if(!student)return;
+  if(selMinute===null){alert('请选择学习时长');return;}
+  if(selDiff===null){alert('请选择难度');return;}
+  if(selConf===null){alert('请选择信心');return;}
+  if(selPlan===null){alert('请选择计划完成情况');return;}
+
+  var data={
+    studentId:student.id,studentName:student.name,chineseName:student.chineseName||'',
+    cycleId:'signal_class',country:'Malaysia',learningTrack:'chinese_track',source:'h5',
+    studyContent:selChips.map(function(i){return CONTENT_OPTS[i];}),
+    studyMinutes:MINUTE_OPTS[selMinute],
+    difficulty:selDiff,confidence:selConf,
+    reflection:document.getElementById('reflection').value.trim(),
+    planCompletion:PLAN_OPTS[selPlan],
+    submitTime:new Date().toISOString()
+  };
+
+  // Save local draft
+  localStorage.setItem('checkin_draft_'+student.id,JSON.stringify(data));
+
+  // Submit to cloud
+  var params={action:'checkin'};for(var k in data){params[k]=typeof data[k]==='object'?JSON.stringify(data[k]):data[k];}
+  params.studyContent=selChips.join(',');
+
+  var cb='_ci'+Date.now();window[cb]=function(res){
+    var msg=document.getElementById('checkinMsg');
+    if(res&&res.ok){
+      msg.innerHTML='✅ 提交成功！<br><small>提交时间：'+new Date().toLocaleString('zh-CN')+'</small>';
+      msg.className='msg ok show';
+      // Update local checkin record
+      var key='checkin_'+student.id;var all=JSON.parse(localStorage.getItem(key)||'[]');
+      var today=new Date().toISOString().split('T')[0];data.checkinDate=today;
+      var exist=all.findIndex(function(d){return d.checkinDate===today;});
+      if(exist!==-1)all[exist]=data;else all.push(data);
+      localStorage.setItem(key,JSON.stringify(all));
+      loadCheckins();
+    }else{
+      msg.textContent='提交失败，内容已保存，请重新提交';msg.className='msg err show';
+    }
+    setTimeout(function(){msg.className='msg';},4000);
+    delete window[cb];
+  };
+  var qs='callback='+cb;for(var k in params){qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}
+  var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
+}
+
+// ===== Load checkins =====
+function loadCheckins(){
+  if(!student)return;
+  var key='checkin_'+student.id;var all=JSON.parse(localStorage.getItem(key)||'[]');
+  checkinHistory=all;
+  var today=new Date().toISOString().split('T')[0];
+  checkinToday=all.find(function(d){return d.checkinDate===today;})||null;
+
+  // Update home
+  document.getElementById('checkinHomeStatus').innerHTML=checkinToday?'<span class="tag tag-green">✅ 已打卡</span>':'<span class="tag tag-gray">未打卡</span>';
+  document.getElementById('checkinHomeTotal').textContent=all.length+'天';
+
+  // Update stats
+  document.getElementById('totalCheckins').textContent=all.length;
+  // Week count
+  var now=new Date();var weekAgo=new Date(now.getTime()-7*86400000).toISOString().split('T')[0];
+  var weekCount=all.filter(function(d){return d.checkinDate>=weekAgo;}).length;
+  document.getElementById('weekCheckins').textContent=weekCount;
+  // Minutes
+  var minMap={'10分钟以内':5,'10—20分钟':15,'20—30分钟':25,'30—60分钟':45,'60分钟以上':70};
+  var totalMin=all.reduce(function(s,d){return s+(minMap[d.studyMinutes]||0);},0);
+  document.getElementById('totalMinutes').textContent=totalMin+'分钟';
+  // Avg difficulty
+  var diffs=all.filter(function(d){return d.difficulty;}).map(function(d){return parseInt(d.difficulty);});
+  document.getElementById('avgDiff').textContent=diffs.length?(diffs.reduce(function(a,b){return a+b;},0)/diffs.length).toFixed(1):'—';
+
+  // Recent
+  var recent=all.slice(-7).reverse();
+  var h='';recent.forEach(function(d){h+='<div class="history-item"><span>'+d.checkinDate+' · '+(d.studyMinutes||'')+'</span><span style="color:#2563eb;font-weight:600">信心 '+d.confidence+'/5</span></div>';});
+  document.getElementById('recentCheckins').innerHTML=h||'<span class="empty-state">暂无记录</span>';
+
+  // Restore form if today already submitted
+  if(checkinToday){
+    document.getElementById('reflection').value=checkinToday.reflection||'';
+    if(checkinToday.studyMinutes)pickRadio('m',MINUTE_OPTS.indexOf(checkinToday.studyMinutes));
+    if(checkinToday.difficulty)pickRadio('d',checkinToday.difficulty);
+    if(checkinToday.confidence)pickRadio('cf',checkinToday.confidence);
+    if(checkinToday.planCompletion)pickRadio('p',PLAN_OPTS.indexOf(checkinToday.planCompletion));
   }
+}
+
+// ===== Progress =====
+function updateProgress(){
+  var done=completedTasks,pct=Math.round(done/totalTasks*100);
+  document.getElementById('doneTasks').textContent=done;document.getElementById('pendingTasks').textContent=totalTasks-done;document.getElementById('taskProgress').style.width=pct+'%';
 }
 
 function switchTab(idx){
@@ -196,13 +292,7 @@ function switchTab(idx){
 
 (function(){
   var stu=localStorage.getItem('cycle15_student');
-  if(stu){student=JSON.parse(stu);
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('mainContent').style.display='block';
-    document.getElementById('tabBar').style.display='flex';
-    document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';
-    updateProgress();
-  }
+  if(stu){student=JSON.parse(stu);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';initCheckinForm();loadCheckins();updateProgress();}
 })();
 </script>
 </body></html>
