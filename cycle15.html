@@ -61,10 +61,10 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
       <div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskProgress"></div></div>
       <div class="row"><span>待完成</span><span class="val" id="pendingTasks">10</span></div></div>
 
-    <div class="section-card"><h3>✅ 自主学习打卡</h3>
-      <div class="row"><span>今日状态</span><span class="val" id="checkinHomeStatus"><span class="tag tag-gray">未打卡</span></span></div>
-      <div class="row"><span>累计打卡</span><span class="val" id="checkinHomeTotal">0天</span></div>
-      <button class="btn btn-outline" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去打卡 / 查看记录</button>
+    <div class="section-card"><h3>🌱 每日中文拓展</h3>
+      <div class="row"><span>今日状态</span><span class="val" id="checkinHomeStatus"><span class="tag tag-gray">未完成</span></span></div>
+      <div class="row"><span>累计拓展</span><span class="val" id="checkinHomeTotal">0次</span></div>
+      <button class="btn btn-outline" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="switchTab(2)">去拓展</button>
     </div>
   </div>
 
@@ -78,44 +78,61 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
     <div id="taskCards"></div>
   </div>
 
-  <!-- ====== 打卡页 ====== -->
+  <!-- ====== 每日中文拓展 ====== -->
   <div class="page" id="pageCheckin">
-    <div class="section-card"><h3>✅ 自主中文学习打卡</h3>
-      <span style="font-size:13px;color:#64748b;display:block;margin-bottom:12px">记录你今天自主学习中文的情况。打卡不影响课程任务进度，你可以根据自己的学习情况参加。</span>
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">1. 今天学习了什么？（可多选）</label>
-      <div class="chips" id="studyContent"></div>
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">2. 今天学习了多长时间？</label>
-      <div class="radio-row" id="studyMinutes"></div>
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">3. 今天觉得难不难？（1-5）</label>
-      <div class="eval-row" id="difficulty"></div>
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">4. 今天有多少学习信心？（1-5）</label>
-      <div class="eval-row" id="confidence"></div>
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">5. 今天学会了什么？（选填）</label>
-      <input class="write-input" id="reflection" placeholder="写一句简单的话...">
-
-      <label style="font-size:14px;font-weight:600;color:#475569;display:block;margin:12px 0 6px">6. 今天是否完成了自己的学习计划？</label>
-      <div class="radio-row" id="planCompletion"></div>
-
-      <div class="msg" id="checkinMsg"></div>
-      <button class="btn btn-submit" onclick="submitCheckin()" style="margin-top:12px">📤 提交打卡</button>
+    <div class="section-card"><h3>🌱 每日中文拓展</h3>
+      <span style="font-size:13px;color:#64748b;display:block;margin-bottom:12px;line-height:1.6">每天认识一点中文，了解中华文化和跨境铁路。这里没有考试，完成学习后留下一个小小的中文成果。</span>
+      <div class="row"><span>今日拓展</span><span class="val" id="extTodayStatus"><span class="tag tag-gray">未完成</span></span></div>
+      <div class="row"><span>累计完成</span><span class="val"><span id="extTotal">0</span> 次</span></div>
+      <button class="btn btn-primary" style="margin-top:10px;font-size:14px;min-height:40px;padding:10px" onclick="openExtension()">📖 开始今日拓展</button>
     </div>
 
-    <!-- 打卡统计 -->
-    <div class="section-card"><h3>📊 打卡统计</h3>
-      <div class="grid-2">
-        <div class="grid-item"><span class="num" id="totalCheckins">0</span><span class="lbl">累计打卡天数</span></div>
-        <div class="grid-item"><span class="num" id="weekCheckins">0</span><span class="lbl">本周打卡</span></div>
-        <div class="grid-item"><span class="num" id="totalMinutes">0分钟</span><span class="lbl">总学习时长</span></div>
-        <div class="grid-item"><span class="num" id="avgDiff">—</span><span class="lbl">平均难度</span></div>
+    <!-- 分类学习 -->
+    <div class="section-card"><h3>🏮 中华文化</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div onclick="extPlaceholder('每日一书')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">📖</span>每日一书</div>
+        <div onclick="extPlaceholder('每日一曲')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">🎵</span>每日一曲</div>
+        <div onclick="extPlaceholder('每日一地')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">📍</span>每日一地</div>
+        <div onclick="extPlaceholder('每日一物')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">🏺</span>每日一物</div>
       </div>
     </div>
 
-    <div class="section-card"><h3>📈 最近打卡记录</h3><div id="recentCheckins" style="font-size:13px;color:#64748b"></div></div>
+    <div class="section-card"><h3>🚂 跨境铁路中文</h3>
+      <div style="font-size:12px;color:#2563eb;font-weight:600;margin-bottom:8px">当前主题：铁路信号</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div onclick="extPlaceholder('每日一站')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">🚉</span>每日一站</div>
+        <div onclick="extPlaceholder('每日一词')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">📝</span>每日一词</div>
+        <div onclick="extPlaceholder('每日一岗')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">👷</span>每日一岗</div>
+        <div onclick="extPlaceholder('每日一知识')" style="background:#f8fafc;border-radius:10px;padding:12px;text-align:center;border:1px solid #e2e8f0;font-size:13px;cursor:pointer"><span style="font-size:24px;display:block;margin-bottom:4px">📋</span>每日一知识</div>
+      </div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:center">其他铁路主题 · 教师后续开放</div>
+    </div>
+
+    <!-- 拓展足迹 -->
+    <div class="section-card"><h3>👣 我的拓展足迹</h3>
+      <div class="grid-2">
+        <div class="grid-item"><span class="num" id="extCultureCount">0</span><span class="lbl">中华文化</span></div>
+        <div class="grid-item"><span class="num" id="extRailwayCount">0</span><span class="lbl">铁路中文</span></div>
+        <div class="grid-item"><span class="num" id="extWordCount">0</span><span class="lbl">新词收藏</span></div>
+        <div class="grid-item"><span class="num" id="extSentenceCount">0</span><span class="lbl">句子输出</span></div>
+      </div>
+      <div id="extLearningCards" style="margin-top:8px"></div>
+    </div>
+
+    <!-- 学习感受（折叠） -->
+    <div class="section-card" style="opacity:0.7">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="toggleFeeling()"><h3 style="margin:0">💭 我的学习感受</h3><span id="feelingArrow">▼</span></div>
+      <div id="feelingArea" style="display:none;margin-top:12px">
+        <label style="font-size:13px;color:#64748b;display:block;margin:8px 0 4px">今天大约学习了多长时间？</label>
+        <div class="radio-row" id="studyMinutes"></div>
+        <label style="font-size:13px;color:#64748b;display:block;margin:8px 0 4px">难不难？（1-5，选填）</label>
+        <div class="eval-row" id="difficulty"></div>
+        <label style="font-size:13px;color:#64748b;display:block;margin:8px 0 4px">信心？（1-5，选填）</label>
+        <div class="eval-row" id="confidence"></div>
+        <label style="font-size:13px;color:#64748b;display:block;margin:8px 0 4px">今天有什么收获？</label>
+        <input class="write-input" id="reflection" placeholder="一句话，选填">
+      </div>
+    </div>
   </div>
 
   <!-- ====== 档案页 ====== -->
@@ -133,7 +150,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <div class="tabbar" id="tabBar" style="display:none">
   <div class="tab active" onclick="switchTab(0)"><span class="icon">🏠</span>首页</div>
   <div class="tab" onclick="switchTab(1)"><span class="icon">📖</span>学习</div>
-  <div class="tab" onclick="switchTab(2)"><span class="icon">✅</span>打卡</div>
+  <div class="tab" onclick="switchTab(2)"><span class="icon">🌱</span>拓展</div>
   <div class="tab" onclick="switchTab(3)"><span class="icon">📊</span>档案</div>
 </div>
 </div>
@@ -156,6 +173,9 @@ var TASK_DEFS=[
   {no:10,title:'任务十',category:'summary',desc:'学习总结与反思',estMin:20,icon:'📊'}
 ];
 var CAT_NAMES={general_chinese:'通用中文',speaking:'口语任务',culture:'中华文化',movie:'电影中文',writing:'写作任务',railway:'铁路中文',exam:'阶段测试',summary:'学习总结'};
+var extTotal=0,extCultureCount=0,extRailwayCount=0,extWordCount=0,extSentenceCount=0,extCards=[];
+var MINUTE_OPTS=['10分钟以内','10—20分钟','20—30分钟','30—60分钟','60分钟以上'];
+var selMinute=null,selDiff=null,selConf=null;
 
 // ===== Content options =====
 var CONTENT_OPTS=['HSK词语','听力','阅读','写作','口语','中文电影','中国文化','铁路中文','课堂复习','其他'];
@@ -173,115 +193,67 @@ function login(){
   document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';
   document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
   var ts=localStorage.getItem('task_status_'+student.id);if(ts)taskStatuses=JSON.parse(ts);
-  initCheckinForm();loadCheckins();renderTasks();updateHomeProgress();
+  initExtensionForm();loadCheckins();renderTasks();updateHomeProgress();
 }
 
-// ===== Init check-in form =====
-function initCheckinForm(){
-  var h='';CONTENT_OPTS.forEach(function(o,i){h+='<span class="chip" id="c_'+i+'" onclick="toggleChip('+i+')">'+o+'</span>';});document.getElementById('studyContent').innerHTML=h;
-  h='';MINUTE_OPTS.forEach(function(o,i){h+='<span class="radio-opt" id="m_'+i+'" onclick="pickRadio(\'m\','+i+')">'+o+'</span>';});document.getElementById('studyMinutes').innerHTML=h;
-  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="d_'+i+'" onclick="pickRadio(\'d\','+i+')">'+i+'</span>';document.getElementById('difficulty').innerHTML=h;
-  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="cf_'+i+'" onclick="pickRadio(\'cf\','+i+')">'+i+'</span>';document.getElementById('confidence').innerHTML=h;
-  h='';PLAN_OPTS.forEach(function(o,i){h+='<span class="radio-opt" id="p_'+i+'" onclick="pickRadio(\'p\','+i+')">'+o+'</span>';});document.getElementById('planCompletion').innerHTML=h;
+// ===== Extensions =====
+function initExtensionForm(){
+  var h='';MINUTE_OPTS.forEach(function(o,i){h+='<span class="radio-opt" id="m_'+i+'" onclick="pickRadio(\'m\','+i+')">'+o+'</span>';});if(document.getElementById('studyMinutes'))document.getElementById('studyMinutes').innerHTML=h;
+  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="d_'+i+'" onclick="pickRadio(\'d\','+i+')">'+i+'</span>';if(document.getElementById('difficulty'))document.getElementById('difficulty').innerHTML=h;
+  h='';for(var i=1;i<=5;i++)h+='<span class="eval-opt" id="cf_'+i+'" onclick="pickRadio(\'cf\','+i+')">'+i+'</span>';if(document.getElementById('confidence'))document.getElementById('confidence').innerHTML=h;
 }
 
-// ===== Interaction =====
-var selChips=[],selMinute=null,selDiff=null,selConf=null,selPlan=null;
-function toggleChip(i){var el=document.getElementById('c_'+i);var idx=selChips.indexOf(i);if(idx===-1){selChips.push(i);el.classList.add('sel');}else{selChips.splice(idx,1);el.classList.remove('sel');}}
 function pickRadio(group,val){
-  var prefix='';if(group==='m'){selMinute=val;prefix='m_';}else if(group==='d'){selDiff=val;prefix='d_';}else if(group==='cf'){selConf=val;prefix='cf_';}else if(group==='p'){selPlan=val;prefix='p_';}
+  var prefix='';if(group==='m'){selMinute=val;prefix='m_';}else if(group==='d'){selDiff=val;prefix='d_';}else if(group==='cf'){selConf=val;prefix='cf_';}
   document.querySelectorAll('.radio-opt,.eval-opt').forEach(function(el){if(el.id.indexOf(prefix)===0)el.classList.remove('sel');});
-  document.getElementById(prefix+val).classList.add('sel');
+  if(document.getElementById(prefix+val))document.getElementById(prefix+val).classList.add('sel');
 }
 
-// ===== Submit check-in =====
-function submitCheckin(){
+function toggleFeeling(){var el=document.getElementById('feelingArea');var arrow=document.getElementById('feelingArrow');if(el.style.display==='none'){el.style.display='block';arrow.textContent='▲';}else{el.style.display='none';arrow.textContent='▼';}}
+
+function extPlaceholder(name){alert(name+'\n\n内容由教师每日发布。\n教师后续开放后将显示完整内容。');}
+
+function openExtension(){
   if(!student)return;
-  if(selMinute===null){alert('请选择学习时长');return;}
-  if(selDiff===null){alert('请选择难度');return;}
-  if(selConf===null){alert('请选择信心');return;}
-  if(selPlan===null){alert('请选择计划完成情况');return;}
-
-  var data={
-    studentId:student.id,studentName:student.name,chineseName:student.chineseName||'',
-    cycleId:'signal_class',country:'Malaysia',learningTrack:'chinese_track',source:'h5',
-    studyContent:selChips.map(function(i){return CONTENT_OPTS[i];}),
-    studyMinutes:MINUTE_OPTS[selMinute],
-    difficulty:selDiff,confidence:selConf,
-    reflection:document.getElementById('reflection').value.trim(),
-    planCompletion:PLAN_OPTS[selPlan],
-    submitTime:new Date().toISOString()
-  };
-
-  // Save local draft
-  localStorage.setItem('checkin_draft_'+student.id,JSON.stringify(data));
-
-  // Submit to cloud
-  var params={action:'checkin'};for(var k in data){params[k]=typeof data[k]==='object'?JSON.stringify(data[k]):data[k];}
-  params.studyContent=selChips.join(',');
-
-  var cb='_ci'+Date.now();window[cb]=function(res){
-    var msg=document.getElementById('checkinMsg');
-    if(res&&res.ok){
-      msg.innerHTML='✅ 提交成功！<br><small>提交时间：'+new Date().toLocaleString('zh-CN')+'</small>';
-      msg.className='msg ok show';
-      // Update local checkin record
-      var key='checkin_'+student.id;var all=JSON.parse(localStorage.getItem(key)||'[]');
-      var today=new Date().toISOString().split('T')[0];data.checkinDate=today;
-      var exist=all.findIndex(function(d){return d.checkinDate===today;});
-      if(exist!==-1)all[exist]=data;else all.push(data);
-      localStorage.setItem(key,JSON.stringify(all));
-      loadCheckins();
-    }else{
-      msg.textContent='提交失败，内容已保存，请重新提交';msg.className='msg err show';
-    }
-    setTimeout(function(){msg.className='msg';},4000);
-    delete window[cb];
-  };
-  var qs='callback='+cb;for(var k in params){qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}
-  var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);
-  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
+  var today=new Date().toISOString().split('T')[0];
+  alert('🌱 今日拓展\n\n日期：'+today+'\n主题：铁路信号\n\n内容由教师每日发布。\n\n完成学习后，点击"完成今日拓展"生成学习卡。');
+  if(confirm('模拟完成今日拓展并生成学习卡？')){
+    var card={date:today,title:'今日拓展 · 铁路信号',category:'railway',words:['信号','安全','铁路'],sentence:'',reflect:'',time:new Date().toLocaleString('zh-CN')};
+    extCards.unshift(card);extTotal++;extRailwayCount++;extWordCount+=3;
+    document.getElementById('extTodayStatus').innerHTML='<span class="tag tag-green">✅ 已完成</span>';
+    updateExtStats();renderExtCards();
+  }
 }
 
-// ===== Load checkins =====
+function updateExtStats(){
+  document.getElementById('extTotal').textContent=extTotal;
+  document.getElementById('extCultureCount').textContent=extCultureCount;
+  document.getElementById('extRailwayCount').textContent=extRailwayCount;
+  document.getElementById('extWordCount').textContent=extWordCount;
+  document.getElementById('extSentenceCount').textContent=extSentenceCount;
+  document.getElementById('checkinHomeTotal').textContent=extTotal+'次';
+}
+
+function renderExtCards(){
+  var h='';extCards.slice(0,3).forEach(function(c){
+    h+='<div style="background:#f0fdf4;border-radius:8px;padding:10px;margin-top:6px;font-size:13px">📅 '+c.date+' · '+c.title+'<br>📝 新词：'+(c.words||[]).join('、')+'<br><span style="color:#94a3b8;font-size:11px">'+c.time+'</span></div>';
+  });
+  document.getElementById('extLearningCards').innerHTML=h||'<span class="empty-state" style="font-size:13px">暂无学习卡</span>';
+  document.getElementById('checkinHomeStatus').innerHTML=extTotal>0?'<span class="tag tag-green">✅ 已完成</span>':'<span class="tag tag-gray">未完成</span>';
+}
+
+// ===== Load old checkin data (backward compatible) =====
 function loadCheckins(){
   if(!student)return;
   var key='checkin_'+student.id;var all=JSON.parse(localStorage.getItem(key)||'[]');
   checkinHistory=all;
   var today=new Date().toISOString().split('T')[0];
   checkinToday=all.find(function(d){return d.checkinDate===today;})||null;
-
-  // Update home
-  document.getElementById('checkinHomeStatus').innerHTML=checkinToday?'<span class="tag tag-green">✅ 已打卡</span>':'<span class="tag tag-gray">未打卡</span>';
-  document.getElementById('checkinHomeTotal').textContent=all.length+'天';
-
-  // Update stats
-  document.getElementById('totalCheckins').textContent=all.length;
-  // Week count
-  var now=new Date();var weekAgo=new Date(now.getTime()-7*86400000).toISOString().split('T')[0];
-  var weekCount=all.filter(function(d){return d.checkinDate>=weekAgo;}).length;
-  document.getElementById('weekCheckins').textContent=weekCount;
-  // Minutes
-  var minMap={'10分钟以内':5,'10—20分钟':15,'20—30分钟':25,'30—60分钟':45,'60分钟以上':70};
-  var totalMin=all.reduce(function(s,d){return s+(minMap[d.studyMinutes]||0);},0);
-  document.getElementById('totalMinutes').textContent=totalMin+'分钟';
-  // Avg difficulty
-  var diffs=all.filter(function(d){return d.difficulty;}).map(function(d){return parseInt(d.difficulty);});
-  document.getElementById('avgDiff').textContent=diffs.length?(diffs.reduce(function(a,b){return a+b;},0)/diffs.length).toFixed(1):'—';
-
-  // Recent
-  var recent=all.slice(-7).reverse();
-  var h='';recent.forEach(function(d){h+='<div class="history-item"><span>'+d.checkinDate+' · '+(d.studyMinutes||'')+'</span><span style="color:#2563eb;font-weight:600">信心 '+d.confidence+'/5</span></div>';});
-  document.getElementById('recentCheckins').innerHTML=h||'<span class="empty-state">暂无记录</span>';
-
-  // Restore form if today already submitted
-  if(checkinToday){
-    document.getElementById('reflection').value=checkinToday.reflection||'';
-    if(checkinToday.studyMinutes)pickRadio('m',MINUTE_OPTS.indexOf(checkinToday.studyMinutes));
-    if(checkinToday.difficulty)pickRadio('d',checkinToday.difficulty);
-    if(checkinToday.confidence)pickRadio('cf',checkinToday.confidence);
-    if(checkinToday.planCompletion)pickRadio('p',PLAN_OPTS.indexOf(checkinToday.planCompletion));
-  }
+  // Load extension records
+  var extKey='ext_records_'+student.id;var extData=JSON.parse(localStorage.getItem(extKey)||'{"total":0,"culture":0,"railway":0,"words":0,"sentences":0,"cards":[]}');
+  extTotal=extData.total||0;extCultureCount=extData.culture||0;extRailwayCount=extData.railway||0;
+  extWordCount=extData.words||0;extSentenceCount=extData.sentences||0;extCards=extData.cards||[];
+  updateExtStats();renderExtCards();
 }
 
 // ===== Task cards =====
@@ -343,7 +315,7 @@ function switchTab(idx){
 
 (function(){
   var stu=localStorage.getItem('cycle15_student');
-  if(stu){student=JSON.parse(stu);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';var ts=localStorage.getItem('task_status_'+student.id);if(ts)taskStatuses=JSON.parse(ts);initCheckinForm();loadCheckins();renderTasks();updateHomeProgress();}
+  if(stu){student=JSON.parse(stu);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';var ts=localStorage.getItem('task_status_'+student.id);if(ts)taskStatuses=JSON.parse(ts);initExtensionForm();loadCheckins();renderTasks();updateHomeProgress();}
 })();
 </script>
 </body></html>
