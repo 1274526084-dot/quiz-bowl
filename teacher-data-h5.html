@@ -82,9 +82,22 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   </div>
 </div>
 <div id="importPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
-<div id="importActions" style="display:none;margin-top:6px;display:flex;gap:8px">
+<div id="importActions" style="display:none;margin-top:6px;gap:8px">
   <button class="btn btn-refresh" onclick="confirmImport()" style="flex:1;font-size:12px">✅ 确认导入</button>
   <button class="btn btn-outline" onclick="cancelImport()" style="flex:1;font-size:12px">← 取消</button>
+</div>
+
+<!-- HSK成绩导入 -->
+<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
+<h4 style="font-size:13px;color:#1e293b;margin-bottom:8px">📝 导入HSK三级成绩（支持未激活学生）</h4>
+<p style="font-size:10px;color:#94a3b8;margin-bottom:8px">CSV格式：studentId,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus</p>
+<textarea id="hskData" placeholder="MY004,80,75,70,225,2026-07-15,pass&#10;MY005,60,55,50,165,2026-07-15,fail" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;resize:vertical"></textarea>
+<button class="btn btn-refresh" onclick="previewHskImport()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览HSK导入</button>
+<div id="hskPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
+<div id="hskActions" style="display:none;margin-top:6px;gap:8px">
+  <button class="btn btn-refresh" onclick="confirmHskImport()" style="flex:1;font-size:12px">✅ 确认导入HSK</button>
+  <button class="btn btn-outline" onclick="cancelHskImport()" style="flex:1;font-size:12px">← 取消</button>
+</div>
 </div>
 </div>
 
@@ -154,6 +167,36 @@ function previewImport(){
   document.getElementById('importPreview').innerHTML=h;document.getElementById('importPreview').style.display='block';document.getElementById('importActions').style.display='flex';
 }
 function cancelImport(){pendingImport=[];document.getElementById('importPreview').style.display='none';document.getElementById('importActions').style.display='none';}
+
+var pendingHsk=[];
+function previewHskImport(){
+  var text=document.getElementById('hskData').value.trim();if(!text){alert('请粘贴HSK成绩数据');return;}
+  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});pendingHsk=[];var matched=0,noMatch=0;
+  lines.forEach(function(line,i){
+    var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
+    if(cols.length>=1&&cols[0]){
+      var sid=cols[0],ls=parseInt(cols[1])||0,rs=parseInt(cols[2])||0,ws=parseInt(cols[3])||0,ts=parseInt(cols[4])||(ls+rs+ws),date=cols[5]||'',pass=cols[6]||(ts>=180?'pass':'fail');
+      var found=allData.find(function(r){return r.studentId===sid;});
+      var uid=found?found.studentUid||'':'';
+      var en=(found?(found.studentName||found.name||''):'');
+      pendingHsk.push({studentId:sid,studentUid:uid,englishName:en,listeningScore:ls,readingScore:rs,writingScore:ws,totalScore:ts,examDate:date,passStatus:pass,status:uid?'matched':'no_match'});
+      if(uid)matched++;else noMatch++;
+    }
+  });
+  var h='<div style="font-weight:700;margin-bottom:6px">📋 '+pendingHsk.length+'条 · 匹配 '+matched+' · 待人工 '+noMatch+'</div>';
+  pendingHsk.forEach(function(r,i){h+='<div style="padding:2px 0;color:'+(r.status==='matched'?'#16a34a':'#d97706')+'">'+(i+1)+'. '+r.studentId+' '+r.englishName+' → HSK:'+r.totalScore+' '+(r.passStatus==='pass'?'✅通过':'')+'</div>';});
+  document.getElementById('hskPreview').innerHTML=h;document.getElementById('hskPreview').style.display='block';document.getElementById('hskActions').style.display='flex';
+}
+function cancelHskImport(){pendingHsk=[];document.getElementById('hskPreview').style.display='none';document.getElementById('hskActions').style.display='none';}
+function confirmHskImport(){
+  if(!pendingHsk.length)return;var done=0,skip=0,total=pendingHsk.filter(function(r){return r.status==='matched';}).length;var idx=0;
+  function next(){if(idx>=pendingHsk.length){alert('✅ HSK导入完成：'+done+'条成功，'+skip+'条跳过');cancelHskImport();loadData();return;}
+    var r=pendingHsk[idx];idx++;if(!r.studentUid){skip++;next();return;}
+    var cb='_hsk'+Date.now()+'_'+idx;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next();delete window[cb];};
+    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_assessment&studentUid='+r.studentUid+'&studentId='+r.studentId+'&listeningScore='+r.listeningScore+'&readingScore='+r.readingScore+'&writingScore='+r.writingScore+'&totalScore='+r.totalScore+'&examDate='+encodeURIComponent(r.examDate)+'&passStatus='+r.passStatus;document.head.appendChild(s);
+  }next();
+}
+
 function confirmImport(){
   if(!pendingImport.length)return;var done=0,skip=0,total=pendingImport.length;
   function next(i){if(i>=total){alert('✅ 导入完成：'+done+'条成功，'+skip+'条跳过');cancelImport();loadData();return;}
