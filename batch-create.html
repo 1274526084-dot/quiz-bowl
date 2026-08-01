@@ -9,16 +9,27 @@
 
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
+// Test accounts first
+var testAccounts=[{en:'Test Student A',cn:'测试学生A',sid:'MY001'},{en:'Test Student B',cn:'测试学生B',sid:'MY002'},{en:'Test Student C',cn:'测试学生C',sid:'MY003'}];
+var startIndex=0;
+
 var students=['AHMAD AQIL BIN MOHD ROZI,梁伟','KIRTHIVAASAN A/L MAHENDRAN,尔帝','MUHAMMAD HARRIS FAHMY BIN MOHD JOHARI,小虎','AKHTAR AKHIMULLAH BIN MOHD RAFFI,李星','MUHAMMAD HAIKAL MUSTAKIM BIN HASBULLAH,青华','MOHAMAD IMAN HAKIMI BIN ABDUL HADI,米奇','MUHAMMAD AIMAN HAKIM BIN ABDUL WAHAB,王武','FAKRUL IQRAM BIN SULAIMAN,法勇轩','MUHAMMAD AZLISHAM BIN SALLEH,李贤','MUHAMMAD ASIF BIN ISMAIL,龙傲天','AIMAN MUHAIMIN BIN CHE MOHD RIZAL,李吉安','MUHAMMAD FIRDAUS BIN DULKAFI,福园','AHNAF FAISAL BIN MUSLAN,安瑞宁','MUHAMMAD FAKHRUSY SYAKIRIN BIN HEBAT SHARUMAFAR,麒瑞','MUHAMMAD SAIFUL ZULFAQAR BIN SATIFUL BAHARI,赛夫','MUHAMMAD AQIL SYADHAMEER BIN KHAIRUL AZHAR,沙哈米','ADAM BIN AHMAD FAISAL,阿达','MOHAMMAD RAZIN BIN MOHAMMAD REDZUAN,蓝泽','AMIR HAKIM BIN AHMAD,海明','AZWAN BIN RAMLI,友贤','YUZMAN HAFIZAN BIN MD YAZID,佐思安','HAZIQ SAFUAN BIN MOHD ADHA,浩志安','MOHAMAD SAHRUL BIN CHE MUSA,佳龙','NOR AZIM NABIL BIN NOR HALIM,刘传','HANI AMIR HAFIZI BIN ABDULGHANI,涵伊','ZETI AZIZI BINTI ZAHRI,泽帝','EIZZATI NAAJIHA BINTI ZAHARUDDIN,伊扎帝','NOR ELYANA ZIZIYANA BINTI MOHD AZIZI,艾丽娜','NURFATIN QURRATUAIN BINTI MOHD HUSNI,李婷','NUR SYAWANIE BINTI HAMADI,婉宜','HANY ALYA BINTI ZAINAL,雅莉','AMY ALIA BINTI MOHD HUZAIMI,艾米','NUR SYAZWANI BINTI CHE AWANG @ MOHD RASYIDI,茉莉','NUR ALISSA SABRINA BINTI MOHD SABRI,丽莎','JUMATIAH BINTI JAMRI,詹珠珠','ANDREA ANDSIE ANDY ALIMJIN,安德雅','AINI AL SYAHNAS BINTI SYAHRULL NIZAM,沈爱妮'];
-var results=[];
+var allItems=[];
+// Test accounts first
+testAccounts.forEach(function(t){allItems.push({type:'test',en:t.en,cn:t.cn,sid:t.sid});});
+// Then main students
+students.forEach(function(s,i){var p=s.split(',');allItems.push({type:'main',en:p[0].trim(),cn:(p[1]||'').trim(),sid:'MY'+String(i+4).padStart(3,'0')});});
+
+var results=[],failed=[];
 function next(i){
-  if(i>=students.length){document.getElementById('status').innerHTML='✅ 完成！已生成 '+results.filter(function(r){return r.ok;}).length+'/'+students.length+' 个账号';showTable();return;}
-  var parts=students[i].split(',');var en=parts[0].trim(),cn=(parts[1]||'').trim();var sid='MY'+String(i+4).padStart(3,'0');
+  if(i>=allItems.length){document.getElementById('status').innerHTML='✅ 完成！成功 '+results.length+'/'+allItems.length;if(failed.length)document.getElementById('status').innerHTML+='（'+failed.length+'个已存在）';showTable();return;}
+  var item=allItems[i];var en=item.en,cn=item.cn,sid=item.sid;
   var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){
-    var errMsg=res?res.error||JSON.stringify(res).slice(0,80):'无响应';
-    results.push({sid:sid,en:en,cn:cn,pin:res&&res.initialPin?res.initialPin:errMsg,ok:!!(res&&res.success)});
-    document.getElementById('status').textContent='生成中... '+(i+1)+'/'+students.length;
-    document.getElementById('results').innerHTML+='<div class="item '+(res&&res.success?'ok':'fail')+'">'+(i+1)+'. '+sid+' '+en+' → '+(res&&res.success?'✅ '+res.initialPin:'❌ '+errMsg)+'</div>';
+    var errMsg=(res&&res.error)||(res?JSON.stringify(res):'无响应');var isOk=!!(res&&res.success);
+    if(isOk){results.push({sid:sid,en:en,cn:cn,pin:res.initialPin});}
+    else{failed.push({sid:sid,en:en,cn:cn,err:errMsg});}
+    document.getElementById('status').textContent='生成中... '+(i+1)+'/'+allItems.length;
+    document.getElementById('results').innerHTML+='<div class="item '+(isOk?'ok':'fail')+'">'+(i+1)+'. '+sid+' '+en+' → '+(isOk?'✅ '+res.initialPin:'❌ '+errMsg)+'</div>';
     delete window[cb];next(i+1);
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
