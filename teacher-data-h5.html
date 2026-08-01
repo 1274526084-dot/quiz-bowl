@@ -53,7 +53,7 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <button class="btn btn-refresh" onclick="batchUploadCreate()" style="width:100%;font-size:12px">⚡ 上传并批量生成</button>
   <p style="font-size:10px;color:#94a3b8;margin-top:6px">或直接粘贴学生名单（一行一个：英文名,中文名）</p>
   <textarea id="pasteArea" placeholder="Ahmad,陈小明&#10;Siti,黄小丽&#10;Ravi,李小华" style="width:100%;min-height:100px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-top:4px;resize:vertical"></textarea>
-  <button class="btn btn-refresh" id="pastePreviewBtn" onclick="previewRoster()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览名单</button>
+  <button class="btn btn-refresh" id="pastePreviewBtn" onclick="(function(){var ta=document.getElementById('pasteArea');if(!ta){alert('文本框未找到');return;}var v=ta.value;if(!v.trim()){alert('请先粘贴学生名单');return;}previewRoster();})()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览名单</button>
   <div id="rosterPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
   <div id="rosterActions" style="display:none;margin-top:6px;display:flex;gap:8px">
     <button class="btn btn-refresh" onclick="confirmGenerate()" style="flex:1;font-size:12px">✅ 确认生成</button>
