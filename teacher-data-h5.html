@@ -55,10 +55,10 @@ function loadData(){
 }
 
 function updateStats(){
-  var today=new Date().toISOString().split('T')[0];var names={},extCount=0,todayCount=0;
-  var seen={};allData=allData.filter(function(r){var key=r.submissionId||(r.studentId+'_'+(r.dataType||'')+'_'+(r.extensionId||''));if(seen[key])return false;seen[key]=true;return true;});
-  allData.forEach(function(r){var n=r.studentName||r.name;if(n)names[n]=true;if(r.dataType==='extension_record')extCount++;if((r.submitTime||'').indexOf(today)!==-1)todayCount++;});
-  document.getElementById('sTotal').textContent=Object.keys(names).length;document.getElementById('sToday').textContent=todayCount;document.getElementById('sExt').textContent=extCount;document.getElementById('sSubs').textContent=allData.length;
+  var today=new Date().toISOString().split('T')[0];var seen={},uids={},extCount=0,todayCount=0;
+  allData=allData.filter(function(r){var key=r.submissionId||(r.studentId+'_'+(r.dataType||'')+'_'+(r.extensionId||''));if(seen[key])return false;seen[key]=true;return true;});
+  allData.forEach(function(r){var uid=r.studentUid||r.studentId||'';if(uid)uids[uid]=true;if(r.dataType==='extension_record')extCount++;if((r.submitTime||'').indexOf(today)!==-1)todayCount++;});
+  document.getElementById('sTotal').textContent=Object.keys(uids).length;document.getElementById('sToday').textContent=todayCount;document.getElementById('sExt').textContent=extCount;document.getElementById('sSubs').textContent=allData.length;
 }
 
 function renderTable(){
