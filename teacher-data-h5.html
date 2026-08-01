@@ -47,7 +47,7 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
 </div>
 <div id="studentMgmt" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0"><h3 style="font-size:15px;margin-bottom:10px">👥 学生账号管理</h3><div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input id="newEn" placeholder="英文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newCn" placeholder="中文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newSid" placeholder="学生编号 如MY001" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><button class="btn btn-refresh" onclick="createStudent()" style="width:100%;margin-top:4px;font-size:12px">✅ 新增</button></div><div style="flex:1;min-width:180px;background:#f8fafc;border-radius:10px;padding:12px"><label style="font-size:11px;color:#64748b;font-weight:600">批量生成</label><input id="batchCount" value="3" type="number" min="1" max="50" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin:8px 0"><label style="font-size:10px;color:#94a3b8">自动编号 MY001 / MY002 / ...</label><button class="btn btn-refresh" onclick="batchCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 批量生成</button></div></div>
 <div style="background:#f0fdf4;border-radius:8px;padding:12px;margin-bottom:8px"><h4 style="font-size:13px;color:#16a34a;margin-bottom:6px">📤 上传学生名单 Excel/CSV</h4><label style="font-size:11px;color:#64748b">文件格式：第一列英文名，第二列中文名（不要表头）</label>
-  <input type="file" id="uploadFile" accept=".csv,.txt" onchange="handleFileUpload()" style="margin:8px 0;font-size:12px">
+  <input type="file" id="uploadFile" accept=".csv,.txt,.xlsx" onchange="handleFileUpload()" style="margin:8px 0;font-size:12px">
   <div id="uploadPreview" style="font-size:11px;max-height:100px;overflow-y:auto;margin:6px 0"></div>
   <button class="btn btn-refresh" onclick="batchUploadCreate()" style="width:100%;font-size:12px">⚡ 上传并批量生成</button>
 </div></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
@@ -105,18 +105,26 @@ var uploadStudents=[];
 function handleFileUpload(){
   var file=document.getElementById('uploadFile').files[0];if(!file)return;
   var reader=new FileReader();reader.onload=function(e){
-    var text=e.target.result;var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
+    var buffer=e.target.result;var text='';
+    // Try UTF-8 first
+    try{text=new TextDecoder('utf-8',{fatal:true}).decode(new Uint8Array(buffer));}catch(_){}
+    // If UTF-8 failed (garbled), try GBK (Chinese Excel default)
+    if(!text||text.indexOf('�')!==-1||/[^\x00-\x7f一-鿿　-〿＀-￯]/.test(text.slice(0,200))){
+      try{text=new TextDecoder('gbk').decode(new Uint8Array(buffer));}catch(_){try{text=new TextDecoder('gb2312').decode(new Uint8Array(buffer));}catch(_){}}
+    }
+    if(!text||text.length<3){document.getElementById('uploadPreview').innerHTML='文件为空或无法识别编码';return;}
+    var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
     uploadStudents=[];var preview='';
     lines.forEach(function(line,i){
       var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
-      if(cols.length>=1&&cols[0]){
+      if(cols.length>=1&&cols[0]&&i<100){
         uploadStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});
         preview+='<div>MY'+String(i+1).padStart(3,'0')+' · '+cols[0]+(cols[1]?' · '+cols[1]:'')+'</div>';
       }
     });
-    document.getElementById('uploadPreview').innerHTML=preview||'未识别到数据';
+    document.getElementById('uploadPreview').innerHTML=preview||'未识别到数据（请检查格式：英文名,中文名）';
   };
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
 }
 function batchUploadCreate(){
   if(!uploadStudents.length){alert('请先上传文件');return;}
