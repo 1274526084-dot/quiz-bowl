@@ -37,6 +37,7 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <div class="tab-btn" onclick="switchTab('accounts')">🔑 账号管理</div>
   <div class="tab-btn" onclick="switchTab('import')">📥 数据导入</div>
   <div class="tab-btn" onclick="switchTab('export')">📤 导出</div>
+  <div class="tab-btn" onclick="switchTab('coursetasks')">📋 课程任务</div>
 </div>
 
 <div class="toolbar">
@@ -102,6 +103,25 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
     <button class="btn btn-outline" onclick="exportExcel()">📤 导出学习数据Excel</button>
     <button class="btn btn-outline" onclick="exportAccountMap()">📋 导出账号映射表</button>
     <button class="btn btn-outline" onclick="exportHskTemplate()">📝 导出HSK模板</button>
+    <button class="btn btn-outline" onclick="exportCourseTaskCsv()">📋 导出任务一CSV</button>
+  </div>
+</div>
+<div class="page" id="page-coursetasks">
+  <div class="stats-row" id="ctStatsRow"></div>
+  <div class="stats-row" id="ctStatsRow2"></div>
+  <div class="chart-card" style="margin-bottom:8px"><h4>📊 分析</h4><div id="ctAnalysis"></div></div>
+  <div class="chart-card" style="margin-bottom:8px"><h4>⚠️ 最容易出错的5道题</h4><div id="ctTopErrors"></div></div>
+  <div class="chart-card" style="margin-bottom:8px"><h4>📋 未提交学生</h4><div id="ctUnsubmitted"></div></div>
+  <div class="toolbar"><input type="text" id="ctSearch" placeholder="搜索学生..." oninput="renderCourseTaskTable()"></div>
+  <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>已开始</th><th>已提交</th><th>阅读正确</th><th>阅读分</th><th>书写分</th><th>总分</th><th>用时</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="ctTbody"></tbody></table></div>
+</div>
+<div class="modal-mask" id="answerModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:16px;width:95%;max-width:620px;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h4 style="margin:0;font-size:15px" id="answerModalTitle">学生答卷</h4>
+      <button class="btn btn-small" onclick="closeAnswerModal()" style="background:#e2e8f0;border:none;cursor:pointer;padding:6px 12px;border-radius:6px;font-size:14px">✕</button>
+    </div>
+    <div id="answerModalContent"></div>
   </div>
 </div>
 </div></div>
@@ -116,7 +136,8 @@ var stuMaster={};
 function isFormal(sid){return FORMAL_SIDS.indexOf(sid)!==-1;}
 function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);setupAccountPanel();setupImportPanel();}else{alert('口令错误');}}
 
-function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(['总览','HSK分析','学生档案','账号管理','数据导入','导出'][['overview','hsk','students','accounts','import','export'].indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();}
+var TAB_LABELS=['总览','HSK分析','学生档案','账号管理','数据导入','导出','课程任务'];var TAB_KEYS=['overview','hsk','students','accounts','import','export','coursetasks'];
+function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(TAB_LABELS[TAB_KEYS.indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();if(tab==='coursetasks')loadCourseTaskStats();}
 
 function loadData(){
   var loaded=0;
@@ -271,5 +292,180 @@ function exportHskTemplate(){
   var csv='﻿studentUid,studentId,englishName,chineseName,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus\n';
   (studentsData||[]).forEach(function(s){csv+=s.studentUid+','+s.studentId+','+(s.englishName||'')+','+(s.chineseName||'')+',,,,,,\n';});
   var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HSK模板_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+// ===== Course Task 1 Stats =====
+var ctStatsData = null;
+
+function loadCourseTaskStats() {
+  var cb = '_cts' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      ctStatsData = res.stats;
+      renderCourseTaskStats();
+      renderCourseTaskTable();
+    } else {
+      document.getElementById('ctStatsRow').innerHTML = '<div class="stat-card red"><span class="num">—</span><span class="lbl">加载失败</span></div>';
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01';
+  document.head.appendChild(s);
+}
+
+function renderCourseTaskStats() {
+  var st = ctStatsData;
+  if (!st) return;
+  var r1 = '';
+  r1 += '<div class="stat-card blue"><span class="num">' + st.totalFormal + '</span><span class="lbl">正式学生</span></div>';
+  r1 += '<div class="stat-card"><span class="num">' + st.startedCount + '</span><span class="lbl">已开始</span></div>';
+  r1 += '<div class="stat-card green"><span class="num">' + st.submittedCount + '</span><span class="lbl">已提交</span></div>';
+  r1 += '<div class="stat-card red"><span class="num">' + st.unsubmittedCount + '</span><span class="lbl">未提交</span></div>';
+  r1 += '<div class="stat-card amber"><span class="num">' + st.completionRate + '%</span><span class="lbl">完成率</span></div>';
+  document.getElementById('ctStatsRow').innerHTML = r1;
+  var r2 = '';
+  r2 += '<div class="stat-card blue"><span class="num">' + st.readingAvg + '</span><span class="lbl">阅读平均分</span></div>';
+  r2 += '<div class="stat-card"><span class="num">' + st.writingAvg + '</span><span class="lbl">书写平均分</span></div>';
+  r2 += '<div class="stat-card green"><span class="num">' + st.totalAvg + '</span><span class="lbl">总分平均</span></div>';
+  r2 += '<div class="stat-card"><span class="num">' + st.totalMax + '</span><span class="lbl">最高分</span></div>';
+  r2 += '<div class="stat-card red"><span class="num">' + st.totalMin + '</span><span class="lbl">最低分</span></div>';
+  document.getElementById('ctStatsRow2').innerHTML = r2;
+  var durMin = st.avgDurationSeconds ? Math.floor(st.avgDurationSeconds / 60) : 0;
+  var a = '<div style="font-size:12px;line-height:2">';
+  a += '<b>阅读部分正确率：</b>第一部分 ' + st.readingPart1Rate + '% · 第二部分 ' + st.readingPart2Rate + '% · 第三部分 ' + st.readingPart3Rate + '%<br>';
+  a += '<b>书写得分率：</b>完成句子 ' + st.writingPart1Rate + '% · 填写汉字 ' + st.writingPart2Rate + '%<br>';
+  a += '<b>总分中位数：</b>' + st.totalMedian + ' · <b>平均答题时间：</b>' + durMin + '分钟';
+  a += '</div>';
+  document.getElementById('ctAnalysis').innerHTML = a;
+  var te = '';
+  if (st.topErrors && st.topErrors.length > 0) {
+    st.topErrors.forEach(function(e) {
+      te += '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><b>' + e.questionId + '</b> — 正确率 ' + e.rate + '%（' + e.wrong + '人答错）</div>';
+    });
+  } else { te = '<div style="font-size:12px;color:#94a3b8">暂无数据</div>'; }
+  document.getElementById('ctTopErrors').innerHTML = te;
+  var us = '';
+  if (st.unsubmittedList && st.unsubmittedList.length > 0) {
+    st.unsubmittedList.forEach(function(s) {
+      us += '<span style="display:inline-block;background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:11px;margin:2px">' + s.studentId + ' ' + (s.chineseName || s.englishName || '') + '</span>';
+    });
+  } else { us = '<div style="font-size:12px;color:#16a34a">✅ 所有正式学生已提交</div>'; }
+  document.getElementById('ctUnsubmitted').innerHTML = us;
+}
+
+function renderCourseTaskTable() {
+  var search = (document.getElementById('ctSearch') ? document.getElementById('ctSearch').value : '').toLowerCase();
+  var rows = '';
+  var students = ctStatsData ? ctStatsData.studentTable : [];
+  students.forEach(function(stu) {
+    if (search && stu.studentId.toLowerCase().indexOf(search) === -1 && (stu.chineseName || '').indexOf(search) === -1 && (stu.englishName || '').toLowerCase().indexOf(search) === -1) return;
+    var dur = stu.durationSeconds ? Math.floor(stu.durationSeconds / 60) + '分' : '—';
+    var subTime = stu.submittedAt ? stu.submittedAt.replace('T', ' ').slice(0, 19) : '—';
+    var statusTag = stu.hasSubmitted ? '<span style="color:#16a34a">✅</span>' : (stu.hasStarted ? '<span style="color:#f59e0b">进行中</span>' : '<span style="color:#94a3b8">未开始</span>');
+    var startTag = stu.hasStarted ? '✅' : '—';
+    var subTag = stu.hasSubmitted ? '✅' : '—';
+    var ops = '';
+    if (stu.hasSubmitted) {
+      ops = '<button class="btn btn-small btn-outline" onclick="viewStudentAnswers(\'' + stu.studentUid + '\',\'' + (stu.englishName || stu.studentId) + '\')">📋 答卷</button> ';
+      ops += '<button class="btn btn-small" style="background:#fef2f2;color:#dc2626" onclick="resetStudentTask(\'' + stu.studentUid + '\',\'' + stu.studentId + '\')">🔄 重置</button>';
+    }
+    rows += '<tr><td>' + stu.studentId + '</td><td class="name">' + (stu.englishName || '') + '</td><td>' + (stu.chineseName || '') + '</td><td>' + statusTag + '</td><td>' + startTag + '</td><td>' + subTag + '</td><td>' + (stu.readingCorrectCount != null ? stu.readingCorrectCount + '/30' : '—') + '</td><td>' + (stu.readingScore != null ? stu.readingScore : '—') + '</td><td>' + (stu.writingScore != null ? stu.writingScore : '—') + '</td><td><b>' + (stu.totalScore != null ? stu.totalScore : '—') + '</b></td><td>' + dur + '</td><td style="font-size:10px">' + subTime + '</td><td>' + ops + '</td></tr>';
+  });
+  document.getElementById('ctTbody').innerHTML = rows || '<tr><td colspan="13" style="padding:12px;color:#94a3b8">加载中或暂无数据</td></tr>';
+}
+
+function viewStudentAnswers(uid, name) {
+  var cb = '_va' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      showAnswerModal(res, name);
+    } else {
+      alert('加载答卷失败：' + (res ? res.error : '未知错误'));
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task_result&taskId=TASK_HSK3_RW_01&studentUid=' + encodeURIComponent(uid);
+  document.head.appendChild(s);
+}
+
+function showAnswerModal(data, name) {
+  document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — 答卷';
+  var html = '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
+  html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
+  html += '阅读分：' + (data.readingScore || 0) + ' · ';
+  html += '书写分：' + (data.writingScore || 0) + ' · ';
+  html += '<b>总分：' + (data.totalScore || 0) + '/200</b>';
+  if (data.teacherAdjusted) html += ' <span style="color:#f59e0b">（教师已调整）</span>';
+  html += '</div>';
+  html += '<div style="max-height:50vh;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>题号</th><th>学生答案</th><th>正确答案</th><th>结果</th><th>得分</th></tr></thead><tbody>';
+  var itemResults = data.itemResults || [];
+  itemResults.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    var scoreStr = ir.itemScore + '/' + ir.itemMaxScore;
+    if (ir.teacherAdjusted) scoreStr += ' <span style="color:#f59e0b">(教师调整:' + ir.teacherAdjustedScore + ')</span>';
+    html += '<tr><td>' + ir.questionId + '</td><td>' + (ir.studentAnswer || '—') + '</td><td>' + ir.correctAnswer + '</td><td>' + mark + '</td><td>' + scoreStr + '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  document.getElementById('answerModalContent').innerHTML = html;
+  document.getElementById('answerModal').style.display = 'flex';
+}
+
+function closeAnswerModal() {
+  document.getElementById('answerModal').style.display = 'none';
+}
+
+function resetStudentTask(uid, sid) {
+  if (!confirm('确定重置 ' + sid + ' 的任务一？\n\n该学生可以重新作答。\n历史提交版本将被保留。')) return;
+  var cb = '_rst' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      alert('已重置！\n学生可重新作答。\n新 attemptNo: ' + res.newAttemptNo);
+      loadCourseTaskStats();
+    } else {
+      alert('重置失败：' + (res ? res.error : '未知错误'));
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=reset_course_task_attempt&taskId=TASK_HSK3_RW_01&studentUid=' + encodeURIComponent(uid);
+  document.head.appendChild(s);
+}
+
+function exportCourseTaskCsv() {
+  if (!ctStatsData) {
+    var cb2 = '_ecsv' + Date.now();
+    window[cb2] = function(res) {
+      if (res && res.success && res.stats) { ctStatsData = res.stats; doExportCsv(); }
+      else { alert('暂无数据可导出，请先加载课程任务统计。'); }
+      delete window[cb2];
+    };
+    var s2 = document.createElement('script');
+    s2.src = API + '?callback=' + cb2 + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01';
+    document.head.appendChild(s2);
+    return;
+  }
+  doExportCsv();
+}
+
+function doExportCsv() {
+  var csv = '﻿studentId,englishName,chineseName,readingCorrectCount,readingScore,writingScore,totalScore,durationSeconds,submittedAt\n';
+  var students = ctStatsData ? ctStatsData.studentTable : [];
+  students.forEach(function(s) {
+    if (!s.hasSubmitted) return;
+    csv += [s.studentId, s.englishName, s.chineseName,
+      s.readingCorrectCount != null ? s.readingCorrectCount : '',
+      s.readingScore != null ? s.readingScore : '',
+      s.writingScore != null ? s.writingScore : '',
+      s.totalScore != null ? s.totalScore : '',
+      s.durationSeconds || '', (s.submittedAt || '').replace('T',' ').slice(0,19)
+    ].join(',') + '\n';
+  });
+  var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '任务一成绩_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
 }
 </script></body></html>

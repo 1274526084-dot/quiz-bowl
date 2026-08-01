@@ -32,6 +32,67 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 
 .preview-banner{background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b;display:none}.preview-banner.show{display:block}
 .preview-hidden{display:none!important}
+
+/* ===== Quiz Task Styles ===== */
+.quiz-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:300;overflow-y:auto}
+.quiz-overlay.show{display:block}
+.quiz-header{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:10px 14px;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.quiz-header .qback{font-size:18px;cursor:pointer;width:28px;text-align:center}
+.quiz-header .qtitle{flex:1;font-size:14px;font-weight:700;min-width:120px}
+.quiz-header .qtimer{font-size:20px;font-weight:900;white-space:nowrap}
+.quiz-header .qtimer.warn{color:#fbbf24;animation:blink 1s infinite}
+.quiz-header .qtimer.danger{color:#ef4444;animation:blink 0.5s infinite}
+@keyframes blink{50%{opacity:0.5}}
+.quiz-stepbar{display:flex;gap:4px;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;overflow-x:auto}
+.quiz-stepbar .step{flex:1;min-width:60px;text-align:center;padding:6px 4px;font-size:10px;border-radius:6px;background:#e2e8f0;color:#94a3b8;cursor:pointer;white-space:nowrap}
+.quiz-stepbar .step.active{background:#2563eb;color:#fff;font-weight:700}
+.quiz-stepbar .step.done{background:#dbeafe;color:#2563eb}
+.quiz-body{padding:12px;padding-bottom:120px}
+.quiz-section-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.quiz-section-title .sec-badge{font-size:10px;background:#eff6ff;color:#2563eb;padding:2px 8px;border-radius:8px}
+.quiz-instructions{font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6;padding:8px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b}
+.quiz-example{font-size:12px;color:#475569;padding:8px 12px;background:#f0fdf4;border-radius:8px;margin-bottom:12px;border:1px solid #bbf7d0}
+.quiz-example .ex-label{font-weight:700;color:#16a34a;font-size:10px}
+.option-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:8px;background:#f1f5f9;border-radius:8px}
+.opt-chip{padding:8px 14px;border-radius:20px;font-size:13px;border:2px solid #e2e8f0;cursor:pointer;background:#fff;color:#1e293b;font-weight:600;transition:all 0.15s}
+.opt-chip:active,.opt-chip.sel{background:#2563eb;color:#fff;border-color:#2563eb}
+.opt-chip.used{background:#e2e8f0;color:#94a3b8;border-color:#e2e8f0;cursor:not-allowed;text-decoration:line-through}
+.opt-chip.wrong{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.opt-chip.correct{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+.quiz-qcard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px}
+.quiz-qcard .qnum{font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:4px}
+.quiz-qcard .qtext{font-size:15px;color:#1e293b;line-height:1.6;margin-bottom:8px}
+.quiz-qcard .qpassage{font-size:14px;color:#475569;line-height:1.7;margin-bottom:8px;padding:8px;background:#f8fafc;border-radius:6px}
+.quiz-qcard .qstem{font-size:14px;color:#1e293b;font-weight:600;margin-bottom:8px}
+.quiz-qcard .qopt{display:block;width:100%;padding:12px;margin:4px 0;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;text-align:left;cursor:pointer}
+.quiz-qcard .qopt:active,.quiz-qcard .qopt.sel{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.quiz-qcard .qopt.marked-correct{background:#f0fdf4;border-color:#22c55e;color:#16a34a}
+.quiz-qcard .qopt.marked-wrong{background:#fef2f2;border-color:#ef4444;color:#dc2626}
+.sentence-area{min-height:48px;padding:10px;border:2px dashed #cbd5e1;border-radius:10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fafbfc}
+.sentence-area .sword{padding:6px 14px;background:#2563eb;color:#fff;border-radius:16px;font-size:14px;cursor:pointer}
+.sentence-area .placeholder{color:#94a3b8;font-size:13px}
+.word-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.word-chip{padding:8px 16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;font-size:14px;cursor:pointer;transition:all 0.15s}
+.word-chip:active{background:#2563eb;color:#fff;border-color:#2563eb}
+.word-chip.placed{opacity:0.4;pointer-events:none;background:#e2e8f0}
+.write-char-input{width:64px;height:56px;border:2px solid #d1d5db;border-radius:10px;font-size:28px;text-align:center;margin:4px auto;display:block;background:#f9fafb}
+.write-char-input:focus{border-color:#2563eb;background:#fff}
+.quiz-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #e2e8f0;padding:10px 12px;display:flex;gap:8px;z-index:310;padding-bottom:env(safe-area-inset-bottom)}
+.quiz-nav .btn{flex:1;font-size:13px;min-height:42px}
+.quiz-nav .btn-sm{flex:0;padding:10px 16px;font-size:12px;min-height:36px}
+.result-header{text-align:center;padding:16px;background:linear-gradient(135deg,#f0fdf4,#dbeafe);border-radius:12px;margin-bottom:12px}
+.result-header h3{color:#16a34a;font-size:18px;margin-bottom:4px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.result-item{background:#f8fafc;border-radius:10px;padding:12px;text-align:center}
+.result-item .rnum{font-size:24px;font-weight:800;color:#2563eb;display:block}
+.result-item .rlbl{font-size:11px;color:#94a3b8;margin-top:2px}
+.result-note{font-size:11px;color:#94a3b8;text-align:center;line-height:1.6;padding:8px;background:#fffbeb;border-radius:8px;margin-bottom:12px}
+.result-review .rq{font-size:13px;padding:8px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px}
+.result-review .rq-num{font-size:11px;color:#94a3b8;font-weight:700;min-width:30px}
+.result-review .rq-detail{flex:1;font-size:12px;line-height:1.5}
+.result-review .rq-mark{font-size:16px;min-width:24px;text-align:center}
+.quiz-review-section{margin-bottom:10px}
+.quiz-review-section h4{font-size:13px;color:#1e293b;padding:8px;background:#f8fafc;border-radius:6px;margin-bottom:4px}
 </style></head><body><div class="container" id="app">
 <div class="topbar"><span class="back" id="topBack" onclick="goBack()">←</span><span class="title" id="topTitle">马来西亚学生中文学习端</span><span class="home-btn" onclick="goHome()">🏠</span></div>
 
@@ -133,6 +194,30 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <div class="overlay" id="extOverlay"></div><div class="panel" id="extPanel"><div class="phead"><span class="pback" onclick="closeExt()">←</span><div class="ptitle">每日一词：信号机</div><span class="phome" onclick="closeExt();goHome()">🏠</span></div><div class="pbody" id="extContent"></div></div>
 
 <div class="modal-mask" id="switchModal"><div class="modal-box"><h3>切换学生</h3><p>是否退出当前学生账号？未提交内容将先保存为草稿。</p><button class="btn btn-submit" onclick="switchStudent('save')">💾 保存并切换</button><button class="btn btn-danger" onclick="switchStudent('direct')">直接切换</button><button class="btn btn-outline" onclick="closeSwitchModal()">取消</button></div></div>
+
+<!-- ===== Task 1 Quiz Overlay ===== -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-header">
+    <span class="qback" onclick="exitQuiz()">←</span>
+    <span class="qtitle" id="quizTitle">任务一：HSK三级阅读与书写练习</span>
+    <span class="qtimer" id="quizTimer">45:00</span>
+  </div>
+  <div class="quiz-stepbar" id="quizStepbar"></div>
+  <div class="quiz-body" id="quizBody"></div>
+  <div class="quiz-nav" id="quizNav">
+    <button class="btn btn-outline btn-sm" onclick="quizPrev()" id="quizPrevBtn">上一页</button>
+    <span style="flex:1;text-align:center;font-size:12px;color:#94a3b8;align-self:center" id="quizProgress">1/4</span>
+    <button class="btn btn-primary btn-sm" onclick="quizNext()" id="quizNextBtn">下一页</button>
+    <button class="btn btn-submit" style="display:none" onclick="quizConfirm()" id="quizSubmitBtn">确认提交</button>
+  </div>
+</div>
+
+<!-- ===== Task 1 Results Overlay ===== -->
+<div class="quiz-overlay" id="resultOverlay">
+  <div class="quiz-header"><span class="qback" onclick="closeResult()">←</span><span class="qtitle">任务一：已完成</span></div>
+  <div class="quiz-body" id="resultBody"></div>
+</div>
+
 </div>
 
 <script>
@@ -216,7 +301,7 @@ function enterApp(){if(window._pvStudent){student=window._pvStudent;window._pvRe
   fetchCloudRecords();
 }
 function fetchCloudRecords(){
-  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var taskCount=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var action=(isPreviewMode||window._pvStudent)?'list_assessments':'list';var s=document.createElement('script');s.src=API+'?callback='+cb+'&action='+action;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var taskCount=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var action=isPreviewMode?'list_assessments':'list';var s=document.createElement('script');s.src=API+'?callback='+cb+'&action='+action;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
 }
 function updateArchiveDisplay(){
   var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
@@ -364,4 +449,883 @@ function tryPreviewMode(){
   var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
 
+// ===== Task 1: HSK3 Reading & Writing Quiz =====
+var TASK1_ID = 'TASK_HSK3_RW_01';
+var quizState = {
+  active: false, currentStep: 0, totalSteps: 4,
+  answers: {}, taskData: null, startedAt: null,
+  timerSeconds: 2700, timerInterval: null, timerActive: false,
+  submitting: false, submitted: false
+};
+
+// Override openTask for Task 1
+var _openTaskOrig = openTask;
+openTask = function(no) {
+  if (no === 1 && !isPreviewMode) {
+    startTask1();
+    return;
+  }
+  _openTaskOrig(no);
+};
+
+// Override viewTask for Task 1
+var _viewTaskOrig = viewTask;
+viewTask = function(no) {
+  if (no === 1 && !isPreviewMode) {
+    viewTask1Result();
+    return;
+  }
+  _viewTaskOrig(no);
+};
+
+function getDraftKey() {
+  return 'draft_' + (student ? student.uid : 'anon') + '_TASK_HSK3_RW_01';
+}
+
+function saveQuizDraft() {
+  if (!student || isPreviewMode) return;
+  var draft = {
+    answers: quizState.answers,
+    currentStep: quizState.currentStep,
+    startedAt: quizState.startedAt,
+    timerSeconds: quizState.timerSeconds,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(getDraftKey(), JSON.stringify(draft));
+}
+
+function loadQuizDraft() {
+  if (!student) return null;
+  try {
+    var raw = localStorage.getItem(getDraftKey());
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function clearQuizDraft() {
+  if (!student) return;
+  localStorage.removeItem(getDraftKey());
+}
+
+function startTask1() {
+  if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
+  if (!student) { alert('请先登录'); return; }
+
+  // Check if already submitted (from taskStatuses)
+  if (taskStatuses[1] === 'submitted') {
+    viewTask1Result();
+    return;
+  }
+
+  // Load draft
+  var draft = loadQuizDraft();
+  if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
+    var ansCount = Object.keys(draft.answers).length;
+    if (confirm('检测到未提交的答题草稿（已答' + ansCount + '题）。\n\n是否恢复继续答题？\n\n选择"确定"恢复，选择"取消"重新开始。')) {
+      quizState.answers = draft.answers;
+      quizState.currentStep = draft.currentStep || 0;
+      quizState.startedAt = draft.startedAt || new Date().toISOString();
+      quizState.timerSeconds = draft.timerSeconds || 2700;
+      fetchTaskAndStart();
+      return;
+    }
+  }
+
+  // Fresh start
+  quizState = {
+    active: true, currentStep: 0, totalSteps: 4,
+    answers: {}, taskData: null,
+    startedAt: new Date().toISOString(),
+    timerSeconds: 2700, timerInterval: null, timerActive: false,
+    submitting: false, submitted: false
+  };
+  fetchTaskAndStart();
+}
+
+function fetchTaskAndStart() {
+  var cb = '_gt' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      if (res.submissionStatus === 'submitted') {
+        // Already submitted on server - show results
+        taskStatuses[1] = 'submitted';
+        saveS('taskStatuses', taskStatuses);
+        fetchAndShowResult();
+        return;
+      }
+      quizState.taskData = res.task;
+      quizState.active = true;
+      startQuizTimer();
+      showQuizOverlay();
+      renderQuizStep(quizState.currentStep);
+    } else {
+      alert('加载任务失败：' + (res ? res.error : '未知错误'));
+      quizState.active = false;
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task&taskId=' + TASK1_ID + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function startQuizTimer() {
+  if (quizState.timerInterval) clearInterval(quizState.timerInterval);
+  quizState.timerActive = true;
+  updateTimerDisplay();
+  quizState.timerInterval = setInterval(function() {
+    if (!quizState.timerActive) return;
+    quizState.timerSeconds--;
+    updateTimerDisplay();
+    if (quizState.timerSeconds <= 0) {
+      clearInterval(quizState.timerInterval);
+      quizState.timerActive = false;
+      alert('时间到！系统将自动提交当前答案。');
+      submitTask1();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  var el = document.getElementById('quizTimer');
+  if (!el) return;
+  var m = Math.floor(quizState.timerSeconds / 60);
+  var s = quizState.timerSeconds % 60;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  el.className = 'qtimer' + (quizState.timerSeconds < 300 ? ' danger' : (quizState.timerSeconds < 600 ? ' warn' : ''));
+}
+
+function showQuizOverlay() {
+  document.getElementById('quizOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  renderStepBar();
+}
+
+function exitQuiz() {
+  if (quizState.active && !quizState.submitted) {
+    var answered = Object.keys(quizState.answers).length;
+    if (answered > 0 && confirm('确定退出答题吗？\n\n已作答 ' + answered + ' 题。\n退出后草稿将保留，下次可以继续答题。')) {
+      saveQuizDraft();
+      closeQuiz();
+    } else if (answered === 0) {
+      if (confirm('确定退出吗？当前没有已作答题目。')) {
+        closeQuiz();
+      }
+    } else {
+      saveQuizDraft();
+      closeQuiz();
+    }
+  } else {
+    closeQuiz();
+  }
+}
+
+function closeQuiz() {
+  quizState.active = false;
+  if (quizState.timerInterval) { clearInterval(quizState.timerInterval); quizState.timerInterval = null; }
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('resultOverlay').classList.remove('show');
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  renderAll();
+}
+
+function renderStepBar() {
+  var steps = ['阅读 41-50题', '阅读 51-60题', '阅读 61-70题', '书写 71-80题'];
+  var html = '';
+  for (var i = 0; i < 4; i++) {
+    var cls = 'step';
+    if (i === quizState.currentStep) cls += ' active';
+    else if (i < quizState.currentStep) cls += ' done';
+    html += '<div class="' + cls + '" onclick="goToStep(' + i + ')">' + steps[i] + '</div>';
+  }
+  document.getElementById('quizStepbar').innerHTML = html;
+}
+
+function goToStep(step) {
+  quizState.currentStep = step;
+  renderQuizStep(step);
+  renderStepBar();
+  saveQuizDraft();
+}
+
+function renderQuizStep(step) {
+  quizState.currentStep = step;
+  renderStepBar();
+  updateQuizNav();
+  var body = document.getElementById('quizBody');
+  if (!quizState.taskData) { body.innerHTML = '<p style="text-align:center;padding:20px">加载中...</p>'; return; }
+
+  var sections = quizState.taskData.sections;
+  var html = '';
+
+  if (step === 0) {
+    // Reading Part 1: Q41-45 and Q46-50
+    html += renderMatchingSection(sections[0]); // Q41-45
+    html += '<div style="margin-top:20px"></div>';
+    html += renderMatchingSection(sections[1]); // Q46-50
+  } else if (step === 1) {
+    // Reading Part 2: Q51-55 and Q56-60
+    html += renderWordFillSection(sections[2]); // Q51-55
+    html += '<div style="margin-top:20px"></div>';
+    html += renderWordFillSection(sections[3]); // Q56-60
+  } else if (step === 2) {
+    // Reading Part 3: Q61-70
+    html += renderSingleChoiceSection(sections[4]);
+  } else if (step === 3) {
+    // Writing: Q71-75 and Q76-80
+    html += renderSentenceOrderSection(sections[5]);
+    html += '<div style="margin-top:20px"></div>';
+    html += renderWriteCharSection(sections[6]);
+  }
+
+  body.innerHTML = html || '<p style="text-align:center;padding:20px">暂无题目数据</p>';
+  // Re-highlight selections
+  setTimeout(restoreQuizSelections, 50);
+}
+
+function restoreQuizSelections() {
+  // Restore matching/wordfill selections
+  var allChips = document.querySelectorAll('.opt-chip[data-qid]');
+  allChips.forEach(function(chip) {
+    var qid = chip.getAttribute('data-qid');
+    if (quizState.answers[qid] === chip.getAttribute('data-oid')) {
+      chip.classList.add('sel');
+    }
+  });
+  // Restore single choice
+  var allOpts = document.querySelectorAll('.qopt[data-qid]');
+  allOpts.forEach(function(opt) {
+    if (quizState.answers[opt.getAttribute('data-qid')] === opt.getAttribute('data-oid')) {
+      opt.classList.add('sel');
+    }
+  });
+  // Restore word order
+  for (var wi = 71; wi <= 75; wi++) {
+    restoreSentenceOrder('Q' + wi);
+  }
+  // Restore character inputs
+  for (var ci = 76; ci <= 80; ci++) {
+    var inp = document.getElementById('char_' + ci);
+    if (inp) inp.value = quizState.answers['Q' + ci] || '';
+  }
+}
+
+function renderMatchingSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">' + section.type + '</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  if (section.example) {
+    html += '<div class="quiz-example"><span class="ex-label">例题</span><br>' + section.example.text + '<br><b>答案：' + section.example.answer + '</b></div>';
+  }
+  // Options pool
+  html += '<div class="option-pool" id="pool_' + section.sectionId + '">';
+  section.options.forEach(function(opt) {
+    var usedEx = opt.usedInExample;
+    var cls = 'opt-chip' + (usedEx ? ' used' : '');
+    html += '<span class="' + cls + '" data-oid="' + opt.id + '" ' + (usedEx ? '' : 'onclick="selectMatchingOption(this,\'' + section.sectionId + '\')"') + '>' + opt.id + '. ' + opt.text + (usedEx ? '（例题已使用）' : '') + '</span>';
+  });
+  html += '</div>';
+  // Questions
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qtext">' + q.text + '</div>';
+    html += '<div style="font-size:12px;color:#64748b;margin-top:4px">选择：<b>' + (selected || '—') + '</b></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectMatchingOption(chip, sectionId) {
+  if (chip.classList.contains('used')) return;
+  // Find which question in this section the user is answering
+  // For matching_dialogue, unselect any previous use of this option in this section
+  var oid = chip.getAttribute('data-oid');
+  var pool = document.getElementById('pool_' + sectionId);
+  if (!pool) return;
+
+  // Find the first unanswered question in this section
+  var section = null;
+  quizState.taskData.sections.forEach(function(sec) {
+    if (sec.sectionId === sectionId) section = sec;
+  });
+  if (!section) return;
+
+  // Check if this option is already used in this section
+  var alreadyUsedQid = null;
+  section.questions.forEach(function(q) {
+    if (quizState.answers[q.id] === oid) alreadyUsedQid = q.id;
+  });
+
+  if (alreadyUsedQid) {
+    // Deselect
+    quizState.answers[alreadyUsedQid] = '';
+    // Find and update the chip
+    var allChips = pool.querySelectorAll('.opt-chip');
+    allChips.forEach(function(c) { if (c.getAttribute('data-oid') === oid) c.classList.remove('sel'); });
+  }
+
+  // Find first unanswered question
+  var targetQ = null;
+  section.questions.forEach(function(q) {
+    if (!targetQ && !quizState.answers[q.id]) targetQ = q;
+  });
+
+  if (!targetQ) {
+    alert('本组所有题目都已作答。如需修改，请点击已选中的选项取消，然后重新选择。');
+    return;
+  }
+
+  // Select
+  if (!alreadyUsedQid) {
+    quizState.answers[targetQ.id] = oid;
+    chip.classList.add('sel');
+  }
+
+  saveQuizDraft();
+  renderQuizStep(quizState.currentStep);
+}
+
+function renderWordFillSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">选词填空</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  if (section.example) {
+    html += '<div class="quiz-example"><span class="ex-label">例题</span><br>' + section.example.text + '<br><b>答案：' + section.example.answer + '</b></div>';
+  }
+  html += '<div class="option-pool" id="pool_' + section.sectionId + '">';
+  section.options.forEach(function(opt) {
+    var usedEx = opt.usedInExample;
+    var cls = 'opt-chip' + (usedEx ? ' used' : '');
+    html += '<span class="' + cls + '" data-oid="' + opt.id + '" ' + (usedEx ? '' : 'onclick="selectWordFill(this,\'' + section.sectionId + '\')"') + '>' + opt.id + '. ' + opt.text + (usedEx ? '（例题已使用）' : '') + '</span>';
+  });
+  html += '</div>';
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qtext">' + q.text + '</div>';
+    html += '<div style="font-size:12px;color:#64748b;margin-top:4px">选择：<b>' + (selected || '—') + '</b></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectWordFill(chip, sectionId) {
+  if (chip.classList.contains('used')) return;
+  var oid = chip.getAttribute('data-oid');
+  var section = null;
+  quizState.taskData.sections.forEach(function(sec) {
+    if (sec.sectionId === sectionId) section = sec;
+  });
+  if (!section) return;
+
+  var alreadyUsedQid = null;
+  section.questions.forEach(function(q) {
+    if (quizState.answers[q.id] === oid) alreadyUsedQid = q.id;
+  });
+
+  if (alreadyUsedQid) {
+    quizState.answers[alreadyUsedQid] = '';
+    var pool = document.getElementById('pool_' + sectionId);
+    if (pool) {
+      pool.querySelectorAll('.opt-chip').forEach(function(c) {
+        if (c.getAttribute('data-oid') === oid) c.classList.remove('sel');
+      });
+    }
+  }
+
+  var targetQ = null;
+  section.questions.forEach(function(q) {
+    if (!targetQ && !quizState.answers[q.id]) targetQ = q;
+  });
+
+  if (!targetQ) {
+    alert('本组所有题目都已作答。如需修改，请点击已选中的选项取消，然后重新选择。');
+    return;
+  }
+
+  if (!alreadyUsedQid) {
+    quizState.answers[targetQ.id] = oid;
+    chip.classList.add('sel');
+  }
+
+  saveQuizDraft();
+  renderQuizStep(quizState.currentStep);
+}
+
+function renderSingleChoiceSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">单选题</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qpassage">' + q.passage + '</div>';
+    html += '<div class="qstem">' + q.stem + '</div>';
+    q.options.forEach(function(opt) {
+      var cls = 'qopt' + (selected === opt.id ? ' sel' : '');
+      html += '<div class="' + cls + '" data-qid="' + q.id + '" data-oid="' + opt.id + '" onclick="selectSingleChoice(this)">' + opt.id + '. ' + opt.text + '</div>';
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectSingleChoice(el) {
+  var qid = el.getAttribute('data-qid');
+  var oid = el.getAttribute('data-oid');
+  quizState.answers[qid] = oid;
+  // Update visual
+  var card = el.parentNode;
+  card.querySelectorAll('.qopt').forEach(function(o) { o.classList.remove('sel'); });
+  el.classList.add('sel');
+  saveQuizDraft();
+}
+
+function renderSentenceOrderSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">完成句子</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题（12分）</div>';
+    html += '<div class="sentence-area" id="sa_' + q.id + '"><span class="placeholder">点击下方词语卡片组成句子</span></div>';
+    html += '<div class="word-pool" id="wp_' + q.id + '">';
+    // Shuffle words
+    var words = q.words.slice();
+    for (var i = words.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = words[i]; words[i] = words[j]; words[j] = tmp;
+    }
+    words.forEach(function(w, idx) {
+      html += '<span class="word-chip" data-qid="' + q.id + '" data-widx="' + idx + '" data-word="' + w.replace(/"/g,'&quot;') + '" onclick="addSentenceWord(this)">' + w + '</span>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;margin-top:4px"><button class="btn-small btn-outline" onclick="undoSentenceWord(\'' + q.id + '\')" style="font-size:11px">↩ 撤销</button><button class="btn-small btn-outline" onclick="clearSentenceWord(\'' + q.id + '\')" style="font-size:11px">🔄 重新排列</button><button class="btn-small btn-outline" onclick="resetSentenceWords(\'' + q.id + '\')" style="font-size:11px;color:#dc2626">🗑 清空</button></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+// Sentence order state
+var sentenceState = {};
+
+function getSentenceState(qid) {
+  if (!sentenceState[qid]) sentenceState[qid] = { placed: [], available: [] };
+  return sentenceState[qid];
+}
+
+function initSentenceState(qid, totalWords) {
+  var st = getSentenceState(qid);
+  st.available = [];
+  for (var i = 0; i < totalWords; i++) st.available.push(i);
+  st.placed = [];
+}
+
+function addSentenceWord(chip) {
+  var qid = chip.getAttribute('data-qid');
+  var widx = parseInt(chip.getAttribute('data-widx'));
+  var word = chip.getAttribute('data-word').replace(/&quot;/g, '"');
+  var st = getSentenceState(qid);
+
+  // Init if needed
+  if (st.available.length === 0 && st.placed.length === 0) {
+    var totalChips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]').length;
+    initSentenceState(qid, totalChips);
+  }
+
+  if (st.placed.indexOf(widx) !== -1) return; // already placed
+  if (st.available.indexOf(widx) === -1) return; // not available
+
+  st.placed.push(widx);
+  st.available = st.available.filter(function(i) { return i !== widx; });
+
+  // Build sentence string
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+}
+
+function undoSentenceWord(qid) {
+  var st = getSentenceState(qid);
+  if (st.placed.length === 0) return;
+  var lastWidx = st.placed.pop();
+  st.available.push(lastWidx);
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+}
+
+function clearSentenceWord(qid) {
+  var st = getSentenceState(qid);
+  if (st.placed.length === 0) return;
+  while (st.placed.length > 0) {
+    st.available.push(st.placed.pop());
+  }
+  quizState.answers[qid] = '';
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function resetSentenceWords(qid) {
+  var st = getSentenceState(qid);
+  var totalChips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]').length;
+  st.available = [];
+  for (var i = 0; i < totalChips; i++) st.available.push(i);
+  st.placed = [];
+  quizState.answers[qid] = '';
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function updateSentenceDisplay(qid) {
+  var st = getSentenceState(qid);
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+  var words = [];
+  st.placed.forEach(function(widx) {
+    chips.forEach(function(c) {
+      if (parseInt(c.getAttribute('data-widx')) === widx) {
+        words.push(c.getAttribute('data-word').replace(/&quot;/g, '"'));
+      }
+    });
+  });
+  quizState.answers[qid] = words.join(' ');
+}
+
+function renderSentenceArea(qid) {
+  var area = document.getElementById('sa_' + qid);
+  if (!area) return;
+  var st = getSentenceState(qid);
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+
+  if (st.placed.length === 0) {
+    area.innerHTML = '<span class="placeholder">点击下方词语卡片组成句子</span>';
+  } else {
+    var html = '';
+    st.placed.forEach(function(widx) {
+      chips.forEach(function(c) {
+        if (parseInt(c.getAttribute('data-widx')) === widx) {
+          html += '<span class="sword" onclick="removePlacedWord(\'' + qid + '\',' + widx + ')">' + c.getAttribute('data-word').replace(/&quot;/g, '"') + '</span>';
+        }
+      });
+    });
+    area.innerHTML = html;
+  }
+
+  // Update word pool visual
+  chips.forEach(function(c) {
+    var widx = parseInt(c.getAttribute('data-widx'));
+    if (st.placed.indexOf(widx) !== -1) {
+      c.classList.add('placed');
+    } else {
+      c.classList.remove('placed');
+    }
+  });
+}
+
+function removePlacedWord(qid, widx) {
+  var st = getSentenceState(qid);
+  st.placed = st.placed.filter(function(i) { return i !== widx; });
+  st.available.push(widx);
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function restoreSentenceOrder(qid) {
+  var st = getSentenceState(qid);
+  var saved = quizState.answers[qid];
+  if (!saved) {
+    // Initialize from chips
+    var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+    if (chips.length > 0 && st.placed.length === 0 && st.available.length === 0) {
+      initSentenceState(qid, chips.length);
+    }
+    renderSentenceArea(qid);
+    return;
+  }
+  var savedWords = saved.split(' ');
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+  if (chips.length === 0) return;
+
+  // Rebuild state
+  var totalWords = chips.length;
+  st.placed = [];
+  var chipWordMap = [];
+  chips.forEach(function(c) {
+    chipWordMap.push({ widx: parseInt(c.getAttribute('data-widx')), word: c.getAttribute('data-word').replace(/&quot;/g, '"') });
+  });
+
+  savedWords.forEach(function(sw) {
+    for (var i = 0; i < chipWordMap.length; i++) {
+      if (chipWordMap[i].word === sw && st.placed.indexOf(chipWordMap[i].widx) === -1) {
+        st.placed.push(chipWordMap[i].widx);
+        break;
+      }
+    }
+  });
+
+  st.available = [];
+  for (var i = 0; i < totalWords; i++) {
+    if (st.placed.indexOf(i) === -1) st.available.push(i);
+  }
+
+  renderSentenceArea(qid);
+}
+
+function renderWriteCharSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">填写汉字</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    var val = quizState.answers[q.id] || '';
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题（8分）</div>';
+    html += '<div class="qtext">' + q.prompt + '</div>';
+    html += '<input class="write-char-input" id="char_' + q.number + '" maxlength="1" value="' + val + '" oninput="onCharInput(\'' + q.id + '\',this)" placeholder="字">';
+    html += '</div>';
+  });
+  return html;
+}
+
+function onCharInput(qid, el) {
+  quizState.answers[qid] = el.value.trim();
+  saveQuizDraft();
+}
+
+function updateQuizNav() {
+  var prevBtn = document.getElementById('quizPrevBtn');
+  var nextBtn = document.getElementById('quizNextBtn');
+  var submitBtn = document.getElementById('quizSubmitBtn');
+  var progress = document.getElementById('quizProgress');
+
+  prevBtn.style.display = quizState.currentStep === 0 ? 'none' : '';
+  if (quizState.currentStep === 3) {
+    nextBtn.style.display = 'none';
+    submitBtn.style.display = '';
+    progress.textContent = '4/4 · 最后一步';
+  } else {
+    nextBtn.style.display = '';
+    submitBtn.style.display = 'none';
+    progress.textContent = (quizState.currentStep + 1) + '/4';
+  }
+}
+
+function quizPrev() {
+  if (quizState.currentStep > 0) {
+    goToStep(quizState.currentStep - 1);
+    document.getElementById('quizBody').scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+function quizNext() {
+  if (quizState.currentStep < 3) {
+    goToStep(quizState.currentStep + 1);
+    document.getElementById('quizBody').scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+function quizConfirm() {
+  var answered = 0, unanswered = 0;
+  for (var qn = 41; qn <= 80; qn++) {
+    var a = quizState.answers['Q' + qn];
+    if (a && (typeof a === 'string' ? a.trim() !== '' : true)) answered++;
+    else unanswered++;
+  }
+  var msg = '确认提交答题结果？\n\n已作答：' + answered + ' 题\n未作答：' + unanswered + ' 题\n\n提交后将不能再次作答。';
+  if (unanswered > 0) msg += '\n\n⚠ 注意：未作答的题目将计0分。';
+  if (confirm(msg)) {
+    submitTask1();
+  }
+}
+
+function submitTask1() {
+  if (quizState.submitting) return;
+  quizState.submitting = true;
+
+  // Stop timer
+  quizState.timerActive = false;
+  if (quizState.timerInterval) { clearInterval(quizState.timerInterval); quizState.timerInterval = null; }
+
+  var params = {
+    action: 'submit_course_task',
+    taskId: TASK1_ID,
+    studentUid: student.uid,
+    studentId: student.id,
+    attemptNo: 1,
+    startedAt: quizState.startedAt,
+    answers: JSON.stringify(quizState.answers)
+  };
+
+  var cb = '_st' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      quizState.submitted = true;
+      quizState.active = false;
+      taskStatuses[1] = 'submitted';
+      saveS('taskStatuses', taskStatuses);
+      clearQuizDraft();
+      showTask1Results(res);
+    } else {
+      alert('提交失败：' + (res ? res.error : '网络错误') + '\n\n请检查网络后重试。草稿已保留。');
+      quizState.timerActive = true;
+      startQuizTimer();
+    }
+    quizState.submitting = false;
+    delete window[cb];
+  };
+
+  var qs = 'callback=' + cb;
+  for (var k in params) qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  var s = document.createElement('script');
+  s.src = API + '?' + qs;
+  document.head.appendChild(s);
+}
+
+function viewTask1Result() {
+  if (taskStatuses[1] === 'submitted') {
+    fetchAndShowResult();
+  } else {
+    startTask1();
+  }
+}
+
+function fetchAndShowResult() {
+  var cb = '_gr' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      showTask1Results(res);
+    } else if (res && res.error === 'no submission found') {
+      // Not submitted on server, allow retry
+      taskStatuses[1] = '';
+      saveS('taskStatuses', taskStatuses);
+      alert('未找到提交记录。请重新答题。');
+      startTask1();
+    } else {
+      alert('加载结果失败：' + (res ? res.error : '未知错误'));
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task_result&taskId=' + TASK1_ID + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function showTask1Results(data) {
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('resultOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+
+  var r = data;
+  var html = '';
+
+  // Header
+  html += '<div class="result-header"><h3>✅ 任务一已完成</h3><div style="font-size:12px;color:#64748b">HSK三级阅读与书写练习</div></div>';
+
+  // Scores
+  html += '<div class="result-grid">';
+  html += '<div class="result-item"><span class="rnum">' + (r.readingCorrectCount || 0) + '/30</span><span class="rlbl">阅读答对</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.readingScore || 0) + '/100</span><span class="rlbl">阅读换算分</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingPart1Score || 0) + '/60</span><span class="rlbl">完成句子</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingPart2Score || 0) + '/40</span><span class="rlbl">填写汉字</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingScore || 0) + '/100</span><span class="rlbl">书写总分</span></div>';
+  html += '<div class="result-item"><span class="rnum" style="font-size:32px;color:#16a34a">' + (r.totalScore || 0) + '/200</span><span class="rlbl">本次练习总分</span></div>';
+  html += '</div>';
+
+  // Meta
+  var durMin = Math.floor((r.durationSeconds || 0) / 60);
+  var durSec = (r.durationSeconds || 0) % 60;
+  html += '<div class="section-card" style="font-size:12px;color:#64748b">';
+  html += '<div class="row"><span>答题用时</span><span class="val">' + durMin + '分' + durSec + '秒</span></div>';
+  html += '<div class="row"><span>提交时间</span><span class="val">' + (r.submittedAt || '').replace('T',' ').slice(0,19) + '</span></div>';
+  html += '<div class="row"><span>未作答</span><span class="val">' + (r.unansweredCount || 0) + ' 题</span></div>';
+  html += '</div>';
+
+  // Note
+  html += '<div class="result-note">⚠️ 本成绩为课堂练习换算分，不等同于正式HSK考试成绩。<br>本练习不含听力，不能据此判断HSK三级是否合格。</div>';
+
+  // Per-question review
+  html += '<div class="result-review">';
+  var itemResults = r.itemResults || [];
+
+  // Group by section
+  var readingItems = itemResults.filter(function(ir) { return ir.section === 'reading'; });
+  var writingP1 = itemResults.filter(function(ir) { return ir.section === 'writing' && ir.part === 'part1'; });
+  var writingP2 = itemResults.filter(function(ir) { return ir.section === 'writing' && ir.part === 'part2'; });
+
+  html += '<div class="quiz-review-section"><h4>📖 阅读（第41—70题）</h4>';
+  readingItems.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    var correctTag = ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>正确答案：<b>' + ir.correctAnswer + '</b><br>' + correctTag + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="quiz-review-section"><h4>✍️ 书写第一部分（第71—75题）</h4>';
+  writingP1.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>参考答案：<b>' + ir.correctAnswer + '</b><br>' + (ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>') + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="quiz-review-section"><h4>✍️ 书写第二部分（第76—80题）</h4>';
+  writingP2.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>正确答案：<b>' + ir.correctAnswer + '</b><br>' + (ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>') + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '</div>';
+
+  // Close button
+  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="closeResult()" style="width:auto;display:inline-block;padding:12px 40px">返回</button></div>';
+
+  document.getElementById('resultBody').innerHTML = html;
+  document.getElementById('resultBody').scrollTop = 0;
+  window.scrollTo(0, 0);
+
+  renderAll();
+  updateHomeProgress();
+}
+
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  quizState.active = false;
+  renderAll();
+  updateHomeProgress();
+}
+
+// ===== Task card rendering override =====
+var _renderTasksOrig = renderTasks;
+renderTasks = function() {
+  var sub = Object.values(taskStatuses).filter(function(s) { return s === 'submitted'; }).length;
+  document.getElementById('taskDone2').textContent = sub;
+  document.getElementById('taskBar2').style.width = (sub / totalTasks * 100) + '%';
+
+  var h = '';
+  TASK_DEFS.forEach(function(t) {
+    var st = taskStatuses[t.no] || '';
+    var tag = '', txt = '', btn = '';
+
+    if (t.no === 1) {
+      // Real Task 1 card
+      if (!st) {
+        tag = 'tag-gray'; txt = '未开始';
+        btn = '<div style="margin-top:6px"><span style="font-size:11px;color:#64748b;display:block">40道题 · 建议45分钟 · 阅读100分 + 书写100分 = 总分200分</span><button class="btn btn-primary" style="margin-top:6px;font-size:13px;min-height:36px" onclick="startTask1()">📝 开始答题</button></div>';
+      } else if (st === 'submitted') {
+        tag = 'tag-green'; txt = '已提交';
+        btn = '<button class="btn btn-outline" style="margin-top:6px;font-size:13px;min-height:36px" onclick="viewTask1Result()">📊 查看结果</button>';
+      }
+      h += '<div class="section-card" style="border-left:4px solid ' + (st === 'submitted' ? '#22c55e' : '#2563eb') + '">';
+      h += '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag ' + tag + '">' + txt + '</span></div>' + btn + '</div>';
+    } else {
+      // Placeholder for other tasks
+      if (!st) { tag = 'tag-gray'; txt = '未开始'; btn = '<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask(' + t.no + ')">去完成</button>'; }
+      else if (st === 'submitted') { tag = 'tag-green'; txt = '已提交'; btn = '<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask(' + t.no + ')">查看结果</button>'; }
+      h += '<div class="section-card" style="border-left:3px solid ' + (st === 'submitted' ? '#22c55e' : '#e2e8f0') + '"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">' + t.icon + '</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务' + t.no + ': ' + t.title + '</div><div style="font-size:11px;color:#94a3b8">' + t.cat + ' · 教师后续发布</div></div><span class="tag ' + tag + '">' + txt + '</span></div>' + btn + '</div>';
+    }
+  });
+  document.getElementById('taskCards').innerHTML = h;
+};
 </script></body></html>
