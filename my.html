@@ -341,24 +341,24 @@ function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();upd
 // ===== Teacher preview mode =====
 function tryPreviewMode(){
   var params=new URLSearchParams(window.location.search);
-  var previewToken=params.get('preview')||'';
+  var previewToken=params.get('previewToken')||params.get('preview')||'';
   var uid=params.get('uid')||'';
-  if(!previewToken||!uid)return false;
+  if(!previewToken)return false;
   var cb='_pv'+Date.now();window[cb]=function(res){
     if(res&&res.success){
       isPreviewMode=true;
       student={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',sessionToken:'preview_'+previewToken,classId:'',className:'',isPreview:true};
       enterApp();
-    }else{console.log('Preview validation failed');}
+    }else{document.getElementById('loginBox').innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626;margin:12px 0">教师预览链接已失效，请返回教师看板重新点击预览。</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>';}
     delete window[cb];
   };
-  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_session&studentUid='+encodeURIComponent(uid);document.head.appendChild(s);
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_preview_token&previewToken='+encodeURIComponent(previewToken);document.head.appendChild(s);
   return true;
 }
 
 // Auto-restore (skip if preview mode)
 (function(){
-  if(window.location.search.indexOf('preview=')!==-1){tryPreviewMode();return;}
+  if((window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1)){tryPreviewMode();return;}
   var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
 </script></body></html>
