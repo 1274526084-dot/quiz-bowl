@@ -114,12 +114,13 @@ function handleFileUpload(){
     }
     if(!text||text.length<3){document.getElementById('uploadPreview').innerHTML='文件为空或无法识别编码';return;}
     var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
-    uploadStudents=[];var preview='';
+    uploadStudents=[];var preview='';var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
     lines.forEach(function(line,i){
       var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
       if(cols.length>=1&&cols[0]&&i<100){
         uploadStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});
-        preview+='<div>MY'+String(i+1).padStart(3,'0')+' · '+cols[0]+(cols[1]?' · '+cols[1]:'')+'</div>';
+        var sid='MY'+String(startNum+i).padStart(3,'0');
+        preview+='<div>'+sid+' · '+cols[0]+(cols[1]?' · '+cols[1]:'')+'</div>';
       }
     });
     document.getElementById('uploadPreview').innerHTML=preview||'未识别到数据（请检查格式：英文名,中文名）';
@@ -130,7 +131,7 @@ function batchUploadCreate(){
   if(!uploadStudents.length){alert('请先上传文件');return;}
   var results=[];var total=uploadStudents.length;
   function next(i){if(i>=total){downloadResults(results);return;}
-    var stu=uploadStudents[i];var sid='MY'+String(i+1).padStart(3,'0');
+    var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;var stu=uploadStudents[i];var sid='MY'+String(startNum+i).padStart(3,'0');
     var cb='_ul'+Date.now()+'_'+i;window[cb]=function(res){
       if(res&&res.success){results.push({studentId:sid,englishName:stu.englishName,chineseName:stu.chineseName,initialPin:res.initialPin,studentUid:res.studentUid});}
       else{results.push({studentId:sid,englishName:stu.englishName,chineseName:stu.chineseName,initialPin:'FAILED',studentUid:''});}
@@ -146,9 +147,9 @@ function downloadResults(list){
 }
 
 function batchCreate(){
-  var count=parseInt(document.getElementById('batchCount').value)||3;var created=0;
+  var count=parseInt(document.getElementById('batchCount').value)||3;var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;var created=0;
   function next(i){if(i>count){alert('✅ 已生成'+created+'个账号');return;}
-    var sid='MY'+String(i).padStart(3,'0');var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success)created++;next(i+1);delete window[cb];};
+    var num=startNum+i-1;var sid='MY'+String(num).padStart(3,'0');var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success)created++;next(i+1);delete window[cb];};
     var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
   }next(1);
 }
