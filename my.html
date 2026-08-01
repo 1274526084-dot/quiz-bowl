@@ -136,6 +136,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 </div>
 
 <script>
+(function(){var q=window.location.search;if(q.indexOf("previewToken=")===-1&&q.indexOf("preview=")===-1)return;var lb=document.getElementById("loginBox");if(!lb)return;lb.innerHTML="<div class="login-card" style="text-align:center"><h3>🔍 教师只读预览模式</h3><p style="color:#64748b">正在验证预览链接…</p></div>";var t="";try{var p=new URLSearchParams(q);t=p.get("previewToken")||p.get("preview")||"";}catch(e){var m=q.match(/[?&]previewToken=([^&]+)/)||q.match(/[?&]preview=([^&]+)/);if(m)t=decodeURIComponent(m[1]);}if(!t){lb.innerHTML="<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p>未检测到预览令牌</p></div>";return;}var cb="_pvx"+Date.now();window[cb]=function(res){if(res&&res.success){window._pvStudent={id:res.studentId,uid:res.studentUid,name:res.englishName||"",chineseName:res.chineseName||"",isPreview:true};enterApp();}else{lb.innerHTML="<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style="font-size:11px">错误："+(res&&res.error||"未知")+"</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>";}delete window[cb];};var s=document.createElement("script");s.src="https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api?callback="+cb+"&action=validate_preview_token&previewToken="+encodeURIComponent(t);document.head.appendChild(s);})();
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
 	var isPreviewMode=false;
@@ -362,4 +363,5 @@ function tryPreviewMode(){
   var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
 }
+
 </script></body></html>
