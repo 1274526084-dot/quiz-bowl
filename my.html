@@ -340,22 +340,37 @@ function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();upd
 // Auto-restore
 // ===== Teacher preview mode =====
 function tryPreviewMode(){
-  var params=new URLSearchParams(window.location.search);
-  var previewToken=params.get('previewToken')||params.get('preview')||'';
-  var uid=params.get('uid')||'';
-  if(!previewToken)return false;
-  var cb='_pv'+Date.now();window[cb]=function(res){
+  var lb=document.getElementById("loginBox");
+  if(!lb){return false;}
+  lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>🔍 教师只读预览模式</h3><p style=\"color:#64748b\">正在验证预览链接…</p></div>";
+  var previewToken="";
+  try{
+    var params=new URLSearchParams(window.location.search);
+    previewToken=params.get("previewToken")||params.get("preview")||"";
+  }catch(e){
+    var m=window.location.search.match(/[?&]previewToken=([^&]+)/)||window.location.search.match(/[?&]preview=([^&]+)/);
+    if(m)previewToken=decodeURIComponent(m[1]);
+  }
+  if(!previewToken){
+    lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>⛔ 预览链接已失效</h3><p style=\"color:#dc2626;margin:12px 0\">未检测到预览令牌，请返回教师看板重新点击预览。</p><button class=\"btn btn-outline\" onclick=\"window.close()\">← 返回教师看板</button></div>";
+    return false;
+  }
+  var cb="_pv"+Date.now();
+  window[cb]=function(res){
     if(res&&res.success){
       isPreviewMode=true;
-      student={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',sessionToken:'preview_'+previewToken,classId:'',className:'',isPreview:true};
+      student={id:res.studentId,uid:res.studentUid,name:res.englishName||"",chineseName:res.chineseName||"",sessionToken:"preview_"+previewToken,classId:"",className:"",isPreview:true};
       enterApp();
-    }else{document.getElementById('loginBox').innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626;margin:12px 0">教师预览链接已失效，请返回教师看板重新点击预览。</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>';}
+    }else{
+      lb.innerHTML="<div class=\"login-card\" style=\"text-align:center\"><h3>⛔ 预览链接已失效</h3><p style=\"color:#dc2626;margin:12px 0\">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style=\"font-size:11px;color:#94a3b8\">错误："+(res&&res.error||"未知")+"</p><button class=\"btn btn-outline\" onclick=\"window.close()\">← 返回教师看板</button></div>";
+    }
     delete window[cb];
   };
-  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_preview_token&previewToken='+encodeURIComponent(previewToken);document.head.appendChild(s);
+  var s=document.createElement("script");
+  s.src=API+"?callback="+cb+"&action=validate_preview_token&previewToken="+encodeURIComponent(previewToken);
+  document.head.appendChild(s);
   return true;
 }
-
 // Auto-restore (skip if preview mode)
 (function(){
   if((window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1)){tryPreviewMode();return;}
