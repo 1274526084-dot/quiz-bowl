@@ -45,7 +45,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
+<div class="main" id="mainContent" style="display:none"><div id="previewBanner" style="display:none;background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b">🔍 教师只读预览模式 · 数据不可修改</div><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -208,7 +208,7 @@ function login(){
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
   setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
-function enterApp(){if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
+function enterApp(){if(window._pvReady&&window._pvStudent){student=window._pvStudent;_isPreview=true;window._pvReady=false;}if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
   document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(isPreviewMode){document.getElementById('previewBanner').classList.add('show');document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}
   document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';
   if(!isPreviewMode){taskStatuses=loadS('taskStatuses')||{};}else{taskStatuses={};}if(!isPreviewMode){var er=loadS('extRecords');extRecords=er||[];}else{extRecords=[];}extTotal=extRecords.length;renderAll();updateHomeProgress();
@@ -326,7 +326,7 @@ function openTodayExtension(){
 function pickExtWord(i){document.querySelectorAll('#extWords .chip').forEach(function(c){c.classList.remove('sel');});document.getElementById('ew_'+i).classList.add('sel');window._extSelWord=['信号机','红灯','绿灯','停车','通过'][i];}
 function closeExt(){document.getElementById('extOverlay').classList.remove('show');document.getElementById('extPanel').style.display='none';}
 
-function submitExtension(){if(isPreviewMode){alert('教师预览模式下不可提交');return;}
+function submitExtension(){if(_isPreview){alert('教师预览模式下不可提交');return;}if(isPreviewMode){alert('教师预览模式下不可提交');return;}
   if(!student)return;var word=window._extSelWord||'',sentence=document.getElementById('extSentence').value.trim();
   var today=new Date().toISOString().split('T')[0],now=new Date().toLocaleString('zh-CN'),record={date:today,title:'每日一词：信号机',category:'railway',word:word,sentence:sentence,time:now};
   extRecords.push(record);extTotal++;saveS('extRecords',extRecords);
@@ -374,7 +374,8 @@ function tryPreviewMode(){
 // Auto-restore (skip if preview mode)
 (function(){
   if((window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1)){tryPreviewMode();return;}
-  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
+  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(_isPreview){var pb=document.getElementById('previewBanner');if(pb)pb.style.display='block';document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
 }
+
 </script></body></html>
