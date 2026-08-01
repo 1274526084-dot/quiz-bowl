@@ -42,8 +42,11 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <button class="btn btn-refresh" onclick="loadData()">🔄 刷新</button>
   <span class="refreshed" id="refreshTime"></span>
   <button class="btn btn-outline" onclick="toggleRawTable()">📋 原始数据</button>
+  <button class="btn btn-outline" onclick="toggleStudentMgmt()">👥 账号管理</button>
   <button class="btn btn-outline" onclick="exportExcel()">📤 导出Excel</button>
 </div>
+<div id="studentMgmt" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0"><h3 style="font-size:15px;margin-bottom:10px">👥 学生账号管理</h3><div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input id="newEn" placeholder="英文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newCn" placeholder="中文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newSid" placeholder="学生编号 如MY001" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><button class="btn btn-refresh" onclick="createStudent()" style="width:100%;margin-top:4px;font-size:12px">✅ 新增</button></div><div style="flex:1;min-width:180px;background:#f8fafc;border-radius:10px;padding:12px"><label style="font-size:11px;color:#64748b;font-weight:600">批量生成</label><input id="batchCount" value="3" type="number" min="1" max="50" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin:8px 0"><label style="font-size:10px;color:#94a3b8">自动编号 MY001 / MY002 / ...</label><button class="btn btn-refresh" onclick="batchCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 批量生成</button></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
+
 <div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
 <div class="table-wrap" id="rawTable"><table><thead><tr><th>姓名</th><th>编号</th><th>UID</th><th>类型</th><th>标题</th><th>选词</th><th>句子</th><th>时间</th></tr></thead><tbody id="tbody"></tbody></table></div>
 </div></div>
@@ -85,6 +88,21 @@ function renderStudents(){
 
 function toggleDetail(id){var el=document.getElementById(id);if(el)el.classList.toggle('show');}
 function toggleRawTable(){document.getElementById('rawTable').classList.toggle('show');}
+function toggleStudentMgmt(){document.getElementById('studentMgmt').style.display=document.getElementById('studentMgmt').style.display==='none'?'block':'none';}
+
+function createStudent(){
+  var en=document.getElementById('newEn').value.trim(),cn=document.getElementById('newCn').value.trim(),sid=document.getElementById('newSid').value.trim();
+  if(!sid){alert('请输入学生编号');return;}
+  var cb='_cr'+Date.now();window[cb]=function(res){if(res&&res.success){alert('✅ 创建成功\n学生编号：'+res.studentId+'\n初始口令：'+res.initialPin+'\nstudentUid：'+res.studentUid);document.getElementById('newEn').value='';document.getElementById('newCn').value='';document.getElementById('newSid').value='';}else{alert('失败：'+(res&&res.error||''));}delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+encodeURIComponent(sid)+'&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn);document.head.appendChild(s);
+}
+function batchCreate(){
+  var count=parseInt(document.getElementById('batchCount').value)||3;var created=0;
+  function next(i){if(i>count){alert('✅ 已生成'+created+'个账号');return;}
+    var sid='MY'+String(i).padStart(3,'0');var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success)created++;next(i+1);delete window[cb];};
+    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
+  }next(1);
+}
 
 function renderRawTable(){
   var rows='';allData.slice(-30).reverse().forEach(function(r){rows+='<tr><td>'+(r.studentName||r.name||'—')+'</td><td style="font-size:10px">'+(r.studentId||'—')+'</td><td style="font-size:9px;color:#94a3b8">'+(r.studentUid||'—').slice(0,12)+'</td><td>'+(r.dataType==='extension_record'?'🌱拓展':'📝')+'</td><td>'+(r.extensionTitle||'—')+'</td><td>'+(r.selectedWord||'—')+'</td><td style="font-size:10px">'+(r.studentSentence||'—').slice(0,20)+'</td><td style="font-size:10px">'+fmtTime(r.serverTime||r.submitTime)+'</td></tr>';});
