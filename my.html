@@ -29,6 +29,9 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 .big-num{font-size:38px;font-weight:900;color:#2563eb;text-align:center;display:block}.big-label{font-size:12px;color:#64748b;text-align:center;display:block;margin-top:2px}
 .ext-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
 .ext-card{background:#f8fafc;border-radius:10px;padding:14px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px;cursor:pointer;min-width:0;overflow:hidden}.ext-card:active{background:#eff6ff}.ext-card .ec-icon{font-size:24px;display:block;margin-bottom:4px}.ext-card .ec-title{font-size:13px;color:#1e293b;font-weight:600;display:block}.ext-card .ec-status{font-size:11px;color:#94a3b8;margin-top:3px;display:block}.ext-card .ec-status.open{color:#16a34a;font-weight:600}
+
+.preview-banner{background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b;display:none}.preview-banner.show{display:block}
+.preview-hidden{display:none!important}
 </style></head><body><div class="container" id="app">
 <div class="topbar"><span class="back" id="topBack" onclick="goBack()">←</span><span class="title" id="topTitle">马来西亚学生中文学习端</span><span class="home-btn" onclick="goHome()">🏠</span></div>
 
@@ -42,7 +45,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none">
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -135,13 +138,14 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
+	var isPreviewMode=false;
 var TASK_DEFS=[{no:1,title:'任务一',cat:'通用中文',icon:'📝'},{no:2,title:'任务二',cat:'口语任务',icon:'🎙️'},{no:3,title:'任务三',cat:'中华文化',icon:'🏮'},{no:4,title:'任务四',cat:'电影中文',icon:'🎬'},{no:5,title:'任务五',cat:'写作任务',icon:'✍️'},{no:6,title:'任务六',cat:'铁路中文·客运',icon:'🚉'},{no:7,title:'任务七',cat:'铁路中文·信号',icon:'🚦'},{no:8,title:'任务八',cat:'口语交流',icon:'🗣️'},{no:9,title:'任务九',cat:'阶段测试',icon:'📋'},{no:10,title:'任务十',cat:'学习总结',icon:'📊'}];
 var navStack=[];
 
 // ===== Storage keys (student-scoped) =====
 function sKey(base){return student?(base+'_'+student.id):base;}
 function loadS(key){if(!student)return null;var v=localStorage.getItem(key+'_'+student.id);return v?JSON.parse(v):null;}
-function saveS(key,data){if(!student)return;localStorage.setItem(key+'_'+student.id,JSON.stringify(data));}
+function saveS(key,data){if(!student||isPreviewMode)return;localStorage.setItem(key+'_'+student.id,JSON.stringify(data));}
 
 // ===== Login =====
 function showIdentityConfirm(res){
@@ -165,7 +169,7 @@ function setNewPin(){
   if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请输入4-6位数字密码');return;}
   if(p1!==p2){alert('两次密码不一致');return;}
   var res=window._pendingRes;
-  var cb='_pin'+Date.now();window[cb]=function(r){if(r&&r.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName,chineseName:res.chineseName,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}else{alert('设置失败');}delete window[cb];};
+  var cb='_pin'+Date.now();window[cb]=function(r){if(r&&r.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName,chineseName:res.chineseName,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}else{alert('设置失败');}delete window[cb];};
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_set_pin&studentUid='+encodeURIComponent(res.studentUid)+'&newPin='+encodeURIComponent(p1);document.head.appendChild(s);
 }
 function notMe(){localStorage.removeItem('activeStudentSession');student=null;location.reload();}
@@ -186,7 +190,7 @@ function doRegister(){
   var en=document.getElementById('regEn').value.trim(),cn=document.getElementById('regCn').value.trim(),p1=document.getElementById('regPin1').value.trim(),p2=document.getElementById('regPin2').value.trim(),country=document.getElementById('regCountry').value.trim();
   if(!en){alert('请输入英文名');return;}if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请设置4-6位数字密码');return;}if(p1!==p2){alert('两次密码不一致');return;}if(!document.getElementById('consent2').checked){alert('请勾选同意');return;}
   var cb='_reg'+Date.now();window[cb]=function(res){
-    if(res&&res.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName||en,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,accountOrigin:res.accountOrigin||''};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}
+    if(res&&res.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName||en,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,accountOrigin:res.accountOrigin||''};if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}
     else{alert((res&&res.error)||'注册失败');}delete window[cb];
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_register&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&loginPin='+encodeURIComponent(p1)+'&country='+encodeURIComponent(country||'Malaysia');document.head.appendChild(s);
@@ -198,20 +202,20 @@ function login(){
   // Cloud auth
   var params='action=student_login&studentId='+encodeURIComponent(sid)+'&loginPin='+encodeURIComponent(pin)+(sn?'&englishName='+encodeURIComponent(sn):'')+(cn?'&chineseName='+encodeURIComponent(cn):'');
   var cb='_login'+Date.now();window[cb]=function(res){
-    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(res.needsSetup){showIdentityConfirm(res);}else{localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}}
+    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(res.needsSetup){showIdentityConfirm(res);}else{if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}}
     else{alert((res&&res.error)||'登录失败');}delete window[cb];
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
   setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
 function enterApp(){if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
-  document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';
+  document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(isPreviewMode){document.getElementById('previewBanner').classList.add('show');document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}
   document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';
-  taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();
+  if(!isPreviewMode){taskStatuses=loadS('taskStatuses')||{};}else{taskStatuses={};}if(!isPreviewMode){var er=loadS('extRecords');extRecords=er||[];}else{extRecords=[];}extTotal=extRecords.length;renderAll();updateHomeProgress();
   fetchCloudRecords();
 }
 function fetchCloudRecords(){
-  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var action=isPreviewMode?'list_assessments':'list';var s=document.createElement('script');s.src=API+'?callback='+cb+'&action='+action;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
 function updateArchiveDisplay(){
   var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
 }
@@ -236,7 +240,7 @@ function renderTasks(){var sub=Object.values(taskStatuses).filter(function(s){re
     else if(st==='submitted'){tag='tag-green';txt='已提交';btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask('+t.no+')">查看结果</button>';}
     h+='<div class="section-card" style="border-left:3px solid '+(st==='submitted'?'#22c55e':'#e2e8f0')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#94a3b8">'+t.cat+' · 教师后续发布</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';});
   document.getElementById('taskCards').innerHTML=h;}
-function openTask(no){if(confirm('标记任务'+no+'为已提交？（测试用）')){taskStatuses[no]='submitted';saveS('taskStatuses',taskStatuses);renderAll();updateHomeProgress();updateArchive();}}
+function openTask(no){if(isPreviewMode){alert('教师预览模式下不可提交');return;}if(confirm('标记任务'+no+'为已提交？（测试用）')){taskStatuses[no]='submitted';saveS('taskStatuses',taskStatuses);renderAll();updateHomeProgress();updateArchive();}}
 function viewTask(no){alert('任务'+no+'已提交。教师反馈后显示结果。');}
 function updateHomeProgress(){var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length,pct=Math.round(sub/totalTasks*100);
   document.getElementById('doneTasks').textContent=sub;document.getElementById('pendingTasks').textContent=totalTasks-sub;document.getElementById('taskProgress').style.width=pct+'%';
@@ -283,7 +287,7 @@ function updateArchive(){
   document.getElementById('lcWordsList').innerHTML=wordsList||'<span style="font-size:11px;color:#94a3b8">暂无</span>';
 }
 
-function generateSummary(){alert('阶段总结报告生成中...\n\n基于'+Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length+'个课程任务和'+extTotal+'次中文拓展。\n\n此功能后续开放。');}
+function generateSummary(){if(isPreviewMode){alert('教师预览模式下不可操作');return;}alert('阶段总结报告生成中...\n\n基于'+Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length+'个课程任务和'+extTotal+'次中文拓展。\n\n此功能后续开放。');}
 
 // ===== Extensions =====
 function renderExtensionGrids(){
@@ -322,7 +326,7 @@ function openTodayExtension(){
 function pickExtWord(i){document.querySelectorAll('#extWords .chip').forEach(function(c){c.classList.remove('sel');});document.getElementById('ew_'+i).classList.add('sel');window._extSelWord=['信号机','红灯','绿灯','停车','通过'][i];}
 function closeExt(){document.getElementById('extOverlay').classList.remove('show');document.getElementById('extPanel').style.display='none';}
 
-function submitExtension(){
+function submitExtension(){if(isPreviewMode){alert('教师预览模式下不可提交');return;}
   if(!student)return;var word=window._extSelWord||'',sentence=document.getElementById('extSentence').value.trim();
   var today=new Date().toISOString().split('T')[0],now=new Date().toLocaleString('zh-CN'),record={date:today,title:'每日一词：信号机',category:'railway',word:word,sentence:sentence,time:now};
   extRecords.push(record);extTotal++;saveS('extRecords',extRecords);
@@ -334,5 +338,27 @@ function submitExtension(){
 function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();updateHomeProgress();}
 
 // Auto-restore
-(function(){var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}})();
+// ===== Teacher preview mode =====
+function tryPreviewMode(){
+  var params=new URLSearchParams(window.location.search);
+  var previewToken=params.get('preview')||'';
+  var uid=params.get('uid')||'';
+  if(!previewToken||!uid)return false;
+  var cb='_pv'+Date.now();window[cb]=function(res){
+    if(res&&res.success){
+      isPreviewMode=true;
+      student={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',sessionToken:'preview_'+previewToken,classId:'',className:'',isPreview:true};
+      enterApp();
+    }else{console.log('Preview validation failed');}
+    delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_session&studentUid='+encodeURIComponent(uid);document.head.appendChild(s);
+  return true;
+}
+
+// Auto-restore (skip if preview mode)
+(function(){
+  if(window.location.search.indexOf('preview=')!==-1){tryPreviewMode();return;}
+  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
+})();
 </script></body></html>
