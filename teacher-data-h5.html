@@ -157,22 +157,20 @@ function parseRoster(rawText){
 var pendingRoster=[];
 function previewRoster(){
   try{
-  var textarea=document.getElementById('pasteArea');
-  alert('调试：textarea='+!!textarea+' value长度='+(textarea?textarea.value.length:0));
-  if(!textarea){alert('错误：未找到粘贴框');return;}
-  var rawText=textarea.value;
-  if(!rawText.trim()){alert('请先粘贴学生名单。');return;}
-  var result=parseRoster(rawText);
-  if(!result.students.length){alert('已读取到文字，但没有解析出有效学生。请检查逗号或制表符分隔。');return;}
-  pendingRoster=result.students;
-  var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
-  var html='<div style="font-weight:700;margin-bottom:6px">📋 共识别 '+result.students.length+' 名学生'+(result.errors.length?'，'+result.errors.length+'行格式错误':'')+'</div>';
-  html+='<div style="font-size:10px;color:#94a3b8;margin-bottom:6px">从 MY'+String(startNum).padStart(3,'0')+' 开始编号</div>';
-  result.students.forEach(function(s,i){html+='<div style="padding:2px 0">MY'+String(startNum+i).padStart(3,'0')+' · '+s.englishName+(s.chineseName?' · '+s.chineseName:'')+'</div>';});
-  if(result.errors.length){html+='<div style="color:#dc2626;margin-top:4px">⚠ 第 '+result.errors.join(',')+' 行格式不正确</div>';}
-  document.getElementById('rosterPreview').innerHTML=html;document.getElementById('rosterPreview').style.display='block';document.getElementById('rosterActions').style.display='flex';
+    var textarea=document.getElementById('pasteArea');
+    if(!textarea){alert('错误：未找到粘贴框');return;}
+    var rawText=textarea.value;
+    if(!rawText.trim()){alert('请先粘贴学生名单。');return;}
+    var result=parseRoster(rawText);
+    if(!result.students.length){alert('解析到0个学生，请检查格式。');return;}
+    pendingRoster=result.students;
+    var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
+    var html='<div style="font-weight:700;margin-bottom:6px">📋 共识别 '+result.students.length+' 名学生</div>';
+    html+='<div style="font-size:10px;color:#94a3b8;margin-bottom:6px">从 MY'+String(startNum).padStart(3,'0')+' 开始编号</div>';
+    result.students.forEach(function(s,i){html+='<div style="padding:2px 0">MY'+String(startNum+i).padStart(3,'0')+' · '+s.englishName+(s.chineseName?' · '+s.chineseName:'')+'</div>';});
+    document.getElementById('rosterPreview').innerHTML=html;document.getElementById('rosterPreview').style.display='block';document.getElementById('rosterActions').style.display='flex';
+  }catch(e){alert('错误：'+e.message);}
 }
-  }catch(e){alert('错误：'+e.message);}}
 function cancelPreview(){pendingRoster=[];document.getElementById('rosterPreview').style.display='none';document.getElementById('rosterActions').style.display='none';}
 function confirmGenerate(){
   if(!pendingRoster.length){alert('没有待生成的学生');return;}
