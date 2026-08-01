@@ -47,7 +47,7 @@ function setTab(t){filterTab=t;document.querySelectorAll('.tab-btn').forEach(fun
 
 function loadData(){
   var cb='_t_'+Date.now();window[cb]=function(res){
-    if(res&&res.data){allData=res.data.filter(function(r){return (r.country==='Malaysia'||!r.country)&&r.source==='h5';});}
+    if(res&&res.data){allData=res.data.filter(function(r){return r.projectId==='ECRL_MY_CHINESE'&&r.schemaVersion===2;});}
     updateStats();renderTable();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');delete window[cb];
   };
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);
