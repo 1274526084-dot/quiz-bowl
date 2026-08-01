@@ -36,7 +36,7 @@ table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;p
   <div class="tab-btn" onclick="setTab('extension_record')">每日拓展</div>
   <div class="tab-btn" onclick="setTab('course_task_submission')">课程任务</div>
 </div>
-<div class="table-wrap"><table><thead><tr><th>姓名</th><th>编号</th><th>类型</th><th>拓展标题</th><th>选词</th><th>句子</th><th>提交编号</th><th>提交时间</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">加载中...</td></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>姓名</th><th>编号</th><th>类型</th><th>拓展标题</th><th>选词</th><th>句子</th><th>提交编号</th><th>服务器时间</th></tr></thead><tbody id="tbody"><tr><td colspan="8" class="loading">加载中...</td></tbody></table></div>
 </div></div>
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
@@ -65,7 +65,7 @@ function renderTable(){
   var search=(document.getElementById('filterSearch').value||'').toLowerCase();
   var typeFilter=document.getElementById('filterType').value;
   var filtered=allData.filter(function(r){if(search&&(r.studentName||r.name||'').toLowerCase().indexOf(search)===-1&&(r.studentId||'').toLowerCase().indexOf(search)===-1&&(r.submissionId||'').toLowerCase().indexOf(search)===-1)return false;if(typeFilter&&r.dataType!==typeFilter)return false;if(filterTab!=='all'&&r.dataType!==filterTab)return false;return true;});
-  var rows='';filtered.forEach(function(r){rows+='<tr><td class="name">'+(r.studentName||r.name||'—')+'</td><td style="font-size:10px;color:#94a3b8">'+(r.studentId||'—')+'</td><td>'+(r.dataType==='extension_record'?'🌱拓展':(r.dataType==='course_task_submission'?'📋任务':'📝其他'))+'</td><td>'+(r.extensionTitle||'—')+'</td><td>'+(r.selectedWord||'—')+'</td><td style="font-size:11px">'+(r.studentSentence||r.writingText||'—')+'</td><td style="font-size:9px;color:#94a3b8">'+(r.submissionId||'—').slice(0,20)+'</td><td style="font-size:10px;color:#94a3b8">'+(r.submitTime||'').slice(0,16).replace('T',' ')+'</td></tr>';});
+  var rows='';filtered.forEach(function(r){rows+='<tr><td class="name">'+(r.studentName||r.name||'—')+'</td><td style="font-size:10px;color:#94a3b8">'+(r.studentId||'—')+'</td><td>'+(r.dataType==='extension_record'?'🌱拓展':(r.dataType==='course_task_submission'?'📋任务':'📝其他'))+'</td><td>'+(r.extensionTitle||'—')+'</td><td>'+(r.selectedWord||'—')+'</td><td style="font-size:11px">'+(r.studentSentence||r.writingText||'—')+'</td><td style="font-size:9px;color:#94a3b8">'+(r.submissionId||'—').slice(0,20)+'</td><td style="font-size:10px;color:#94a3b8">'+(r.serverTime||r.submitTime||'').slice(0,16).replace('T',' ')+'</td></tr>';});
   document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="8" class="loading">暂无数据</td></tr>';
 }
 
