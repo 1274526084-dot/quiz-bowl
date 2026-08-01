@@ -376,4 +376,5 @@ function tryPreviewMode(){
   if((window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1)){tryPreviewMode();return;}
   var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
 })();
+}
 </script></body></html>
