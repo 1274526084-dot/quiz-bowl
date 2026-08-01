@@ -39,7 +39,8 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <label>中文姓名（选填）</label><input id="chineseName" placeholder="首次登录时填写中文名">
 <div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>
 <button class="btn btn-primary" onclick="login()">确认进入</button>
-<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p></div></div>
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
+<p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
 <div class="main" id="mainContent" style="display:none">
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
@@ -157,6 +158,28 @@ function setNewPin(){
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_set_pin&studentUid='+encodeURIComponent(res.studentUid)+'&newPin='+encodeURIComponent(p1);document.head.appendChild(s);
 }
 function notMe(){localStorage.removeItem('activeStudentSession');student=null;location.reload();}
+
+function showRegister(){
+  var h='<h3>🆕 创建新账号</h3>';
+  h+='<label>英文名 English Name</label><input id="regEn" placeholder="如 Ahmad">';
+  h+='<label>中文名 Chinese Name（选填）</label><input id="regCn" placeholder="如 陈小明">';
+  h+='<label>国家 Country</label><input id="regCountry" placeholder="如 Malaysia" value="Malaysia">';
+  h+='<label>个人密码 Login PIN（4-6位数字）*</label><input id="regPin1" type="password" placeholder="设置4-6位数字密码" maxlength="6">';
+  h+='<label>再次输入密码</label><input id="regPin2" type="password" placeholder="再次输入" maxlength="6">';
+  h+='<div class="check-row"><input type="checkbox" id="consent2"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>';
+  h+='<button class="btn btn-submit" onclick="doRegister()">✅ 创建账号</button><button class="btn btn-ghost" style="margin-top:8px;min-height:40px;font-size:14px;background:#f1f5f9;color:#64748b" onclick="location.reload()">← 返回登录</button>';
+  h+='<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">创建后可使用公开学习内容。加入班级需要班级码。</p>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+}
+function doRegister(){
+  var en=document.getElementById('regEn').value.trim(),cn=document.getElementById('regCn').value.trim(),p1=document.getElementById('regPin1').value.trim(),p2=document.getElementById('regPin2').value.trim(),country=document.getElementById('regCountry').value.trim();
+  if(!en){alert('请输入英文名');return;}if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请设置4-6位数字密码');return;}if(p1!==p2){alert('两次密码不一致');return;}if(!document.getElementById('consent2').checked){alert('请勾选同意');return;}
+  var cb='_reg'+Date.now();window[cb]=function(res){
+    if(res&&res.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName||en,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,accountOrigin:res.accountOrigin||''};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}
+    else{alert((res&&res.error)||'注册失败');}delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_register&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&loginPin='+encodeURIComponent(p1)+'&country='+encodeURIComponent(country||'Malaysia');document.head.appendChild(s);
+}
 
 function login(){
   var sid=document.getElementById('studentId').value.trim(),pin=document.getElementById('loginPin').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim();
