@@ -254,7 +254,7 @@ function updateArchive(){
   var totalEvidence=taskCount+extTotal;
   document.getElementById('archTaskCount').textContent=taskCount;
   document.getElementById('archExtCount').textContent=extTotal;
-  document.getElementById('archOutputCount').textContent=extTotal;
+  var el=document.getElementById('archOutputCount');if(el)el.textContent=extTotal;
   document.getElementById('archLastUpdate').textContent=totalEvidence>0?new Date().toLocaleString('zh-CN'):'—';
 
   // Status
