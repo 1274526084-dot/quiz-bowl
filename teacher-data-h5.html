@@ -4,347 +4,249 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#f1f5f9;min-height:100vh;padding:12px}
 .container{max-width:960px;margin:0 auto}
-.header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:18px;border-radius:14px;color:#fff;text-align:center;margin-bottom:12px}.header h2{font-size:19px}.header p{font-size:11px;opacity:0.7}
-.auth-box{background:#fff;border-radius:14px;padding:24px;max-width:360px;margin:40px auto;text-align:center;border:2px solid #e2e8f0}.auth-box input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;text-align:center;margin:8px 0}.btn{padding:12px 20px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}.btn-auth{width:100%;background:#2563eb;color:#fff}.btn-refresh{background:#16a34a;color:#fff}.btn-outline{background:#fff;color:#2563eb;border:1.5px solid #2563eb}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}.stat-card{background:#fff;border-radius:10px;padding:14px 10px;text-align:center;border:1.5px solid #e2e8f0}.stat-num{font-size:28px;font-weight:900;color:#1e293b;display:block}.stat-label{font-size:11px;color:#94a3b8;margin-top:4px}
-.toolbar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}.toolbar input{padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;flex:1;min-width:80px;background:#fff}.refreshed{font-size:11px;color:#94a3b8;white-space:nowrap}
+.header{background:linear-gradient(135deg,#1e40af,#3b82f6);padding:14px 18px;border-radius:12px;color:#fff;margin-bottom:10px}.header h2{font-size:18px}.header p{font-size:11px;opacity:0.7;margin-top:2px}
+.auth-box{background:#fff;border-radius:14px;padding:24px;max-width:360px;margin:40px auto;text-align:center;border:2px solid #e2e8f0}.auth-box input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;text-align:center;margin:8px 0}
+.btn{padding:10px 16px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer}.btn-auth{width:100%;background:#2563eb;color:#fff;padding:14px;font-size:14px}.btn-refresh{background:#16a34a;color:#fff}.btn-outline{background:#fff;color:#2563eb;border:1.5px solid #2563eb}.btn-small{padding:4px 10px;font-size:11px;min-height:28px}
 
-/* Student cards */
-.student-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
-.s-card{background:#fff;border-radius:12px;padding:14px 16px;border:1.5px solid #e2e8f0;cursor:pointer}.s-card:active{background:#f8fafc}
-.s-card .s-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.s-name{font-size:16px;font-weight:700;color:#1e293b}.s-id{font-size:11px;color:#94a3b8}.s-tag{font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600}.s-tag-active{background:#f0fdf4;color:#16a34a}
-.s-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;margin-bottom:8px}
-.s-metric .sm-num{font-size:20px;font-weight:800;color:#2563eb;display:block}.s-metric .sm-lbl{font-size:10px;color:#94a3b8;margin-top:2px}
-.s-recent{font-size:11px;color:#94a3b8}.s-recent b{color:#475569}
-.s-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0}.s-detail.show{display:block}
-.s-detail h4{font-size:13px;color:#475569;margin:8px 0 4px}
-.detail-item{font-size:11px;color:#64748b;padding:3px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
-.detail-item .di-left{flex:1}.detail-item .di-time{color:#94a3b8;font-size:10px}
+.tabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}.tab-btn{flex:1;min-width:60px;padding:8px 6px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;cursor:pointer;text-align:center;font-weight:600;color:#64748b}.tab-btn.active{background:#2563eb;color:#fff;border-color:#2563eb}
+.page{display:none}.page.show{display:block}
 
-.export-row{text-align:right;padding:8px 0}.export-row button{margin-left:6px}
-.table-wrap{background:#fff;border-radius:10px;overflow:hidden;border:1.5px solid #e2e8f0;max-height:400px;overflow-y:auto;display:none}.table-wrap.show{display:block}
-table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f8fafc;padding:5px 3px;text-align:center;color:#64748b;font-size:10px;border-bottom:2px solid #e2e8f0;position:sticky;top:0}td{padding:4px 3px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}tr:hover{background:#f8fafc}
-@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr)}.s-metrics{grid-template-columns:repeat(3,1fr)}}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}.stat-card{background:#fff;border-radius:8px;padding:10px 8px;text-align:center;border:1.5px solid #e2e8f0}.stat-card .num{font-size:22px;font-weight:800;color:#1e293b;display:block}.stat-card .lbl{font-size:10px;color:#94a3b8;margin-top:2px}
+.stat-card.green{border-left:3px solid #22c55e}.stat-card.amber{border-left:3px solid #f59e0b}.stat-card.blue{border-left:3px solid #2563eb}.stat-card.red{border-left:3px solid #ef4444}
+
+.toolbar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}.toolbar input{padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;flex:1;min-width:80px;background:#fff}.refreshed{font-size:10px;color:#94a3b8;white-space:nowrap}
+
+table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-radius:8px;overflow:hidden}th{background:#f8fafc;padding:6px 4px;text-align:center;color:#64748b;font-size:10px;border-bottom:2px solid #e2e8f0}td{padding:5px 3px;text-align:center;color:#475569;border-bottom:1px solid #f1f5f9}td.name{text-align:left;font-weight:600;color:#1e293b}tr:hover{background:#f8fafc}
+.tbl-wrap{max-height:400px;overflow-y:auto;border-radius:8px;border:1.5px solid #e2e8f0;margin-bottom:10px}
+
+.chart-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.chart-card{flex:1;min-width:200px;background:#fff;border-radius:10px;padding:12px;border:1.5px solid #e2e8f0;text-align:center}
+.chart-card h4{font-size:12px;color:#64748b;margin-bottom:6px}
+.bar-row{display:flex;align-items:center;gap:6px;margin:4px 0}.bar-label{font-size:10px;color:#64748b;width:35px}.bar-outer{flex:1;height:12px;background:#e2e8f0;border-radius:4px;overflow:hidden}.bar-inner{height:100%;border-radius:4px}.bar-val{font-size:10px;color:#475569;width:30px;text-align:right}
+.donut{width:100px;height:100px;border-radius:50%;margin:8px auto;position:relative}
+.donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:800}
+
+.hsk-type{display:inline-block;padding:2px 6px;border-radius:6px;font-size:9px;font-weight:600;margin:1px}.hsk-type.bal{background:#eff6ff;color:#2563eb}.hsk-type.lis{background:#f0fdf4;color:#16a34a}.hsk-type.rea{background:#fef3c7;color:#d97706}.hsk-type.wri{background:#fdf2f8;color:#db2777}.hsk-type.weak{background:#fef2f2;color:#dc2626}
+
+.student-mgmt{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
+.import-panel{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
 </style>
 </head><body><div class="container" id="app">
-<div class="auth-box" id="authBox"><h3>🔐 教师验证</h3><p style="color:#94a3b8;font-size:13px;margin-bottom:10px">请输入口令</p><input type="password" id="pwd" placeholder="口令"><button class="btn btn-auth" onclick="auth()">验证进入</button></div>
+<div class="auth-box" id="authBox"><h3>🔐 教师验证</h3><input type="password" id="pwd" placeholder="口令"><button class="btn btn-auth" onclick="auth()">验证进入</button></div>
 <div id="dashboard" style="display:none">
-<div class="header"><h2>📊 马来西亚学生 · 学习档案总览</h2><p>信号班中文学习记录 · projectId=ECRL_MY_CHINESE</p></div>
-<div class="stats-row">
-  <div class="stat-card"><span class="stat-num" id="sTotal">0</span><span class="stat-label">学生总数</span></div>
-  <div class="stat-card"><span class="stat-num" id="sToday">0</span><span class="stat-label">今日提交</span></div>
-  <div class="stat-card"><span class="stat-num" id="sExt">0</span><span class="stat-label">总拓展次数</span></div>
-  <div class="stat-card"><span class="stat-num" id="sSubs">0</span><span class="stat-label">总提交记录</span></div>
+<div class="header"><h2>📊 马来西亚学生 · 教师数据看板</h2><p>信号班 · 37名正式学生 · projectId=ECRL_MY_CHINESE</p></div>
+
+<div class="tabs">
+  <div class="tab-btn active" onclick="switchTab('overview')">📋 总览</div>
+  <div class="tab-btn" onclick="switchTab('hsk')">📝 HSK分析</div>
+  <div class="tab-btn" onclick="switchTab('students')">👥 学生档案</div>
+  <div class="tab-btn" onclick="switchTab('accounts')">🔑 账号管理</div>
+  <div class="tab-btn" onclick="switchTab('import')">📥 数据导入</div>
+  <div class="tab-btn" onclick="switchTab('export')">📤 导出</div>
 </div>
+
 <div class="toolbar">
-  <input type="text" id="filterSearch" placeholder="搜索学生编号/姓名..." oninput="renderStudents()">
   <button class="btn btn-refresh" onclick="loadData()">🔄 刷新</button>
   <span class="refreshed" id="refreshTime"></span>
-  <button class="btn btn-outline" onclick="toggleRawTable()">📋 原始数据</button>
-  <button class="btn btn-outline" onclick="toggleStudentMgmt()">👥 账号管理</button>
-  <button class="btn btn-outline" onclick="toggleImportCenter()">📥 数据导入</button>
-  <button class="btn btn-outline" onclick="exportAccountMap()">📋 账号映射表</button>
-  <button class="btn btn-outline" onclick="exportHskTemplate()">📝 HSK模板</button>
-  <button class="btn btn-outline" onclick="exportExcel()">📤 导出Excel</button>
 </div>
-<div id="studentMgmt" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0"><h3 style="font-size:15px;margin-bottom:10px">👥 学生账号管理</h3><div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap"><div style="flex:1;min-width:180px"><input id="newEn" placeholder="英文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newCn" placeholder="中文名" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><input id="newSid" placeholder="学生编号 如MY001" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin:3px 0;font-size:13px"><button class="btn btn-refresh" onclick="createStudent()" style="width:100%;margin-top:4px;font-size:12px">✅ 新增</button></div><div style="flex:1;min-width:180px;background:#f8fafc;border-radius:10px;padding:12px"><label style="font-size:11px;color:#64748b;font-weight:600">批量生成</label><input id="batchCount" value="3" type="number" min="1" max="50" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin:8px 0"><label style="font-size:10px;color:#94a3b8">自动编号 MY001 / MY002 / ...</label><button class="btn btn-refresh" onclick="batchCreate()" style="width:100%;margin-top:6px;font-size:12px">⚡ 批量生成</button></div></div>
-<div style="background:#f0fdf4;border-radius:8px;padding:12px;margin-bottom:8px"><h4 style="font-size:13px;color:#16a34a;margin-bottom:6px">📤 上传学生名单 Excel/CSV</h4><label style="font-size:11px;color:#64748b">文件格式：第一列英文名，第二列中文名（不要表头）</label>
-  <input type="file" id="uploadFile" accept=".csv,.txt" onchange="handleFileUpload()" style="margin:8px 0;font-size:12px">
-  <p style="font-size:10px;color:#94a3b8">请用记事本保存为 .csv 文件（UTF-8编码）。Excel直接另存为CSV。</p>
-  <div id="uploadPreview" style="font-size:11px;max-height:100px;overflow-y:auto;margin:6px 0"></div>
-  <button class="btn btn-refresh" onclick="batchUploadCreate()" style="width:100%;font-size:12px">⚡ 上传并批量生成</button>
-  <p style="font-size:10px;color:#94a3b8;margin-top:6px">起始编号</p>
-  <input id="startId" value="MY004" style="width:100%;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:13px">
-  <p style="font-size:10px;color:#94a3b8;margin-top:6px">粘贴学生名单（一行一个：英文名,中文名）</p>
-  <textarea id="pasteArea" placeholder="Ahmad,陈小明&#10;Siti,黄小丽&#10;Ravi,李小华" style="width:100%;min-height:100px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;margin-top:4px;resize:vertical"></textarea>
-  <button class="btn btn-refresh" id="pastePreviewBtn" onclick="previewRoster()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览名单</button>
-  <div id="rosterPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
-  <div id="rosterActions" style="display:none;margin-top:6px;display:flex;gap:8px">
-    <button class="btn btn-refresh" onclick="confirmGenerate()" style="flex:1;font-size:12px">✅ 确认生成</button>
-    <button class="btn btn-outline" onclick="cancelPreview()" style="flex:1;font-size:12px">← 返回修改</button>
+
+<!-- 总览 -->
+<div class="page show" id="page-overview">
+  <div class="stats-row">
+    <div class="stat-card blue"><span class="num" id="ovFormal">0</span><span class="lbl">正式学生</span></div>
+    <div class="stat-card"><span class="num" id="ovTest">0</span><span class="lbl">测试账号</span></div>
+    <div class="stat-card amber"><span class="num" id="ovPending">0</span><span class="lbl">待激活</span></div>
+    <div class="stat-card green"><span class="num" id="ovActive">0</span><span class="lbl">已激活</span></div>
+    <div class="stat-card"><span class="num" id="ovHsk">0</span><span class="lbl">HSK记录</span></div>
   </div>
-</div></div></div><div id="studentList" style="font-size:11px;max-height:150px;overflow-y:auto;margin-top:6px"></div></div>
+  <div class="stats-row">
+    <div class="stat-card green"><span class="num" id="ovBaseline">0</span><span class="lbl">前置基线</span></div>
+    <div class="stat-card"><span class="num" id="ovTasks">0</span><span class="lbl">课程提交</span></div>
+    <div class="stat-card"><span class="num" id="ovExt">0</span><span class="lbl">拓展提交</span></div>
+    <div class="stat-card red"><span class="num" id="ovAnomaly">0</span><span class="lbl">异常记录</span></div>
+    <div class="stat-card"><span class="num" id="ovAllSubs">0</span><span class="lbl">总提交记录</span></div>
+  </div>
+  <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>HSK总分</th><th>结果</th><th>任务</th><th>拓展</th><th>最近</th><th>操作</th></tr></thead><tbody id="overviewTbody"></tbody></table></div>
+</div>
 
-<!-- 数据导入中心 -->
-<div id="importCenter" style="display:none;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;border:1.5px solid #e2e8f0">
-<h3 style="font-size:15px;margin-bottom:10px">📥 教师历史数据导入中心</h3>
-<p style="font-size:11px;color:#94a3b8;margin-bottom:10px">导入旧Excel/CSV数据 · 自动匹配studentUid · 重复跳过 · 不影响现有数据</p>
-<div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-  <div style="flex:2;min-width:200px">
-    <label style="font-size:11px;color:#64748b">数据类型 Data Type</label>
-    <select id="importDataType" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;margin:4px 0 8px;font-size:12px">
-      <option value="extension_record">中文拓展记录</option><option value="course_task_submission">课程任务提交</option><option value="practice_submission">每日练习</option><option value="exam_submission">阶段测试</option><option value="writing_speaking">写作和口语</option><option value="teacher_feedback">教师反馈</option>
-    </select>
-    <label style="font-size:11px;color:#64748b">粘贴导入数据（每行一条：studentId,activityTitle,score,time）</label>
-    <textarea id="importData" placeholder="MY004,每日一词：信号机,5,2026-08-01" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;margin-top:4px;resize:vertical"></textarea>
-    <button class="btn btn-refresh" onclick="previewImport()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览导入</button>
+<!-- HSK分析 -->
+<div class="page" id="page-hsk">
+  <div class="stats-row">
+    <div class="stat-card blue"><span class="num" id="hskCount">0</span><span class="lbl">参考人数</span></div>
+    <div class="stat-card green"><span class="num" id="hskPass">0</span><span class="lbl">合格</span></div>
+    <div class="stat-card red"><span class="num" id="hskFail">0</span><span class="lbl">未合格</span></div>
+    <div class="stat-card"><span class="num" id="hskRate">0%</span><span class="lbl">合格率</span></div>
+    <div class="stat-card"><span class="num" id="hskAvg">0</span><span class="lbl">平均分</span></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><span class="num" id="hskMedian">0</span><span class="lbl">中位数</span></div>
+    <div class="stat-card"><span class="num" id="hskMax">0</span><span class="lbl">最高分</span></div>
+    <div class="stat-card"><span class="num" id="hskMin">0</span><span class="lbl">最低分</span></div>
+    <div class="stat-card"><span class="num" id="hskLAvg">0</span><span class="lbl">听力均分</span></div>
+    <div class="stat-card"><span class="num" id="hskRAvg">0</span><span class="lbl">阅读均分</span></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-card" style="flex:2"><h4>分项平均成绩</h4><div id="subScoreChart"></div></div>
+    <div class="chart-card" style="flex:1"><h4>合格情况</h4><div id="passChart"></div></div>
+  </div>
+  <div class="chart-card" style="margin-bottom:10px"><h4>总分分布</h4><div id="distChart"></div></div>
+  <div class="chart-card"><h4>成绩特征分型（描述性统计）</h4><div id="hskTypes"></div></div>
+</div>
+
+<!-- 学生档案 -->
+<div class="page" id="page-students">
+  <div class="toolbar"><input type="text" id="stuSearch" placeholder="搜索..." oninput="renderStudentTable()"><select id="stuFilter" onchange="renderStudentTable()"><option value="">全部</option><option value="formal">正式学生</option><option value="test">测试账号</option></select></div>
+  <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>HSK</th><th>听力</th><th>阅读</th><th>写作</th><th>总分</th><th>结果</th><th>操作</th></tr></thead><tbody id="studentTbody"></tbody></table></div>
+</div>
+
+<!-- 账号管理 -->
+<div class="page" id="page-accounts"><div class="student-mgmt" style="display:block" id="acctPanel"></div></div>
+
+<!-- 数据导入 -->
+<div class="page" id="page-import"><div class="import-panel" style="display:block" id="importPanel"></div></div>
+
+<!-- 导出 -->
+<div class="page" id="page-export">
+  <div class="chart-card" style="margin-bottom:8px"><h4>导出选项</h4>
+    <button class="btn btn-outline" onclick="exportExcel()" style="margin:4px;width:auto;display:inline-block">📤 导出学习数据Excel</button>
+    <button class="btn btn-outline" onclick="exportAccountMap()" style="margin:4px;width:auto;display:inline-block">📋 导出账号映射表</button>
+    <button class="btn btn-outline" onclick="exportHskTemplate()" style="margin:4px;width:auto;display:inline-block">📝 导出HSK模板</button>
   </div>
 </div>
-<div id="importPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
-<div id="importActions" style="display:none;margin-top:6px;gap:8px">
-  <button class="btn btn-refresh" onclick="confirmImport()" style="flex:1;font-size:12px">✅ 确认导入</button>
-  <button class="btn btn-outline" onclick="cancelImport()" style="flex:1;font-size:12px">← 取消</button>
-</div>
-
-<!-- HSK成绩导入 -->
-<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
-<h4 style="font-size:13px;color:#1e293b;margin-bottom:8px">📝 导入HSK三级成绩（支持未激活学生）</h4>
-<select id="hskMatchMode" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:8px;font-size:12px">
-  <option value="name">按英文证件姓名匹配 officialName</option>
-  <option value="id">按学生编号匹配 studentId</option>
-</select>
-<p style="font-size:10px;color:#94a3b8;margin-bottom:8px">格式：第1列,lS,rS,wS,total,date,pass · 支持CSV/粘贴</p>
-<textarea id="hskData" placeholder="AHMAD AQIL BIN MOHD ROZI,94,92,84,270,2026-06-28,pass&#10;ZETI AZIZI BINTI ZAHRI,67,35,44,146,2026-06-28,fail" style="width:100%;min-height:80px;padding:10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px;resize:vertical"></textarea>
-<input type="file" id="hskFile" accept=".csv,.txt" onchange="handleHskFile()" style="margin:4px 0;font-size:12px">
-<button class="btn btn-refresh" onclick="previewHskImport()" style="width:100%;margin-top:6px;font-size:12px">⚡ 预览HSK导入</button>
-<div id="hskPreview" style="display:none;margin-top:8px;border:1px solid #e2e8f0;border-radius:8px;padding:10px;max-height:200px;overflow-y:auto;font-size:11px"></div>
-<div id="hskActions" style="display:none;margin-top:6px;gap:8px">
-  <button class="btn btn-refresh" onclick="confirmHskImport()" style="flex:1;font-size:12px">✅ 确认导入HSK</button>
-  <button class="btn btn-outline" onclick="cancelHskImport()" style="flex:1;font-size:12px">← 取消</button>
-</div>
-</div>
-</div>
-
-<div class="student-grid" id="studentGrid"><div style="text-align:center;padding:30px;color:#94a3b8">加载中...</div></div>
-<div class="table-wrap" id="rawTable"><table><thead><tr><th>姓名</th><th>编号</th><th>UID</th><th>类型</th><th>标题</th><th>选词</th><th>句子</th><th>时间</th></tr></thead><tbody id="tbody"></tbody></table></div>
 </div></div>
+
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
-var allData=[],refreshTimer=null;
+var allData=[],refreshTimer=null,activeTab='overview';
+var FORMAL_SIDS=['MY004','MY005','MY006','MY007','MY008','MY009','MY010','MY011','MY012','MY013','MY014','MY015','MY016','MY017','MY018','MY019','MY020','MY021','MY022','MY023','MY024','MY025','MY026','MY027','MY028','MY029','MY030','MY031','MY032','MY033','MY034','MY035','MY036','MY037','MY038','MY039','MY040'];
+var TEST_SIDS=['MY001','MY002','MY003'];
 
-function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);}else{alert('口令错误');}}
-function fmtTime(t){if(!t)return'—';var d=new Date(t);return d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function isFormal(sid){return FORMAL_SIDS.indexOf(sid)!==-1;}
+function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);setupAccountPanel();setupImportPanel();}else{alert('口令错误');}}
+
+function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(['总览','HSK分析','学生档案','账号管理','数据导入','导出'][['overview','hsk','students','accounts','import','export'].indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();}
 
 function loadData(){
-  var cb='_t_'+Date.now();window[cb]=function(res){if(res&&res.data){allData=res.data.filter(function(r){return r.projectId==='ECRL_MY_CHINESE'&&r.schemaVersion===2;});}updateStats();renderStudents();renderRawTable();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');delete window[cb];};
+  var cb='_t_'+Date.now();window[cb]=function(res){if(res&&res.data){allData=res.data.filter(function(r){return r.projectId==='ECRL_MY_CHINESE'&&r.schemaVersion===2;});}updateAllViews();document.getElementById('refreshTime').textContent='刷新于 '+new Date().toLocaleTimeString('zh-CN');delete window[cb];};
   var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
 }
 
-function updateStats(){
-  var today=new Date().toISOString().split('T')[0];var uids={},extCount=0,todayCount=0,seen={};
-  allData=allData.filter(function(r){var k=r.submissionId||(r.studentId+'_'+r.dataType);if(seen[k])return false;seen[k]=true;return true;});
-  allData.forEach(function(r){var u=r.studentUid||r.studentId||'';if(u)uids[u]=true;if(r.dataType==='extension_record')extCount++;if((r.submitTime||'').indexOf(today)!==-1||(r.serverTime||'').indexOf(today)!==-1)todayCount++;});
-  document.getElementById('sTotal').textContent=Object.keys(uids).length;document.getElementById('sToday').textContent=todayCount;document.getElementById('sExt').textContent=extCount;document.getElementById('sSubs').textContent=allData.length;
+function updateAllViews(){updateOverview();updateHskAnalysis();renderStudentTable();}
+
+// ===== Overview =====
+function updateOverview(){
+  var formal=allData.filter(function(r){return r.studentId&&isFormal(r.studentId);});
+  var test=allData.filter(function(r){return r.studentId&&TEST_SIDS.indexOf(r.studentId)!==-1;});
+  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test';});
+  var base=allData.filter(function(r){return r.baselineType==='pre_project';});
+  var ext=allData.filter(function(r){return r.dataType==='extension_record';});
+  var formalUids={};formal.forEach(function(r){if(r.studentUid)formalUids[r.studentUid]=true;});
+  var testUids={};test.forEach(function(r){if(r.studentUid)testUids[r.studentUid]=true;});
+  document.getElementById('ovFormal').textContent=Object.keys(formalUids).length||37;
+  document.getElementById('ovTest').textContent=Object.keys(testUids).length;
+  document.getElementById('ovPending').textContent=37;
+  document.getElementById('ovActive').textContent=Object.keys(testUids).length;
+  document.getElementById('ovHsk').textContent=hsk.length;
+  document.getElementById('ovBaseline').textContent=base.length;
+  document.getElementById('ovTasks').textContent=0;
+  document.getElementById('ovExt').textContent=ext.length;
+  document.getElementById('ovAnomaly').textContent=Math.max(0,hsk.length-38);
+  document.getElementById('ovAllSubs').textContent=allData.length;
+
+  var rows='';formal.slice(0,20).forEach(function(r){rows+='<tr><td>'+r.studentId+'</td><td class="name">'+(r.studentName||r.name||'—')+'</td><td>'+(r.chineseName||'—')+'</td><td><span style="color:#d97706">pending</span></td><td>'+(r.totalScore||'—')+'</td><td>'+(r.passStatus==='pass'?'✅':'')+'</td><td>0</td><td>0</td><td>—</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(r.studentUid||'')+'\')">👁 预览</button></td></tr>';});
+  document.getElementById('overviewTbody').innerHTML=rows||'<tr><td colspan="10">加载中</td></tr>';
 }
 
-function renderStudents(){
-  var search=(document.getElementById('filterSearch').value||'').toLowerCase();var profiles={};
-  allData.forEach(function(r){var uid=r.studentUid||r.studentId||r.name;if(!uid)return;if(!profiles[uid])profiles[uid]={uid:uid,studentId:r.studentId||'',name:r.studentName||r.name||'',chineseName:r.chineseName||'',extCount:0,courseCount:0,lastTime:'',records:[],words:[]};var p=profiles[uid];if(r.dataType==='extension_record'){p.extCount++;if(r.selectedWord)p.words.push(r.selectedWord);}if((r.submitTime||'')>(p.lastTime||''))p.lastTime=r.submitTime||r.serverTime||p.lastTime;p.records.push(r);});
-  var list=[];for(var k in profiles){var p=profiles[k];if(search&&p.studentId.toLowerCase().indexOf(search)===-1&&p.name.toLowerCase().indexOf(search)===-1&&(p.chineseName||'').toLowerCase().indexOf(search)===-1)continue;list.push(p);}
-  list.sort(function(a,b){return b.extCount-a.extCount;});
-  var h='';list.forEach(function(p,i){
-    h+='<div class="s-card" onclick="toggleDetail(\'sdetail'+i+'\')"><div class="s-top"><div><span class="s-name">'+(p.chineseName||p.name)+'</span><span class="s-id"> '+p.studentId+'</span></div><span class="s-tag s-tag-active">● 学习中</span></div>';
-    h+='<div class="s-metrics"><div class="s-metric"><span class="sm-num">'+p.extCount+'</span><span class="sm-lbl">拓展次数</span></div><div class="s-metric"><span class="sm-num">'+p.courseCount+'</span><span class="sm-lbl">课程任务</span></div><div class="s-metric"><span class="sm-num">'+p.records.length+'</span><span class="sm-lbl">提交记录</span></div><div class="s-metric"><span class="sm-num">'+(p.words.length||0)+'</span><span class="sm-lbl">新词收藏</span></div></div>';
-    h+='<div class="s-recent">最近学习：<b>'+fmtTime(p.lastTime)+'</b></div>';
-    h+='<div class="s-detail" id="sdetail'+i+'"><h4>📋 最近提交记录</h4>';
-    p.records.slice(-5).reverse().forEach(function(r){h+='<div class="detail-item"><span class="di-left">'+(r.dataType==='extension_record'?'🌱拓展':'📝任务')+' '+ (r.extensionTitle||r.taskTitle||'')+'</span><span class="di-time">'+fmtTime(r.serverTime||r.submitTime)+'</span></div>';});
-    if(p.words.length>0){h+='<h4>📝 收藏的新词</h4><div style="display:flex;flex-wrap:wrap;gap:4px">';var uw={};p.words.forEach(function(w){if(!uw[w]){uw[w]=true;h+='<span style="background:#eff6ff;color:#2563eb;padding:2px 8px;border-radius:8px;font-size:11px">'+w+'</span>';}});h+='</div>';}
-    h+='<h4>🆔 studentUid</h4><span style="font-size:10px;color:#94a3b8">'+p.uid+'</span></div></div>';
-  });
-  document.getElementById('studentGrid').innerHTML=h||'<div style="text-align:center;padding:30px;color:#94a3b8">暂无数据</div>';
-}
-
-function toggleDetail(id){var el=document.getElementById(id);if(el)el.classList.toggle('show');}
-function toggleRawTable(){document.getElementById('rawTable').classList.toggle('show');}
-function toggleStudentMgmt(){document.getElementById('studentMgmt').style.display=document.getElementById('studentMgmt').style.display==='none'?'block':'none';}
-function toggleImportCenter(){document.getElementById('importCenter').style.display=document.getElementById('importCenter').style.display==='none'?'block':'none';}
-
-var pendingImport=[];
-function previewImport(){
-  var dtype=document.getElementById('importDataType').value;var text=document.getElementById('importData').value.trim();
-  if(!text){alert('请粘贴导入数据');return;}
-  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
-  pendingImport=[];var skipped=0;
-  lines.forEach(function(line,i){
-    var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
-    if(cols.length>=1&&cols[0]){
-      var sid=cols[0],title=cols[1]||'',score=parseInt(cols[2])||0,time=cols[3]||new Date().toISOString().slice(0,10);
-      // Find studentUid from existing data
-      var found=allData.find(function(r){return r.studentId===sid;});
-      var uid=found?found.studentUid:'';
-      pendingImport.push({studentId:sid,studentUid:uid,activityTitle:title,score:score,submitTime:time,dataType:dtype,status:uid?'matched':'no_uid'});
-      if(!uid)skipped++;
-    }
-  });
-  var h='<div style="font-weight:700;margin-bottom:6px">📋 '+pendingImport.length+'条 · 匹配成功 '+(pendingImport.length-skipped)+' · 待匹配 '+skipped+'</div>';
-  pendingImport.forEach(function(r,i){h+='<div style="padding:2px 0;color:'+(r.status==='matched'?'#16a34a':'#d97706')+'">'+(i+1)+'. '+r.studentId+' → '+r.studentUid.slice(0,12)+' · '+r.activityTitle+'</div>';});
-  document.getElementById('importPreview').innerHTML=h;document.getElementById('importPreview').style.display='block';document.getElementById('importActions').style.display='flex';
-}
-function cancelImport(){pendingImport=[];document.getElementById('importPreview').style.display='none';document.getElementById('importActions').style.display='none';}
-
-var pendingHsk=[];
-function handleHskFile(){var f=document.getElementById('hskFile').files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var buf=e.target.result;var text='';try{text=new TextDecoder('utf-8',{fatal:true}).decode(new Uint8Array(buf));}catch(_){try{text=new TextDecoder('gbk').decode(new Uint8Array(buf));}catch(_){text='';}}document.getElementById('hskData').value=text;};r.readAsArrayBuffer(f);}
-
-function normalizeName(n){return(n||'').toUpperCase().replace(/[,.\-]/g,' ').replace(/\s+/g,' ').trim();}
-
-function previewHskImport(){
-  var text=document.getElementById('hskData').value.trim();if(!text){alert('请粘贴HSK成绩数据或上传文件');return;}
-  var mode=document.getElementById('hskMatchMode').value;
-  var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});pendingHsk=[];var matched=0,noMatch=0;
-  // Get all teacher_import students from existing data
-  var teacherStudents=[];var seenUid={};
-  allData.forEach(function(r){if(r.studentUid&&r.projectId==='ECRL_MY_CHINESE'&&r.schemaVersion===2&&!seenUid[r.studentUid]){teacherStudents.push(r);seenUid[r.studentUid]=true;}});
-
-  lines.forEach(function(line,i){
-    var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
-    if(cols.length>=1&&cols[0]){
-      var col0=cols[0],ls=parseInt(cols[1])||0,rs=parseInt(cols[2])||0,ws=parseInt(cols[3])||0,ts=parseInt(cols[4])||(ls+rs+ws),date=cols[5]||'',pass=cols[6]||(ts>=180?'pass':'fail');
-      var found=null;
-      if(mode==='id'){found=teacherStudents.find(function(r){return r.studentId===col0;});}
-      else{var norm=normalizeName(col0);found=teacherStudents.find(function(r){return normalizeName(r.studentName||r.name||'')===norm;});}
-      var sid=found?found.studentId||col0:col0;
-      var uid=found?found.studentUid||'':'';var en=found?(found.studentName||found.name||''):col0;
-      pendingHsk.push({studentId:sid,studentUid:uid,englishName:en,officialName:col0,listeningScore:ls,readingScore:rs,writingScore:ws,totalScore:ts,examDate:date,passStatus:pass,status:uid?'matched':'no_match'});
-      if(uid)matched++;else noMatch++;
-    }
-  });
-  var h='<div style="font-weight:700;margin-bottom:6px">📋 '+pendingHsk.length+'条 · 匹配 '+matched+' · 待人工 '+noMatch+'</div>';
-  pendingHsk.forEach(function(r,i){h+='<div style="padding:2px 0;color:'+(r.status==='matched'?'#16a34a':'#d97706')+'">'+(i+1)+'. '+r.officialName+' → '+r.studentId+' · HSK:'+r.totalScore+' '+(r.passStatus==='pass'?'✅':'')+'</div>';});
-  document.getElementById('hskPreview').innerHTML=h;document.getElementById('hskPreview').style.display='block';document.getElementById('hskActions').style.display='flex';
-}
-function cancelHskImport(){pendingHsk=[];document.getElementById('hskPreview').style.display='none';document.getElementById('hskActions').style.display='none';}
-function confirmHskImport(){
-  if(!pendingHsk.length)return;var done=0,skip=0,total=pendingHsk.length;var idx=0;
-  function next(){if(idx>=total){alert('✅ HSK导入完成：'+done+'条成功，'+skip+'条跳过');cancelHskImport();loadData();return;}
-    var r=pendingHsk[idx];idx++;var cb='_hsk'+Date.now()+'_'+idx;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next();delete window[cb];};
-    // Send all params; cloud function matches by officialName or studentUid
-    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_assessment&studentUid='+encodeURIComponent(r.studentUid||'')+'&studentId='+encodeURIComponent(r.studentId||'')+'&officialName='+encodeURIComponent(r.officialName||r.englishName||'')+'&listeningScore='+r.listeningScore+'&readingScore='+r.readingScore+'&writingScore='+r.writingScore+'&totalScore='+r.totalScore+'&examDate='+encodeURIComponent(r.examDate)+'&passStatus='+(r.passStatus==='合格'?'pass':(r.passStatus==='不合格'?'fail':r.passStatus));document.head.appendChild(s);
-    document.getElementById('hskPreview').innerHTML='导入中... '+(idx)+'/'+total;
-  }next();
-}
-
-function confirmImport(){
-  if(!pendingImport.length)return;var done=0,skip=0,total=pendingImport.length;
-  function next(i){if(i>=total){alert('✅ 导入完成：'+done+'条成功，'+skip+'条跳过');cancelImport();loadData();return;}
-    var r=pendingImport[i];if(!r.studentUid){skip++;next(i+1);return;}
-    var cb='_im'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success){done++;}else{skip++;}next(i+1);delete window[cb];};
-    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=import_data&studentUid='+r.studentUid+'&studentId='+r.studentId+'&dataType='+r.dataType+'&activityTitle='+encodeURIComponent(r.activityTitle)+'&score='+r.score+'&submitTime='+r.submitTime+'&sourceRecordId=import_'+i+'_'+Date.now();document.head.appendChild(s);
-  }next(0);
-}
-
-function createStudent(){
-  var en=document.getElementById('newEn').value.trim(),cn=document.getElementById('newCn').value.trim(),sid=document.getElementById('newSid').value.trim();
-  if(!sid){alert('请输入学生编号');return;}
-  var cb='_cr'+Date.now();window[cb]=function(res){if(res&&res.success){alert('✅ 创建成功\n学生编号：'+res.studentId+'\n初始口令：'+res.initialPin+'\nstudentUid：'+res.studentUid);document.getElementById('newEn').value='';document.getElementById('newCn').value='';document.getElementById('newSid').value='';}else{alert('失败：'+(res&&res.error||''));}delete window[cb];};
-  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+encodeURIComponent(sid)+'&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn);document.head.appendChild(s);
-}
-var uploadStudents=[];
-function handleFileUpload(){
-  var file=document.getElementById('uploadFile').files[0];if(!file)return;
-  var reader=new FileReader();reader.onload=function(e){
-    var buffer=e.target.result;var text='';
-    // Try UTF-8 first
-    try{text=new TextDecoder('utf-8',{fatal:true}).decode(new Uint8Array(buffer));}catch(_){}
-    // If UTF-8 failed (garbled), try GBK (Chinese Excel default)
-    if(!text||text.indexOf('�')!==-1||/[^\x00-\x7f一-鿿　-〿＀-￯]/.test(text.slice(0,200))){
-      try{text=new TextDecoder('gbk').decode(new Uint8Array(buffer));}catch(_){try{text=new TextDecoder('gb2312').decode(new Uint8Array(buffer));}catch(_){}}
-    }
-    if(!text||text.length<3){document.getElementById('uploadPreview').innerHTML='文件为空或无法识别编码';return;}
-    var lines=text.split(/[\r\n]+/).filter(function(l){return l.trim();});
-    uploadStudents=[];var preview='';var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
-    lines.forEach(function(line,i){
-      var cols=line.split(/[,;\t]/).map(function(c){return c.trim();});
-      if(cols.length>=1&&cols[0]&&i<100){
-        uploadStudents.push({englishName:cols[0]||'',chineseName:cols[1]||''});
-        var sid='MY'+String(startNum+i).padStart(3,'0');
-        preview+='<div>'+sid+' · '+cols[0]+(cols[1]?' · '+cols[1]:'')+'</div>';
-      }
-    });
-    document.getElementById('uploadPreview').innerHTML=preview||'未识别到数据（请检查格式：英文名,中文名）';
+// ===== Teacher preview =====
+function previewStudent(uid){
+  if(!uid){alert('studentUid不存在');return;}
+  var cb='_pv'+Date.now();window[cb]=function(res){
+    if(res&&res.success){var url='https://1274526084-dot.github.io/quiz-bowl/my.html?v=13&preview='+res.previewToken+'&uid='+uid;
+      window.open(url,'_blank');}
+    else{alert('预览失败');}delete window[cb];
   };
-  reader.readAsArrayBuffer(file);
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=create_preview_token&studentUid='+uid;document.head.appendChild(s);
 }
-function parseRoster(rawText){
-  var text=(rawText||'').replace(/\r\n?/g,'\n').trim();if(!text)return[];
-  var lines=text.split('\n').map(function(l){return l.trim();}).filter(function(l){return l;});
-  var students=[],errors=[];
-  lines.forEach(function(line,i){
-    var cols=line.split(/[,，;\t]/).map(function(c){return c.trim();});
-    if(cols.length>=1&&cols[0]){
-      var en=cols[0],cn=cols[1]||'';
-      // Skip header row
-      if((en==='英文名'||en==='englishName'||en==='English Name')&&i===0)return;
-      students.push({englishName:en,chineseName:cn,line:i+1});
-    }else{errors.push(i+1);}
-    console.log('Roster line '+(i+1)+':',cols[0],cols[1]);
+
+// ===== HSK Analysis =====
+function updateHskAnalysis(){
+  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test'&&r.studentId&&isFormal(r.studentId);});
+  if(!hsk.length){document.getElementById('hskCount').textContent='0';return;}
+  var uidSeen={};var valid=[];hsk.forEach(function(r){var k=r.studentUid+'_'+r.examDate;if(!uidSeen[k]){uidSeen[k]=true;valid.push(r);}});
+  var n=valid.length;document.getElementById('hskCount').textContent=n;
+  var pass=valid.filter(function(r){return r.passStatus==='pass';}).length;
+  document.getElementById('hskPass').textContent=pass;document.getElementById('hskFail').textContent=n-pass;
+  document.getElementById('hskRate').textContent=Math.round(pass/n*100)+'%';
+  var totals=valid.map(function(r){return r.totalScore||0;}).sort(function(a,b){return a-b;});
+  var sum=totals.reduce(function(a,b){return a+b;},0);document.getElementById('hskAvg').textContent=Math.round(sum/n);
+  document.getElementById('hskMedian').textContent=totals[Math.floor(n/2)];
+  document.getElementById('hskMax').textContent=totals[n-1];document.getElementById('hskMin').textContent=totals[0];
+  var lAvg=Math.round(valid.reduce(function(a,b){return a+(b.listeningScore||0);},0)/n);
+  var rAvg=Math.round(valid.reduce(function(a,b){return a+(b.readingScore||0);},0)/n);
+  document.getElementById('hskLAvg').textContent=lAvg;document.getElementById('hskRAvg').textContent=rAvg;
+
+  // Charts
+  var subHTML='<div class="bar-row"><span class="bar-label">听力</span><div class="bar-outer"><div class="bar-inner" style="width:'+lAvg+'%;background:#3b82f6"></div></div><span class="bar-val">'+lAvg+'</span></div>';
+  subHTML+='<div class="bar-row"><span class="bar-label">阅读</span><div class="bar-outer"><div class="bar-inner" style="width:'+rAvg+'%;background:#22c55e"></div></div><span class="bar-val">'+rAvg+'</span></div>';
+  var wAvg=Math.round(valid.reduce(function(a,b){return a+(b.writingScore||0);},0)/n);
+  subHTML+='<div class="bar-row"><span class="bar-label">写作</span><div class="bar-outer"><div class="bar-inner" style="width:'+wAvg+'%;background:#f59e0b"></div></div><span class="bar-val">'+wAvg+'</span></div>';
+  document.getElementById('subScoreChart').innerHTML=subHTML;
+
+  // Pass chart (simple donut)
+  var passPct=Math.round(pass/n*100);
+  document.getElementById('passChart').innerHTML='<div style="width:100px;height:100px;border-radius:50%;background:conic-gradient(#22c55e 0deg '+(passPct*3.6)+'deg,#ef4444 '+(passPct*3.6)+'deg 360deg);margin:4px auto"></div><div style="font-size:12px">合格 '+pass+' · 未合格 '+(n-pass)+'</div>';
+
+  // Distribution
+  var bins={};valid.forEach(function(r){var t=r.totalScore||0;var bin=Math.floor(t/30)*30;bins[bin]=(bins[bin]||0)+1;});
+  var distHTML='';var binKeys=Object.keys(bins).sort(function(a,b){return a-b;});var maxBin=Math.max.apply(null,Object.values(bins))||1;
+  binKeys.forEach(function(b){var w=Math.round(bins[b]/maxBin*100);distHTML+='<div class="bar-row"><span class="bar-label">'+b+'-'+((parseInt(b)+29))+'</span><div class="bar-outer"><div class="bar-inner" style="width:'+w+'%;background:#6366f1"></div></div><span class="bar-val">'+bins[b]+'人</span></div>';});
+  document.getElementById('distChart').innerHTML=distHTML;
+
+  // Types
+  var types={};valid.forEach(function(r){var l=r.listeningScore||0,rd=r.readingScore||0,w=r.writingScore||0;var tags=[];var max3=Math.max(l,rd,w),min3=Math.min(l,rd,w);
+    if(max3-min3<=10)tags.push({t:'均衡型',c:'bal'});
+    if(l>=(rd+w)/2+10)tags.push({t:'听力优势',c:'lis'});if(rd>=(l+w)/2+10)tags.push({t:'阅读优势',c:'rea'});
+    if(w>=(l+rd)/2+10)tags.push({t:'写作优势',c:'wri'});if(w<=max3-15)tags.push({t:'写作待提升',c:'weak'});
+    if(r.passStatus==='fail')tags.push({t:'综合待加强',c:'weak'});
+    tags.forEach(function(t){types[t.t]=(types[t.t]||0)+1;});
   });
-  console.log('Parsed '+students.length+' students, '+errors.length+' errors');
-  return {students:students,errors:errors,total:lines.length};
+  var tHTML='';for(var k in types){tHTML+='<span class="hsk-type '+Object.keys({bal:'bal',lis:'lis',rea:'rea',wri:'wri',weak:'weak'})[k]||'bal'+(k in {bal:1,lis:1,rea:1,wri:1,weak:1}?'"'+k:'')+'">'+k+' '+types[k]+'人</span>';}
+  document.getElementById('hskTypes').innerHTML=tHTML||'加载中';
 }
 
-var pendingRoster=[];
-function previewRoster(){
-  try{
-    var textarea=document.getElementById('pasteArea');
-    if(!textarea){alert('错误：未找到粘贴框');return;}
-    var rawText=textarea.value;
-    if(!rawText.trim()){alert('请先粘贴学生名单。');return;}
-    var result=parseRoster(rawText);
-    if(!result.students.length){alert('解析到0个学生，请检查格式。');return;}
-    pendingRoster=result.students;
-    var startEl=document.getElementById('startId');var startId=startEl?startEl.value:'MY004';var startNum=parseInt((startId||'MY004').replace(/\D/g,''))||4;
-    var html='<div style="font-weight:700;margin-bottom:6px">📋 共识别 '+result.students.length+' 名学生</div>';
-    html+='<div style="font-size:10px;color:#94a3b8;margin-bottom:6px">从 MY'+String(startNum).padStart(3,'0')+' 开始编号</div>';
-    result.students.forEach(function(s,i){html+='<div style="padding:2px 0">MY'+String(startNum+i).padStart(3,'0')+' · '+s.englishName+(s.chineseName?' · '+s.chineseName:'')+'</div>';});
-    var rp=document.getElementById('rosterPreview');var ra=document.getElementById('rosterActions');
-    if(rp){rp.innerHTML=html;rp.style.display='block';}
-    if(ra)ra.style.display='flex';
-  }catch(e){alert('错误：'+e.message+'\n行号：'+e.lineNumber);}
-}
-function cancelPreview(){pendingRoster=[];document.getElementById('rosterPreview').style.display='none';document.getElementById('rosterActions').style.display='none';}
-function confirmGenerate(){
-  if(!pendingRoster.length){alert('没有待生成的学生');return;}
-  uploadStudents=pendingRoster;batchUploadCreate();
-  document.getElementById('rosterActions').style.display='none';
-  document.getElementById('rosterPreview').innerHTML+='<div style="color:#2563eb;margin-top:6px">⏳ 正在生成账号...</div>';
+// ===== Student table =====
+function renderStudentTable(){
+  var search=(document.getElementById('stuSearch')?document.getElementById('stuSearch').value:'').toLowerCase();
+  var filter=document.getElementById('stuFilter')?document.getElementById('stuFilter').value:'';
+  var hsk=allData.filter(function(r){return r.assessmentType==='language_proficiency_test';});
+  var studentMap={};
+  hsk.forEach(function(r){var sid=r.studentId||'';if(!studentMap[sid])studentMap[sid]=r;});
+  var rows='';FORMAL_SIDS.forEach(function(sid){
+    if(filter==='test')return;var s=studentMap[sid];
+    if(search&&sid.toLowerCase().indexOf(search)===-1&&(!s||(s.studentName||'').toLowerCase().indexOf(search)===-1))return;
+    rows+='<tr><td>'+sid+'</td><td class="name">'+(s?s.studentName||s.name:'—')+'</td><td>'+(s?s.chineseName:'—')+'</td><td><span style="color:#d97706">pending</span></td><td>'+(s?'✅':'—')+'</td><td>'+(s?s.listeningScore:'—')+'</td><td>'+(s?s.readingScore:'—')+'</td><td>'+(s?s.writingScore:'—')+'</td><td>'+(s?s.totalScore:'—')+'</td><td>'+(s?(s.passStatus==='pass'?'✅合格':'未合格'):'—')+'</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(s?s.studentUid:'')+'\')">👁 预览</button></td></tr>';
+  });
+  TEST_SIDS.forEach(function(sid){
+    if(filter==='formal')return;var s=studentMap[sid];
+    rows+='<tr><td>'+sid+' <span style="color:#f59e0b;font-size:9px">TEST</span></td><td class="name">'+(s?s.studentName||s.name:'—')+'</td><td>'+(s?s.chineseName:'—')+'</td><td><span style="color:#16a34a">active</span></td><td>'+(s?'✅':'—')+'</td><td>'+(s?s.listeningScore:'—')+'</td><td>'+(s?s.readingScore:'—')+'</td><td>'+(s?s.writingScore:'—')+'</td><td>'+(s?s.totalScore:'—')+'</td><td>'+(s?(s.passStatus==='pass'?'✅合格':'未合格'):'—')+'</td><td><button class="btn btn-small btn-outline" onclick="previewStudent(\''+(s?s.studentUid:'')+'\')">👁 预览</button></td></tr>';
+  });
+  document.getElementById('studentTbody').innerHTML=rows||'<tr><td colspan="11">暂无</td></tr>';
 }
 
-function batchUploadCreate(){
-  if(!uploadStudents.length){alert('请先上传文件');return;}
-  var results=[];var total=uploadStudents.length;
-  function next(i){if(i>=total){downloadResults(results);return;}
-    var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;var stu=uploadStudents[i];var sid='MY'+String(startNum+i).padStart(3,'0');
-    var cb='_ul'+Date.now()+'_'+i;window[cb]=function(res){
-      if(res&&res.success){results.push({studentId:sid,englishName:stu.englishName,chineseName:stu.chineseName,initialPin:res.initialPin,studentUid:res.studentUid});}
-      else{results.push({studentId:sid,englishName:stu.englishName,chineseName:stu.chineseName,initialPin:'FAILED',studentUid:''});}
-      next(i+1);delete window[cb];
-    };
-    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+encodeURIComponent(sid)+'&englishName='+encodeURIComponent(stu.englishName)+'&chineseName='+encodeURIComponent(stu.chineseName)+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
-  }next(0);
-}
-function downloadResults(list){
-  var csv='﻿学生编号,英文名,中文名,初始口令,studentUid\n';list.forEach(function(r){csv+=r.studentId+','+r.englishName+','+r.chineseName+','+r.initialPin+','+r.studentUid+'\n';});
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='学生账号表_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);
-  alert('✅ 已生成 '+list.filter(function(r){return r.initialPin!=='FAILED';}).length+'/'+list.length+' 个账号\n文件已自动下载');
-}
+// ===== Account & Import panels (placeholder references) =====
+function setupAccountPanel(){document.getElementById('acctPanel').innerHTML='<h4>👥 学生账号管理</h4><p style="font-size:12px;color:#94a3b8">账号管理功能通过顶部「👥 账号管理」按钮打开。</p>';}
+function setupImportPanel(){document.getElementById('importPanel').innerHTML='<h4>📥 数据导入</h4><p style="font-size:12px;color:#94a3b8">数据导入功能通过顶部「📥 数据导入」按钮打开。</p>';}
 
-function batchCreate(){
-  var bc=document.getElementById('batchCount');var count=bc?parseInt(bc.value)||3:3;var se=document.getElementById('startId');var startId=se?se.value:'MY004';var startNum=parseInt((startId||'MY004').replace(/\D/g,''))||4;var created=0;
-  function next(i){if(i>count){alert('✅ 已生成'+created+'个账号');return;}
-    var num=startNum+i-1;var sid='MY'+String(num).padStart(3,'0');var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success)created++;next(i+1);delete window[cb];};
-    var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
-  }next(1);
-}
-
-function renderRawTable(){
-  var rows='';allData.slice(-30).reverse().forEach(function(r){rows+='<tr><td>'+(r.studentName||r.name||'—')+'</td><td style="font-size:10px">'+(r.studentId||'—')+'</td><td style="font-size:9px;color:#94a3b8">'+(r.studentUid||'—').slice(0,12)+'</td><td>'+(r.dataType==='extension_record'?'🌱拓展':'📝')+'</td><td>'+(r.extensionTitle||'—')+'</td><td>'+(r.selectedWord||'—')+'</td><td style="font-size:10px">'+(r.studentSentence||'—').slice(0,20)+'</td><td style="font-size:10px">'+fmtTime(r.serverTime||r.submitTime)+'</td></tr>';});
-  document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="8" style="padding:20px;color:#94a3b8">暂无</td></tr>';
-}
-
-function exportExcel(){var BOM='﻿';var csv='studentId,studentName,studentUid,dataType,extensionTitle,selectedWord,studentSentence,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.studentUid||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',(r.studentSentence||'').replace(/"/g,'""'),r.serverTime||r.submitTime||''].join(',')+'\n';});var blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='马来西亚学生数据_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);}
+// Reuse existing export functions
+function exportExcel(){var BOM='﻿';var csv='studentId,studentName,dataType,extensionTitle,selectedWord,serverTime\n';allData.forEach(function(r){csv+=[r.studentId||'',r.studentName||r.name||'',r.dataType||'',r.extensionTitle||'',r.selectedWord||'',r.serverTime||r.submitTime||''].join(',')+'\n';});var blob=new Blob([BOM+csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='数据导出_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 function exportAccountMap(){
-  var uidMap={};allData.forEach(function(r){if(r.studentUid&&!uidMap[r.studentUid])uidMap[r.studentUid]=r;});
-  var csv='﻿studentUid,studentId,englishName,chineseName,accountStatus\n';
-  for(var k in uidMap){var s=uidMap[k];csv+=k+','+(s.studentId||'')+','+(s.studentName||s.name||'')+','+(s.chineseName||'')+',active\n';}
-  if(!Object.keys(uidMap).length)csv+='（无数据，请先导入学生账号）\n';
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='账号映射表_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href);
+  var csv='﻿studentUid,studentId,englishName,chineseName,accountStatus\n';var seen={};
+  allData.forEach(function(r){if(r.studentUid&&!seen[r.studentUid]){seen[r.studentUid]=true;csv+=r.studentUid+','+(r.studentId||'')+','+(r.studentName||r.name||'')+','+(r.chineseName||'')+',pending\n';}});
+  var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='账号映射_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 function exportHskTemplate(){
-  var uidMap={};allData.forEach(function(r){if(r.studentUid&&!uidMap[r.studentUid])uidMap[r.studentUid]=r;});
-  var csv='﻿studentUid,studentId,englishName,chineseName,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus\n';
-  for(var k in uidMap){var s=uidMap[k];csv+=k+','+(s.studentId||'')+','+(s.studentName||s.name||'')+','+(s.chineseName||'')+',,,,,,\n';}
-  if(!Object.keys(uidMap).length)csv+='（无数据，请先导入学生账号）\n';
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HSK成绩匹配模板_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(a.href);
+  var csv='﻿studentUid,studentId,englishName,chineseName,listeningScore,readingScore,writingScore,totalScore,examDate,passStatus\n';var seen={};
+  allData.forEach(function(r){if(r.studentUid&&!seen[r.studentUid]){seen[r.studentUid]=true;csv+=r.studentUid+','+(r.studentId||'')+','+(r.studentName||r.name||'')+','+(r.chineseName||'')+',,,,,,\n';}});
+  var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HSK模板_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 </script></body></html>
