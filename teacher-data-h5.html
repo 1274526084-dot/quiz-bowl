@@ -166,12 +166,14 @@ function previewRoster(){
     var result=parseRoster(rawText);
     if(!result.students.length){alert('解析到0个学生，请检查格式。');return;}
     pendingRoster=result.students;
-    var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;
+    var startEl=document.getElementById('startId');var startId=startEl?startEl.value:'MY004';var startNum=parseInt((startId||'MY004').replace(/\D/g,''))||4;
     var html='<div style="font-weight:700;margin-bottom:6px">📋 共识别 '+result.students.length+' 名学生</div>';
     html+='<div style="font-size:10px;color:#94a3b8;margin-bottom:6px">从 MY'+String(startNum).padStart(3,'0')+' 开始编号</div>';
     result.students.forEach(function(s,i){html+='<div style="padding:2px 0">MY'+String(startNum+i).padStart(3,'0')+' · '+s.englishName+(s.chineseName?' · '+s.chineseName:'')+'</div>';});
-    document.getElementById('rosterPreview').innerHTML=html;document.getElementById('rosterPreview').style.display='block';document.getElementById('rosterActions').style.display='flex';
-  }catch(e){alert('错误：'+e.message);}
+    var rp=document.getElementById('rosterPreview');var ra=document.getElementById('rosterActions');
+    if(rp){rp.innerHTML=html;rp.style.display='block';}
+    if(ra)ra.style.display='flex';
+  }catch(e){alert('错误：'+e.message+'\n行号：'+e.lineNumber);}
 }
 function cancelPreview(){pendingRoster=[];document.getElementById('rosterPreview').style.display='none';document.getElementById('rosterActions').style.display='none';}
 function confirmGenerate(){
@@ -201,7 +203,7 @@ function downloadResults(list){
 }
 
 function batchCreate(){
-  var count=parseInt(document.getElementById('batchCount').value)||3;var startId=document.getElementById('startId').value.trim()||'MY001';var startNum=parseInt(startId.replace(/\D/g,''))||1;var created=0;
+  var bc=document.getElementById('batchCount');var count=bc?parseInt(bc.value)||3:3;var se=document.getElementById('startId');var startId=se?se.value:'MY004';var startNum=parseInt((startId||'MY004').replace(/\D/g,''))||4;var created=0;
   function next(i){if(i>count){alert('✅ 已生成'+created+'个账号');return;}
     var num=startNum+i-1;var sid='MY'+String(num).padStart(3,'0');var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){if(res&&res.success)created++;next(i+1);delete window[cb];};
     var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
