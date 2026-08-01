@@ -244,9 +244,10 @@ function submitExtension(){
   var params={action:'submit',dataType:'extension_record',activityType:'daily_extension',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName||'',country:'Malaysia',learnerType:'international_student',source:'h5',weekId:'MY_WEEK_001',extensionId:'signal_light_001',extensionTitle:'每日一词：信号机',extensionType:'daily_word',mainCategory:'railway',railwayTopic:'signal',selectedWord:word,studentSentence:sentence,submitStatus:'submitted',submitTime:new Date().toISOString()};
   var cb='_ext'+Date.now();window[cb]=function(res){
     var msg=document.getElementById('extMsg');
-    if(res&&res.success){msg.innerHTML='✅ 提交成功！<br>提交编号：'+res.submissionId+'<br>服务器时间：'+res.serverTime;msg.className='msg ok show';renderExtensions();}
-    else{msg.textContent='提交失败，内容已保存本地。请重试。';msg.className='msg err show';}
-    setTimeout(function(){msg.className='msg';},6000);delete window[cb];
+    console.log('Cloud response:',JSON.stringify(res));
+    if(res&&(res.success||res.ok)){msg.innerHTML='✅ 提交成功！<br>提交编号：'+(res.submissionId||'—')+'<br>服务器时间：'+(res.serverTime||new Date().toLocaleString('zh-CN'));msg.className='msg ok show';renderExtensions();}
+    else{msg.innerHTML='提交失败，内容已保存本地。<br><small>'+(res?JSON.stringify(res).slice(0,100):'无响应')+'</small>';msg.className='msg err show';}
+    setTimeout(function(){msg.className='msg';},8000);delete window[cb];
   };
   var qs='callback='+cb;for(var k in params)qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);
   var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);
