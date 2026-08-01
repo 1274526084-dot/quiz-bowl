@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>马来西亚学生15天中文学习</title>
+<title>汉语考证培训2 · 信号班学习纪录生成</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#eef2ff;min-height:100vh}
@@ -60,7 +60,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 </style>
 </head>
 <body><div class="container" id="app">
-<div class="topbar"><h1>马来西亚学生15天中文学习</h1><div class="sub">成长记录 · Learning Journey</div><div class="cycle-info" id="cycleInfo"></div></div>
+<div class="topbar"><h1>汉语考证培训2 · 信号班</h1><div class="sub">学习纪录生成 · Signal Class</div><div class="cycle-info" id="cycleInfo"></div></div>
 
 <!-- Login -->
 <div id="loginBox"><div class="login-card"><h3>📝 学生登录</h3>
@@ -199,8 +199,8 @@ function login(){
   document.getElementById('mainContent').style.display='block';
   document.getElementById('tabBar').style.display='flex';
   document.getElementById('stuName').textContent=(cn||sn)+' ('+sid+')';
-  document.getElementById('cycleTitle').textContent='15天中文学习成长记录';
-  document.getElementById('cycleInfo').textContent='学习周期 · 第1天/15天';
+  document.getElementById('cycleTitle').textContent='信号班学习纪录生成';
+  document.getElementById('cycleInfo').textContent='信号班 · 第1天/15天';
 }
 
 function switchTab(idx){
@@ -216,7 +216,7 @@ function switchTab(idx){
     document.getElementById('mainContent').style.display='block';
     document.getElementById('tabBar').style.display='flex';
     document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';
-    document.getElementById('cycleInfo').textContent='学习周期 · 第1天/15天';
+    document.getElementById('cycleInfo').textContent='信号班 · 第1天/15天';
   }
 })();
 </script>
