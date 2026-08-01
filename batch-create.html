@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>批量生成学生账号</title>
+<style>body{font-family:monospace;padding:20px;max-width:600px;margin:0 auto}.ok{color:green}.fail{color:red}.item{padding:4px 0;border-bottom:1px solid #eee}</style>
+</head><body>
+<h2>批量生成学生账号 MY004-MY040</h2>
+<p id="status">准备中...</p>
+<div id="results"></div>
+<table id="table" style="display:none;width:100%;border-collapse:collapse;margin-top:16px">
+<tr style="background:#f0f0f0"><th>学生编号</th><th>英文名</th><th>中文名</th><th>初始口令</th><th>状态</th></tr></table>
+
+<script>
+var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
+var students=['AHMAD AQIL BIN MOHD ROZI,梁伟','KIRTHIVAASAN A/L MAHENDRAN,尔帝','MUHAMMAD HARRIS FAHMY BIN MOHD JOHARI,小虎','AKHTAR AKHIMULLAH BIN MOHD RAFFI,李星','MUHAMMAD HAIKAL MUSTAKIM BIN HASBULLAH,青华','MOHAMAD IMAN HAKIMI BIN ABDUL HADI,米奇','MUHAMMAD AIMAN HAKIM BIN ABDUL WAHAB,王武','FAKRUL IQRAM BIN SULAIMAN,法勇轩','MUHAMMAD AZLISHAM BIN SALLEH,李贤','MUHAMMAD ASIF BIN ISMAIL,龙傲天','AIMAN MUHAIMIN BIN CHE MOHD RIZAL,李吉安','MUHAMMAD FIRDAUS BIN DULKAFI,福园','AHNAF FAISAL BIN MUSLAN,安瑞宁','MUHAMMAD FAKHRUSY SYAKIRIN BIN HEBAT SHARUMAFAR,麒瑞','MUHAMMAD SAIFUL ZULFAQAR BIN SATIFUL BAHARI,赛夫','MUHAMMAD AQIL SYADHAMEER BIN KHAIRUL AZHAR,沙哈米','ADAM BIN AHMAD FAISAL,阿达','MOHAMMAD RAZIN BIN MOHAMMAD REDZUAN,蓝泽','AMIR HAKIM BIN AHMAD,海明','AZWAN BIN RAMLI,友贤','YUZMAN HAFIZAN BIN MD YAZID,佐思安','HAZIQ SAFUAN BIN MOHD ADHA,浩志安','MOHAMAD SAHRUL BIN CHE MUSA,佳龙','NOR AZIM NABIL BIN NOR HALIM,刘传','HANI AMIR HAFIZI BIN ABDULGHANI,涵伊','ZETI AZIZI BINTI ZAHRI,泽帝','EIZZATI NAAJIHA BINTI ZAHARUDDIN,伊扎帝','NOR ELYANA ZIZIYANA BINTI MOHD AZIZI,艾丽娜','NURFATIN QURRATUAIN BINTI MOHD HUSNI,李婷','NUR SYAWANIE BINTI HAMADI,婉宜','HANY ALYA BINTI ZAINAL,雅莉','AMY ALIA BINTI MOHD HUZAIMI,艾米','NUR SYAZWANI BINTI CHE AWANG @ MOHD RASYIDI,茉莉','NUR ALISSA SABRINA BINTI MOHD SABRI,丽莎','JUMATIAH BINTI JAMRI,詹珠珠','ANDREA ANDSIE ANDY ALIMJIN,安德雅','AINI AL SYAHNAS BINTI SYAHRULL NIZAM,沈爱妮'];
+var results=[];
+function next(i){
+  if(i>=students.length){document.getElementById('status').innerHTML='✅ 完成！已生成 '+results.filter(function(r){return r.ok;}).length+'/'+students.length+' 个账号';showTable();return;}
+  var parts=students[i].split(',');var en=parts[0].trim(),cn=(parts[1]||'').trim();var sid='MY'+String(i+4).padStart(3,'0');
+  var cb='_ba'+Date.now()+'_'+i;window[cb]=function(res){
+    results.push({sid:sid,en:en,cn:cn,pin:res&&res.initialPin?res.initialPin:'FAIL',ok:!!(res&&res.success)});
+    document.getElementById('status').textContent='生成中... '+(i+1)+'/'+students.length;
+    document.getElementById('results').innerHTML+='<div class="item '+(res&&res.success?'ok':'fail')+'">'+(i+1)+'. '+sid+' '+en+' → '+(res&&res.success?'✅ '+res.initialPin:'❌')+'</div>';
+    delete window[cb];next(i+1);
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=teacher_create_student&studentId='+sid+'&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&className=马来西亚学生中文学习班';document.head.appendChild(s);
+}
+function showTable(){
+  document.getElementById('table').style.display='table';var rows='';
+  results.forEach(function(r){rows+='<tr><td>'+r.sid+'</td><td>'+r.en+'</td><td>'+r.cn+'</td><td style="font-weight:700">'+r.pin+'</td><td class="'+(r.ok?'ok':'fail')+'">'+(r.ok?'✅':'❌')+'</td></tr>';});
+  document.getElementById('table').innerHTML+='<tbody>'+rows+'</tbody>';
+}
+next(0);
+</script></body></html>
