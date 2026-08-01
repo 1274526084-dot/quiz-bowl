@@ -33,12 +33,13 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <div class="topbar"><span class="back" id="topBack" onclick="goBack()">←</span><span class="title" id="topTitle">马来西亚学生中文学习端</span><span class="home-btn" onclick="goHome()">🏠</span></div>
 
 <div id="loginBox"><div class="login-card"><h3>📝 学生登录</h3>
-<label>学生编号 *</label><input id="studentId" placeholder="请输入学生编号">
-<label>英文姓名 *</label><input id="studentName" placeholder="请输入英文姓名">
-<label>中文姓名</label><input id="chineseName" placeholder="选填">
-<label>班级口令 *</label><input id="classCode" type="password" placeholder="请输入班级口令">
+<label>学生编号 Student ID *</label><input id="studentId" placeholder="如 MY001">
+<label>个人口令 Login PIN *</label><input id="loginPin" type="password" placeholder="4-6位个人口令">
+<label>英文姓名（首次登录填写）</label><input id="studentName" placeholder="首次登录时填写英文姓名">
+<label>中文姓名（选填）</label><input id="chineseName" placeholder="首次登录时填写中文名">
 <div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>
-<button class="btn btn-primary" onclick="login()">确认进入</button></div></div>
+<button class="btn btn-primary" onclick="login()">确认进入</button>
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p></div></div>
 
 <div class="main" id="mainContent" style="display:none">
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
@@ -132,13 +133,20 @@ function saveS(key,data){if(!student)return;localStorage.setItem(key+'_'+student
 
 // ===== Login =====
 function login(){
-  var sid=document.getElementById('studentId').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim(),code=document.getElementById('classCode').value.trim();
-  if(!sid){alert('请输入学生编号');return;}if(!sn){alert('请输入英文姓名');return;}if(code!=='MY2026'){alert('班级口令错误');return;}if(!document.getElementById('consent').checked){alert('请勾选同意');return;}
-  student={id:sid,name:sn,chineseName:cn};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();
+  var sid=document.getElementById('studentId').value.trim(),pin=document.getElementById('loginPin').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim();
+  if(!sid){alert('请输入学生编号');return;}if(!pin){alert('请输入个人口令');return;}if(!document.getElementById('consent').checked){alert('请勾选同意');return;}
+  // Cloud auth
+  var params='action=student_login&studentId='+encodeURIComponent(sid)+'&loginPin='+encodeURIComponent(pin)+(sn?'&englishName='+encodeURIComponent(sn):'')+(cn?'&chineseName='+encodeURIComponent(cn):'');
+  var cb='_login'+Date.now();window[cb]=function(res){
+    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken};localStorage.setItem('activeStudentSession',JSON.stringify(student));enterApp();}
+    else{alert((res&&res.error)||'登录失败');}delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
 function enterApp(){if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
   document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';
-  document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';
+  document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';
   taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();
 }
 function showSwitchModal(){document.getElementById('switchModal').classList.add('show');}
@@ -252,7 +260,7 @@ function submitExtension(){
   if(!student)return;var word=window._extSelWord||'',sentence=document.getElementById('extSentence').value.trim();
   var today=new Date().toISOString().split('T')[0],now=new Date().toLocaleString('zh-CN'),record={date:today,title:'每日一词：信号机',category:'railway',word:word,sentence:sentence,time:now};
   extRecords.push(record);extTotal++;saveS('extRecords',extRecords);
-  var params={action:'submit',projectId:'ECRL_MY_CHINESE',schemaVersion:2,learningTrack:'chinese_track',dataType:'extension_record',activityType:'daily_extension',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName||'',country:'Malaysia',learnerType:'international_student',source:'h5',extensionId:'signal_light_001',extensionTitle:'每日一词：信号机',extensionType:'daily_word',mainCategory:'railway',railwayTopic:'signal',selectedWord:word,studentSentence:sentence,submitStatus:'submitted',submitTime:new Date().toISOString()};
+  var params={action:'submit',projectId:'ECRL_MY_CHINESE',schemaVersion:2,learningTrack:'chinese_track',studentUid:student.uid||'',dataType:'extension_record',activityType:'daily_extension',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName||'',country:'Malaysia',learnerType:'international_student',source:'h5',extensionId:'signal_light_001',extensionTitle:'每日一词：信号机',extensionType:'daily_word',mainCategory:'railway',railwayTopic:'signal',selectedWord:word,studentSentence:sentence,submitStatus:'submitted',submitTime:new Date().toISOString()};
   var cb='_ext'+Date.now();window[cb]=function(res){var m=document.getElementById('extMsg');if(res&&(res.success||res.ok)){m.innerHTML='✅ 提交成功！<br>编号：'+(res.submissionId||'—')+'<br><small>你的中文学习档案已更新</small>';m.className='msg ok show';renderExtensions();updateArchive();}else{m.innerHTML='提交失败，已保存本地。';m.className='msg err show';}setTimeout(function(){m.className='msg';},6000);delete window[cb];};
   var qs='callback='+cb;for(var k in params)qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
 }
@@ -260,5 +268,5 @@ function submitExtension(){
 function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();updateHomeProgress();}
 
 // Auto-restore
-(function(){var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ('+student.id+')';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}})();
+(function(){var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}})();
 </script></body></html>
