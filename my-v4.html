@@ -1367,8 +1367,10 @@ function showTask2to4Result(data) {
   document.getElementById('quizOverlay').classList.remove('show');
   document.getElementById('resultOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
+  // Push history state for back button
+  try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK_RESULT_ROUTING_V2_20260803_0215</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK_RESULT_EXIT_FIX_20260803</div></div>';
   if (data.objectiveScore != null) {
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + answered + '/' + (data.objectiveMaxScore ? data.objectiveMaxScore/10 : 6) + '</span><span class="rlbl">客观题已答</span></div><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div></div>';
   }
@@ -1411,7 +1413,7 @@ function showTask2to4Result(data) {
     if (tr.comment) html += '<div style="font-size:12px;color:#475569;margin-top:6px">' + tr.comment + '</div>';
     html += '</div>';
   }
-  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="closeResult()" style="width:auto;padding:12px 40px">返回</button></div>';
+  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="exitTask2to4Result()" style="width:auto;padding:12px 40px">← 返回任务列表</button></div>';
   document.getElementById('resultBody').innerHTML = html;
   document.getElementById('resultBody').scrollTop = 0;
   window.scrollTo(0, 0);
@@ -2408,13 +2410,36 @@ function showTask1Results(data) {
   updateHomeProgress();
 }
 
-function closeResult() {
-  document.getElementById('resultOverlay').classList.remove('show');
-  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+function exitTask2to4Result() {
+  // Stop any playing audio
+  var audios = document.querySelectorAll('#resultBody audio');
+  for (var i = 0; i < audios.length; i++) { try { audios[i].pause(); audios[i].src = ''; } catch(e) {} }
+  // Reset recorder
+  AudioRecorder.reset();
+  // Clean up both task states
   quizState.active = false;
+  task2to4State.active = false; task2to4State.submitted = false;
+  // Hide overlays
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('quizOverlay').classList.remove('show');
+  // Show tab bar
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  // Switch to tasks tab (index 1) and reload
+  switchTab(1);
   loadStudentProfile();
   renderAll();
   updateHomeProgress();
+  window.scrollTo(0, 0);
+  // Safety fallback: if still on result page after 500ms, force reload
+  setTimeout(function() {
+    if (document.getElementById('resultOverlay').classList.contains('show')) {
+      window.location.href = window.location.origin + window.location.pathname + '?home=' + Date.now();
+    }
+  }, 500);
+}
+
+function closeResult() {
+  exitTask2to4Result();
 }
 
 // ===== CloudBase Self-Check =====
@@ -2441,12 +2466,18 @@ function runCloudBaseSelfCheck() {
   });
 }
 
-// ===== Beforeunload protection for unsaved recordings =====
+// ===== Beforeunload + browser back key =====
 window.addEventListener('beforeunload', function(e) {
   var st = AudioRecorder.getState();
   if (st === 'recording' || st === 'recorded_local' || st === 'uploading') {
     e.preventDefault(); e.returnValue = '当前录音尚未成功上传，离开页面可能丢失录音。确定离开吗？';
     return e.returnValue;
+  }
+});
+
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('resultOverlay').classList.contains('show')) {
+    exitTask2to4Result();
   }
 });
 
