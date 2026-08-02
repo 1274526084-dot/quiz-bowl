@@ -468,8 +468,18 @@ function showAnswerModal(data, name) {
     html += '</div>';
     if (data.writingText) html += '<div style="margin-bottom:8px"><b>写作：</b><div style="background:#f8fafc;padding:8px;border-radius:6px;font-size:12px;white-space:pre-wrap">' + data.writingText + '</div></div>';
     if (ctCurrentTask === 'TASK_SEAL_WORK_04') {
-      if (data.imageFileId) html += '<div style="margin-bottom:8px"><b>印章照片：</b>✅ 已提交</div>';
-      else html += '<div style="margin-bottom:8px;color:#f59e0b"><b>印章照片：</b>📷 待补交</div>';
+      if (data.imageFileId) {
+        html += '<div style="margin-bottom:8px"><b>印章照片：</b>';
+        if (data.imageUrl) {
+          html += '<br><img src="' + data.imageUrl + '" alt="学生印章作品" loading="lazy" style="max-width:100%;max-height:260px;border-radius:8px;cursor:pointer;border:1px solid #e2e8f0" onclick="openImagePreview(\'' + data.imageUrl + '\')">';
+          html += '<div style="font-size:10px;color:#94a3b8">点击图片查看大图 · ' + (data.imageSupplemented ? '补交' : '首次提交') + '</div>';
+        } else {
+          html += '✅ 已提交 <button class="btn btn-small btn-outline" onclick="loadImageForReview(\'' + data.imageFileId + '\',this)">🖼 获取照片</button>';
+        }
+        html += '</div>';
+      } else {
+        html += '<div style="margin-bottom:8px;color:#f59e0b"><b>印章照片：</b>📷 待补交</div>';
+      }
     }
     if (data.audioUrl) html += '<div style="margin-bottom:8px"><b>录音：</b><br><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
     else if (data.audioFileId) html += '<div style="margin-bottom:8px"><b>录音：</b>已保存 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\'' + data.audioFileId + '\',this)">▶ 获取播放链接</button></div>';
@@ -490,7 +500,7 @@ function showAnswerModal(data, name) {
     html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
     html += '</div></div>';
   }
-  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_TASK4_PHOTO_SUPPLEMENT_20260803</div>';
+  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_TASK4_ALL_IMAGES_DISPLAY_FIX_20260803</div>';
   document.getElementById('answerModalContent').innerHTML = html;
   window._teacherReviewData = data;
   document.getElementById('answerModal').style.display = 'flex';
@@ -536,10 +546,47 @@ function saveTeacherReview(submissionId, publish) {
   document.head.appendChild(s2);
 }
 
+function loadImageForReview(fileId, btn) {
+  btn.textContent = '加载中...';
+  var cb = '_iurl' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success && res.tempFileURL) {
+      btn.parentNode.innerHTML = '<img src="' + res.tempFileURL + '" alt="学生印章作品" style="max-width:100%;max-height:260px;border-radius:8px;cursor:pointer;border:1px solid #e2e8f0" onclick="openImagePreview(\'' + res.tempFileURL + '\')"><div style="font-size:10px;color:#94a3b8">点击图片查看大图</div>';
+    } else { btn.textContent = '获取失败：' + (res ? res.error || '' : ''); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_learning_asset_url&fileId=' + encodeURIComponent(fileId);
+  document.head.appendChild(s);
+}
+
+var _imagePreviewOverlay = null;
+function openImagePreview(url) {
+  if (!url) return;
+  if (_imagePreviewOverlay) _imagePreviewOverlay.remove();
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  ov.onclick = function() { ov.remove(); _imagePreviewOverlay = null; };
+  var closeBtn = document.createElement('span');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'position:absolute;top:16px;right:20px;color:#fff;font-size:28px;cursor:pointer;z-index:1';
+  closeBtn.onclick = function(e) { e.stopPropagation(); ov.remove(); _imagePreviewOverlay = null; };
+  var img = document.createElement('img');
+  img.src = url;
+  img.style.cssText = 'max-width:95%;max-height:90vh;object-fit:contain;border-radius:8px';
+  img.onclick = function(e) { e.stopPropagation(); };
+  ov.appendChild(closeBtn);
+  ov.appendChild(img);
+  document.body.appendChild(ov);
+  _imagePreviewOverlay = ov;
+  document.addEventListener('keydown', function escHandler(e) { if (e.key === 'Escape') { ov.remove(); _imagePreviewOverlay = null; document.removeEventListener('keydown', escHandler); } });
+}
+
 function closeAnswerModal() {
   document.getElementById('answerModal').style.display = 'none';
   currentReviewContext = null;
   window._teacherReviewData = null;
+  if (_imagePreviewOverlay) { _imagePreviewOverlay.remove(); _imagePreviewOverlay = null; }
 }
 
 function resetStudentTask(uid, sid) {
