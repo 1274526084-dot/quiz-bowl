@@ -220,7 +220,16 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 
 </div>
 
+<script src="https://web.sdk.qcloud.com/tcb/1.10.12/tcb.js"></script>
 <script>
+var tcbApp = null;
+function initCloudBase() {
+  if (tcbApp) return Promise.resolve(tcbApp);
+  try {
+    tcbApp = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' });
+    return tcbApp.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() { return tcbApp; }).catch(function() { tcbApp = null; return null; });
+  } catch(e) { return Promise.resolve(null); }
+}
 (function(){var q=window.location.search;if(q.indexOf('previewToken=')===-1&&q.indexOf('preview=')===-1)return;var lb=document.getElementById('loginBox');if(!lb)return;lb.innerHTML='<div class="login-card" style="text-align:center"><h3>🔍 教师只读预览模式</h3><p style="color:#64748b">正在验证预览链接…</p></div>';var t='';try{var p=new URLSearchParams(q);t=p.get('previewToken')||p.get('preview')||'';}catch(e){var m=q.match(/[?&]previewToken=([^&]+)/)||q.match(/[?&]preview=([^&]+)/);if(m)t=decodeURIComponent(m[1]);}if(!t){lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p>未检测到预览令牌</p></div>';return;}var cb='_pvx'+Date.now();window[cb]=function(res){if(res&&res.success){window._pvStudent={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',isPreview:true};enterApp();}else{lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style="font-size:11px">错误：'+(res&&res.error||'未知')+'</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>';}delete window[cb];};var s=document.createElement('script');s.src='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api?callback='+cb+'&action=validate_preview_token&previewToken='+encodeURIComponent(t);document.head.appendChild(s);})();
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
@@ -951,16 +960,26 @@ function renderRecorderUI() {
   if (!ui) return;
   var dur = AudioRecorder.getDuration();
   var blob = AudioRecorder.getBlob();
+  var uploaded = task2to4State.audioFileId || '';
+  var uploading = task2to4State._audioUploading || false;
   var h = '<div style="text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px">';
   h += '<div style="font-size:24px;font-weight:900;color:#2563eb" id="recDur">' + dur + '秒</div>';
-  h += '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">建议45-60秒</div>';
-  if (!blob) {
+  h += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px">建议45-60秒</div>';
+  if (blob) h += '<div style="font-size:11px;color:#64748b">文件大小：' + (blob.size / 1024).toFixed(1) + ' KB · 格式：' + (blob.type || 'webm') + '</div>';
+  if (uploaded) {
+    h += '<div style="color:#16a34a;font-size:13px;font-weight:700;margin:6px 0">✅ 录音已上传云端</div>';
+    h += '<button class="btn btn-outline" style="margin:4px" onclick="AudioRecorder.playPreview()">▶ 试听</button>';
+    h += '<button class="btn btn-outline" style="margin:4px" onclick="AudioRecorder.reset();task2to4State.audioFileId=\'\';renderRecorderUI()">🗑 删除重录</button>';
+  } else if (uploading) {
+    h += '<div style="color:#f59e0b;font-size:13px;margin:6px 0">⏳ 正在上传云端...</div>';
+  } else if (!blob) {
     h += '<button class="btn btn-primary" style="margin:4px" onclick="AudioRecorder.start()">🎙️ 开始录音</button>';
     h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">或上传音频文件：</div>';
     h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onAudioFileSelected(this)" style="font-size:12px;margin-top:4px">';
   } else {
     h += '<button class="btn btn-outline" style="margin:4px" onclick="AudioRecorder.playPreview()">▶ 试听</button>';
-    h += '<button class="btn btn-outline" style="margin:4px" onclick="AudioRecorder.reset();renderRecorderUI()">🗑 删除重录</button>';
+    h += '<button class="btn btn-outline" style="margin:4px" onclick="AudioRecorder.reset();task2to4State.audioFileId=\'\';renderRecorderUI()">🗑 删除重录</button>';
+    h += '<button class="btn btn-submit" style="margin:4px" onclick="uploadAudioToCloud()">☁️ 上传到云端</button>';
   }
   h += '</div>';
   ui.innerHTML = h;
@@ -971,9 +990,51 @@ function renderRecorderUI() {
   });
 }
 
+function uploadAudioToCloud() {
+  var blob = AudioRecorder.getBlob();
+  if (!blob || blob.size === 0) { alert('录音文件为空，请重新录制。'); return; }
+  if (blob.size > 10 * 1024 * 1024) { alert('文件过大（超过10MB），请重新录制。'); return; }
+  task2to4State._audioUploading = true;
+  renderRecorderUI();
+  initCloudBase().then(function(app) {
+    if (!app) { throw new Error('云服务未初始化'); }
+    var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + task2to4State.taskId + '/' + student.uid + '/audio_' + Date.now() + '.' + ext;
+    return app.uploadFile({ cloudPath: cloudPath, filePath: blob }).then(function(result) {
+      if (!result.fileID) { throw new Error('上传失败：未获取fileID'); }
+      task2to4State.audioFileId = result.fileID;
+      task2to4State.audioDuration = AudioRecorder.getDuration();
+      task2to4State._audioUploading = false;
+      task2to4State._audioBlobSize = blob.size;
+      task2to4State._audioMimeType = blob.type;
+      // Save to learning_assets via API
+      var cb = '_cfa' + Date.now();
+      window[cb] = function(res) {
+        if (res && res.success) { task2to4State._audioAssetId = res.assetId; }
+        renderRecorderUI();
+        delete window[cb];
+      };
+      var s = document.createElement('script');
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s);
+    }).catch(function(err) {
+      task2to4State._audioUploading = false;
+      task2to4State.audioFileId = '';
+      alert('上传失败：' + (err.message || '未知错误') + '\n请重试。录音已保留在本地。');
+      renderRecorderUI();
+    });
+  }).catch(function(err) {
+    task2to4State._audioUploading = false;
+    alert('云服务连接失败：' + (err.message || '') + '\n请检查网络后重试。');
+    renderRecorderUI();
+  });
+}
+
 function onAudioFileSelected(input) {
   if (input.files && input.files[0]) {
-    AudioRecorder.uploadAsFile(input.files[0]);
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('文件过大（超过10MB）。'); return; }
+    AudioRecorder.uploadAsFile(file);
     renderRecorderUI();
   }
 }
@@ -999,8 +1060,14 @@ function submitTask2to4() {
   var writingEl = document.getElementById('t24writing');
   var writingText = writingEl ? writingEl.value.trim() : (task2to4State.writingText || '');
   task2to4State.writingText = writingText;
-  var uploadAndSubmit = function() {
-    var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (AudioRecorder.getDuration() || task2to4State.audioDuration || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '');
+  // Require audio upload before submit
+  var blob = AudioRecorder.getBlob();
+  if (blob && blob.size > 0 && !task2to4State.audioFileId) {
+    alert('请先点击"☁️ 上传到云端"上传录音后再提交。');
+    return;
+  }
+  var doSubmit = function() {
+    var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '');
     var cb = '_st24_' + Date.now();
     window[cb] = function(res) {
       if (res && res.success) {
@@ -1016,7 +1083,7 @@ function submitTask2to4() {
     s.src = API + '?callback=' + cb + '&' + params;
     document.head.appendChild(s);
   };
-  uploadAndSubmit();
+  doSubmit();
 }
 
 function viewTask2to4Result(taskId) {
@@ -1042,10 +1109,18 @@ function showTask2to4Result(data) {
   if (data.writingText) {
     html += '<div class="section-card"><h4>📝 我的写作</h4><div style="font-size:13px;white-space:pre-wrap">' + data.writingText + '</div></div>';
   }
-  if (data.audioUrl) {
-    html += '<div class="section-card"><h4>🎙️ 我的录音</h4><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
-  } else if (data.audioFileId) {
-    html += '<div class="section-card"><h4>🎙️ 我的录音</h4><div style="font-size:12px;color:#94a3b8">录音已保存。教师可以播放。</div></div>';
+  if (data.audioUrl || data.audioFileId) {
+    html += '<div class="section-card"><h4>🎙️ 我的录音</h4>';
+    if (data.audioUrl) html += '<audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio>';
+    else html += '<div style="font-size:12px;color:#94a3b8">录音已保存。教师可以播放。</div>';
+    html += '</div>';
+  } else if (!data.audioFileId && isTestAccount()) {
+    // Supplement audio for test accounts
+    html += '<div class="section-card" style="border:2px dashed #f59e0b"><h4>🎙️ 补传口语录音</h4>';
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的录音尚未上传到云端。请重新录制并上传。</div>';
+    html += '<div id="supplementRecorderUI"></div>';
+    html += '<div id="supplementStatus" style="font-size:11px;color:#94a3b8;margin-top:4px"></div>';
+    html += '</div>';
   }
   // AI evaluation
   if (data.aiEvaluation && data.aiEvaluation.status === 'completed') {
@@ -1075,6 +1150,91 @@ function showTask2to4Result(data) {
   document.getElementById('resultBody').scrollTop = 0;
   window.scrollTo(0, 0);
   loadStudentProfile();
+  // Init supplement recorder if audio missing
+  setTimeout(function() {
+    var suppUI = document.getElementById('supplementRecorderUI');
+    if (suppUI) renderSupplementRecorder(data);
+  }, 200);
+}
+
+var _supplementRecorder = null;
+function renderSupplementRecorder(data) {
+  var ui = document.getElementById('supplementRecorderUI');
+  if (!ui) return;
+  if (!_supplementRecorder) {
+    _supplementRecorder = Object.assign({}, AudioRecorder);
+    _supplementRecorder._timer = null;
+  }
+  var sr = _supplementRecorder;
+  var dur = sr.getDuration();
+  var blob = sr.getBlob();
+  var uploaded = (data._suppAudioUploaded);
+  var h = '';
+  if (uploaded) {
+    h += '<div style="color:#16a34a;font-size:13px;font-weight:700;margin:4px 0">✅ 补传成功</div>';
+  } else if (!blob) {
+    h += '<button class="btn btn-primary" style="margin:4px;font-size:12px" onclick="startSupplementRec()">🎙️ 开始录音（5-60秒）</button>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">或上传音频文件：</div>';
+    h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onSupplementFileSelected(this)" style="font-size:12px;margin-top:4px">';
+  } else {
+    h += '<div style="font-size:13px;color:#2563eb;font-weight:700">' + dur + '秒 · ' + (blob.size/1024).toFixed(1) + ' KB</div>';
+    h += '<button class="btn btn-outline" style="margin:4px;font-size:12px" onclick="sr.playPreview()">▶ 试听</button>';
+    h += '<button class="btn btn-outline" style="margin:4px;font-size:12px" onclick="sr.reset();renderSupplementRecorder(data)">🗑 重录</button>';
+    h += '<button class="btn btn-submit" style="margin:4px;font-size:12px" onclick="uploadSupplementAudio(data)">☁️ 上传并关联</button>';
+  }
+  ui.innerHTML = h;
+  sr.init({ maxDuration: 60, onStateChange: function() { renderSupplementRecorder(data); }, onTimerTick: function() { renderSupplementRecorder(data); } });
+}
+
+function startSupplementRec() {
+  _supplementRecorder.start();
+}
+
+function onSupplementFileSelected(input) {
+  if (input.files && input.files[0]) {
+    _supplementRecorder.uploadAsFile(input.files[0]);
+    renderSupplementRecorder(window._lastTask24Result || {});
+  }
+}
+
+function uploadSupplementAudio(data) {
+  var blob = _supplementRecorder.getBlob();
+  if (!blob || blob.size === 0) { alert('录音为空'); return; }
+  var statusEl = document.getElementById('supplementStatus');
+  if (statusEl) statusEl.innerHTML = '⏳ 上传中...';
+  initCloudBase().then(function(app) {
+    if (!app) throw new Error('云服务未初始化');
+    var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + (data.taskId || task2to4State.taskId) + '/' + student.uid + '/supplement_' + Date.now() + '.' + ext;
+    return app.uploadFile({ cloudPath: cloudPath, filePath: blob }).then(function(result) {
+      if (!result.fileID) throw new Error('上传失败');
+      // Confirm asset
+      var cb1 = '_cfa2' + Date.now();
+      window[cb1] = function(res) {
+        if (res && res.success) {
+          // Attach to submission
+          var cb2 = '_att' + Date.now();
+          window[cb2] = function(res2) {
+            if (res2 && res2.success) {
+              if (statusEl) statusEl.innerHTML = '<span style="color:#16a34a">✅ 录音已关联到原任务答卷</span>';
+              data._suppAudioUploaded = true;
+              renderSupplementRecorder(data);
+            } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">关联失败</span>'; }
+            delete window[cb2];
+          };
+          var s2 = document.createElement('script');
+          s2.src = API + '?callback=' + cb2 + '&action=attach_asset_to_submission&studentUid=' + encodeURIComponent(student.uid) + '&taskId=' + (data.taskId || task2to4State.taskId) + '&submissionId=' + encodeURIComponent(data.submissionId) + '&assetId=' + res.assetId;
+          document.head.appendChild(s2);
+        } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">确认失败</span>'; }
+        delete window[cb1];
+      };
+      var s1 = document.createElement('script');
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + _supplementRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s1);
+    });
+  }).catch(function(err) {
+    if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：' + (err.message || '') + '</span>';
+  });
 }
 
 function startTask1() {
