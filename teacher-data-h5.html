@@ -462,11 +462,15 @@ function showAnswerModal(data, name) {
     });
     html += '</tbody></table></div>';
   } else {
-    // Tasks 2-4: show writing, audio, review form
+    // Tasks 2-4: show writing, audio, image, review form
     html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
     html += '客观题：' + (data.objectiveScore || 0) + '/' + (data.objectiveMaxScore || 60);
     html += '</div>';
     if (data.writingText) html += '<div style="margin-bottom:8px"><b>写作：</b><div style="background:#f8fafc;padding:8px;border-radius:6px;font-size:12px;white-space:pre-wrap">' + data.writingText + '</div></div>';
+    if (ctCurrentTask === 'TASK_SEAL_WORK_04') {
+      if (data.imageFileId) html += '<div style="margin-bottom:8px"><b>印章照片：</b>✅ 已提交</div>';
+      else html += '<div style="margin-bottom:8px;color:#f59e0b"><b>印章照片：</b>📷 待补交</div>';
+    }
     if (data.audioUrl) html += '<div style="margin-bottom:8px"><b>录音：</b><br><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
     else if (data.audioFileId) html += '<div style="margin-bottom:8px"><b>录音：</b>已保存 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\'' + data.audioFileId + '\',this)">▶ 获取播放链接</button></div>';
     // Teacher review form
@@ -486,7 +490,7 @@ function showAnswerModal(data, name) {
     html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
     html += '</div></div>';
   }
-  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_CLASS_RELEASE_TASK234_20260803</div>';
+  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_TASK4_PHOTO_SUPPLEMENT_20260803</div>';
   document.getElementById('answerModalContent').innerHTML = html;
   window._teacherReviewData = data;
   document.getElementById('answerModal').style.display = 'flex';
