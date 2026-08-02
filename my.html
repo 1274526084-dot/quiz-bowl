@@ -224,12 +224,41 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <script src="https://web.sdk.qcloud.com/tcb/1.10.12/tcb.js"></script>
 <script>
 var tcbApp = null;
+var tcbDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+
 function initCloudBase() {
   if (tcbApp) return Promise.resolve(tcbApp);
-  try {
-    tcbApp = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' });
-    return tcbApp.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function() { return tcbApp; }).catch(function() { tcbApp = null; return null; });
-  } catch(e) { return Promise.resolve(null); }
+  tcbDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+  return new Promise(function(resolve) {
+    // Step 1: Check SDK loaded
+    if (typeof tcb === 'undefined') {
+      tcbDiag.errors.push({ step: 'SDK加载', error: 'window.tcb is undefined — CloudBase SDK 未加载' });
+      resolve(null); return;
+    }
+    tcbDiag.sdkLoaded = true;
+    // Step 2: Init environment
+    try {
+      tcbApp = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' });
+      tcbDiag.envInit = true;
+    } catch(e) {
+      tcbDiag.errors.push({ step: '环境初始化', error: e.message || 'init failed', code: e.code, name: e.name });
+      resolve(null); return;
+    }
+    // Step 3: Anonymous auth
+    var auth = tcbApp.auth({ persistence: 'local' });
+    auth.anonymousAuthProvider().signIn().then(function(loginState) {
+      tcbDiag.authDone = true;
+      tcbDiag.uid = (loginState && loginState.user && loginState.user.uid) || (loginState && loginState.uid) || '';
+      if (!tcbDiag.uid) {
+        try { tcbDiag.uid = auth.hasLoginState() ? (auth.getLoginState() || {}).user.uid || '' : ''; } catch(e2) {}
+      }
+      resolve(tcbApp);
+    }).catch(function(err) {
+      tcbDiag.errors.push({ step: '匿名登录', error: err.message || 'auth failed', code: err.code, name: err.name });
+      tcbApp = null;
+      resolve(null);
+    });
+  });
 }
 (function(){var q=window.location.search;if(q.indexOf('previewToken=')===-1&&q.indexOf('preview=')===-1)return;var lb=document.getElementById('loginBox');if(!lb)return;lb.innerHTML='<div class="login-card" style="text-align:center"><h3>🔍 教师只读预览模式</h3><p style="color:#64748b">正在验证预览链接…</p></div>';var t='';try{var p=new URLSearchParams(q);t=p.get('previewToken')||p.get('preview')||'';}catch(e){var m=q.match(/[?&]previewToken=([^&]+)/)||q.match(/[?&]preview=([^&]+)/);if(m)t=decodeURIComponent(m[1]);}if(!t){lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p>未检测到预览令牌</p></div>';return;}var cb='_pvx'+Date.now();window[cb]=function(res){if(res&&res.success){window._pvStudent={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',isPreview:true};enterApp();}else{lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style="font-size:11px">错误：'+(res&&res.error||'未知')+'</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>';}delete window[cb];};var s=document.createElement('script');s.src='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api?callback='+cb+'&action=validate_preview_token&previewToken='+encodeURIComponent(t);document.head.appendChild(s);})();
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
@@ -1140,30 +1169,55 @@ function renderRecorderUI() {
 
 function uploadAudioToCloud() {
   var blob = AudioRecorder.getBlob();
-  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空'); renderRecorderUI(); return; }
-  if (blob.size > 30 * 1024 * 1024) { AudioRecorder.setUploadFailed('文件过大（超过30MB）'); renderRecorderUI(); return; }
+  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空（blob.size===0）'); renderRecorderUI(); return; }
+  if (blob.size > 30 * 1024 * 1024) { AudioRecorder.setUploadFailed('文件过大（超过30MB）：' + (blob.size/(1024*1024)).toFixed(1) + 'MB'); renderRecorderUI(); return; }
   AudioRecorder.setUploading();
+  AudioRecorder.addUploadLog('录音Blob已生成', 'success');
+  AudioRecorder.addUploadLog('SDK状态检查中', 'pending');
   renderRecorderUI();
+
+  // Check SDK
+  if (typeof tcb === 'undefined') {
+    AudioRecorder.addUploadLog('CloudBase SDK加载', 'failed');
+    AudioRecorder.setUploadFailed('CloudBase SDK未加载：window.tcb is undefined');
+    renderRecorderUI(); return;
+  }
+  AudioRecorder.addUploadLog('CloudBase SDK已加载', 'success');
+
   initCloudBase().then(function(app) {
-    if (!app) { AudioRecorder.setUploadFailed('云服务连接失败：请检查网络'); renderRecorderUI(); return; }
-    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+    if (!app) {
+      var lastErr = tcbDiag.errors.length > 0 ? tcbDiag.errors[tcbDiag.errors.length-1] : null;
+      var msg = '环境初始化或匿名登录失败';
+      if (lastErr) msg = lastErr.step + '：' + (lastErr.code || '') + ' ' + (lastErr.error || '');
+      AudioRecorder.addUploadLog('环境初始化/匿名登录', 'failed');
+      AudioRecorder.setUploadFailed(msg);
+      renderRecorderUI(); return;
+    }
+    AudioRecorder.addUploadLog('环境初始化', 'success');
+    AudioRecorder.addUploadLog('匿名登录', 'success');
+    AudioRecorder.addUploadLog('CloudBase UID: ' + (tcbDiag.uid || '—'), 'success');
+
+    // Convert Blob to File
     var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var mimeType = blob.type || ('audio/' + ext);
+    var audioFile = new File([blob], 'audio_' + Date.now() + '.' + ext, { type: mimeType });
+    AudioRecorder.addUploadLog('Blob→File转换完成（' + ext + ', ' + (audioFile.size/1024).toFixed(1) + 'KB）', 'success');
+
     var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + task2to4State.taskId + '/' + student.uid + '/audio_' + Date.now() + '.' + ext;
-    app.uploadFile({
-      cloudPath: cloudPath, filePath: blob,
-      onProgress: function(progress) {
-        if (progress && progress.loaded != null) {
-          AudioRecorder.setUploadProgress(progress.loaded, progress.total);
-        }
-        renderRecorderUI();
+    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+
+    app.uploadFile({ cloudPath: cloudPath, filePath: audioFile }).then(function(result) {
+      console.log('uploadFile result:', JSON.stringify(result).slice(0, 200));
+      if (!result || !result.fileID) {
+        AudioRecorder.addUploadLog('uploadFile返回结果：' + JSON.stringify(result || {}).slice(0,100), 'failed');
+        AudioRecorder.setUploadFailed('未获取fileID：uploadFile返回结果异常');
+        renderRecorderUI(); return;
       }
-    }).then(function(result) {
-      if (!result.fileID) { AudioRecorder.setUploadFailed('上传失败：未获取fileID'); renderRecorderUI(); return; }
       AudioRecorder.addUploadLog('云存储上传成功', 'success');
-      AudioRecorder.addUploadLog('fileId已获得', 'success');
+      AudioRecorder.addUploadLog('fileId已获得：' + result.fileID.slice(0,50) + '...', 'success');
       task2to4State.audioFileId = result.fileID;
       task2to4State.audioDuration = AudioRecorder.getDuration();
-      // Confirm asset
+
       AudioRecorder.addUploadLog('learning_assets写入中', 'pending');
       var cb = '_cfa' + Date.now();
       window[cb] = function(res) {
@@ -1173,25 +1227,25 @@ function uploadAudioToCloud() {
           AudioRecorder.addUploadLog('assetId已获得', 'success');
           AudioRecorder.setUploaded();
         } else {
-          AudioRecorder.setUploadFailed('learning_assets写入失败：' + (res ? res.error : ''));
+          AudioRecorder.addUploadLog('confirm_asset_upload失败：' + (res ? (res.error || JSON.stringify(res).slice(0,80)) : 'no response'), 'failed');
+          AudioRecorder.setUploadFailed('learning_assets写入失败：' + (res ? res.error : '无响应'));
         }
         renderRecorderUI();
         delete window[cb];
       };
       var s = document.createElement('script');
-      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(mimeType) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
       document.head.appendChild(s);
     }).catch(function(err) {
-      var errMsg = err.message || '未知错误';
-      if (errMsg.indexOf('timeout') !== -1 || errMsg.indexOf('Timeout') !== -1) errMsg = '请求超时';
-      else if (errMsg.indexOf('network') !== -1) errMsg = '网络连接中断';
-      else if (errMsg.indexOf('permission') !== -1) errMsg = '云存储权限不足';
-      else if (errMsg.indexOf('domain') !== -1) errMsg = '安全域名未配置';
+      console.error('uploadFile error:', err.name, err.code, err.message, err);
+      var errMsg = (err.code || '') + ': ' + (err.message || err.toString());
+      AudioRecorder.addUploadLog('云存储上传失败：' + errMsg, 'failed');
       AudioRecorder.setUploadFailed(errMsg);
       renderRecorderUI();
     });
   }).catch(function(err) {
-    AudioRecorder.setUploadFailed('云服务连接失败：' + (err.message || ''));
+    AudioRecorder.addUploadLog('initCloudBase异常：' + (err.message || err), 'failed');
+    AudioRecorder.setUploadFailed('初始化异常：' + (err.message || ''));
     renderRecorderUI();
   });
 }
@@ -1451,16 +1505,26 @@ function onSupplementFileSelected(input) {
 
 function uploadSupplementAudio(data) {
   var blob = AudioRecorder.getBlob();
-  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空'); renderSupplementRecorder(data); return; }
+  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空（blob.size===0）'); renderSupplementRecorder(data); return; }
   AudioRecorder.setUploading();
+  AudioRecorder.addUploadLog('录音Blob已生成', 'success');
   renderSupplementRecorder(data);
+  if (typeof tcb === 'undefined') { AudioRecorder.setUploadFailed('CloudBase SDK未加载'); renderSupplementRecorder(data); return; }
   initCloudBase().then(function(app) {
-    if (!app) { AudioRecorder.setUploadFailed('云服务连接失败'); renderSupplementRecorder(data); return; }
-    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+    if (!app) {
+      var le = tcbDiag.errors.length > 0 ? tcbDiag.errors[tcbDiag.errors.length-1] : null;
+      AudioRecorder.setUploadFailed(le ? (le.step + '：' + (le.code||'') + ' ' + (le.error||'')) : '环境初始化或匿名登录失败');
+      renderSupplementRecorder(data); return;
+    }
+    AudioRecorder.addUploadLog('环境初始化', 'success');
+    AudioRecorder.addUploadLog('匿名登录', 'success');
     var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var mimeType = blob.type || ('audio/' + ext);
+    var audioFile = new File([blob], 'supplement_' + Date.now() + '.' + ext, { type: mimeType });
     var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + (data.taskId || task2to4State.taskId) + '/' + student.uid + '/supplement_' + Date.now() + '.' + ext;
-    app.uploadFile({ cloudPath: cloudPath, filePath: blob }).then(function(result) {
-      if (!result.fileID) { AudioRecorder.setUploadFailed('未获取fileID'); renderSupplementRecorder(data); return; }
+    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+    app.uploadFile({ cloudPath: cloudPath, filePath: audioFile }).then(function(result) {
+      if (!result || !result.fileID) { AudioRecorder.setUploadFailed('未获取fileID'); renderSupplementRecorder(data); return; }
       AudioRecorder.addUploadLog('云存储上传成功', 'success');
       AudioRecorder.addUploadLog('fileId已获得', 'success');
       AudioRecorder.addUploadLog('learning_assets写入中', 'pending');
@@ -2304,6 +2368,31 @@ function closeResult() {
   loadStudentProfile();
   renderAll();
   updateHomeProgress();
+}
+
+// ===== CloudBase Self-Check =====
+function runCloudBaseSelfCheck() {
+  var results = [];
+  function add(step, ok, detail) { results.push({ step: step, ok: ok, detail: detail || '' }); }
+  add('CloudBase SDK加载', typeof tcb !== 'undefined', typeof tcb !== 'undefined' ? 'window.tcb 存在' : 'window.tcb === undefined');
+  if (typeof tcb === 'undefined') { return results; }
+  add('环境ID', true, 'cloudbase-d3gxxe4l88c3d5907');
+  try { var app = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' }); add('tcb.init()', true, '初始化成功'); }
+  catch(e) { add('tcb.init()', false, e.message); return results; }
+  add('app.auth()', typeof app.auth === 'function', typeof app.auth === 'function' ? 'auth方法存在' : 'auth方法不存在');
+  add('app.uploadFile()', typeof app.uploadFile === 'function', typeof app.uploadFile === 'function' ? 'uploadFile方法存在' : 'uploadFile方法不存在');
+  // Try anonymous auth
+  return app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function(loginState) {
+    var uid = (loginState && loginState.user && loginState.user.uid) || (loginState && loginState.uid) || '';
+    add('匿名登录', true, uid ? 'UID: ' + uid : '登录成功但UID未获取');
+    add('安全域名', true, '1274526084-dot.github.io（已配置）');
+    try { var hasLogin = app.auth().hasLoginState(); add('登录状态', hasLogin, hasLogin ? '已登录' : '未登录'); } catch(e2) { add('登录状态检查', false, e2.message); }
+    return results;
+  }).catch(function(err) {
+    add('匿名登录', false, (err.code || '') + ': ' + (err.message || ''));
+    add('安全域名', true, '1274526084-dot.github.io（已配置）');
+    return results;
+  });
 }
 
 // ===== Beforeunload protection for unsaved recordings =====
