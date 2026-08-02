@@ -555,20 +555,17 @@ function renderTasks(){
       h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn;
       h+='<div style="font-size:10px;color:#cbd5e1;margin-top:4px">版本：TASK1-02</div></div>';
     } else if (t.no >= 2 && t.no <= 4) {
-      // Tasks 2-4: test phase — only test accounts can access
+      // Tasks 2-4: open to all students (class release)
       var taskIdMap = {2:'TASK_L1_REVIEW_02',3:'TASK_L2_REVIEW_03',4:'TASK_SEAL_WORK_04'};
       var task24Id = taskIdMap[t.no];
-      if (!isTestAccount()) {
-        tag='tag-amber';txt='测试中';
-        btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>';
-      } else if(!st){
+      if(!st){
         tag='tag-gray';txt='未开始';
         btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask2to4(\''+task24Id+'\')">📝 开始答题</button>';
       } else if(st==='submitted'){
         tag='tag-green';txt='已提交';
         btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task24Id+'\')">📊 查看结果</button>';
       }
-      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'">';
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
       h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
     } else {
       // Placeholder for tasks 5-10
@@ -916,7 +913,7 @@ function isTestAccount() {
 function startTask2to4(taskId) {
   if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
   if (!student) { alert('请先登录'); return; }
-  if (!isTestAccount()) { alert('该任务正在测试中，暂时仅向测试账号开放。'); return; }
+  // Open to all students (class release)
   // Show loading overlay immediately
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
@@ -1021,11 +1018,12 @@ function renderTask2to4Step(step) {
   } else {
     // Review/Submit
     var audioStatus = task2to4State.audioFileId ? '✅ 已上传' : (AudioRecorder.getBlob() && AudioRecorder.getBlob().size > 0 ? '⚠️ 已录制但尚未上传' : '尚未录制');
+    var hasPhoto = !!(task2to4State.imageFileId || task2to4State.imageFile);
     html += '<div class="quiz-section-title">✅ 确认提交</div>';
     html += '<div class="section-card"><div class="row"><span>客观题已答</span><span class="val">' + Object.keys(task2to4State.answers).length + '/' + td.questionCount + '</span></div>';
     html += '<div class="row"><span>写作</span><span class="val">' + ((task2to4State.writingText||'').length > 0 ? '✅ 已填写' : '未填写') + '</span></div>';
     html += '<div class="row"><span>录音</span><span class="val">' + audioStatus + '</span></div>';
-    if (td.hasPhotoUpload) html += '<div class="row"><span>照片</span><span class="val">' + (task2to4State.imageFileId ? '✅' : '❌') + '</span></div>';
+    if (td.hasPhotoUpload) html += '<div class="row"><span>照片</span><span class="val">' + (hasPhoto ? '✅ 已准备' : '📷 待补交') + '</span></div>';
     html += '</div>';
     html += '<button class="btn btn-submit" style="margin-top:12px" onclick="submitTask2to4()">确认提交</button>';
   }
@@ -1321,6 +1319,12 @@ function submitTask2to4() {
     alert('请先点击"☁️ 上传到云端"上传录音后再提交。');
     return;
   }
+  // Task 4: allow submit without photo with confirmation
+  if (td && td.hasPhotoUpload && !task2to4State.imageFileId && !task2to4State.imageFile) {
+    if (!confirm('你还没有上传印章照片。可以先提交文字和录音，之后在任务结果页补交照片。\n\n点击"确定"继续提交，点击"取消"返回上传照片。')) {
+      return;
+    }
+  }
   var doSubmit = function() {
     var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '');
     var cb = '_st24_' + Date.now();
@@ -1364,12 +1368,16 @@ function viewTask2to4Result(taskId) {
 }
 
 function showTask2to4Result(data) {
+  window._lastTask24Result = data;
   document.getElementById('quizOverlay').classList.remove('show');
   document.getElementById('resultOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
-  var html = '<div class="result-header"><h3>✅ 任务已完成</h3></div>';
+  // Push history state for back button
+  try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
+  var answered = (data.itemResults || []).length;
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：CLASS_RELEASE_TASK234_PHOTO_SUPPLEMENT_20260803</div></div>';
   if (data.objectiveScore != null) {
-    html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div></div>';
+    html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + answered + '/' + (data.objectiveMaxScore ? data.objectiveMaxScore/10 : 6) + '</span><span class="rlbl">客观题已答</span></div><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div></div>';
   }
   if (data.writingText) {
     html += '<div class="section-card"><h4>📝 我的写作</h4><div style="font-size:13px;white-space:pre-wrap">' + data.writingText + '</div></div>';
@@ -1385,6 +1393,22 @@ function showTask2to4Result(data) {
     html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的文字和客观题已经提交，只需补充口语录音，不需要重新答题。</div>';
     html += '<div id="supplementRecorderUI"></div>';
     html += '<div id="supplementStatus" style="font-size:11px;color:#94a3b8;margin-top:4px"></div>';
+    html += '</div>';
+  }
+  // Task 4: Supplement photo
+  if (!data._isFreshSubmit && data.taskId === 'TASK_SEAL_WORK_04' && !data.imageFileId && !data.imageAssetId) {
+    html += '<div class="section-card" style="border:2px dashed #f59e0b"><h4>📷 补交印章照片</h4>';
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的文字和录音已经提交，不需要重新答题。请选择印章照片并上传。</div>';
+    html += '<input type="file" accept="image/jpeg,image/png,image/webp" id="supplementPhotoInput" onchange="onSupplementPhotoSelected(this)" style="display:block;margin:8px 0;font-size:12px">';
+    html += '<div id="supplementPhotoPreview" style="margin:8px 0"></div>';
+    html += '<div id="supplementPhotoStatus" style="font-size:11px;color:#94a3b8;margin-top:4px"></div>';
+    html += '<button class="btn btn-submit" id="supplementPhotoBtn" onclick="uploadSupplementPhoto()" style="font-size:13px;margin-top:4px">☁️ 上传并关联原答卷</button>';
+    html += '</div>';
+  }
+  // Show existing photo for Task 4
+  if (data.taskId === 'TASK_SEAL_WORK_04' && (data.imageFileId || data.imageAssetId)) {
+    html += '<div class="section-card"><h4>📷 印章照片</h4>';
+    html += '<div style="font-size:12px;color:#16a34a;margin-bottom:4px">✅ 印章照片已补交</div>';
     html += '</div>';
   }
   // AI evaluation
@@ -1410,7 +1434,7 @@ function showTask2to4Result(data) {
     if (tr.comment) html += '<div style="font-size:12px;color:#475569;margin-top:6px">' + tr.comment + '</div>';
     html += '</div>';
   }
-  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="closeResult()" style="width:auto;padding:12px 40px">返回</button></div>';
+  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="exitTask2to4Result()" style="width:auto;padding:12px 40px">← 返回任务列表</button></div>';
   document.getElementById('resultBody').innerHTML = html;
   document.getElementById('resultBody').scrollTop = 0;
   window.scrollTo(0, 0);
@@ -1538,6 +1562,63 @@ function renderSupplementRecorder(data) {
   h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V4_1_AUTH_FIX_20260803</div>';
   h += '</div>';
   ui.innerHTML = h;
+}
+
+// ===== Task 4 Photo Supplement =====
+var _supplementPhotoFile = null;
+
+function onSupplementPhotoSelected(input) {
+  if (input.files && input.files[0]) {
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('图片过大（超过10MB），请选择较小的文件。'); return; }
+    _supplementPhotoFile = file;
+    var prev = document.getElementById('supplementPhotoPreview');
+    var url = URL.createObjectURL(file);
+    if (prev) prev.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:200px;border-radius:8px"><div style="font-size:11px;color:#64748b">' + file.name + ' · ' + (file.size/1024).toFixed(1) + ' KB</div>';
+  }
+}
+
+function uploadSupplementPhoto() {
+  if (!_supplementPhotoFile) { alert('请先选择印章照片。'); return; }
+  var statusEl = document.getElementById('supplementPhotoStatus');
+  var btnEl = document.getElementById('supplementPhotoBtn');
+  if (statusEl) statusEl.innerHTML = '⏳ 上传中...';
+  if (btnEl) btnEl.disabled = true;
+  var file = _supplementPhotoFile;
+  initCloudBase().then(function(app) {
+    if (!app) { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：云服务未连接</span>'; if (btnEl) btnEl.disabled = false; return; }
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/TASK_SEAL_WORK_04/' + student.uid + '/photo_' + Date.now() + '.' + ext;
+    app.uploadFile({ cloudPath: cloudPath, filePath: file }).then(function(result) {
+      if (!result || !result.fileID) { throw new Error('未获取fileID'); }
+      // confirm_asset_upload with submissionId
+      var cb1 = '_pcf' + Date.now();
+      window[cb1] = function(res) {
+        if (res && res.success) {
+          // attach to submission
+          var cb2 = '_patt' + Date.now();
+          window[cb2] = function(res2) {
+            if (res2 && res2.success) {
+              if (statusEl) statusEl.innerHTML = '<div style="color:#16a34a;font-weight:700">✅ 照片补交成功</div><div style="font-size:11px;color:#16a34a">已保存到云端 · 已关联原任务答卷</div>';
+              if (btnEl) btnEl.style.display = 'none';
+              _supplementPhotoFile = null;
+            } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">关联失败：' + (res2 ? res2.error : '') + '</span>'; if (btnEl) btnEl.disabled = false; }
+            delete window[cb2];
+          };
+          var s2 = document.createElement('script');
+          s2.src = API + '?callback=' + cb2 + '&action=attach_asset_to_submission&studentUid=' + encodeURIComponent(student.uid) + '&taskId=TASK_SEAL_WORK_04&submissionId=' + encodeURIComponent(window._lastTask24Result ? window._lastTask24Result.submissionId : '') + '&assetId=' + res.assetId;
+          document.head.appendChild(s2);
+        } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">确认失败：' + (res ? res.error : '') + '</span>'; if (btnEl) btnEl.disabled = false; }
+        delete window[cb1];
+      };
+      var s1 = document.createElement('script');
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(window._lastTask24Result ? window._lastTask24Result.submissionId : '') + '&taskId=TASK_SEAL_WORK_04&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=image&mimeType=' + encodeURIComponent(file.type) + '&fileSize=' + file.size + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s1);
+    }).catch(function(err) {
+      if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：' + (err.message || '') + '</span>';
+      if (btnEl) btnEl.disabled = false;
+    });
+  });
 }
 
 function startSupplementRec() { AudioRecorder.requestMic(); }
@@ -2407,13 +2488,36 @@ function showTask1Results(data) {
   updateHomeProgress();
 }
 
-function closeResult() {
-  document.getElementById('resultOverlay').classList.remove('show');
-  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+function exitTask2to4Result() {
+  // Stop any playing audio
+  var audios = document.querySelectorAll('#resultBody audio');
+  for (var i = 0; i < audios.length; i++) { try { audios[i].pause(); audios[i].src = ''; } catch(e) {} }
+  // Reset recorder
+  AudioRecorder.reset();
+  // Clean up both task states
   quizState.active = false;
+  task2to4State.active = false; task2to4State.submitted = false;
+  // Hide overlays
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('quizOverlay').classList.remove('show');
+  // Show tab bar
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  // Switch to tasks tab (index 1) and reload
+  switchTab(1);
   loadStudentProfile();
   renderAll();
   updateHomeProgress();
+  window.scrollTo(0, 0);
+  // Safety fallback: if still on result page after 500ms, force reload
+  setTimeout(function() {
+    if (document.getElementById('resultOverlay').classList.contains('show')) {
+      window.location.href = window.location.origin + window.location.pathname + '?home=' + Date.now();
+    }
+  }, 500);
+}
+
+function closeResult() {
+  exitTask2to4Result();
 }
 
 // ===== CloudBase Self-Check =====
@@ -2440,12 +2544,18 @@ function runCloudBaseSelfCheck() {
   });
 }
 
-// ===== Beforeunload protection for unsaved recordings =====
+// ===== Beforeunload + browser back key =====
 window.addEventListener('beforeunload', function(e) {
   var st = AudioRecorder.getState();
   if (st === 'recording' || st === 'recorded_local' || st === 'uploading') {
     e.preventDefault(); e.returnValue = '当前录音尚未成功上传，离开页面可能丢失录音。确定离开吗？';
     return e.returnValue;
+  }
+});
+
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('resultOverlay').classList.contains('show')) {
+    exitTask2to4Result();
   }
 });
 
