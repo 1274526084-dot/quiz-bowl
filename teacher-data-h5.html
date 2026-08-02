@@ -107,6 +107,12 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   </div>
 </div>
 <div class="page" id="page-coursetasks">
+  <div class="toolbar" style="margin-bottom:6px">
+    <button class="btn btn-small" id="ctTask1" style="background:#2563eb;color:#fff;font-weight:700" onclick="switchCtTask('TASK_HSK3_RW_01')">任务一</button>
+    <button class="btn btn-small" id="ctTask2" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_L1_REVIEW_02')">任务二</button>
+    <button class="btn btn-small" id="ctTask3" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_L2_REVIEW_03')">任务三</button>
+    <button class="btn btn-small" id="ctTask4" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_SEAL_WORK_04')">任务四</button>
+  </div>
   <div class="toolbar" style="margin-bottom:8px">
     <button class="btn btn-small" id="ctFilterFormal" style="background:#2563eb;color:#fff;font-weight:700" onclick="switchCtFilter('formal')">📋 正式学生</button>
     <button class="btn btn-small" id="ctFilterTest" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtFilter('test')">🧪 测试账号</button>
@@ -299,9 +305,22 @@ function exportHskTemplate(){
   var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='HSK模板_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
 }
 
-// ===== Course Task 1 Stats =====
+// ===== Course Task Stats =====
 var ctStatsData = null;
 var ctCurrentFilter = 'formal';
+var ctCurrentTask = 'TASK_HSK3_RW_01';
+var ctTaskLabel = '任务一';
+
+function switchCtTask(taskId) {
+  ctCurrentTask = taskId;
+  var labels = { 'TASK_HSK3_RW_01': '任务一', 'TASK_L1_REVIEW_02': '任务二', 'TASK_L2_REVIEW_03': '任务三', 'TASK_SEAL_WORK_04': '任务四' };
+  ctTaskLabel = labels[taskId] || taskId;
+  ['TASK_HSK3_RW_01','TASK_L1_REVIEW_02','TASK_L2_REVIEW_03','TASK_SEAL_WORK_04'].forEach(function(tid) {
+    var el = document.getElementById('ctTask' + { 'TASK_HSK3_RW_01': '1', 'TASK_L1_REVIEW_02': '2', 'TASK_L2_REVIEW_03': '3', 'TASK_SEAL_WORK_04': '4' }[tid]);
+    if (el) el.style.cssText = tid === taskId ? 'background:#2563eb;color:#fff;font-weight:700' : 'background:#fff;color:#64748b;border:1.5px solid #e2e8f0';
+  });
+  loadCourseTaskStats();
+}
 
 function switchCtFilter(cat) {
   ctCurrentFilter = cat;
@@ -316,6 +335,9 @@ function loadCourseTaskStats() {
   window[cb] = function(res) {
     if (res && res.success) {
       ctStatsData = res.stats;
+      // For Tasks 2-4, use task2_4_stats if available; fall back to generic stats
+      if (ctCurrentTask !== 'TASK_HSK3_RW_01' && res.task2_4) ctStatsData = res.task2_4;
+      else ctStatsData = res.stats;
       renderCourseTaskStats();
       renderCourseTaskTable();
     } else {
@@ -324,7 +346,7 @@ function loadCourseTaskStats() {
     delete window[cb];
   };
   var s = document.createElement('script');
-  s.src = API + '?callback=' + cb + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01&accountCategory=' + ctCurrentFilter;
+  s.src = API + '?callback=' + cb + '&action=get_course_task_stats&taskId=' + ctCurrentTask + '&accountCategory=' + ctCurrentFilter;
   document.head.appendChild(s);
 }
 
@@ -404,31 +426,93 @@ function viewStudentAnswers(uid, name) {
     }
     delete window[cb];
   };
+  var action = ctCurrentTask === 'TASK_HSK3_RW_01' ? 'get_course_task_result' : 'get_task2_4_result';
   var s = document.createElement('script');
-  s.src = API + '?callback=' + cb + '&action=get_course_task_result&taskId=TASK_HSK3_RW_01&studentUid=' + encodeURIComponent(uid);
+  s.src = API + '?callback=' + cb + '&action=' + action + '&taskId=' + ctCurrentTask + '&studentUid=' + encodeURIComponent(uid);
   document.head.appendChild(s);
 }
 
 function showAnswerModal(data, name) {
-  document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — 答卷';
-  var html = '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
-  html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
-  html += '阅读分：' + (data.readingScore || 0) + ' · ';
-  html += '书写分：' + (data.writingScore || 0) + ' · ';
-  html += '<b>总分：' + (data.totalScore || 0) + '/200</b>';
-  if (data.teacherAdjusted) html += ' <span style="color:#f59e0b">（教师已调整）</span>';
-  html += '</div>';
-  html += '<div style="max-height:50vh;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>题号</th><th>学生答案</th><th>正确答案</th><th>结果</th><th>得分</th></tr></thead><tbody>';
-  var itemResults = data.itemResults || [];
-  itemResults.forEach(function(ir) {
-    var mark = ir.isCorrect ? '✅' : '❌';
-    var scoreStr = ir.itemScore + '/' + ir.itemMaxScore;
-    if (ir.teacherAdjusted) scoreStr += ' <span style="color:#f59e0b">(教师调整:' + ir.teacherAdjustedScore + ')</span>';
-    html += '<tr><td>' + ir.questionId + '</td><td>' + (ir.studentAnswer || '—') + '</td><td>' + ir.correctAnswer + '</td><td>' + mark + '</td><td>' + scoreStr + '</td></tr>';
-  });
-  html += '</tbody></table></div>';
+  document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — ' + ctTaskLabel + ' 答卷';
+  var html = '';
+  // Task 1: show reading/writing scores
+  if (ctCurrentTask === 'TASK_HSK3_RW_01') {
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
+    html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
+    html += '阅读分：' + (data.readingScore || 0) + ' · ';
+    html += '书写分：' + (data.writingScore || 0) + ' · ';
+    html += '<b>总分：' + (data.totalScore || 0) + '/200</b>';
+    if (data.teacherAdjusted) html += ' <span style="color:#f59e0b">（教师已调整）</span>';
+    html += '</div>';
+    html += '<div style="max-height:50vh;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>题号</th><th>学生答案</th><th>正确答案</th><th>结果</th><th>得分</th></tr></thead><tbody>';
+    var itemResults = data.itemResults || [];
+    itemResults.forEach(function(ir) {
+      var mark = ir.isCorrect ? '✅' : '❌';
+      html += '<tr><td>' + ir.questionId + '</td><td>' + (ir.studentAnswer || '—') + '</td><td>' + ir.correctAnswer + '</td><td>' + mark + '</td><td>' + ir.itemScore + '/' + ir.itemMaxScore + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  } else {
+    // Tasks 2-4: show writing, audio, review form
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
+    html += '客观题：' + (data.objectiveScore || 0) + '/' + (data.objectiveMaxScore || 60);
+    html += '</div>';
+    if (data.writingText) html += '<div style="margin-bottom:8px"><b>写作：</b><div style="background:#f8fafc;padding:8px;border-radius:6px;font-size:12px;white-space:pre-wrap">' + data.writingText + '</div></div>';
+    if (data.audioUrl) html += '<div style="margin-bottom:8px"><b>录音：</b><br><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
+    else if (data.audioFileId) html += '<div style="margin-bottom:8px"><b>录音：</b>已保存 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\'' + data.audioFileId + '\',this)">▶ 获取播放链接</button></div>';
+    // Teacher review form
+    html += '<div style="border-top:2px solid #e2e8f0;padding-top:8px;margin-top:8px"><b>教师评价</b>';
+    ['发音','词语','语法','逻辑','内容','流利'].forEach(function(dim, i) {
+      var keys = ['pronunciation','vocabulary','grammar','logic','content','fluency'];
+      html += '<div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="font-size:11px;width:40px">' + dim + '</span><select id="tScore' + i + '" style="font-size:11px">' + [1,2,3,4,5].map(function(v) { return '<option value="' + v + '">' + v + '</option>'; }).join('') + '</select></div>';
+    });
+    html += '<div style="margin:4px 0"><span style="font-size:11px">快捷标签：</span><br>';
+    ['发音清楚','内容完整','用了本课词语','用了目标句型','表达有条理','可以说得慢一些','注意声调','注意语序','可以增加例子'].forEach(function(tag) {
+      html += '<label style="font-size:10px;margin-right:4px"><input type="checkbox" class="tReviewTag" value="' + tag + '"> ' + tag + '</label>';
+    });
+    html += '</div>';
+    html += '<textarea id="tReviewComment" style="width:100%;height:40px;font-size:11px;margin:4px 0" placeholder="教师评语"></textarea>';
+    html += '<div style="display:flex;gap:4px;margin-top:4px">';
+    html += '<button class="btn btn-small btn-outline" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',false)">💾 保存</button>';
+    html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
+    html += '</div></div>';
+  }
   document.getElementById('answerModalContent').innerHTML = html;
+  window._teacherReviewData = data;
   document.getElementById('answerModal').style.display = 'flex';
+}
+
+function loadAudioUrl(fileId, btn) {
+  btn.textContent = '加载中...';
+  var cb = '_aurl' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success && res.tempFileURL) {
+      btn.parentNode.innerHTML = '<audio controls style="width:100%"><source src="' + res.tempFileURL + '"></audio>';
+    } else { btn.textContent = '加载失败'; }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_learning_asset_url&fileId=' + encodeURIComponent(fileId);
+  document.head.appendChild(s);
+}
+
+function saveTeacherReview(submissionId, publish) {
+  var data = window._teacherReviewData;
+  if (!data) return;
+  var scores = {};
+  var keys = ['pronunciation','vocabulary','grammar','logic','content','fluency'];
+  keys.forEach(function(k, i) { var el = document.getElementById('tScore' + i); scores[k] = el ? parseInt(el.value) || 0 : 0; });
+  var tags = [];
+  document.querySelectorAll('.tReviewTag:checked').forEach(function(cb) { tags.push(cb.value); });
+  var comment = document.getElementById('tReviewComment') ? document.getElementById('tReviewComment').value : '';
+  var cb2 = '_trev' + Date.now();
+  window[cb2] = function(res) {
+    if (res && res.success) { alert(publish ? '已发布！' : '已保存。'); closeAnswerModal(); loadCourseTaskStats(); }
+    else { alert('保存失败：' + (res ? res.error : '未知错误')); }
+    delete window[cb2];
+  };
+  var s2 = document.createElement('script');
+  s2.src = API + '?callback=' + cb2 + '&action=teacher_submit_review&studentUid=' + encodeURIComponent(data.studentUid || '') + '&studentId=' + encodeURIComponent(data.studentId || '') + '&taskId=' + ctCurrentTask + '&submissionId=' + submissionId + '&scores=' + encodeURIComponent(JSON.stringify(scores)) + '&quickTags=' + encodeURIComponent(JSON.stringify(tags)) + '&comment=' + encodeURIComponent(comment) + '&isPublishedToStudent=' + publish;
+  document.head.appendChild(s2);
 }
 
 function closeAnswerModal() {
