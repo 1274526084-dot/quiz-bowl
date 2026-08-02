@@ -566,7 +566,7 @@ function renderTasks(){
         btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task24Id+'\')">📊 查看结果</button>';
       }
       h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
-      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#16a34a">已开放｜'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
     } else {
       // Placeholder for tasks 5-10
       if(!st){tag='tag-gray';txt='未开始';btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask('+t.no+')">去完成</button>';}
@@ -1375,9 +1375,26 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：CLASS_RELEASE_TASK234_PHOTO_SUPPLEMENT_20260803</div></div>';
-  if (data.objectiveScore != null) {
-    html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + answered + '/' + (data.objectiveMaxScore ? data.objectiveMaxScore/10 : 6) + '</span><span class="rlbl">客观题已答</span></div><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：FORMAL_RELEASE_TASK234_AUTO_GRADE_20260803</div></div>';
+  if (data.objectiveScore != null && data.autoGraded) {
+    var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
+    html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
+    html += '<div style="text-align:center;font-size:13px;color:#16a34a;margin-bottom:8px">✅ 客观题已自动评分 · 正确率 ' + pct + '%</div>';
+    // Per-question results
+    var irs = data.itemResults || [];
+    if (irs.length > 0) {
+      html += '<div class="section-card"><h4>📋 逐题结果</h4>';
+      irs.forEach(function(ir) {
+        var mark = ir.isCorrect ? '✅' : '❌';
+        var detail = ir.isCorrect ? '回答正确，获得' + (ir.itemScore||ir.score||0) + '分' : '回答错误 · 你的答案：' + (ir.studentAnswer||'—') + ' · 正确答案：' + (ir.correctAnswer||'');
+        html += '<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>' + ir.questionId + '</b> ' + mark + ' ' + detail + '</div>';
+      });
+      html += '</div>';
+    }
+  }
+  // Subjective status
+  if (data.subjectiveStatus === 'pending_teacher_review') {
+    html += '<div class="section-card" style="background:#fffbeb"><div style="font-size:13px;color:#92400e">📝 写作和口语由教师评价，完成后可见。</div></div>';
   }
   if (data.writingText) {
     html += '<div class="section-card"><h4>📝 我的写作</h4><div style="font-size:13px;white-space:pre-wrap">' + data.writingText + '</div></div>';
