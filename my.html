@@ -300,12 +300,170 @@ function enterApp(){if(window._pvStudent){student=window._pvStudent;window._pvRe
   if(!isPreviewMode){taskStatuses=loadS('taskStatuses')||{};}else{taskStatuses={};}if(!isPreviewMode){var er=loadS('extRecords');extRecords=er||[];}else{extRecords=[];}extTotal=extRecords.length;renderAll();updateHomeProgress();
   fetchCloudRecords();
 }
+var studentProfile = null;
+
+function loadStudentProfile(callback) {
+  if (!student) return;
+  var cb = '_prf' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      studentProfile = res.profile;
+      // Sync taskStatuses from cloud
+      if (studentProfile.courseProgress && studentProfile.courseProgress.completedRequiredTasks > 0) {
+        var tasks = studentProfile.currentProject.tasks || [];
+        tasks.forEach(function(t) {
+          if (t.taskId === 'TASK_HSK3_RW_01') taskStatuses[1] = 'submitted';
+        });
+        saveS('taskStatuses', taskStatuses);
+      }
+      renderStudentProfile();
+    } else {
+      document.getElementById('baselineSection').innerHTML = '<span style="font-size:12px;color:#94a3b8">加载失败</span>';
+    }
+    if (callback) callback();
+    delete window[cb];
+  };
+  var qs = 'callback=' + cb + '&action=get_student_learning_profile&studentUid=' + encodeURIComponent(student.uid);
+  if (student.isPreview) qs += '&previewToken=' + encodeURIComponent(student.sessionToken || '');
+  var s = document.createElement('script');
+  s.src = API + '?' + qs;
+  document.head.appendChild(s);
+}
+
+function renderStudentProfile() {
+  var p = studentProfile;
+  if (!p) return;
+
+  // Student info
+  var stu = p.student;
+  // Baseline
+  var bl = '';
+  if (p.baseline) {
+    var b = p.baseline;
+    bl = '<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';
+    if (b.examDate) bl += '<div style="font-size:13px;line-height:2"><b>考试日期：</b>' + b.examDate + '</div>';
+    bl += '<div style="font-size:13px;line-height:2"><b>听力：</b>' + (b.listeningScore||'—') + ' · <b>阅读：</b>' + (b.readingScore||'—') + ' · <b>写作：</b>' + (b.writingScore||'—') + '</div>';
+    bl += '<div style="font-size:13px;line-height:2"><b>总分：</b>' + (b.totalScore||'—') + ' · <b>结果：</b>' + (b.passStatus === 'pass' ? '✅合格' : '未合格') + '</div>';
+    bl += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';
+  } else {
+    bl = '<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';
+  }
+  document.getElementById('baselineSection').innerHTML = bl;
+
+  // Course progress
+  var cp = p.courseProgress;
+  document.getElementById('archTaskCount').textContent = cp.completedRequiredTasks;
+  document.getElementById('doneTasks').textContent = cp.completedRequiredTasks;
+  document.getElementById('pendingTasks').textContent = 10 - cp.completedRequiredTasks;
+  document.getElementById('taskProgress').style.width = (cp.completedRequiredTasks / 10 * 100) + '%';
+  document.getElementById('taskDone2').textContent = cp.completedRequiredTasks;
+  document.getElementById('taskBar2').style.width = (cp.completedRequiredTasks / 10 * 100) + '%';
+  document.getElementById('profileStatusTag').textContent = cp.completedRequiredTasks > 0 ? '动态更新中' : '等待学习记录';
+  document.getElementById('profileStatusTag').className = 'tag ' + (cp.completedRequiredTasks > 0 ? 'tag-green' : 'tag-gray');
+  document.getElementById('summaryReady').style.display = cp.completedRequiredTasks >= 10 ? 'block' : 'none';
+
+  // Current project learning
+  var cpHtml = '';
+  var tasks = p.currentProject.tasks || [];
+  if (tasks.length > 0) {
+    tasks.forEach(function(t) {
+      var correctedNote = t.scoreCorrected ? '<div style="font-size:10px;color:#f59e0b;margin-top:2px">句子排序题评分规则已修正，当前显示为修正后的成绩。</div>' : '';
+      cpHtml += '<div class="learning-card" style="margin-bottom:8px;font-size:12px;line-height:1.8">';
+      cpHtml += '<b>' + t.taskTitle + '</b><br>';
+      cpHtml += '状态：✅ 已完成<br>';
+      if (t.readingCorrectCount != null) {
+        cpHtml += '阅读：答对 ' + t.readingCorrectCount + '/30，换算分 ' + (t.readingScore||0) + '/100<br>';
+        cpHtml += '书写：' + (t.writingScore||0) + '/100<br>';
+        cpHtml += '总分：' + (t.totalScore||0) + '/200';
+        if (t.durationSeconds) {
+          var dm = Math.floor(t.durationSeconds / 60);
+          var ds = t.durationSeconds % 60;
+          cpHtml += ' · 用时：' + dm + '分' + ds + '秒';
+        }
+        cpHtml += '<br>';
+      }
+      if (t.submittedAt) cpHtml += '<span style="font-size:10px;color:#94a3b8">完成时间：' + t.submittedAt.replace('T',' ').slice(0,19) + '</span>';
+      cpHtml += correctedNote;
+      cpHtml += '</div>';
+    });
+  } else {
+    cpHtml = '<span style="font-size:12px;color:#94a3b8">暂无课程任务数据。<br>已建立入项前汉语学习基线。完成课程任务后，系统将持续生成学习变化。</span>';
+  }
+  document.getElementById('currentProject').innerHTML = cpHtml;
+
+  // Learning change comparison
+  var chHtml = '';
+  if (p.baseline && tasks.length > 0) {
+    var t1 = tasks[0];
+    chHtml = '<div style="font-size:12px;color:#64748b;line-height:1.8">';
+    chHtml += '入项前HSK阅读：' + (p.baseline.readingScore||'—') + '分<br>';
+    chHtml += '本次阅读练习：' + (t1.readingScore||0) + '分<br>';
+    chHtml += '<br>入项前HSK书写：' + (p.baseline.writingScore||'—') + '分<br>';
+    chHtml += '本次书写练习：' + (t1.writingScore||0) + '分<br>';
+    chHtml += '<br>';
+    // Comparison
+    if (p.baseline.readingScore != null && t1.readingScore != null) {
+      var rDiff = t1.readingScore - p.baseline.readingScore;
+      var rLabel = rDiff > 10 ? '本次阅读高于前置成绩' : (rDiff < -10 ? '本次阅读低于前置成绩' : '本次阅读与前置成绩接近');
+      chHtml += '阅读：' + rLabel + '<br>';
+    }
+    if (p.baseline.writingScore != null && t1.writingScore != null) {
+      var wDiff = t1.writingScore - p.baseline.writingScore;
+      var wLabel = wDiff > 10 ? '本书写高于前置成绩' : (wDiff < -10 ? '本书写低于前置成绩' : '本书写与前置成绩接近');
+      chHtml += '书写：' + wLabel + '<br>';
+    }
+    chHtml += '<br><span style="font-size:10px;color:#94a3b8">前置成绩来自正式HSK考试，本次成绩为课堂练习换算分，两者仅用于学习观察，不进行等值认定。</span><br>';
+    chHtml += '<span style="font-size:10px;color:#94a3b8">仅供课堂观察。</span>';
+    chHtml += '</div>';
+  } else if (p.baseline) {
+    chHtml = '<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后，系统将持续生成学习变化。</span>';
+  }
+  document.getElementById('learningChange').innerHTML = chHtml;
+
+  // Evidence
+  var ev = p.evidence;
+  var evHtml = '<div style="font-size:12px;line-height:2">';
+  evHtml += '<b>阅读理解：</b>' + (ev.reading.hasEvidence ? '已有1项任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>写作表达：</b>' + (ev.writing.hasEvidence ? '已有1项任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>口语表达：</b>暂无当前项目证据<br>';
+  evHtml += '<b>听力理解：</b>暂无当前项目任务证据<br>';
+  evHtml += '<b>岗位汉语：</b>暂无当前项目证据<br>';
+  evHtml += '<b>跨文化学习：</b>暂无当前项目证据<br>';
+  evHtml += '</div>';
+  document.getElementById('radarChart').innerHTML = evHtml;
+  document.getElementById('radarNote').textContent = '当前基于' + cp.completedRequiredTasks + '条学习记录。继续学习后结果将更加准确。';
+
+  // Timeline
+  var tlHtml = '';
+  var tl = p.timeline || [];
+  tl.slice(0, 15).forEach(function(e) {
+    tlHtml += '<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>' + (e.date||'').slice(0,10) + '</b> · ' + e.title + '<br><span style="color:#94a3b8">' + (e.description||'') + '</span></div>';
+  });
+  document.getElementById('timeline').innerHTML = tlHtml || '<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';
+
+  // Archive meta
+  document.getElementById('archLastUpdate').textContent = cp.completedRequiredTasks > 0 ? new Date().toLocaleString('zh-CN') : '—';
+  document.getElementById('archExtCount').textContent = extTotal;
+
+  // Learning成果
+  document.getElementById('lcWords').textContent = extTotal > 0 ? extTotal * 3 : 0;
+  document.getElementById('lcSentences').textContent = extRecords.filter(function(r) { return r.sentence; }).length;
+  document.getElementById('lcCulture').textContent = 0;
+  document.getElementById('lcRailway').textContent = extTotal;
+}
+
 function fetchCloudRecords(){
-  if(!student)return;var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);var baseRec=my.find(function(r){return r.baselineType==='pre_project';});var hskRec=my.find(function(r){return r.assessmentType==='language_proficiency_test'&&r.assessmentName==='HSK';});var bl='';if(baseRec||hskRec){bl+='<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';if(hskRec){bl+='<div style="font-size:13px;line-height:2"><b>考试日期：</b>'+hskRec.examDate+'</div><div style="font-size:13px;line-height:2"><b>听力：</b>'+hskRec.listeningScore+' · <b>阅读：</b>'+hskRec.readingScore+' · <b>写作：</b>'+hskRec.writingScore+'</div><div style="font-size:13px;line-height:2"><b>总分：</b>'+hskRec.totalScore+' · <b>结果：</b>'+(hskRec.passStatus==='pass'?'✅合格':'未合格')+'</div>';}bl+='<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';}else{bl='<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';}document.getElementById('baselineSection').innerHTML=bl;var taskCount=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;var cp='';if(taskCount>0||extTotal>0){cp='课程任务：'+taskCount+'/10 · 拓展：'+extTotal+'次';}else{cp='课程任务尚未开始。';}document.getElementById('currentProject').innerHTML='<span style="font-size:12px;color:#94a3b8">'+cp+'</span>';var hskEv=hskRec?[{time:hskRec.examDate,title:'参加HSK三级考试',desc:'听力：'+hskRec.listeningScore+' · 阅读：'+hskRec.readingScore+' · 写作：'+hskRec.writingScore+' · 总分：'+hskRec.totalScore}]:[];var allEv=hskEv.concat(extRecords.map(function(r){return{time:r.time,title:r.title,desc:'新词：'+(r.word||'—')};}));allEv.sort(function(a,b){return a.time<b.time?1:-1;});var tl='';allEv.slice(0,15).forEach(function(e){tl+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+e.time.slice(0,10)+'</b> · '+e.title+'<br><span style="color:#94a3b8">'+e.desc+'</span></div>';});document.getElementById('timeline').innerHTML=tl||'<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';var ch='';if(baseRec&&extTotal>0){ch='<span style="font-size:12px;color:#64748b;line-height:1.8">入项前HSK阅读：'+baseRec.hskReadingScore+'分。当前拓展：'+extTotal+'次。入项前基线与当前数据共同构成学习发展证据。</span>';}else{ch='<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后更新。</span>';}document.getElementById('learningChange').innerHTML=ch;renderAll();updateHomeProgress();}delete window[cb];};var action=isPreviewMode?'list_assessments':'list';var s=document.createElement('script');s.src=API+'?callback='+cb+'&action='+action;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},6000);
+  if(!student)return;
+  // Load extensions from list API (keep backward compat)
+  var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);}renderAll();updateHomeProgress();delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);
+  // Load profile from new API
+  loadStudentProfile();
 }
-function updateArchiveDisplay(){
-  var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
-}
+
+function updateArchiveDisplay(){}
+function updateArchive(){}
+
 function showSwitchModal(){document.getElementById('switchModal').classList.add('show');}
 function closeSwitchModal(){document.getElementById('switchModal').classList.remove('show');}
 function switchStudent(mode){if(mode==='save'){saveS('taskStatuses',taskStatuses);saveS('extRecords',extRecords);}
@@ -317,6 +475,7 @@ function switchTab(idx,track){
   if(track&&idx!==0){var cur=document.querySelector('.tab.active');var curIdx=-1;document.querySelectorAll('.tab').forEach(function(t,i){if(t.classList.contains('active'))curIdx=i;});if(curIdx!==idx)navStack.push({tab:curIdx});document.getElementById('topBack').classList.add('show');document.getElementById('topTitle').textContent=['首页','课程任务','每日中文拓展','中文学习发展档案'][idx];}
   document.querySelectorAll('.page').forEach(function(p,i){p.classList.toggle('show',i===idx);});
   document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
+  if(idx===3){loadStudentProfile();}
 }
 
 // ===== Tasks =====
@@ -1319,6 +1478,7 @@ function closeResult() {
   document.getElementById('resultOverlay').classList.remove('show');
   if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
   quizState.active = false;
+  loadStudentProfile();
   renderAll();
   updateHomeProgress();
 }
