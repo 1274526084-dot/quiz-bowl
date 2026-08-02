@@ -221,42 +221,60 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 
 </div>
 
-<script src="https://web.sdk.qcloud.com/tcb/1.10.12/tcb.js"></script>
+<script
+  src="https://static.cloudbase.net/cloudbase-js-sdk/2.27.1/cloudbase.full.js"
+  onerror="window.__cloudbaseSdkLoadError = true;">
+</script>
 <script>
-var tcbApp = null;
-var tcbDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+var cbsApp = null;
+var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
+
+console.log({ sdkVersion: '2.27.1', hasCloudbase: !!window.cloudbase, hasInit: typeof (window.cloudbase||{}).init === 'function' });
+
+function waitForCloudBaseSdk() {
+  return new Promise(function(resolve) {
+    if (window.cloudbase && typeof window.cloudbase.init === 'function') { resolve(true); return; }
+    var start = Date.now();
+    var timer = setInterval(function() {
+      if (window.cloudbase && typeof window.cloudbase.init === 'function') { clearInterval(timer); resolve(true); return; }
+      if (Date.now() - start > 10000) { clearInterval(timer); resolve(false); }
+    }, 200);
+  });
+}
 
 function initCloudBase() {
-  if (tcbApp) return Promise.resolve(tcbApp);
-  tcbDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
-  return new Promise(function(resolve) {
-    // Step 1: Check SDK loaded
-    if (typeof tcb === 'undefined') {
-      tcbDiag.errors.push({ step: 'SDK加载', error: 'window.tcb is undefined — CloudBase SDK 未加载' });
-      resolve(null); return;
+  if (cbsApp) return Promise.resolve(cbsApp);
+  cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+  return waitForCloudBaseSdk().then(function(loaded) {
+    if (!loaded) {
+      cbsDiag.errors.push({ step: 'SDK加载', error: 'CloudBase SDK V2.27.1 加载超时（超过10秒），请检查 static.cloudbase.net 是否可访问' });
+      return null;
     }
-    tcbDiag.sdkLoaded = true;
-    // Step 2: Init environment
+    cbsDiag.sdkLoaded = true;
     try {
-      tcbApp = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' });
-      tcbDiag.envInit = true;
+      cbsApp = window.cloudbase.init({ env: CBS_ENV_ID, region: 'ap-shanghai', lang: 'zh-CN' });
+      cbsDiag.envInit = true;
     } catch(e) {
-      tcbDiag.errors.push({ step: '环境初始化', error: e.message || 'init failed', code: e.code, name: e.name });
-      resolve(null); return;
+      cbsDiag.errors.push({ step: '环境初始化', error: e.message || 'init failed', code: e.code||'', name: e.name||'' });
+      return null;
     }
-    // Step 3: Anonymous auth
-    var auth = tcbApp.auth({ persistence: 'local' });
-    auth.anonymousAuthProvider().signIn().then(function(loginState) {
-      tcbDiag.authDone = true;
-      tcbDiag.uid = (loginState && loginState.user && loginState.user.uid) || (loginState && loginState.uid) || '';
-      if (!tcbDiag.uid) {
-        try { tcbDiag.uid = auth.hasLoginState() ? (auth.getLoginState() || {}).user.uid || '' : ''; } catch(e2) {}
-      }
-      resolve(tcbApp);
+    if (!cbsApp || !cbsApp.auth) {
+      cbsDiag.errors.push({ step: '环境初始化', error: 'cloudbase.init 返回值异常：auth不存在' });
+      return null;
+    }
+    // V2 anonymous auth: auth is a property, returns {data, error}
+    return cbsApp.auth.signInAnonymously().then(function(result) {
+      cbsDiag.authDone = true;
+      var d = (result && result.data) || result || {};
+      if (d.user && d.user.uid) cbsDiag.uid = d.user.uid;
+      else if (d.uid) cbsDiag.uid = d.uid;
+      if (!cbsDiag.uid) { try { var ls = cbsApp.auth.getLoginState(); if (ls && ls.user && ls.user.uid) cbsDiag.uid = ls.user.uid; } catch(e2) {} }
+      return cbsApp;
     }).catch(function(err) {
-      tcbDiag.errors.push({ step: '匿名登录', error: err.message || 'auth failed', code: err.code, name: err.name });
-      tcbApp = null;
-      resolve(null);
+      cbsDiag.errors.push({ step: '匿名登录', error: (err||{}).message || String(err), code: (err||{}).code||'', name: (err||{}).name||'' });
+      cbsApp = null;
+      return null;
     });
   });
 }
@@ -1157,7 +1175,7 @@ function renderRecorderUI() {
     h += '</details>';
   }
 
-  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V3_20260803</div>';
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V4_1_AUTH_FIX_20260803</div>';
   h += '</div>';
   ui.innerHTML = h;
   AudioRecorder.init({ maxDuration: 300, onRender: function() { renderRecorderUI(); } });
@@ -1177,25 +1195,25 @@ function uploadAudioToCloud() {
   renderRecorderUI();
 
   // Check SDK
-  if (typeof tcb === 'undefined') {
-    AudioRecorder.addUploadLog('CloudBase SDK加载', 'failed');
-    AudioRecorder.setUploadFailed('CloudBase SDK未加载：window.tcb is undefined');
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') {
+    AudioRecorder.addUploadLog('CloudBase SDK V2.27.1加载', 'failed');
+    AudioRecorder.setUploadFailed('CloudBase SDK V2.27.1未加载：window.cloudbase不存在');
     renderRecorderUI(); return;
   }
-  AudioRecorder.addUploadLog('CloudBase SDK已加载', 'success');
+  AudioRecorder.addUploadLog('CloudBase SDK V2.27.1已加载', 'success');
 
   initCloudBase().then(function(app) {
     if (!app) {
-      var lastErr = tcbDiag.errors.length > 0 ? tcbDiag.errors[tcbDiag.errors.length-1] : null;
+      var lastErr = cbsDiag.errors.length > 0 ? cbsDiag.errors[cbsDiag.errors.length-1] : null;
       var msg = '环境初始化或匿名登录失败';
       if (lastErr) msg = lastErr.step + '：' + (lastErr.code || '') + ' ' + (lastErr.error || '');
       AudioRecorder.addUploadLog('环境初始化/匿名登录', 'failed');
       AudioRecorder.setUploadFailed(msg);
       renderRecorderUI(); return;
     }
-    AudioRecorder.addUploadLog('环境初始化', 'success');
+    AudioRecorder.addUploadLog('环境初始化（' + CBS_ENV_ID + '）', 'success');
     AudioRecorder.addUploadLog('匿名登录', 'success');
-    AudioRecorder.addUploadLog('CloudBase UID: ' + (tcbDiag.uid || '—'), 'success');
+    AudioRecorder.addUploadLog('CloudBase UID: ' + (cbsDiag.uid || '—'), 'success');
 
     // Convert Blob to File
     var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
@@ -1489,7 +1507,7 @@ function renderSupplementRecorder(data) {
     h += '</details>';
   }
 
-  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V3_20260803</div>';
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V4_1_AUTH_FIX_20260803</div>';
   h += '</div>';
   ui.innerHTML = h;
 }
@@ -1509,10 +1527,10 @@ function uploadSupplementAudio(data) {
   AudioRecorder.setUploading();
   AudioRecorder.addUploadLog('录音Blob已生成', 'success');
   renderSupplementRecorder(data);
-  if (typeof tcb === 'undefined') { AudioRecorder.setUploadFailed('CloudBase SDK未加载'); renderSupplementRecorder(data); return; }
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') { AudioRecorder.setUploadFailed('CloudBase SDK V2.27.1未加载'); renderSupplementRecorder(data); return; }
   initCloudBase().then(function(app) {
     if (!app) {
-      var le = tcbDiag.errors.length > 0 ? tcbDiag.errors[tcbDiag.errors.length-1] : null;
+      var le = cbsDiag.errors.length > 0 ? cbsDiag.errors[cbsDiag.errors.length-1] : null;
       AudioRecorder.setUploadFailed(le ? (le.step + '：' + (le.code||'') + ' ' + (le.error||'')) : '环境初始化或匿名登录失败');
       renderSupplementRecorder(data); return;
     }
@@ -1566,7 +1584,7 @@ function uploadSupplementAudio(data) {
   });
 }
 
-console.log('AUDIO_RECORDER_V3_20260803');
+console.log('AUDIO_RECORDER_V4_1_AUTH_FIX_20260803');
 
 function startTask1() {
   console.log('TASK1_BUILD_20260802_02');
@@ -2374,23 +2392,22 @@ function closeResult() {
 function runCloudBaseSelfCheck() {
   var results = [];
   function add(step, ok, detail) { results.push({ step: step, ok: ok, detail: detail || '' }); }
-  add('CloudBase SDK加载', typeof tcb !== 'undefined', typeof tcb !== 'undefined' ? 'window.tcb 存在' : 'window.tcb === undefined');
-  if (typeof tcb === 'undefined') { return results; }
-  add('环境ID', true, 'cloudbase-d3gxxe4l88c3d5907');
-  try { var app = tcb.init({ env: 'cloudbase-d3gxxe4l88c3d5907' }); add('tcb.init()', true, '初始化成功'); }
-  catch(e) { add('tcb.init()', false, e.message); return results; }
-  add('app.auth()', typeof app.auth === 'function', typeof app.auth === 'function' ? 'auth方法存在' : 'auth方法不存在');
-  add('app.uploadFile()', typeof app.uploadFile === 'function', typeof app.uploadFile === 'function' ? 'uploadFile方法存在' : 'uploadFile方法不存在');
-  // Try anonymous auth
-  return app.auth({ persistence: 'local' }).anonymousAuthProvider().signIn().then(function(loginState) {
-    var uid = (loginState && loginState.user && loginState.user.uid) || (loginState && loginState.uid) || '';
+  add('CloudBase SDK V2.27.1加载', !!window.cloudbase, window.cloudbase ? 'window.cloudbase 存在' : 'window.cloudbase === undefined');
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') { add('SDK init方法', false, 'cloudbase.init 不是 function'); return results; }
+  add('环境ID', true, CBS_ENV_ID);
+  try { var app = window.cloudbase.init({ env: CBS_ENV_ID }); add('cloudbase.init()', true, '初始化成功'); }
+  catch(e) { add('cloudbase.init()', false, e.message); return results; }
+  add('app.auth', !!app.auth, !!app.auth ? 'auth属性存在' : 'auth属性不存在');
+  add('app.uploadFile', typeof app.uploadFile === 'function', typeof app.uploadFile === 'function' ? 'uploadFile方法存在' : 'uploadFile方法不存在');
+  return app.auth.signInAnonymously().then(function(result) {
+    var d = (result && result.data) || result || {};
+    var uid = (d.user && d.user.uid) || d.uid || '';
     add('匿名登录', true, uid ? 'UID: ' + uid : '登录成功但UID未获取');
     add('安全域名', true, '1274526084-dot.github.io（已配置）');
-    try { var hasLogin = app.auth().hasLoginState(); add('登录状态', hasLogin, hasLogin ? '已登录' : '未登录'); } catch(e2) { add('登录状态检查', false, e2.message); }
+    try { var state = app.auth.getLoginState(); add('登录状态', !!state, state ? '已登录' : '未知'); } catch(e2) { add('登录状态', false, e2.message); }
     return results;
   }).catch(function(err) {
-    add('匿名登录', false, (err.code || '') + ': ' + (err.message || ''));
-    add('安全域名', true, '1274526084-dot.github.io（已配置）');
+    add('匿名登录', false, ((err||{}).code||'') + ': ' + ((err||{}).message||''));
     return results;
   });
 }
