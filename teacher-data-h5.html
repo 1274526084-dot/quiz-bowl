@@ -432,7 +432,17 @@ function viewStudentAnswers(uid, name) {
   document.head.appendChild(s);
 }
 
+var currentReviewContext = null;
+
 function showAnswerModal(data, name) {
+  // Save full context for review saving
+  currentReviewContext = {
+    projectId: 'ECRL_MY_CHINESE',
+    studentId: data.studentId || '',
+    studentUid: data.studentUid || '',
+    taskId: ctCurrentTask,
+    submissionId: data.submissionId || ''
+  };
   document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — ' + ctTaskLabel + ' 答卷';
   var html = '';
   // Task 1: show reading/writing scores
@@ -476,6 +486,7 @@ function showAnswerModal(data, name) {
     html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
     html += '</div></div>';
   }
+  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_REVIEW_CONTEXT_FIX_20260803</div>';
   document.getElementById('answerModalContent').innerHTML = html;
   window._teacherReviewData = data;
   document.getElementById('answerModal').style.display = 'flex';
@@ -496,8 +507,11 @@ function loadAudioUrl(fileId, btn) {
 }
 
 function saveTeacherReview(submissionId, publish) {
-  var data = window._teacherReviewData;
-  if (!data) return;
+  var ctx = currentReviewContext;
+  if (!ctx || !ctx.studentUid || !ctx.taskId || !ctx.submissionId) {
+    alert('无法保存：当前答卷身份信息不完整（缺少 studentUid/taskId/submissionId），请关闭后重新打开答卷。');
+    return;
+  }
   var scores = {};
   var keys = ['pronunciation','vocabulary','grammar','logic','content','fluency'];
   keys.forEach(function(k, i) { var el = document.getElementById('tScore' + i); scores[k] = el ? parseInt(el.value) || 0 : 0; });
@@ -506,17 +520,22 @@ function saveTeacherReview(submissionId, publish) {
   var comment = document.getElementById('tReviewComment') ? document.getElementById('tReviewComment').value : '';
   var cb2 = '_trev' + Date.now();
   window[cb2] = function(res) {
-    if (res && res.success) { alert(publish ? '已发布！' : '已保存。'); closeAnswerModal(); loadCourseTaskStats(); }
-    else { alert('保存失败：' + (res ? res.error : '未知错误')); }
+    if (res && res.success) {
+      alert((publish ? '✅ 教师点评已保存并发布' : '💾 教师点评已保存') + '\nreviewId: ' + (res.reviewId || '—'));
+      closeAnswerModal();
+      loadCourseTaskStats();
+    } else { alert('保存失败：' + (res ? res.error : '未知错误')); }
     delete window[cb2];
   };
   var s2 = document.createElement('script');
-  s2.src = API + '?callback=' + cb2 + '&action=teacher_submit_review&studentUid=' + encodeURIComponent(data.studentUid || '') + '&studentId=' + encodeURIComponent(data.studentId || '') + '&taskId=' + ctCurrentTask + '&submissionId=' + submissionId + '&scores=' + encodeURIComponent(JSON.stringify(scores)) + '&quickTags=' + encodeURIComponent(JSON.stringify(tags)) + '&comment=' + encodeURIComponent(comment) + '&isPublishedToStudent=' + publish;
+  s2.src = API + '?callback=' + cb2 + '&action=teacher_submit_review&studentUid=' + encodeURIComponent(ctx.studentUid) + '&studentId=' + encodeURIComponent(ctx.studentId) + '&taskId=' + encodeURIComponent(ctx.taskId) + '&submissionId=' + encodeURIComponent(ctx.submissionId) + '&scores=' + encodeURIComponent(JSON.stringify(scores)) + '&quickTags=' + encodeURIComponent(JSON.stringify(tags)) + '&comment=' + encodeURIComponent(comment) + '&isPublishedToStudent=' + (publish ? 'true' : 'false');
   document.head.appendChild(s2);
 }
 
 function closeAnswerModal() {
   document.getElementById('answerModal').style.display = 'none';
+  currentReviewContext = null;
+  window._teacherReviewData = null;
 }
 
 function resetStudentTask(uid, sid) {
