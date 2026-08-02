@@ -1128,6 +1128,7 @@ function renderRecorderUI() {
     h += '</details>';
   }
 
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V3_20260803</div>';
   h += '</div>';
   ui.innerHTML = h;
   AudioRecorder.init({ maxDuration: 300, onRender: function() { renderRecorderUI(); } });
@@ -1325,85 +1326,183 @@ function showTask2to4Result(data) {
   }, 200);
 }
 
-var _supplementRecorder = null;
+var _supplementData = null;
+
 function renderSupplementRecorder(data) {
+  _supplementData = data;
   var ui = document.getElementById('supplementRecorderUI');
   if (!ui) return;
-  if (!_supplementRecorder) {
-    _supplementRecorder = Object.assign({}, AudioRecorder);
-    _supplementRecorder._timer = null;
+  AudioRecorder.init({ maxDuration: 300, onRender: function() { renderSupplementRecorder(_supplementData); } });
+  var st = AudioRecorder.getState();
+  var dur = AudioRecorder.getDuration();
+  var durStr = Math.floor(dur/60) + '分' + (dur%60).toString().padStart(2,'0') + '秒';
+  var blob = AudioRecorder.getBlob();
+  var blobSize = blob ? (blob.size/1024).toFixed(1) + ' KB' : '';
+  if (blob && blob.size > 1024*1024) blobSize = (blob.size/(1024*1024)).toFixed(1) + ' MB';
+  var blobType = blob ? (blob.type || 'webm').replace('audio/','') : '';
+  var h = '<div style="padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px">';
+
+  // --- idle ---
+  if (st === 'idle') {
+    if (data._suppAudioUploaded) {
+      h += '<div style="text-align:center;color:#16a34a;font-size:16px;font-weight:700">✅ 录音补传成功</div>';
+      h += '<div style="text-align:center;font-size:12px;color:#64748b">已保存到云端，已关联原任务答卷</div>';
+    } else {
+      if (AudioRecorder.lastError) {
+        h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px;margin-bottom:8px;font-size:12px;color:#dc2626">⚠️ ' + AudioRecorder.lastError + '</div>';
+      }
+      h += '<div style="text-align:center"><button class="btn btn-primary" onclick="startSupplementRec()" style="font-size:14px;padding:12px 36px">🎙️ 开始录音</button>';
+      h += '<div style="font-size:11px;color:#94a3b8;margin-top:6px">或上传已有录音文件：</div>';
+      h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onSupplementFileSelected(this)" style="font-size:12px;margin-top:4px"></div>';
+    }
   }
-  var sr = _supplementRecorder;
-  var dur = sr.getDuration();
-  var blob = sr.getBlob();
-  var uploaded = (data._suppAudioUploaded);
-  var h = '';
-  if (uploaded) {
-    h += '<div style="color:#16a34a;font-size:13px;font-weight:700;margin:4px 0">✅ 补传成功</div>';
-  } else if (!blob) {
-    h += '<button class="btn btn-primary" style="margin:4px;font-size:12px" onclick="startSupplementRec()">🎙️ 开始录音（5-60秒）</button>';
-    h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">或上传音频文件：</div>';
-    h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onSupplementFileSelected(this)" style="font-size:12px;margin-top:4px">';
-  } else {
-    h += '<div style="font-size:13px;color:#2563eb;font-weight:700">' + dur + '秒 · ' + (blob.size/1024).toFixed(1) + ' KB</div>';
-    h += '<button class="btn btn-outline" style="margin:4px;font-size:12px" onclick="sr.playPreview()">▶ 试听</button>';
-    h += '<button class="btn btn-outline" style="margin:4px;font-size:12px" onclick="sr.reset();renderSupplementRecorder(data)">🗑 重录</button>';
-    h += '<button class="btn btn-submit" style="margin:4px;font-size:12px" onclick="uploadSupplementAudio(data)">☁️ 上传并关联</button>';
+
+  // --- requesting_permission ---
+  else if (st === 'requesting_permission') {
+    h += '<div style="text-align:center;padding:16px;font-size:15px;color:#64748b">⏳ 正在请求麦克风权限……</div>';
   }
+
+  // --- recording ---
+  else if (st === 'recording') {
+    h += '<div style="text-align:center">';
+    h += '<div style="display:inline-block;width:14px;height:14px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px"></div>';
+    h += '<span style="font-size:18px;font-weight:900;color:#dc2626;vertical-align:middle">正在录音</span>';
+    h += '<div style="font-size:36px;font-weight:900;color:#1e293b;margin:8px 0">' + durStr + '</div>';
+    h += '<canvas id="recVisCanvas" width="300" height="60" style="width:100%;max-width:300px;height:60px;background:#fff;border-radius:8px;border:1px solid #e2e8f0"></canvas>';
+    h += '<div style="font-size:12px;color:#94a3b8;margin-top:4px">请对着麦克风讲话</div>';
+    h += '<button class="btn btn-danger" onclick="AudioRecorder.stopRecording()" style="margin-top:8px;font-size:14px;padding:10px 30px">⏹ 停止录音</button>';
+    h += '</div>';
+  }
+
+  // --- recorded_local ---
+  else if (st === 'recorded_local') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px;margin-bottom:8px;font-size:13px;color:#92400e">⚠️ 录音已完成，尚未上传到云端</div>';
+    h += '<div style="font-size:26px;font-weight:900">' + durStr + '</div>';
+    h += '<div style="font-size:12px;color:#64748b">文件大小：' + blobSize + ' · 格式：' + blobType + '</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:4px">▶ 试听</button>';
+    h += '<button class="btn btn-outline" onclick="if(confirm(\'重新录制会替换当前录音，确定继续吗？\')){AudioRecorder.reset();renderSupplementRecorder(_supplementData);}" style="margin:4px">🎙️ 重新录制</button>';
+    h += '<button class="btn btn-submit" onclick="uploadSupplementAudio(_supplementData)" style="margin:4px;font-size:14px;padding:10px 30px">☁️ 上传并关联原答卷</button>';
+    h += '</div>';
+  }
+
+  // --- uploading ---
+  else if (st === 'uploading') {
+    var upSec = AudioRecorder.getUploadElapsed();
+    var pct = AudioRecorder.uploadTotal > 0 ? Math.round(AudioRecorder.uploadBytes / AudioRecorder.uploadTotal * 100) : -1;
+    h += '<div style="text-align:center">';
+    h += '<div style="font-size:15px;font-weight:700;color:#2563eb;margin-bottom:6px">⏳ 正在上传录音，请不要关闭页面……</div>';
+    if (pct >= 0) {
+      h += '<div style="font-size:12px;color:#64748b">上传进度：' + pct + '% · ' + (AudioRecorder.uploadBytes/1024).toFixed(0) + ' KB / ' + (AudioRecorder.uploadTotal/1024).toFixed(0) + ' KB</div>';
+    }
+    h += '<div style="font-size:12px;color:#94a3b8">已等待：' + upSec + '秒</div>';
+    h += '<div class="progress-bar" style="margin:8px 0"><div class="progress-fill" style="width:' + (pct >= 0 ? pct : 50) + '%;animation:' + (pct < 0 ? 'pulse 1.5s infinite' : '') + '"></div></div>';
+    if (upSec > 30) h += '<div style="font-size:11px;color:#f59e0b">上传时间较长，请继续等待或重试。</div>';
+    if (upSec > 60) { AudioRecorder.setUploadFailed('上传超时（超过60秒）'); renderSupplementRecorder(_supplementData); return; }
+    h += '</div>';
+  }
+
+  // --- uploaded ---
+  else if (st === 'uploaded') {
+    data._suppAudioUploaded = true;
+    h += '<div style="text-align:center">';
+    h += '<div style="color:#16a34a;font-size:18px;font-weight:700;margin-bottom:8px">✅ 录音补传成功</div>';
+    h += '<div style="font-size:13px;color:#475569">时长：' + durStr + ' · 文件大小：' + blobSize + '</div>';
+    h += '<div style="font-size:12px;color:#16a34a;margin-top:2px">已保存到云端 · 已关联原任务答卷</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:6px">▶ 试听录音</button>';
+    h += '</div>';
+  }
+
+  // --- upload_failed ---
+  else if (st === 'upload_failed') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px;margin-bottom:8px">';
+    h += '<div style="color:#dc2626;font-weight:700">❌ 上传失败</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:2px">失败原因：' + (AudioRecorder.lastError || '未知错误') + '</div>';
+    h += '<div style="font-size:11px;color:#94a3b8">本地录音仍然保留，可以重新上传。</div>';
+    h += '</div>';
+    h += '<button class="btn btn-submit" onclick="uploadSupplementAudio(_supplementData)" style="margin:4px">🔄 重新上传</button>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.reset();renderSupplementRecorder(_supplementData)" style="margin:4px">🎙️ 重新录制</button>';
+    h += '</div>';
+  }
+
+  // Upload log
+  var log = AudioRecorder.getUploadLog();
+  if (log && log.length > 0) {
+    h += '<details style="margin-top:6px;font-size:10px;color:#94a3b8" ' + (st === 'upload_failed' ? 'open' : '') + '>';
+    h += '<summary>上传详情</summary>';
+    log.forEach(function(l) { h += '<div>' + (l.status === 'success' ? '✅' : l.status === 'failed' ? '❌' : '⏳') + ' ' + l.step + '</div>'; });
+    h += '</details>';
+  }
+
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V3_20260803</div>';
+  h += '</div>';
   ui.innerHTML = h;
-  sr.init({ maxDuration: 60, onStateChange: function() { renderSupplementRecorder(data); }, onTimerTick: function() { renderSupplementRecorder(data); } });
 }
 
-function startSupplementRec() {
-  _supplementRecorder.start();
-}
+function startSupplementRec() { AudioRecorder.requestMic(); }
 
 function onSupplementFileSelected(input) {
   if (input.files && input.files[0]) {
-    _supplementRecorder.uploadAsFile(input.files[0]);
-    renderSupplementRecorder(window._lastTask24Result || {});
+    AudioRecorder.uploadAsFile(input.files[0]);
+    renderSupplementRecorder(_supplementData || {});
   }
 }
 
 function uploadSupplementAudio(data) {
-  var blob = _supplementRecorder.getBlob();
-  if (!blob || blob.size === 0) { alert('录音为空'); return; }
-  var statusEl = document.getElementById('supplementStatus');
-  if (statusEl) statusEl.innerHTML = '⏳ 上传中...';
+  var blob = AudioRecorder.getBlob();
+  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空'); renderSupplementRecorder(data); return; }
+  AudioRecorder.setUploading();
+  renderSupplementRecorder(data);
   initCloudBase().then(function(app) {
-    if (!app) throw new Error('云服务未初始化');
+    if (!app) { AudioRecorder.setUploadFailed('云服务连接失败'); renderSupplementRecorder(data); return; }
+    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
     var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
     var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + (data.taskId || task2to4State.taskId) + '/' + student.uid + '/supplement_' + Date.now() + '.' + ext;
-    return app.uploadFile({ cloudPath: cloudPath, filePath: blob }).then(function(result) {
-      if (!result.fileID) throw new Error('上传失败');
-      // Confirm asset
+    app.uploadFile({ cloudPath: cloudPath, filePath: blob }).then(function(result) {
+      if (!result.fileID) { AudioRecorder.setUploadFailed('未获取fileID'); renderSupplementRecorder(data); return; }
+      AudioRecorder.addUploadLog('云存储上传成功', 'success');
+      AudioRecorder.addUploadLog('fileId已获得', 'success');
+      AudioRecorder.addUploadLog('learning_assets写入中', 'pending');
       var cb1 = '_cfa2' + Date.now();
       window[cb1] = function(res) {
         if (res && res.success) {
-          // Attach to submission
+          AudioRecorder.addUploadLog('learning_assets写入成功', 'success');
+          AudioRecorder.addUploadLog('关联原答卷中', 'pending');
           var cb2 = '_att' + Date.now();
           window[cb2] = function(res2) {
             if (res2 && res2.success) {
-              if (statusEl) statusEl.innerHTML = '<span style="color:#16a34a">✅ 录音已关联到原任务答卷</span>';
-              data._suppAudioUploaded = true;
-              renderSupplementRecorder(data);
-            } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">关联失败</span>'; }
+              AudioRecorder.addUploadLog('任务提交关联成功', 'success');
+              AudioRecorder.setUploaded();
+            } else {
+              AudioRecorder.setUploadFailed('关联原答卷失败：' + (res2 ? res2.error : ''));
+            }
+            renderSupplementRecorder(data);
             delete window[cb2];
           };
           var s2 = document.createElement('script');
           s2.src = API + '?callback=' + cb2 + '&action=attach_asset_to_submission&studentUid=' + encodeURIComponent(student.uid) + '&taskId=' + (data.taskId || task2to4State.taskId) + '&submissionId=' + encodeURIComponent(data.submissionId) + '&assetId=' + res.assetId;
           document.head.appendChild(s2);
-        } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">确认失败</span>'; }
+        } else {
+          AudioRecorder.setUploadFailed('learning_assets写入失败：' + (res ? res.error : ''));
+          renderSupplementRecorder(data);
+        }
         delete window[cb1];
       };
       var s1 = document.createElement('script');
-      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + _supplementRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
       document.head.appendChild(s1);
+    }).catch(function(err) {
+      AudioRecorder.setUploadFailed(err.message || '上传失败');
+      renderSupplementRecorder(data);
     });
   }).catch(function(err) {
-    if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：' + (err.message || '') + '</span>';
+    AudioRecorder.setUploadFailed('云服务连接失败：' + (err.message || ''));
+    renderSupplementRecorder(data);
   });
 }
+
+console.log('AUDIO_RECORDER_V3_20260803');
 
 function startTask1() {
   console.log('TASK1_BUILD_20260802_02');
