@@ -873,16 +873,16 @@ function renderTask2to4Step(step) {
       html += '</div>';
     });
   } else if (step === 1) {
-    // Writing
-    html += '<div class="quiz-section-title">📝 短写作</div>';
+    // Writing (no word limit enforced)
+    html += '<div class="quiz-section-title">📝 写作</div>';
     html += '<div class="quiz-instructions">' + (td.writingPrompt || '请根据本课内容写作。') + '</div>';
     html += renderScaffold(td);
-    html += '<textarea class="write-input" id="t24writing" style="min-height:150px" placeholder="在这里写作...（' + td.writingMinChars + '-' + td.writingMaxChars + '字）">' + (task2to4State.writingText || '') + '</textarea>';
-    html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t24charCount">0/' + td.writingMaxChars + '字</div>';
+    html += '<textarea class="write-input" id="t24writing" style="min-height:150px" placeholder="在这里写作...">' + (task2to4State.writingText || '') + '</textarea>';
+    html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t24charCount">当前字数：0字</div>';
   } else if (step === 2) {
     // Recording
     html += '<div class="quiz-section-title">🎙️ 口语录音</div>';
-    html += '<div class="quiz-instructions">' + (td.speakingPrompt || '请用45-60秒录音。') + '</div>';
+    html += '<div class="quiz-instructions">' + (td.speakingPrompt || '请根据自己的实际情况进行介绍。') + '<br><span style="color:#94a3b8">建议时长仅供参考，不影响提交。最长5分钟，最大30MB。</span></div>';
     html += renderScaffold(td);
     html += '<div id="recorderUI"></div>';
   } else if (step === 3 && td.hasPhotoUpload) {
@@ -892,10 +892,11 @@ function renderTask2to4Step(step) {
     html += '<input type="file" accept="image/*" id="t24photo" onchange="onPhotoSelected(this)" style="display:block;margin:12px 0"><div id="photoPreview" style="margin-top:8px"></div>';
   } else {
     // Review/Submit
+    var audioStatus = task2to4State.audioFileId ? '✅ 已上传' : (AudioRecorder.getBlob() && AudioRecorder.getBlob().size > 0 ? '⚠️ 已录制但尚未上传' : '尚未录制');
     html += '<div class="quiz-section-title">✅ 确认提交</div>';
     html += '<div class="section-card"><div class="row"><span>客观题已答</span><span class="val">' + Object.keys(task2to4State.answers).length + '/' + td.questionCount + '</span></div>';
-    html += '<div class="row"><span>写作字数</span><span class="val" id="t24reviewChars">' + (task2to4State.writingText||'').length + '/' + td.writingMaxChars + '</span></div>';
-    html += '<div class="row"><span>录音</span><span class="val">' + (task2to4State.audioBlob ? '✅' : '❌') + '</span></div>';
+    html += '<div class="row"><span>写作</span><span class="val">' + ((task2to4State.writingText||'').length > 0 ? '✅ 已填写' : '未填写') + '</span></div>';
+    html += '<div class="row"><span>录音</span><span class="val">' + audioStatus + '</span></div>';
     if (td.hasPhotoUpload) html += '<div class="row"><span>照片</span><span class="val">' + (task2to4State.imageFileId ? '✅' : '❌') + '</span></div>';
     html += '</div>';
     html += '<button class="btn btn-submit" style="margin-top:12px" onclick="submitTask2to4()">确认提交</button>';
@@ -905,7 +906,7 @@ function renderTask2to4Step(step) {
 
   if (step === 1) {
     var ta = document.getElementById('t24writing');
-    if (ta) { ta.addEventListener('input', function() { task2to4State.writingText = ta.value; var cnt = document.getElementById('t24charCount'); if(cnt) cnt.textContent = ta.value.length + '/' + td.writingMaxChars + '字'; }); }
+    if (ta) { ta.addEventListener('input', function() { task2to4State.writingText = ta.value; var cnt = document.getElementById('t24charCount'); if(cnt) cnt.textContent = '当前字数：' + ta.value.length + '字'; }); }
   }
   if (step === 2) { setTimeout(renderRecorderUI, 100); }
   if (step === 3 && td.hasPhotoUpload) { setTimeout(renderPhotoPreview, 100); }
@@ -964,7 +965,7 @@ function renderRecorderUI() {
   var uploading = task2to4State._audioUploading || false;
   var h = '<div style="text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px">';
   h += '<div style="font-size:24px;font-weight:900;color:#2563eb" id="recDur">' + dur + '秒</div>';
-  h += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px">建议45-60秒</div>';
+  h += '<div style="font-size:12px;color:#94a3b8;margin-bottom:4px">建议时长仅供参考，最长5分钟</div>';
   if (blob) h += '<div style="font-size:11px;color:#64748b">文件大小：' + (blob.size / 1024).toFixed(1) + ' KB · 格式：' + (blob.type || 'webm') + '</div>';
   if (uploaded) {
     h += '<div style="color:#16a34a;font-size:13px;font-weight:700;margin:6px 0">✅ 录音已上传云端</div>';
@@ -984,7 +985,7 @@ function renderRecorderUI() {
   h += '</div>';
   ui.innerHTML = h;
   AudioRecorder.init({
-    maxDuration: 60,
+    maxDuration: 300,
     onStateChange: function(state) { renderRecorderUI(); },
     onTimerTick: function(s) { var el = document.getElementById('recDur'); if (el) el.textContent = s + '秒'; }
   });
@@ -993,7 +994,7 @@ function renderRecorderUI() {
 function uploadAudioToCloud() {
   var blob = AudioRecorder.getBlob();
   if (!blob || blob.size === 0) { alert('录音文件为空，请重新录制。'); return; }
-  if (blob.size > 10 * 1024 * 1024) { alert('文件过大（超过10MB），请重新录制。'); return; }
+  if (blob.size > 30 * 1024 * 1024) { alert('文件过大（超过30MB），请重新录制。'); return; }
   task2to4State._audioUploading = true;
   renderRecorderUI();
   initCloudBase().then(function(app) {
@@ -1033,7 +1034,7 @@ function uploadAudioToCloud() {
 function onAudioFileSelected(input) {
   if (input.files && input.files[0]) {
     var file = input.files[0];
-    if (file.size > 10 * 1024 * 1024) { alert('文件过大（超过10MB）。'); return; }
+    if (file.size > 30 * 1024 * 1024) { alert('文件过大（超过30MB）。'); return; }
     AudioRecorder.uploadAsFile(file);
     renderRecorderUI();
   }
