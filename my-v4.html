@@ -917,18 +917,34 @@ function startTask2to4(taskId) {
   if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
   if (!student) { alert('请先登录'); return; }
   if (!isTestAccount()) { alert('该任务正在测试中，暂时仅向测试账号开放。'); return; }
-  if (taskStatuses[taskId === 'TASK_L1_REVIEW_02' ? 2 : (taskId === 'TASK_L2_REVIEW_03' ? 3 : 4)] === 'submitted') {
-    viewTask2to4Result(taskId);
-    return;
-  }
-  var preSubId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-  task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false, preSubmissionId: preSubId };
+  // Show loading overlay immediately
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
-  document.getElementById('quizTitle').textContent = '加载中...';
+  document.getElementById('quizTitle').textContent = '查询中...';
   document.getElementById('quizTimer').textContent = '';
-  document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
-  fetchTask2to4Data(taskId);
+  document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在检查任务状态……</div>';
+  // First check if already submitted on server
+  var cbCheck = '_chk' + Date.now();
+  window[cbCheck] = function(checkRes) {
+    if (checkRes && checkRes.success && checkRes.submissionId) {
+      // Already submitted — show results directly
+      var taskNo = taskId === 'TASK_L1_REVIEW_02' ? 2 : (taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
+      taskStatuses[taskNo] = 'submitted';
+      saveS('taskStatuses', taskStatuses);
+      showTask2to4Result(checkRes);
+    } else {
+      // No submission — start fresh quiz
+      var preSubId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false, preSubmissionId: preSubId };
+      document.getElementById('quizTitle').textContent = '加载中...';
+      document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
+      fetchTask2to4Data(taskId);
+    }
+    delete window[cbCheck];
+  };
+  var sCheck = document.createElement('script');
+  sCheck.src = API + '?callback=' + cbCheck + '&action=get_task2_4_result&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(sCheck);
 }
 
 function fetchTask2to4Data(taskId) {
@@ -1318,6 +1334,13 @@ function submitTask2to4() {
         res.audioFileId = res.audioFileId || task2to4State.audioFileId;
         res.audioDuration = res.audioDuration || task2to4State.audioDuration;
         showTask2to4Result(res);
+      } else if (res && res.error === 'already submitted') {
+        // Already submitted — auto-load results
+        var taskNo = task2to4State.taskId === 'TASK_L1_REVIEW_02' ? 2 : (task2to4State.taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
+        taskStatuses[taskNo] = 'submitted';
+        saveS('taskStatuses', taskStatuses);
+        document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:14px;color:#16a34a">该任务已经提交，正在打开原任务结果……</div>';
+        setTimeout(function() { viewTask2to4Result(task2to4State.taskId); }, 500);
       } else { alert('提交失败：' + (res ? res.error : '网络错误') + '\n请重试。'); }
       delete window[cb];
     };
@@ -1478,11 +1501,15 @@ function renderSupplementRecorder(data) {
   // --- uploaded ---
   else if (st === 'uploaded') {
     data._suppAudioUploaded = true;
+    var suppTaskNo = (data.taskId === 'TASK_L1_REVIEW_02') ? 2 : ((data.taskId === 'TASK_L2_REVIEW_03') ? 3 : 4);
+    taskStatuses[suppTaskNo] = 'submitted';
+    saveS('taskStatuses', taskStatuses);
     h += '<div style="text-align:center">';
     h += '<div style="color:#16a34a;font-size:18px;font-weight:700;margin-bottom:8px">✅ 录音补传成功</div>';
     h += '<div style="font-size:13px;color:#475569">时长：' + durStr + ' · 文件大小：' + blobSize + '</div>';
     h += '<div style="font-size:12px;color:#16a34a;margin-top:2px">已保存到云端 · 已关联原任务答卷</div>';
     h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:6px">▶ 试听录音</button>';
+    h += '<button class="btn btn-primary" onclick="closeResult();viewTask2to4Result(data.taskId)" style="margin:6px;display:block;width:auto;margin-left:auto;margin-right:auto">📊 查看任务结果</button>';
     h += '</div>';
   }
 
@@ -1585,7 +1612,7 @@ function uploadSupplementAudio(data) {
   });
 }
 
-console.log('AUDIO_RECORDER_V4_1_AUTH_FIX_20260803');
+console.log('TASK_RESULT_ROUTING_FIX_20260803');
 
 function startTask1() {
   console.log('TASK1_BUILD_20260802_02');
