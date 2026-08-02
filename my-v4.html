@@ -921,7 +921,8 @@ function startTask2to4(taskId) {
     viewTask2to4Result(taskId);
     return;
   }
-  task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false };
+  var preSubId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false, preSubmissionId: preSubId };
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
   document.getElementById('quizTitle').textContent = '加载中...';
@@ -1252,7 +1253,7 @@ function uploadAudioToCloud() {
         delete window[cb];
       };
       var s = document.createElement('script');
-      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(mimeType) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(task2to4State.preSubmissionId || '') + '&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(mimeType) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
       document.head.appendChild(s);
     }).catch(function(err) {
       console.error('uploadFile error:', err.name, err.code, err.message, err);
@@ -1572,7 +1573,7 @@ function uploadSupplementAudio(data) {
         delete window[cb1];
       };
       var s1 = document.createElement('script');
-      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(data.submissionId || '') + '&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
       document.head.appendChild(s1);
     }).catch(function(err) {
       AudioRecorder.setUploadFailed(err.message || '上传失败');
