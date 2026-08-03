@@ -2750,7 +2750,7 @@ var task510Token = 0;
 function disposeTask510() {
   if (!task510State) return;
   task510State.disposed = true;
-  disposeTask510Recorder();
+  Task510AudioV10.destroy();
   task510State = null;
   document.getElementById('task510Overlay').classList.remove('show');
 }
@@ -2853,6 +2853,7 @@ function renderTask510Step() {
     h += '<div class="quiz-instructions">请根据自己的实际情况进行介绍。最长5分钟，最大30MB。</div>';
     if (td && td.scaffold) h += renderScaffold(td);
     h += '<div id="t510RecorderUI"></div>';
+    setTimeout(function() { renderTask510AudioStep(); }, 50);
   } else if (ct === 'photo') {
     h += '<div class="quiz-section-title">📷 照片</div><div class="quiz-instructions">请选择并上传照片（jpg/png/webp，最大10MB）。</div>';
     if (st.imageFileId) { h += '<div style="color:#16a34a;font-weight:700">✅ 照片已上传</div>'; }
@@ -2904,91 +2905,254 @@ function submitTask510() {
   alert('本地测试通过\n任务：'+st.taskId+'\n客观题：'+Object.keys(st.answers).length+'题\n写作：'+(st.writingText?st.writingText.length+'字':'无')+'\n录音：'+(st.audioFileId?'已上传':'无')+'\n\n尚未写入数据库。');
 }
 
-// ===== Task 5-10 Dedicated Recorder (NO global AudioRecorder) =====
-var task510Recorder = null;
-function initTask510Recorder() {
-  if (task510Recorder) disposeTask510Recorder();
-  task510Recorder = { taskId: null, submissionId: null, sessionToken: 0, mediaRecorder: null, stream: null, chunks: [], blob: null, objectUrl: null, durationSeconds: 0, startedAt: null, timerId: null, audioAssetId: null, audioFileId: null, uploadStatus: 'idle', uploading: false };
-}
-function disposeTask510Recorder() {
-  if (!task510Recorder) return;
-  var r = task510Recorder;
-  if (r.mediaRecorder && r.mediaRecorder.state !== 'inactive') { try { r.mediaRecorder.stop(); } catch(e) {} }
-  if (r.stream) { r.stream.getTracks().forEach(function(t){t.stop();}); r.stream = null; }
-  if (r.objectUrl) { URL.revokeObjectURL(r.objectUrl); r.objectUrl = null; }
-  if (r.timerId) { clearInterval(r.timerId); r.timerId = null; }
-  r.mediaRecorder = null; r.chunks = []; r.blob = null; r.durationSeconds = 0; r.uploadStatus = 'idle'; r.audioFileId = null; r.audioAssetId = null; r.uploading = false;
-}
+// ===== Task510AudioV10 — Fully Isolated Recorder =====
+console.log('TASK510_AUDIO_COMPONENT_REBUILD_V10_20260804');
+var Task510AudioV10 = (function() {
+  var current = null;
+  var counter = 0;
 
-function renderT510Recorder() {
-  var ui = document.getElementById('t510RecorderUI'); if (!ui) return;
-  if (!task510Recorder) initTask510Recorder();
-  var r = task510Recorder;
-  // Sync with session
-  if (task510State) { r.taskId = task510State.taskId; r.submissionId = task510State.preSubmissionId; r.sessionToken = task510State.token; }
-  var up = task510State ? task510State.audioFileId : '';
-  var dur = r.durationSeconds;
-  var h = '<div style="text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px"><div style="font-size:24px;font-weight:900;color:#2563eb" id="t510AudioTimer">' + dur + '秒</div>';
-  if (up) {
-    h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 录音已上传云端</div>';
-    if (r.objectUrl) h += '<audio id="t510AudioPreview" controls src="'+r.objectUrl+'" style="width:100%;max-width:300px"></audio>';
-    h += '<button class="btn btn-outline" onclick="if(task510Recorder&&task510Recorder.objectUrl){var a=new Audio(task510Recorder.objectUrl);a.play();}">▶ 试听</button>';
-    h += '<button class="btn btn-outline" onclick="disposeTask510Recorder();initTask510Recorder();if(task510State)task510State.audioFileId=\'\';renderT510Recorder()">🗑 重录</button>';
-  } else if (r.uploading) {
-    h += '<div style="color:#f59e0b">⏳ 上传中...</div>';
-  } else if (r.blob) {
-    h += '<audio id="t510AudioPreview" controls src="'+r.objectUrl+'" style="width:100%;max-width:300px"></audio>';
-    h += '<div style="font-size:12px;color:#16a34a;margin:4px 0">录音完成，可以试听</div>';
-    h += '<button class="btn btn-outline" onclick="disposeTask510Recorder();initTask510Recorder();renderT510Recorder()">🗑 重录</button>';
-    h += '<button class="btn btn-submit" onclick="uploadT510Audio()">☁️ 上传</button>';
-  } else {
-    h += '<button class="btn btn-primary" id="t510RecordBtn" onclick="startTask510Recording()">🎙️ 开始录音</button>';
-    h += ' <input type="file" accept="audio/*" onchange="if(this.files&&this.files[0]){disposeTask510Recorder();initTask510Recorder();task510Recorder.blob=this.files[0];task510Recorder.objectUrl=URL.createObjectURL(this.files[0]);renderT510Recorder();}" style="font-size:12px;margin-top:4px">';
-  }
-  h += '</div>'; ui.innerHTML = h;
-}
-
-function startTask510Recording() {
-  if (!task510Recorder) initTask510Recorder();
-  var r = task510Recorder;
-  var allowed = ['TASK_CHINESE_MOVIES_05','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_STUDY_LIFE_CHINA_10'];
-  if (!task510State || allowed.indexOf(task510State.taskId)===-1) return;
-  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
-    r.stream = stream; r.chunks = []; r.blob = null; r.durationSeconds = 0; r.startedAt = Date.now();
-    var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
-    r.mediaRecorder = new MediaRecorder(stream, {mimeType:mime});
-    r.mediaRecorder.ondataavailable = function(e){if(e.data.size>0)r.chunks.push(e.data);};
-    r.mediaRecorder.onstop = function(){
-      r.blob = new Blob(r.chunks,{type:mime}); r.durationSeconds = Math.round((Date.now()-r.startedAt)/1000);
-      if (r.stream) { r.stream.getTracks().forEach(function(t){t.stop();}); r.stream = null; }
-      if (r.objectUrl) URL.revokeObjectURL(r.objectUrl);
-      r.objectUrl = URL.createObjectURL(r.blob);
-      if (r.timerId) { clearInterval(r.timerId); r.timerId = null; }
-      renderT510Recorder();
+  function createContext(cfg) {
+    counter++;
+    return {
+      contextId: counter,
+      taskId: cfg.taskId, submissionId: cfg.submissionId || '', studentUid: cfg.studentUid || '',
+      sessionToken: cfg.sessionToken || 0,
+      mediaRecorder: null, stream: null, chunks: [], blob: null, objectUrl: null,
+      startedAt: 0, durationSeconds: 0, timerId: null,
+      fileId: '', assetId: '', uploadStatus: 'idle',
+      destroyed: false, rootElement: cfg.rootElement || null
     };
-    r.mediaRecorder.start(100);
-    r.timerId = setInterval(function(){ if(!task510Recorder||task510Recorder!==r) return; r.durationSeconds = Math.round((Date.now()-r.startedAt)/1000); var el=document.getElementById('t510AudioTimer'); if(el)el.textContent=r.durationSeconds+'秒'; }, 500);
-    renderT510Recorder();
-  }).catch(function(err){ alert('无法使用麦克风，请检查浏览器权限。'); });
-}
+  }
 
-function uploadT510Audio() {
-  var r = task510Recorder; if (!r || !r.blob || r.blob.size===0) { alert('请先录制'); return; }
-  if (!task510State || r.taskId !== task510State.taskId) { alert('任务状态异常'); return; }
-  r.uploading = true; renderT510Recorder();
-  initCloudBase().then(function(app){
-    if (!app) { alert('云服务未连接'); r.uploading = false; renderT510Recorder(); return; }
-    var blob = r.blob;
-    var ext = blob.type.indexOf('webm')!==-1?'webm':'webm';
-    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/'+task510State.taskId+'/'+student.uid+'/audio_'+Date.now()+'.'+ext;
-    app.uploadFile({cloudPath:cloudPath,filePath:blob}).then(function(upRes){
-      if (!upRes||!upRes.fileID) throw new Error('no fileID');
-      r.uploading = false; r.audioFileId = upRes.fileID;
-      task510State.audioFileId = upRes.fileID; task510State.audioDuration = r.durationSeconds;
-      task510State._audioUploading = false;
-      var cb2='_t510cfa'+Date.now(); window[cb2]=function(cres){ if(cres&&cres.success) task510State.audioAssetId=cres.assetId; renderT510Recorder(); delete window[cb2]; };
-      var s2=document.createElement('script'); s2.src=API+'?callback='+cb2+'&action=confirm_asset_upload&submissionId='+encodeURIComponent(task510State.preSubmissionId)+'&taskId='+task510State.taskId+'&studentUid='+encodeURIComponent(student.uid)+'&studentId='+encodeURIComponent(student.id)+'&fileId='+encodeURIComponent(upRes.fileID)+'&fileType=audio&mimeType='+encodeURIComponent(blob.type)+'&fileSize='+blob.size+'&durationSeconds='+task510State.audioDuration+'&cloudPath='+encodeURIComponent(cloudPath); document.head.appendChild(s2);
-    }).catch(function(err){ alert('上传失败：'+err.message); r.uploading = false; renderT510Recorder(); });
+  function render(ctx) {
+    if (!ctx || ctx.destroyed || !ctx.rootElement) return;
+    var root = ctx.rootElement;
+    root.innerHTML = '';
+    root.className = 'task510-audio-v10';
+    root.setAttribute('data-task-id', ctx.taskId);
+    root.style.cssText = 'text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px';
+
+    var timerEl = document.createElement('div');
+    timerEl.setAttribute('data-role', 'timer');
+    timerEl.style.cssText = 'font-size:24px;font-weight:900;color:#2563eb';
+    timerEl.textContent = ctx.durationSeconds + '秒';
+    root.appendChild(timerEl);
+
+    var statusEl = document.createElement('div');
+    statusEl.setAttribute('data-role', 'upload-status');
+    statusEl.style.cssText = 'font-size:12px;color:#94a3b8;margin:4px 0';
+    root.appendChild(statusEl);
+
+    if (ctx.uploadStatus === 'uploaded' || (ctx.fileId && ctx.fileId.length > 0)) {
+      // Uploaded state
+      statusEl.innerHTML = '<span style="color:#16a34a;font-weight:700">✅ 录音已上传云端</span>';
+      if (ctx.objectUrl) {
+        var aud = document.createElement('audio');
+        aud.setAttribute('data-role', 'preview'); aud.controls = true; aud.src = ctx.objectUrl;
+        aud.style.cssText = 'width:100%;max-width:300px;margin:4px 0';
+        root.appendChild(aud);
+      }
+      var btnPlay = document.createElement('button');
+      btnPlay.className = 'btn btn-outline'; btnPlay.textContent = '▶ 试听'; btnPlay.style.margin = '3px';
+      btnPlay.addEventListener('click', function() { if (ctx.objectUrl) { var a = new Audio(ctx.objectUrl); a.play(); } });
+      root.appendChild(btnPlay);
+      var btnRedo = document.createElement('button');
+      btnRedo.className = 'btn btn-outline'; btnRedo.textContent = '🗑 重录'; btnRedo.style.margin = '3px';
+      btnRedo.addEventListener('click', function() { destroy(); mount(cfg); });
+      root.appendChild(btnRedo);
+
+    } else if (ctx.uploadStatus === 'uploading') {
+      statusEl.innerHTML = '<span style="color:#f59e0b">⏳ 正在上传录音，请稍候……</span>';
+
+    } else if (ctx.blob && ctx.blob.size > 0) {
+      // Recorded, not yet uploaded
+      if (ctx.objectUrl) {
+        var aud2 = document.createElement('audio');
+        aud2.setAttribute('data-role', 'preview'); aud2.controls = true; aud2.src = ctx.objectUrl;
+        aud2.style.cssText = 'width:100%;max-width:300px;margin:4px 0';
+        root.appendChild(aud2);
+      }
+      statusEl.innerHTML = '<span style="color:#16a34a">录音完成，可以试听</span>';
+      var btnUp = document.createElement('button');
+      btnUp.className = 'btn btn-submit'; btnUp.textContent = '☁️ 上传录音'; btnUp.style.margin = '4px';
+      btnUp.addEventListener('click', function() { upload(cfg); });
+      root.appendChild(btnUp);
+      var btnRe = document.createElement('button');
+      btnRe.className = 'btn btn-outline'; btnRe.textContent = '🎙️ 重新录音'; btnRe.style.margin = '4px';
+      btnRe.addEventListener('click', function() { destroy(); mount(cfg); });
+      root.appendChild(btnRe);
+
+    } else if (ctx.mediaRecorder && ctx.mediaRecorder.state === 'recording') {
+      // Currently recording
+      var dot = document.createElement('span');
+      dot.style.cssText = 'display:inline-block;width:14px;height:14px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px';
+      statusEl.innerHTML = ''; statusEl.appendChild(dot);
+      statusEl.appendChild(document.createTextNode(' 正在录音'));
+      statusEl.style.color = '#dc2626'; statusEl.style.fontWeight = '700';
+      var btnStop = document.createElement('button');
+      btnStop.className = 'btn btn-danger'; btnStop.textContent = '⏹ 停止录音'; btnStop.style.margin = '4px';
+      btnStop.setAttribute('data-role', 'stop-button');
+      btnStop.addEventListener('click', function() { stopRecording(ctx); });
+      root.appendChild(btnStop);
+
+    } else {
+      // Idle — ready to record
+      statusEl.textContent = '尚未录音';
+      var btnRec = document.createElement('button');
+      btnRec.className = 'btn btn-primary'; btnRec.textContent = '🎙️ 开始录音'; btnRec.style.margin = '4px';
+      btnRec.setAttribute('data-role', 'record-button');
+      btnRec.addEventListener('click', function() { startRecording(ctx); });
+      root.appendChild(btnRec);
+      // File upload fallback
+      var fileInp = document.createElement('input');
+      fileInp.type = 'file'; fileInp.accept = 'audio/*'; fileInp.style.cssText = 'display:block;margin:6px auto;font-size:11px';
+      fileInp.addEventListener('change', function() {
+        if (fileInp.files && fileInp.files[0]) {
+          var f = fileInp.files[0];
+          ctx.blob = f; ctx.durationSeconds = 0;
+          if (ctx.objectUrl) URL.revokeObjectURL(ctx.objectUrl);
+          ctx.objectUrl = URL.createObjectURL(f);
+          render(ctx);
+        }
+      });
+      root.appendChild(fileInp);
+    }
+
+    // Debug info
+    var dbg = document.createElement('div');
+    dbg.setAttribute('data-role', 'debug-task-id');
+    dbg.style.cssText = 'font-size:9px;color:#cbd5e1;margin-top:6px';
+    dbg.textContent = 'V10 ctx:' + ctx.contextId + ' task:' + ctx.taskId + ' sub:' + (ctx.submissionId||'').substring(0, 8);
+    root.appendChild(dbg);
+  }
+
+  function startRecording(ctx) {
+    if (!ctx || ctx.destroyed) return;
+    if (!task510State || ctx.taskId !== task510State.taskId) return;
+    var allowed = ['TASK_CHINESE_MOVIES_05','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_STUDY_LIFE_CHINA_10'];
+    if (allowed.indexOf(ctx.taskId) === -1) return;
+    console.log('[AUDIO_V10_START]', ctx.taskId, ctx.contextId);
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream) {
+      if (ctx.destroyed) { stream.getTracks().forEach(function(t){t.stop();}); return; }
+      ctx.stream = stream; ctx.chunks = []; ctx.blob = null; ctx.durationSeconds = 0; ctx.startedAt = Date.now();
+      var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+      ctx.mediaRecorder = new MediaRecorder(stream, {mimeType:mime});
+      ctx.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0 && !ctx.destroyed) ctx.chunks.push(e.data); };
+      ctx.mediaRecorder.onstop = function() {
+        if (ctx.destroyed) return;
+        ctx.blob = new Blob(ctx.chunks, {type:mime});
+        ctx.durationSeconds = Math.round((Date.now() - ctx.startedAt) / 1000);
+        if (ctx.stream) { ctx.stream.getTracks().forEach(function(t){t.stop();}); ctx.stream = null; }
+        if (ctx.objectUrl) URL.revokeObjectURL(ctx.objectUrl);
+        ctx.objectUrl = URL.createObjectURL(ctx.blob);
+        ctx.mediaRecorder = null;
+        console.log('[AUDIO_V10_STOP]', ctx.taskId, ctx.contextId, ctx.blob.size, ctx.durationSeconds);
+        render(ctx);
+      };
+      ctx.mediaRecorder.start(100);
+      ctx.uploadStatus = 'idle';
+      ctx.timerId = setInterval(function() {
+        if (ctx.destroyed || !ctx.mediaRecorder) { clearInterval(ctx.timerId); return; }
+        ctx.durationSeconds = Math.round((Date.now() - ctx.startedAt) / 1000);
+        var tEl = ctx.rootElement ? ctx.rootElement.querySelector('[data-role="timer"]') : null;
+        if (tEl) tEl.textContent = ctx.durationSeconds + '秒';
+      }, 500);
+      render(ctx);
+    }).catch(function(err) { alert('无法使用麦克风，请检查浏览器权限。'); });
+  }
+
+  function stopRecording(ctx) {
+    if (!ctx || ctx.destroyed || !ctx.mediaRecorder) return;
+    if (ctx.mediaRecorder.state !== 'inactive') { ctx.mediaRecorder.stop(); }
+    if (ctx.timerId) { clearInterval(ctx.timerId); ctx.timerId = null; }
+  }
+
+  function uploadAPICall(ctx) {
+    return new Promise(function(resolve, reject) {
+      if (!ctx || ctx.destroyed || !ctx.blob) return reject(new Error('no blob'));
+      var blob = ctx.blob;
+      initCloudBase().then(function(app) {
+        if (!app) return reject(new Error('cloud not available'));
+        var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : 'webm';
+        var cp = 'learning_assets/ECRL_MY_CHINESE/' + ctx.taskId + '/' + ctx.studentUid + '/audio_' + Date.now() + '.' + ext;
+        app.uploadFile({ cloudPath: cp, filePath: blob }).then(function(r) {
+          if (!r || !r.fileID) return reject(new Error('no fileID'));
+          ctx.fileId = r.fileID; ctx.durationSeconds = ctx.durationSeconds || Math.round(blob.size / 16000);
+          var cb = '_t510v10cfa' + Date.now();
+          window[cb] = function(cres) { if (cres && cres.success) ctx.assetId = cres.assetId || ''; resolve(ctx); delete window[cb]; };
+          var s = document.createElement('script');
+          s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(ctx.submissionId) + '&taskId=' + ctx.taskId + '&studentUid=' + encodeURIComponent(ctx.studentUid) + '&studentId=' + encodeURIComponent(student ? student.id : '') + '&fileId=' + encodeURIComponent(r.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + ctx.durationSeconds + '&cloudPath=' + encodeURIComponent(cp);
+          document.head.appendChild(s);
+        }).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  function upload(ctx) {
+    if (!ctx || ctx.destroyed || !ctx.blob) return;
+    console.log('[AUDIO_V10_UPLOAD_START]', ctx.taskId, ctx.submissionId, ctx.contextId);
+    ctx.uploadStatus = 'uploading'; render(ctx);
+    uploadAPICall(ctx).then(function() {
+      if (ctx.destroyed) return;
+      ctx.uploadStatus = 'uploaded';
+      console.log('[AUDIO_V10_UPLOAD_SUCCESS]', ctx.taskId, ctx.contextId, !!ctx.fileId, !!ctx.assetId);
+      // Sync to task510State
+      if (task510State && task510State.taskId === ctx.taskId) {
+        task510State.audioFileId = ctx.fileId; task510State.audioAssetId = ctx.assetId;
+        task510State.audioDuration = ctx.durationSeconds;
+      }
+      render(ctx);
+    }).catch(function(err) {
+      if (ctx.destroyed) return;
+      ctx.uploadStatus = 'idle';
+      alert('上传失败：' + (err.message || ''));
+      render(ctx);
+    });
+  }
+
+  function mount(cfg) {
+    destroy();
+    current = createContext(cfg);
+    console.log('[AUDIO_V10_MOUNT]', current.taskId, current.contextId, current.sessionToken);
+    // If task510State already has an uploaded fileId, show as uploaded
+    if (task510State && task510State.taskId === current.taskId && task510State.audioFileId) {
+      current.fileId = task510State.audioFileId; current.assetId = task510State.audioAssetId || '';
+      current.uploadStatus = 'uploaded';
+    }
+    render(current);
+    return current;
+  }
+
+  function destroy() {
+    if (current) {
+      console.log('[AUDIO_V10_DESTROY]', current.taskId, current.contextId);
+      if (current.mediaRecorder && current.mediaRecorder.state !== 'inactive') { try { current.mediaRecorder.stop(); } catch(e) {} }
+      if (current.stream) { current.stream.getTracks().forEach(function(t){t.stop();}); current.stream = null; }
+      if (current.objectUrl) { URL.revokeObjectURL(current.objectUrl); current.objectUrl = null; }
+      if (current.timerId) { clearInterval(current.timerId); current.timerId = null; }
+      current.mediaRecorder = null; current.chunks = []; current.blob = null; current.destroyed = true;
+      if (current.rootElement) current.rootElement.innerHTML = '';
+      current = null;
+    }
+  }
+
+  function getSnapshot() { return current ? { contextId: current.contextId, taskId: current.taskId, uploadStatus: current.uploadStatus, destroyed: current.destroyed } : null; }
+
+  return { mount: mount, start: startRecording, stop: stopRecording, upload: upload, destroy: destroy, getSnapshot: getSnapshot };
+})();
+
+// Simplified render entry for task510 audio step
+function renderTask510AudioStep() {
+  var root = document.getElementById('t510RecorderUI');
+  if (!root) return;
+  Task510AudioV10.destroy();
+  if (!task510State) return;
+  Task510AudioV10.mount({
+    taskId: task510State.taskId,
+    submissionId: task510State.preSubmissionId || '',
+    studentUid: student ? student.uid : '',
+    sessionToken: task510State.token,
+    rootElement: root
   });
 }
 function uploadTask510Photo() {
