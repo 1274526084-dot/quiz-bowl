@@ -230,7 +230,7 @@ function updateOverview(){
 function previewStudent(uid){
   if(!uid){alert('studentUid不存在');return;}
   var cb='_pv'+Date.now();window[cb]=function(res){
-    if(res&&res.success){var url='https://1274526084-dot.github.io/quiz-bowl/my.html?v=14&previewToken='+encodeURIComponent(res.previewToken);
+    if(res&&res.success){var url='https://1274526084-dot.github.io/quiz-bowl/my-v4.html?teacherPreview=1&previewToken='+encodeURIComponent(res.previewToken)+'&previewVersion=TEACHER_STUDENT_PREVIEW_SYNC_20260803&t='+Date.now();
       window.open(url,'_blank');}
     else{alert('预览失败');}delete window[cb];
   };
