@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览模式 · 数据不可修改</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜STUDENT_PREVIEW_ALL_TASKS_READ_FIX_20260803｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -369,7 +369,9 @@ function loadStudentProfile(callback) {
       if (studentProfile.courseProgress && studentProfile.courseProgress.completedRequiredTasks > 0) {
         var tasks = studentProfile.currentProject.tasks || [];
         tasks.forEach(function(t) {
-          if (t.taskId === 'TASK_HSK3_RW_01') taskStatuses[1] = 'submitted';
+          var taskNoMap = { 'TASK_HSK3_RW_01': 1, 'TASK_L1_REVIEW_02': 2, 'TASK_L2_REVIEW_03': 3, 'TASK_SEAL_WORK_04': 4 };
+          var tn = taskNoMap[t.taskId];
+          if (tn) taskStatuses[tn] = 'submitted';
         });
         saveS('taskStatuses', taskStatuses);
       }
@@ -1421,7 +1423,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK4_INITIAL_IMAGE_LINK_FIX_20260803</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：STUDENT_PREVIEW_ALL_TASKS_READ_FIX_20260803</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
