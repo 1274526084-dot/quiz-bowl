@@ -243,7 +243,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
-console.log('TASK510_STATIC_NAV_GLOBAL_ACTION_V15_20260804');
+console.log('TASK510_AUDIO_PHOTO_RENDER_UPLOAD_V16_20260804');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
@@ -2853,12 +2853,22 @@ function renderTask510Step() {
     h += '<div class="quiz-section-title">🎙️ 口语录音</div>';
     h += '<div class="quiz-instructions">请根据自己的实际情况进行介绍。最长5分钟，最大30MB。</div>';
     if (td && td.scaffold) h += renderScaffold(td);
-    h += '<div id="t510RecorderUI"></div>';
-    setTimeout(function() { renderTask510AudioStep(); }, 50);
+    h += '<div id="t510RecorderUI" data-role="audio-component-root"></div>';
   } else if (ct === 'photo') {
     h += '<div class="quiz-section-title">📷 照片</div><div class="quiz-instructions">请选择并上传照片（jpg/png/webp，最大10MB）。</div>';
-    if (st.imageFileId) { h += '<div style="color:#16a34a;font-weight:700">✅ 照片已上传</div>'; }
-    else { h += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t510photo" style="display:block;margin:8px 0"><div id="t510photoPreview"></div>'; if (st.imageFile) h += '<button class="btn btn-submit" onclick="uploadTask510Photo()">☁️ 上传</button>'; }
+    if (task510State.imageFileId) {
+      h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 照片已上传云端</div>';
+    } else {
+      h += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t510photoInput" style="display:none">';
+      h += '<button type="button" class="btn btn-outline" id="t510photoSelectBtn">📷 选择照片</button>';
+      h += '<div id="t510photoPreview" style="margin:8px 0"></div>';
+      if (task510State.imageFile) {
+        h += '<div style="font-size:11px;color:#64748b">已选择：' + task510State.imageFile.name + ' (' + (task510State.imageFile.size/1024).toFixed(1) + ' KB)</div>';
+        h += '<button type="button" class="btn btn-submit" id="t510photoUploadBtn">☁️ 上传照片</button>';
+        h += '<button type="button" class="btn btn-outline" id="t510photoReselectBtn">🔄 重新选择</button>';
+      }
+    }
+  }
   } else {
     // Review
     var aStat = st.audioFileId ? '✅ 已上传' : (AudioRecorder.getBlob()&&AudioRecorder.getBlob().size>0?'⚠️ 已录制未上传':'尚未录制');
@@ -2879,12 +2889,36 @@ function renderTask510Step() {
     var ta = document.getElementById('t510writing');
     if (ta) ta.addEventListener('input', function(){ task510State.writingText = ta.value; var cnt = document.getElementById('t510charCount'); if(cnt) cnt.textContent = '当前字数：'+ta.value.length+'字'; });
   }
-  if (ct === 'audio') { setTimeout(function(){ renderT510Recorder(); }, 100); }
-  if (ct === 'photo') {
-    var pf = document.getElementById('t510photo');
-    if (pf) pf.addEventListener('change', function(){ if (pf.files&&pf.files[0]){ task510State.imageFile=pf.files[0]; var u=URL.createObjectURL(pf.files[0]); var pv=document.getElementById('t510photoPreview'); if(pv)pv.innerHTML='<img src="'+u+'" style="max-width:100%;max-height:200px;border-radius:8px"><div style="font-size:11px">'+pf.files[0].name+'</div>'; renderTask510Step(); }});
-  }
+  if (ct === 'audio') { setTimeout(function(){ renderTask510AudioStep(); }, 50); }
+  if (ct === 'photo') { bindTask510PhotoEvents(); }
   updateTask510Nav();
+}
+function bindTask510PhotoEvents() {
+  var pf2 = document.getElementById('t510photoInput');
+  var selBtn = document.getElementById('t510photoSelectBtn');
+  if (pf2 && selBtn) {
+    selBtn.onclick = function() { pf2.click(); };
+    pf2.onchange = function() {
+      if (pf2.files && pf2.files[0]) {
+        var file = pf2.files[0];
+        if (!file.type.match(/^image\//)) { alert('请选择JPG、PNG或WebP格式的图片。'); return; }
+        if (file.size > 10*1024*1024) { alert('图片超过10MB，请选择较小的文件。'); return; }
+        task510State.imageFile = file;
+        if (task510State._photoPreviewUrl) URL.revokeObjectURL(task510State._photoPreviewUrl);
+        task510State._photoPreviewUrl = URL.createObjectURL(file);
+        renderTask510Step();
+      }
+    };
+  }
+  var upBtn = document.getElementById('t510photoUploadBtn');
+  if (upBtn) upBtn.onclick = function() { uploadTask510Photo(); };
+  var reBtn = document.getElementById('t510photoReselectBtn');
+  if (reBtn) reBtn.onclick = function() { task510State.imageFile = null; if (task510State._photoPreviewUrl) { URL.revokeObjectURL(task510State._photoPreviewUrl); task510State._photoPreviewUrl = null; } renderTask510Step(); };
+  // Show existing preview
+  if (task510State._photoPreviewUrl) {
+    var pv2 = document.getElementById('t510photoPreview');
+    if (pv2) pv2.innerHTML = '<img src="'+task510State._photoPreviewUrl+'" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e2e8f0">';
+  }
 }
 
 // ===== Static Navigation — inline onclick via window globals =====
