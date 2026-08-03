@@ -1011,10 +1011,22 @@ function renderTask2to4Step(step) {
     html += renderScaffold(td);
     html += '<div id="recorderUI"></div>';
   } else if (step === 3 && td.hasPhotoUpload) {
-    // Photo upload (Task 4)
+    // Photo upload (Task 4) — with real CloudBase upload
     html += '<div class="quiz-section-title">📷 印章照片</div>';
-    html += '<div class="quiz-instructions">请上传你的印章作品照片。</div>';
-    html += '<input type="file" accept="image/*" id="t24photo" onchange="onPhotoSelected(this)" style="display:block;margin:12px 0"><div id="photoPreview" style="margin-top:8px"></div>';
+    html += '<div class="quiz-instructions">请选择并上传你的印章作品照片（jpg/png/webp，最大10MB）。</div>';
+    if (task2to4State.imageFileId) {
+      html += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 照片已上传云端</div>';
+      html += '<div id="photoPreview" style="margin-top:8px"></div>';
+      html += '<button class="btn btn-outline" style="margin:4px" onclick="task2to4State.imageFileId=\'\';task2to4State.imageFile=null;renderTask2to4Step(3)">🗑 删除重新上传</button>';
+    } else if (task2to4State._photoUploading) {
+      html += '<div style="text-align:center;color:#f59e0b;padding:12px">⏳ 正在上传照片...</div>';
+    } else {
+      html += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t24photo" onchange="onPhotoSelected(this)" style="display:block;margin:12px 0;font-size:12px">';
+      html += '<div id="photoPreview" style="margin-top:8px"></div>';
+      if (task2to4State.imageFile) {
+        html += '<button class="btn btn-submit" onclick="uploadTask4Photo()" style="margin-top:6px">☁️ 上传到云端</button>';
+      }
+    }
   } else {
     // Review/Submit
     var audioStatus = task2to4State.audioFileId ? '✅ 已上传' : (AudioRecorder.getBlob() && AudioRecorder.getBlob().size > 0 ? '⚠️ 已录制但尚未上传' : '尚未录制');
@@ -1294,9 +1306,43 @@ function onAudioFileSelected(input) {
 
 function onPhotoSelected(input) {
   if (input.files && input.files[0]) {
-    task2to4State.imageFile = input.files[0];
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('图片过大（超过10MB），请选择较小的文件。'); return; }
+    task2to4State.imageFile = file;
     renderPhotoPreview();
+    renderTask2to4Step(3);
   }
+}
+
+function uploadTask4Photo() {
+  var file = task2to4State.imageFile;
+  if (!file) return;
+  task2to4State._photoUploading = true;
+  renderTask2to4Step(3);
+  initCloudBase().then(function(app) {
+    if (!app) { alert('云服务未连接，请检查网络。'); task2to4State._photoUploading = false; renderTask2to4Step(3); return; }
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/TASK_SEAL_WORK_04/' + student.uid + '/photo_' + Date.now() + '.' + ext;
+    app.uploadFile({ cloudPath: cloudPath, filePath: file }).then(function(result) {
+      if (!result || !result.fileID) { throw new Error('未获取fileID'); }
+      task2to4State.imageFileId = result.fileID;
+      task2to4State._photoUploading = false;
+      // confirm asset
+      var cb = '_pcf2' + Date.now();
+      window[cb] = function(res) {
+        if (res && res.success) { task2to4State._photoAssetId = res.assetId; }
+        renderTask2to4Step(3);
+        delete window[cb];
+      };
+      var s = document.createElement('script');
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(task2to4State.preSubmissionId || '') + '&taskId=TASK_SEAL_WORK_04&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=image&mimeType=' + encodeURIComponent(file.type) + '&fileSize=' + file.size + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s);
+    }).catch(function(err) {
+      alert('照片上传失败：' + (err.message || '网络错误') + '\n请重试。');
+      task2to4State._photoUploading = false;
+      renderTask2to4Step(3);
+    });
+  });
 }
 
 function renderPhotoPreview() {
@@ -1326,7 +1372,7 @@ function submitTask2to4() {
     }
   }
   var doSubmit = function() {
-    var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '');
+    var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '') + '&imageAssetId=' + encodeURIComponent(task2to4State._photoAssetId || '');
     var cb = '_st24_' + Date.now();
     window[cb] = function(res) {
       if (res && res.success) {
@@ -1375,7 +1421,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：FORMAL_RELEASE_TASK234_AUTO_GRADE_20260803</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK4_INITIAL_IMAGE_LINK_FIX_20260803</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
