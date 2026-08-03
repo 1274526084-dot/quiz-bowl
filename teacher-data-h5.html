@@ -38,6 +38,7 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <div class="tab-btn" onclick="switchTab('import')">📥 数据导入</div>
   <div class="tab-btn" onclick="switchTab('export')">📤 导出</div>
   <div class="tab-btn" onclick="switchTab('coursetasks')">📋 课程任务</div>
+  <div class="tab-btn" onclick="switchTab('accounts_view')">👥 账号与数据</div>
 </div>
 
 <div class="toolbar">
@@ -126,6 +127,12 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <div class="toolbar"><input type="text" id="ctSearch" placeholder="搜索学生..." oninput="renderCourseTaskTable()"></div>
   <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>已开始</th><th>已提交</th><th>阅读正确</th><th>阅读分</th><th>书写分</th><th>总分</th><th>用时</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="ctTbody"></tbody></table></div>
 </div>
+<div class="page" id="page-accounts_view">
+  <div class="toolbar" style="margin-bottom:6px"><input type="text" id="avSearch" placeholder="搜索MY031/姓名/USER-..." oninput="renderAccountsView()" style="flex:1;max-width:200px"><button class="btn btn-small btn-outline" onclick="exportAccountsViewCsv()">📤 导出CSV</button></div>
+  <div class="stats-row" id="avStatsRow"></div>
+  <div class="tbl-wrap"><table><thead><tr><th>正式账号</th><th>姓名</th><th>源账号</th><th>源状态</th><th>迁移编号</th><th>进度</th><th>归档</th><th>数据</th><th>操作</th></tr></thead><tbody id="avTbody"></tbody></table></div>
+  <div style="font-size:10px;color:#cbd5e1;text-align:center" id="avVersion"></div>
+</div>
 <div class="modal-mask" id="answerModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:12px;padding:16px;width:95%;max-width:620px;max-height:80vh;overflow-y:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -147,8 +154,8 @@ var stuMaster={};
 function isFormal(sid){return FORMAL_SIDS.indexOf(sid)!==-1;}
 function auth(){if(document.getElementById('pwd').value==='ECRL2026'){document.getElementById('authBox').style.display='none';document.getElementById('dashboard').style.display='block';loadData();refreshTimer=setInterval(loadData,30000);setupAccountPanel();setupImportPanel();}else{alert('口令错误');}}
 
-var TAB_LABELS=['总览','HSK分析','学生档案','账号管理','数据导入','导出','课程任务'];var TAB_KEYS=['overview','hsk','students','accounts','import','export','coursetasks'];
-function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(TAB_LABELS[TAB_KEYS.indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();if(tab==='coursetasks')loadCourseTaskStats();}
+var TAB_LABELS=['总览','HSK分析','学生档案','账号管理','数据导入','导出','课程任务','账号与数据'];var TAB_KEYS=['overview','hsk','students','accounts','import','export','coursetasks','accounts_view'];
+function switchTab(tab){activeTab=tab;document.querySelectorAll('.tab-btn').forEach(function(b,i){b.classList.toggle('active',b.textContent.indexOf(TAB_LABELS[TAB_KEYS.indexOf(tab)])!==-1);});document.querySelectorAll('.page').forEach(function(p){p.classList.remove('show');});var el=document.getElementById('page-'+tab);if(el)el.classList.add('show');if(tab==='accounts')setupAccountPanel();if(tab==='import')setupImportPanel();if(tab==='coursetasks')loadCourseTaskStats();if(tab==='accounts_view')loadAccountsView();}
 
 function loadData(){
   var loaded=0;
@@ -641,4 +648,80 @@ function doExportCsv() {
   a.download = '任务一成绩_' + ctCurrentFilter + '_' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
 }
+
+// ===== Accounts View =====
+var avData = null;
+
+function loadAccountsView() {
+  var cb = '_av' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) { avData = res; renderAccountsView(); }
+    else { document.getElementById('avTbody').innerHTML = '<tr><td colspan="9">加载失败</td></tr>'; }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=teacher_get_account_overview';
+  document.head.appendChild(s);
+}
+
+function renderAccountsView() {
+  if (!avData) return;
+  var search = (document.getElementById('avSearch') ? document.getElementById('avSearch').value : '').toLowerCase();
+  var stats = avData.stats || {};
+  document.getElementById('avStatsRow').innerHTML =
+    '<div class="stat-card blue"><span class="num">' + (stats.formalCount||37) + '</span><span class="lbl">正式学生</span></div>' +
+    '<div class="stat-card"><span class="num">' + (stats.mergedCount||0) + '</span><span class="lbl">已合并</span></div>' +
+    '<div class="stat-card"><span class="num">' + (stats.emptyMergedCount||0) + '</span><span class="lbl">空账号</span></div>' +
+    '<div class="stat-card amber"><span class="num">' + (stats.studentsWithArchive||0) + '</span><span class="lbl">有归档</span></div>';
+  var rows = '';
+  (avData.overview||[]).forEach(function(o){
+    if (search && o.studentId.toLowerCase().indexOf(search)===-1 && (o.englishName||'').toLowerCase().indexOf(search)===-1 && (o.sourceStudentId||'').toLowerCase().indexOf(search)===-1) return;
+    var srcTag = o.sourceStudentId ? '<span style="color:#f59e0b;font-size:10px">' + o.sourceStudentId + '</span>' : '—';
+    var srcStatus = o.sourceAccountStatus === 'merged' ? '已合并' : (o.sourceAccountStatus === 'merged_empty_account' ? '空账号' : '—');
+    var ops = '<button class="btn btn-small btn-outline" onclick="viewAccountDetail(\'' + o.studentId + '\',\'' + o.studentUid + '\')">📋 详情</button>';
+    rows += '<tr><td><b>' + o.studentId + '</b></td><td>' + (o.chineseName||'') + ' ' + (o.englishName||'') + '</td><td>' + srcTag + '</td><td>' + srcStatus + '</td><td style="font-size:9px">' + (o.migrationId||'').substring(0,20) + '</td><td>' + (o.progress||'—') + '</td><td>' + (o.archiveCount||0) + '</td><td>' + (o.sourceStudentId?'✅':'—') + '</td><td>' + ops + '</td></tr>';
+  });
+  document.getElementById('avTbody').innerHTML = rows || '<tr><td colspan="9">暂无数据</td></tr>';
+}
+
+function viewAccountDetail(sid, uid) {
+  var cb = '_avd' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) showAccountDetailModal(res);
+    else alert('加载失败');
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=teacher_get_student_detail&studentUid=' + encodeURIComponent(uid);
+  document.head.appendChild(s);
+}
+
+function showAccountDetailModal(data) {
+  var stu = data.student || {};
+  var src = data.source;
+  var tasks = data.tasks || {};
+  var tn = { 'TASK_HSK3_RW_01': '任务一', 'TASK_L1_REVIEW_02': '任务二', 'TASK_L2_REVIEW_03': '任务三', 'TASK_SEAL_WORK_04': '任务四' };
+  var h = '<div style="max-height:70vh;overflow-y:auto">';
+  h += '<h4>' + (stu.chineseName||stu.englishName||'') + ' [' + stu.studentId + ']</h4>';
+  h += '<div style="font-size:12px;line-height:1.8"><b>Uid:</b> ' + stu.studentUid + '<br><b>状态:</b> ' + (stu.accountStatus||'') + '<br><b>进度:</b> ' + (data.progress||'') + ' · <b>归档:</b> ' + (data.archiveCount||0) + '条</div>';
+  if (src) h += '<div style="background:#fffbeb;padding:8px;border-radius:6px;margin:8px 0;font-size:12px"><b>原自注册账号:</b> ' + src.studentId + ' (' + (src.chineseName||src.englishName||'') + ')<br><b>状态:</b> ' + (src.accountStatus||'') + '<br>当前应使用正式账号 <b>' + stu.studentId + '</b> 登录</div>';
+  h += '<table style="width:100%;font-size:11px"><tr><th>任务</th><th>状态</th><th>成绩</th><th>写作</th><th>录音</th><th>图片</th><th>来源</th></tr>';
+  Object.keys(tn).forEach(function(tid){
+    var t = tasks[tid];
+    h += '<tr><td>' + tn[tid] + '</td><td>' + (t?'✅':'—') + '</td><td>' + (t&&t.objectiveScore!=null?t.objectiveScore+'/'+t.objectiveMaxScore:'—') + '</td><td>' + (t&&t.hasWriting?'✅':'—') + '</td><td>' + (t&&t.hasAudio?'✅':'—') + '</td><td>' + (t&&t.hasImage?'✅':'—') + '</td><td>' + (t&&t.migratedFrom?'<span style=\"color:#f59e0b\">迁入</span>':'自有') + '</td></tr>';
+  });
+  h += '</table></div>';
+  document.getElementById('answerModalTitle').textContent = stu.studentId + ' 账号详情';
+  document.getElementById('answerModalContent').innerHTML = h;
+  document.getElementById('answerModal').style.display = 'flex';
+}
+
+function exportAccountsViewCsv() {
+  if (!avData) { alert('请先加载数据'); return; }
+  var BOM='﻿',csv=BOM+'正式账号,姓名,studentUid,源账号,源状态,迁移编号,进度,归档\n';
+  (avData.overview||[]).forEach(function(o){ csv+=[o.studentId,(o.chineseName||'')+(o.englishName||''),o.studentUid,o.sourceStudentId||'',o.sourceAccountStatus||'',o.migrationId||'',o.progress||'',o.archiveCount||0].join(',')+'\n'; });
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='学生账号与数据情况_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+console.log('TEACHER_ACCOUNT_DATA_VIEW_20260803');
 </script></body></html>
