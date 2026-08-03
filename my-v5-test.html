@@ -2743,14 +2743,14 @@ window.addEventListener('popstate', function(e) {
 });
 
 // ===== Task 5-10 Fully Isolated System =====
-console.log('TASK510_ISOLATED_TEST_V8_20260804');
+console.log('TASK510_AUDIO_PHYSICAL_ISOLATION_V9_20260804');
 var task510State = null;
 var task510Token = 0;
 
 function disposeTask510() {
   if (!task510State) return;
   task510State.disposed = true;
-  AudioRecorder.reset();
+  disposeTask510Recorder();
   task510State = null;
   document.getElementById('task510Overlay').classList.remove('show');
 }
@@ -2904,37 +2904,91 @@ function submitTask510() {
   alert('本地测试通过\n任务：'+st.taskId+'\n客观题：'+Object.keys(st.answers).length+'题\n写作：'+(st.writingText?st.writingText.length+'字':'无')+'\n录音：'+(st.audioFileId?'已上传':'无')+'\n\n尚未写入数据库。');
 }
 
+// ===== Task 5-10 Dedicated Recorder (NO global AudioRecorder) =====
+var task510Recorder = null;
+function initTask510Recorder() {
+  if (task510Recorder) disposeTask510Recorder();
+  task510Recorder = { taskId: null, submissionId: null, sessionToken: 0, mediaRecorder: null, stream: null, chunks: [], blob: null, objectUrl: null, durationSeconds: 0, startedAt: null, timerId: null, audioAssetId: null, audioFileId: null, uploadStatus: 'idle', uploading: false };
+}
+function disposeTask510Recorder() {
+  if (!task510Recorder) return;
+  var r = task510Recorder;
+  if (r.mediaRecorder && r.mediaRecorder.state !== 'inactive') { try { r.mediaRecorder.stop(); } catch(e) {} }
+  if (r.stream) { r.stream.getTracks().forEach(function(t){t.stop();}); r.stream = null; }
+  if (r.objectUrl) { URL.revokeObjectURL(r.objectUrl); r.objectUrl = null; }
+  if (r.timerId) { clearInterval(r.timerId); r.timerId = null; }
+  r.mediaRecorder = null; r.chunks = []; r.blob = null; r.durationSeconds = 0; r.uploadStatus = 'idle'; r.audioFileId = null; r.audioAssetId = null; r.uploading = false;
+}
+
 function renderT510Recorder() {
   var ui = document.getElementById('t510RecorderUI'); if (!ui) return;
-  AudioRecorder.init({maxDuration:300,onRender:function(){renderT510Recorder();}});
-  var dur=AudioRecorder.getDuration(), blob=AudioRecorder.getBlob();
-  var up=task510State.audioFileId||'';
-  var h='<div style="text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px"><div style="font-size:24px;font-weight:900;color:#2563eb">'+dur+'秒</div>';
+  if (!task510Recorder) initTask510Recorder();
+  var r = task510Recorder;
+  // Sync with session
+  if (task510State) { r.taskId = task510State.taskId; r.submissionId = task510State.preSubmissionId; r.sessionToken = task510State.token; }
+  var up = task510State ? task510State.audioFileId : '';
+  var dur = r.durationSeconds;
+  var h = '<div style="text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px"><div style="font-size:24px;font-weight:900;color:#2563eb" id="t510AudioTimer">' + dur + '秒</div>';
   if (up) {
-    h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 录音已上传云端</div><button class="btn btn-outline" onclick="AudioRecorder.playPreview()">▶ 试听</button><button class="btn btn-outline" onclick="AudioRecorder.reset();task510State.audioFileId=\'\';renderT510Recorder()">🗑 重录</button>';
-  } else if (task510State._audioUploading) {
+    h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 录音已上传云端</div>';
+    if (r.objectUrl) h += '<audio id="t510AudioPreview" controls src="'+r.objectUrl+'" style="width:100%;max-width:300px"></audio>';
+    h += '<button class="btn btn-outline" onclick="if(task510Recorder&&task510Recorder.objectUrl){var a=new Audio(task510Recorder.objectUrl);a.play();}">▶ 试听</button>';
+    h += '<button class="btn btn-outline" onclick="disposeTask510Recorder();initTask510Recorder();if(task510State)task510State.audioFileId=\'\';renderT510Recorder()">🗑 重录</button>';
+  } else if (r.uploading) {
     h += '<div style="color:#f59e0b">⏳ 上传中...</div>';
-  } else if (!blob) {
-    h += '<button class="btn btn-primary" onclick="AudioRecorder.requestMic()">🎙️ 开始录音</button> <input type="file" accept="audio/*" onchange="if(this.files[0]){AudioRecorder.uploadAsFile(this.files[0]);renderT510Recorder();}" style="font-size:12px;margin-top:4px">';
+  } else if (r.blob) {
+    h += '<audio id="t510AudioPreview" controls src="'+r.objectUrl+'" style="width:100%;max-width:300px"></audio>';
+    h += '<div style="font-size:12px;color:#16a34a;margin:4px 0">录音完成，可以试听</div>';
+    h += '<button class="btn btn-outline" onclick="disposeTask510Recorder();initTask510Recorder();renderT510Recorder()">🗑 重录</button>';
+    h += '<button class="btn btn-submit" onclick="uploadT510Audio()">☁️ 上传</button>';
   } else {
-    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()">▶ 试听</button> <button class="btn btn-outline" onclick="AudioRecorder.reset();renderT510Recorder()">🗑 重录</button> <button class="btn btn-submit" onclick="uploadT510Audio()">☁️ 上传</button>';
+    h += '<button class="btn btn-primary" id="t510RecordBtn" onclick="startTask510Recording()">🎙️ 开始录音</button>';
+    h += ' <input type="file" accept="audio/*" onchange="if(this.files&&this.files[0]){disposeTask510Recorder();initTask510Recorder();task510Recorder.blob=this.files[0];task510Recorder.objectUrl=URL.createObjectURL(this.files[0]);renderT510Recorder();}" style="font-size:12px;margin-top:4px">';
   }
   h += '</div>'; ui.innerHTML = h;
 }
+
+function startTask510Recording() {
+  if (!task510Recorder) initTask510Recorder();
+  var r = task510Recorder;
+  var allowed = ['TASK_CHINESE_MOVIES_05','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_STUDY_LIFE_CHINA_10'];
+  if (!task510State || allowed.indexOf(task510State.taskId)===-1) return;
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    r.stream = stream; r.chunks = []; r.blob = null; r.durationSeconds = 0; r.startedAt = Date.now();
+    var mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm';
+    r.mediaRecorder = new MediaRecorder(stream, {mimeType:mime});
+    r.mediaRecorder.ondataavailable = function(e){if(e.data.size>0)r.chunks.push(e.data);};
+    r.mediaRecorder.onstop = function(){
+      r.blob = new Blob(r.chunks,{type:mime}); r.durationSeconds = Math.round((Date.now()-r.startedAt)/1000);
+      if (r.stream) { r.stream.getTracks().forEach(function(t){t.stop();}); r.stream = null; }
+      if (r.objectUrl) URL.revokeObjectURL(r.objectUrl);
+      r.objectUrl = URL.createObjectURL(r.blob);
+      if (r.timerId) { clearInterval(r.timerId); r.timerId = null; }
+      renderT510Recorder();
+    };
+    r.mediaRecorder.start(100);
+    r.timerId = setInterval(function(){ if(!task510Recorder||task510Recorder!==r) return; r.durationSeconds = Math.round((Date.now()-r.startedAt)/1000); var el=document.getElementById('t510AudioTimer'); if(el)el.textContent=r.durationSeconds+'秒'; }, 500);
+    renderT510Recorder();
+  }).catch(function(err){ alert('无法使用麦克风，请检查浏览器权限。'); });
+}
+
 function uploadT510Audio() {
-  var blob=AudioRecorder.getBlob(); if(!blob||blob.size===0){alert('请先录制');return;}
-  task510State._audioUploading=true; renderT510Recorder();
+  var r = task510Recorder; if (!r || !r.blob || r.blob.size===0) { alert('请先录制'); return; }
+  if (!task510State || r.taskId !== task510State.taskId) { alert('任务状态异常'); return; }
+  r.uploading = true; renderT510Recorder();
   initCloudBase().then(function(app){
-    if(!app){alert('云服务未连接');task510State._audioUploading=false;renderT510Recorder();return;}
-    var ext=blob.type.indexOf('webm')!==-1?'webm':'webm';
-    var cloudPath='learning_assets/ECRL_MY_CHINESE/'+task510State.taskId+'/'+student.uid+'/audio_'+Date.now()+'.'+ext;
-    app.uploadFile({cloudPath:cloudPath,filePath:blob}).then(function(r){
-      if(!r||!r.fileID) throw new Error('no fileID');
-      task510State.audioFileId=r.fileID; task510State.audioDuration=AudioRecorder.getDuration();
-      task510State._audioUploading=false;
-      var cb2='_t510cfa'+Date.now(); window[cb2]=function(res){ if(res&&res.success)task510State.audioAssetId=res.assetId; renderT510Recorder(); delete window[cb2]; };
-      var s2=document.createElement('script'); s2.src=API+'?callback='+cb2+'&action=confirm_asset_upload&submissionId='+encodeURIComponent(task510State.preSubmissionId)+'&taskId='+task510State.taskId+'&studentUid='+encodeURIComponent(student.uid)+'&studentId='+encodeURIComponent(student.id)+'&fileId='+encodeURIComponent(r.fileID)+'&fileType=audio&mimeType='+encodeURIComponent(blob.type)+'&fileSize='+blob.size+'&durationSeconds='+task510State.audioDuration+'&cloudPath='+encodeURIComponent(cloudPath); document.head.appendChild(s2);
-    }).catch(function(err){alert('上传失败：'+err.message);task510State._audioUploading=false;renderT510Recorder();});
+    if (!app) { alert('云服务未连接'); r.uploading = false; renderT510Recorder(); return; }
+    var blob = r.blob;
+    var ext = blob.type.indexOf('webm')!==-1?'webm':'webm';
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/'+task510State.taskId+'/'+student.uid+'/audio_'+Date.now()+'.'+ext;
+    app.uploadFile({cloudPath:cloudPath,filePath:blob}).then(function(upRes){
+      if (!upRes||!upRes.fileID) throw new Error('no fileID');
+      r.uploading = false; r.audioFileId = upRes.fileID;
+      task510State.audioFileId = upRes.fileID; task510State.audioDuration = r.durationSeconds;
+      task510State._audioUploading = false;
+      var cb2='_t510cfa'+Date.now(); window[cb2]=function(cres){ if(cres&&cres.success) task510State.audioAssetId=cres.assetId; renderT510Recorder(); delete window[cb2]; };
+      var s2=document.createElement('script'); s2.src=API+'?callback='+cb2+'&action=confirm_asset_upload&submissionId='+encodeURIComponent(task510State.preSubmissionId)+'&taskId='+task510State.taskId+'&studentUid='+encodeURIComponent(student.uid)+'&studentId='+encodeURIComponent(student.id)+'&fileId='+encodeURIComponent(upRes.fileID)+'&fileType=audio&mimeType='+encodeURIComponent(blob.type)+'&fileSize='+blob.size+'&durationSeconds='+task510State.audioDuration+'&cloudPath='+encodeURIComponent(cloudPath); document.head.appendChild(s2);
+    }).catch(function(err){ alert('上传失败：'+err.message); r.uploading = false; renderT510Recorder(); });
   });
 }
 function uploadTask510Photo() {
@@ -2965,7 +3019,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Version display
-(function(){ var vd=document.getElementById('task510Stepbar'); if(vd) vd.insertAdjacentHTML('afterend','<div style="font-size:10px;color:#cbd5e1;text-align:center">TASK510_ISOLATED_TEST_V8_20260804</div>'); })();
+(function(){ var vd=document.getElementById('task510Stepbar'); if(vd) vd.insertAdjacentHTML('afterend','<div style="font-size:10px;color:#cbd5e1;text-align:center">TASK510_AUDIO_PHYSICAL_ISOLATION_V9_20260804</div>'); })();
 
 // (renderTasks handles Task 1 directly — no override needed)
 </script></body></html>
