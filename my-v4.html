@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASK9_H31004_REAL_CONTENT_FIX_V6_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -919,8 +919,46 @@ var AudioRecorder = {
   _stopTimer: function() { if (this._timer) { clearInterval(this._timer); this._timer = null; } }
 };
 
-// ===== Task 2-4 Shared Quiz State =====
+// ===== Task Session Management =====
+var activeTaskSession = null;
+var sessionCounter = 0;
+function createTaskSession(taskId) {
+  sessionCounter++;
+  disposeTaskSession();
+  activeTaskSession = { token: sessionCounter, taskId: taskId, taskType: null, stepList: [], stepIndex: 0, answers: {}, disposed: false, taskData: null, preSubmissionId: '', writingText: '', audioFileId: '', audioDuration: 0, imageFileId: '', submitted: false, _photoUploading: false, imageFile: null, _photoAssetId: '', _audioAssetId: '' };
+  console.log('[OPEN_TASK]', taskId, 'sessionToken', sessionCounter);
+  return activeTaskSession;
+}
+function disposeTaskSession() {
+  if (!activeTaskSession) return;
+  console.log('[DISPOSE_TASK]', activeTaskSession.taskId, activeTaskSession.token);
+  activeTaskSession.disposed = true;
+  AudioRecorder.reset();
+  activeTaskSession = null;
+}
+function sessionValid(token) { return activeTaskSession && !activeTaskSession.disposed && activeTaskSession.token === token; }
+
+// Backward-compat wrapper
 var task2to4State = { active: false, taskId: '', taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false };
+function syncSessionToState(s) {
+  if (!s) return;
+  task2to4State.active = true; task2to4State.taskId = s.taskId; task2to4State.taskData = s.taskData;
+  task2to4State.currentStep = s.stepIndex; task2to4State.answers = s.answers;
+  task2to4State.writingText = s.writingText; task2to4State.audioFileId = s.audioFileId;
+  task2to4State.audioDuration = s.audioDuration; task2to4State.imageFileId = s.imageFileId;
+  task2to4State.submitted = s.submitted; task2to4State.preSubmissionId = s.preSubmissionId;
+  task2to4State._photoUploading = s._photoUploading; task2to4State.imageFile = s.imageFile;
+  task2to4State._photoAssetId = s._photoAssetId; task2to4State._audioAssetId = s._audioAssetId;
+}
+function syncStateToSession(s) {
+  if (!s) return;
+  s.answers = task2to4State.answers; s.writingText = task2to4State.writingText;
+  s.audioFileId = task2to4State.audioFileId; s.audioDuration = task2to4State.audioDuration;
+  s.imageFileId = task2to4State.imageFileId; s.submitted = task2to4State.submitted;
+  s.preSubmissionId = task2to4State.preSubmissionId; s._photoUploading = task2to4State._photoUploading;
+  s.imageFile = task2to4State.imageFile; s._photoAssetId = task2to4State._photoAssetId;
+  s._audioAssetId = task2to4State._audioAssetId;
+}
 
 function isTestAccount() {
   if (!student) return false;
@@ -935,26 +973,29 @@ function startTask2to4(taskId) {
   // Task 9 routes to HSK test flow (Task 1 pattern)
   if (taskId === 'TASK_HSK3_TEST_2_09') { startTask9(); return; }
   // Show loading overlay immediately
-  AudioRecorder.reset(); // Clean up any previous task's recorder state
+  var session = createTaskSession(taskId);
+  var stoken = session.token;
+  AudioRecorder.reset();
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
   document.getElementById('quizStepbar').innerHTML = '';
   document.getElementById('quizTitle').textContent = '查询中...';
   document.getElementById('quizTimer').textContent = '';
-  document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在检查任务状态……</div>';
+  document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b" data-task-id="'+taskId+'" data-session-token="'+stoken+'">⏳ 正在检查任务状态……</div>';
   var TASK_NO_MAP = { 'TASK_HSK3_RW_01':1,'TASK_L1_REVIEW_02':2,'TASK_L2_REVIEW_03':3,'TASK_SEAL_WORK_04':4,'TASK_CHINESE_MOVIES_05':5,'TASK_CHINESE_FOOD_1_06':6,'TASK_PAPER_CUTTING_07':7,'TASK_CHINESE_FOOD_2_08':8,'TASK_HSK3_TEST_2_09':9,'TASK_STUDY_LIFE_CHINA_10':10};
   var cbCheck = '_chk' + Date.now();
   window[cbCheck] = function(checkRes) {
+    if (!sessionValid(stoken)) { delete window[cbCheck]; return; }
     if (checkRes && checkRes.success && checkRes.submissionId) {
       var tno = TASK_NO_MAP[taskId] || 0;
       if (tno) { taskStatuses[tno] = 'submitted'; saveS('taskStatuses', taskStatuses); }
       showTask2to4Result(checkRes);
     } else {
-      var preSubId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-      task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false, preSubmissionId: preSubId };
+      session.preSubmissionId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      syncSessionToState(session);
       document.getElementById('quizTitle').textContent = '加载中...';
       document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
-      fetchTask2to4Data(taskId);
+      fetchTask2to4Data(taskId, stoken);
     }
     delete window[cbCheck];
   };
@@ -963,15 +1004,21 @@ function startTask2to4(taskId) {
   document.head.appendChild(sCheck);
 }
 
-function fetchTask2to4Data(taskId) {
+function fetchTask2to4Data(taskId, stoken) {
+  console.log('[LOAD_DEFINITION_REQUEST]', taskId, stoken);
   var cb = '_t24_' + Date.now();
   window[cb] = function(res) {
-    if (res && res.success) {
-      task2to4State.taskData = res.task;
-      document.getElementById('quizTitle').textContent = res.task.title;
-      document.getElementById('quizTimer').textContent = res.task.recommendedMinutes + '分钟';
+    if (!sessionValid(stoken)) { delete window[cb]; return; }
+    console.log('[LOAD_DEFINITION_RESPONSE]', taskId, (res&&res.task?res.task.taskId:'none'), 'isCurrent:', sessionValid(stoken));
+    if (res && res.success && res.task) {
+      if (res.task.taskId !== taskId) { alert('任务数据不匹配，请重试。'); delete window[cb]; return; }
+      var s = activeTaskSession;
+      s.taskData = res.task;
+      syncSessionToState(s);
+      document.getElementById('quizTitle').textContent = res.task.title || '';
+      document.getElementById('quizTimer').textContent = (res.task.recommendedMinutes || '') + '分钟';
       renderTask2to4Step(0);
-    } else { alert('加载任务失败'); }
+    } else { if (sessionValid(stoken)) alert('加载任务失败'); }
     delete window[cb];
   };
   var s = document.createElement('script');
@@ -980,10 +1027,14 @@ function fetchTask2to4Data(taskId) {
 }
 
 function renderTask2to4Step(step) {
-  task2to4State.currentStep = step;
-  var td = task2to4State.taskData;
+  var s = activeTaskSession;
+  if (!s) return;
+  s.stepIndex = step;
+  syncSessionToState(s);
+  var td = s.taskData;
   if (!td) return;
   var body = document.getElementById('quizBody');
+  var stoken = s.token;
   var hasObj = (td.sections||[]).length > 0 && (td.sections[0].questions||[]).length > 0 && !td.noObjective;
   var hasWriting = !td.noWriting;
   var hasAudio = !td.noSpeaking;
@@ -995,6 +1046,7 @@ function renderTask2to4Step(step) {
   if (hasAudio) stepList.push({label:'录音', type:'audio'});
   if (hasPhoto) stepList.push({label:'照片', type:'photo'});
   stepList.push({label:'提交', type:'review'});
+  s.stepList = stepList;
   var totalSteps = stepList.length;
   var currentStepType = stepList[step] ? stepList[step].type : 'review';
   var html = '';
@@ -1105,21 +1157,23 @@ function selectTask2to4Opt(el, qid, oid) {
 }
 
 function updateTask2to4Nav() {
-  var td = task2to4State.taskData;
-  var total = stepList.length;
-  var step = task2to4State.currentStep;
-  var nav = document.getElementById('quizNav');
+  var s = activeTaskSession;
+  if (!s) return;
+  var sl = s.stepList;
+  var total = sl.length;
+  var step = s.stepIndex;
   var prevBtn = document.getElementById('quizPrevBtn');
   var nextBtn = document.getElementById('quizNextBtn');
   var submitBtn = document.getElementById('quizSubmitBtn');
   var progress = document.getElementById('quizProgress');
+  var stoken = s.token;
   if (step === 0) { prevBtn.style.display = 'none'; } else { prevBtn.style.display = ''; }
-  if (step >= total - 2) { nextBtn.style.display = 'none'; submitBtn.style.display = ''; } else { nextBtn.style.display = ''; submitBtn.style.display = 'none'; }
+  if (step >= total - 1) { nextBtn.style.display = 'none'; submitBtn.style.display = ''; } else { nextBtn.style.display = ''; submitBtn.style.display = 'none'; }
   progress.textContent = (step + 1) + '/' + total;
-  // Override next behavior
-  nextBtn.onclick = function() { renderTask2to4Step(step + 1); };
-  submitBtn.onclick = step === total - 1 ? function() { submitTask2to4(); } : function() { renderTask2to4Step(step + 1); };
-  prevBtn.onclick = function() { renderTask2to4Step(step - 1); };
+  // Clone to remove old listeners
+  var newPrev = prevBtn.cloneNode(true); prevBtn.parentNode.replaceChild(newPrev, prevBtn); newPrev.id = 'quizPrevBtn'; newPrev.onclick = function() { if (sessionValid(stoken)) renderTask2to4Step(step - 1); };
+  var newNext = nextBtn.cloneNode(true); nextBtn.parentNode.replaceChild(newNext, nextBtn); newNext.id = 'quizNextBtn'; newNext.onclick = function() { if (sessionValid(stoken)) renderTask2to4Step(step + 1); };
+  var newSubmit = submitBtn.cloneNode(true); submitBtn.parentNode.replaceChild(newSubmit, submitBtn); newSubmit.id = 'quizSubmitBtn'; newSubmit.onclick = function() { if (sessionValid(stoken)) submitTask2to4(); };
 }
 
 function renderRecorderUI() {
@@ -1402,7 +1456,9 @@ function submitTask2to4() {
   var doSubmit = function() {
     var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '') + '&imageAssetId=' + encodeURIComponent(task2to4State._photoAssetId || '');
     var cb = '_st24_' + Date.now();
+    var sstoken = (activeTaskSession ? activeTaskSession.token : 0);
     window[cb] = function(res) {
+      if (!sessionValid(sstoken)) { delete window[cb]; return; }
       if (res && res.success) {
         task2to4State.submitted = true;
         var taskNo = task2to4State.taskId === 'TASK_L1_REVIEW_02' ? 2 : (task2to4State.taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
@@ -1449,7 +1505,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK9_H31004_REAL_CONTENT_FIX_V6_20260804</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
@@ -2591,6 +2647,7 @@ function showTask1Results(data) {
 }
 
 function exitTask2to4Result() {
+  disposeTaskSession();
   // Stop any playing audio
   var audios = document.querySelectorAll('#resultBody audio');
   for (var i = 0; i < audios.length; i++) { try { audios[i].pause(); audios[i].src = ''; } catch(e) {} }
