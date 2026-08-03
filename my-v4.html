@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASKS_5_TO_10_BUILD_TEST_V3_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASKS_5_TO_10_RUNTIME_FIX_V4_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -932,23 +932,23 @@ function startTask2to4(taskId) {
   if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
   if (!student) { alert('请先登录'); return; }
   // Open to all students (class release)
+  // Task 9 routes to HSK test flow (Task 1 pattern)
+  if (taskId === 'TASK_HSK3_TEST_2_09') { startTask9(); return; }
   // Show loading overlay immediately
+  AudioRecorder.reset(); // Clean up any previous task's recorder state
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
   document.getElementById('quizTitle').textContent = '查询中...';
   document.getElementById('quizTimer').textContent = '';
   document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在检查任务状态……</div>';
-  // First check if already submitted on server
+  var TASK_NO_MAP = { 'TASK_HSK3_RW_01':1,'TASK_L1_REVIEW_02':2,'TASK_L2_REVIEW_03':3,'TASK_SEAL_WORK_04':4,'TASK_CHINESE_MOVIES_05':5,'TASK_CHINESE_FOOD_1_06':6,'TASK_PAPER_CUTTING_07':7,'TASK_CHINESE_FOOD_2_08':8,'TASK_HSK3_TEST_2_09':9,'TASK_STUDY_LIFE_CHINA_10':10};
   var cbCheck = '_chk' + Date.now();
   window[cbCheck] = function(checkRes) {
     if (checkRes && checkRes.success && checkRes.submissionId) {
-      // Already submitted — show results directly
-      var taskNo = taskId === 'TASK_L1_REVIEW_02' ? 2 : (taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
-      taskStatuses[taskNo] = 'submitted';
-      saveS('taskStatuses', taskStatuses);
+      var tno = TASK_NO_MAP[taskId] || 0;
+      if (tno) { taskStatuses[tno] = 'submitted'; saveS('taskStatuses', taskStatuses); }
       showTask2to4Result(checkRes);
     } else {
-      // No submission — start fresh quiz
       var preSubId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
       task2to4State = { active: true, taskId: taskId, taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false, preSubmissionId: preSubId };
       document.getElementById('quizTitle').textContent = '加载中...';
@@ -983,23 +983,32 @@ function renderTask2to4Step(step) {
   var td = task2to4State.taskData;
   if (!td) return;
   var body = document.getElementById('quizBody');
-  var totalSteps = td.hasPhotoUpload ? 4 : 3;
+  var hasObj = (td.sections||[]).length > 0 && (td.sections[0].questions||[]).length > 0 && !td.noObjective;
+  var hasWriting = !td.noWriting;
+  var hasAudio = !td.noSpeaking;
+  var hasPhoto = td.hasPhotoUpload;
+  // Build step list
+  var stepList = [];
+  if (hasObj) stepList.push({label:'客观题', type:'objective'});
+  if (hasWriting) stepList.push({label:'写作', type:'writing'});
+  if (hasAudio) stepList.push({label:'录音', type:'audio'});
+  if (hasPhoto) stepList.push({label:'照片', type:'photo'});
+  stepList.push({label:'提交', type:'review'});
+  var totalSteps = stepList.length;
+  var currentStepType = stepList[step] ? stepList[step].type : 'review';
   var html = '';
   // Step bar
-  var steps = ['客观题', '写作', '录音'];
-  if (td.hasPhotoUpload) steps.push('照片');
-  steps.push('提交');
   html += '<div class="quiz-stepbar">';
-  for (var i = 0; i < steps.length; i++) {
-    html += '<div class="step' + (i === step ? ' active' : '') + '" onclick="renderTask2to4Step(' + i + ')">' + (i+1) + '. ' + steps[i] + '</div>';
+  for (var i = 0; i < stepList.length; i++) {
+    html += '<div class="step' + (i === step ? ' active' : '') + '" onclick="renderTask2to4Step(' + i + ')">' + (i+1) + '. ' + stepList[i].label + '</div>';
   }
   html += '</div>';
 
-  if (step === 0) {
+  if (currentStepType === 'objective') {
     // Objective questions
     var sec = td.sections[0];
-    html += '<div class="quiz-section-title">' + sec.title + '</div>';
-    html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
+    html += '<div class="quiz-section-title">' + (sec.title || '客观题') + '</div>';
+    if (sec.instructions) html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
     sec.questions.forEach(function(q) {
       var selected = task2to4State.answers[q.id];
       html += '<div class="quiz-qcard"><div class="qnum">第' + q.number + '题（10分）</div>';
@@ -1015,21 +1024,21 @@ function renderTask2to4Step(step) {
       }
       html += '</div>';
     });
-  } else if (step === 1) {
+  } else if (currentStepType === 'writing') {
     // Writing (no word limit enforced)
     html += '<div class="quiz-section-title">📝 写作</div>';
     html += '<div class="quiz-instructions">' + (td.writingPrompt || '请根据本课内容写作。') + '</div>';
     html += renderScaffold(td);
     html += '<textarea class="write-input" id="t24writing" style="min-height:150px" placeholder="在这里写作...">' + (task2to4State.writingText || '') + '</textarea>';
     html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t24charCount">当前字数：0字</div>';
-  } else if (step === 2) {
+  } else if (currentStepType === 'audio') {
     // Recording
     html += '<div class="quiz-section-title">🎙️ 口语录音</div>';
     html += '<div class="quiz-instructions">' + (td.speakingPrompt || '请根据自己的实际情况进行介绍。') + '<br><span style="color:#94a3b8">建议时长仅供参考，不影响提交。最长5分钟，最大30MB。</span></div>';
     html += renderScaffold(td);
     html += '<div id="recorderUI"></div>';
-  } else if (step === 3 && td.hasPhotoUpload) {
-    // Photo upload (Task 4) — with real CloudBase upload
+  } else if (currentStepType === 'photo') {
+    // Photo upload — with real CloudBase upload
     html += '<div class="quiz-section-title">📷 印章照片</div>';
     html += '<div class="quiz-instructions">请选择并上传你的印章作品照片（jpg/png/webp，最大10MB）。</div>';
     if (task2to4State.imageFileId) {
@@ -1060,12 +1069,12 @@ function renderTask2to4Step(step) {
 
   body.innerHTML = html;
 
-  if (step === 1) {
+  if (currentStepType === 'writing') {
     var ta = document.getElementById('t24writing');
     if (ta) { ta.addEventListener('input', function() { task2to4State.writingText = ta.value; var cnt = document.getElementById('t24charCount'); if(cnt) cnt.textContent = '当前字数：' + ta.value.length + '字'; }); }
   }
-  if (step === 2) { setTimeout(renderRecorderUI, 100); }
-  if (step === 3 && td.hasPhotoUpload) { setTimeout(renderPhotoPreview, 100); }
+  if (currentStepType === 'audio') { setTimeout(renderRecorderUI, 100); }
+  if (currentStepType === 'photo') { setTimeout(renderPhotoPreview, 100); }
   updateTask2to4Nav();
 }
 
@@ -1096,7 +1105,7 @@ function selectTask2to4Opt(el, qid, oid) {
 
 function updateTask2to4Nav() {
   var td = task2to4State.taskData;
-  var total = (td && td.hasPhotoUpload) ? 5 : 4;
+  var total = stepList.length;
   var step = task2to4State.currentStep;
   var nav = document.getElementById('quizNav');
   var prevBtn = document.getElementById('quizPrevBtn');
@@ -1439,7 +1448,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASKS_5_TO_10_BUILD_TEST_V3_20260804</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASKS_5_TO_10_RUNTIME_FIX_V4_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
@@ -1776,7 +1785,18 @@ function uploadSupplementAudio(data) {
 
 console.log('TASK_RESULT_ROUTING_FIX_20260803');
 
+// Task 9 — HSK3 Test (2): route to Task 1 flow
+function startTask9() {
+  TASK1_ID = 'TASK_HSK3_TEST_2_09';
+  AudioRecorder.reset();
+  if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
+  if (!student) { alert('请先登录'); return; }
+  if (taskStatuses[9] === 'submitted') { viewTask1Result(); return; }
+  quizState = { active: true, currentStep: 0, totalSteps: 4, answers: {}, taskData: null, startedAt: new Date().toISOString(), timerSeconds: 3000, timerInterval: null, timerActive: false, submitting: false, submitted: false };
+  fetchTaskAndStart();
+}
 function startTask1() {
+  TASK1_ID = 'TASK_HSK3_RW_01';
   console.log('TASK1_BUILD_20260802_02');
   if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
   if (!student) { alert('请先登录'); return; }
