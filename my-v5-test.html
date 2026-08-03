@@ -103,7 +103,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <label>英文姓名（首次登录填写）</label><input id="studentName" placeholder="首次登录时填写英文姓名">
 <label>中文姓名（选填）</label><input id="chineseName" placeholder="首次登录时填写中文名">
 <div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>
-<button class="btn btn-primary" onclick="login()">确认进入</button>
+<button class="btn btn-primary" onclick="console.log('[LOGIN_BUTTON_CLICK_V13]');login()">确认进入</button>
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
@@ -243,8 +243,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
-window.addEventListener('error', function(e) { var el = document.getElementById('loginBox'); if (el) el.insertAdjacentHTML('beforeend', '<div style=\"color:#dc2626;font-size:11px;padding:8px\">页面运行错误：' + (e.message || e.error || '') + ' (行' + (e.lineno||'') + ')</div>'); });
-console.log('TASK510_LOGIN_RUNTIME_FIX_V12_20260804');
+console.log('TASK510_LOGIN_COPY_FROM_FORMAL_V13_20260804');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
@@ -2935,4 +2934,5 @@ var Task510AudioV10 = (function() {
   function destroy() { if(current){if(current.mediaRecorder&&current.mediaRecorder.state!=='inactive'){try{current.mediaRecorder.stop();}catch(e){}}if(current.stream){current.stream.getTracks().forEach(function(t){t.stop();});current.stream=null;}if(current.objectUrl){URL.revokeObjectURL(current.objectUrl);current.objectUrl=null;}if(current.timerId){clearInterval(current.timerId);current.timerId=null;}current.mediaRecorder=null;current.chunks=[];current.blob=null;current.destroyed=true;if(current.rootElement)current.rootElement.innerHTML='';current=null;} }
   return { mount:mount, destroy:destroy, getSnapshot:function(){return current?{contextId:current.contextId,taskId:current.taskId,status:current.status,destroyed:current.destroyed}:null;} };
 })();
-function renderTask510AudioStep() { var root=document.getElementById('t510RecorderUI'); if(!root)return; Task510AudioV10.destroy(); if(!task510State)return; Task510AudioV10.mount({ taskId:task510State.taskId, submissionId:task510State.preSubmissionId||'', studentUid:student?student.uid:'', sessionToken:task510State.token, rootElement:root }); }
+window.addEventListener('error', function(e) { var el = document.getElementById('loginBox'); if (el) el.insertAdjacentHTML('beforeend', '<div style="color:#dc2626;font-size:11px;padding:8px">错误：'+(e.message||'')+' (行'+(e.lineno||'')+')</div>'); });
+</script></body></html>
