@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASKS_5_TO_10_RUNTIME_FIX_V4_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASK9_H31004_REAL_CONTENT_FIX_V6_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -938,6 +938,7 @@ function startTask2to4(taskId) {
   AudioRecorder.reset(); // Clean up any previous task's recorder state
   document.getElementById('quizOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('quizStepbar').innerHTML = '';
   document.getElementById('quizTitle').textContent = '查询中...';
   document.getElementById('quizTimer').textContent = '';
   document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在检查任务状态……</div>';
@@ -1011,8 +1012,8 @@ function renderTask2to4Step(step) {
     if (sec.instructions) html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
     sec.questions.forEach(function(q) {
       var selected = task2to4State.answers[q.id];
-      html += '<div class="quiz-qcard"><div class="qnum">第' + q.number + '题（10分）</div>';
-      if (q.type === 'word_choice' || q.type === 'structure_choice') {
+      html += '<div class="quiz-qcard"><div class="qnum">第' + q.number + '题（' + qScore + '分）</div>';
+      if (q.type === 'word_choice' || q.type === 'structure_choice' || q.type === 'choice') {
         html += '<div class="qtext">' + q.text + '</div>';
         q.options.forEach(function(opt) {
           html += '<div class="qopt' + (selected === opt.id ? ' sel' : '') + '" onclick="selectTask2to4Opt(this,\'' + q.id + '\',\'' + opt.id + '\')">' + opt.id + '. ' + opt.text + '</div>';
@@ -1448,7 +1449,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASKS_5_TO_10_RUNTIME_FIX_V4_20260804</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK9_H31004_REAL_CONTENT_FIX_V6_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
