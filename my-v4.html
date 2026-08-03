@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜STUDENT_PREVIEW_ALL_TASKS_READ_FIX_20260803｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASKS_5_TO_10_BUILD_TEST_V3_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -282,7 +282,7 @@ function initCloudBase() {
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
 	var isPreviewMode=false;
-var TASK_DEFS=[{no:1,title:'HSK三级阅读与书写练习',cat:'阅读30题 + 书写10题',icon:'📝'},{no:2,title:'认识新同学',cat:'写作+口语·第一课复习',icon:'🎙️'},{no:3,title:'住校内还是住校外',cat:'写作+口语·第二课复习',icon:'🏠'},{no:4,title:'我的印章作品',cat:'写作+口语·文化体验',icon:'🔖'},{no:5,title:'任务五',cat:'写作任务',icon:'✍️'},{no:6,title:'任务六',cat:'铁路中文·客运',icon:'🚉'},{no:7,title:'任务七',cat:'铁路中文·信号',icon:'🚦'},{no:8,title:'任务八',cat:'口语交流',icon:'🗣️'},{no:9,title:'任务九',cat:'阶段测试',icon:'📋'},{no:10,title:'任务十',cat:'学习总结',icon:'📊'}];
+var TASK_DEFS=[{no:1,title:'HSK三级阅读与书写练习',cat:'阅读30题 + 书写10题',icon:'📝'},{no:2,title:'认识新同学',cat:'写作+口语·第一课复习',icon:'🎙️'},{no:3,title:'住校内还是住校外',cat:'写作+口语·第二课复习',icon:'🏠'},{no:4,title:'我的印章作品',cat:'写作+口语·文化体验',icon:'🔖'},{no:5,title:'中国电影',cat:'阅读+写作+口语',icon:'🎬'},{no:6,title:'中国菜（1）',cat:'12道客观题',icon:'🍜'},{no:7,title:'剪纸作品',cat:'写作+口语+照片',icon:'✂️'},{no:8,title:'中国菜（2）',cat:'阅读+写作+口语',icon:'🥢'},{no:9,title:'HSK三级测试（2）',cat:'阅读40题+书写10题',icon:'📋'},{no:10,title:'中国留学生活',cat:'阅读+写作+口语',icon:'🎓'}];
 var navStack=[];
 
 // ===== Storage keys (student-scoped) =====
@@ -369,7 +369,7 @@ function loadStudentProfile(callback) {
       if (studentProfile.courseProgress && studentProfile.courseProgress.completedRequiredTasks > 0) {
         var tasks = studentProfile.currentProject.tasks || [];
         tasks.forEach(function(t) {
-          var taskNoMap = { 'TASK_HSK3_RW_01': 1, 'TASK_L1_REVIEW_02': 2, 'TASK_L2_REVIEW_03': 3, 'TASK_SEAL_WORK_04': 4 };
+          var taskNoMap = { 'TASK_HSK3_RW_01': 1, 'TASK_L1_REVIEW_02': 2, 'TASK_L2_REVIEW_03': 3, 'TASK_SEAL_WORK_04': 4, 'TASK_CHINESE_MOVIES_05': 5, 'TASK_CHINESE_FOOD_1_06': 6, 'TASK_PAPER_CUTTING_07': 7, 'TASK_CHINESE_FOOD_2_08': 8, 'TASK_HSK3_TEST_2_09': 9, 'TASK_STUDY_LIFE_CHINA_10': 10 };
           var tn = taskNoMap[t.taskId];
           if (tn) taskStatuses[tn] = 'submitted';
         });
@@ -556,6 +556,22 @@ function renderTasks(){
       h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
       h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn;
       h+='<div style="font-size:10px;color:#cbd5e1;margin-top:4px">版本：TASK1-02</div></div>';
+    } else if (t.no >= 5 && t.no <= 10) {
+      // Tasks 5-10: test-only for now
+      var taskIdMap5 = {5:'TASK_CHINESE_MOVIES_05',6:'TASK_CHINESE_FOOD_1_06',7:'TASK_PAPER_CUTTING_07',8:'TASK_CHINESE_FOOD_2_08',9:'TASK_HSK3_TEST_2_09',10:'TASK_STUDY_LIFE_CHINA_10'};
+      var task510Id = taskIdMap5[t.no];
+      if (!isTestAccount()) {
+        tag='tag-gray';txt='测试中';
+        btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>';
+      } else if(!st){
+        tag='tag-gray';txt='未开始';
+        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask2to4(\''+task510Id+'\')">📝 开始测试</button>';
+      } else if(st==='submitted'){
+        tag='tag-green';txt='已提交';
+        btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task510Id+'\')">📊 查看结果</button>';
+      }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'">';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
     } else if (t.no >= 2 && t.no <= 4) {
       // Tasks 2-4: open to all students (class release)
       var taskIdMap = {2:'TASK_L1_REVIEW_02',3:'TASK_L2_REVIEW_03',4:'TASK_SEAL_WORK_04'};
@@ -1423,7 +1439,7 @@ function showTask2to4Result(data) {
   // Push history state for back button
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：STUDENT_PREVIEW_ALL_TASKS_READ_FIX_20260803</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASKS_5_TO_10_BUILD_TEST_V3_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';

@@ -113,6 +113,12 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
     <button class="btn btn-small" id="ctTask2" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_L1_REVIEW_02')">任务二</button>
     <button class="btn btn-small" id="ctTask3" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_L2_REVIEW_03')">任务三</button>
     <button class="btn btn-small" id="ctTask4" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_SEAL_WORK_04')">任务四</button>
+    <button class="btn btn-small" id="ctTask5" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_CHINESE_MOVIES_05')">任务五</button>
+    <button class="btn btn-small" id="ctTask6" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_CHINESE_FOOD_1_06')">任务六</button>
+    <button class="btn btn-small" id="ctTask7" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_PAPER_CUTTING_07')">任务七</button>
+    <button class="btn btn-small" id="ctTask8" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_CHINESE_FOOD_2_08')">任务八</button>
+    <button class="btn btn-small" id="ctTask9" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_HSK3_TEST_2_09')">任务九</button>
+    <button class="btn btn-small" id="ctTask10" style="background:#fff;color:#64748b;border:1.5px solid #e2e8f0" onclick="switchCtTask('TASK_STUDY_LIFE_CHINA_10')">任务十</button>
   </div>
   <div class="toolbar" style="margin-bottom:8px">
     <button class="btn btn-small" id="ctFilterFormal" style="background:#2563eb;color:#fff;font-weight:700" onclick="switchCtFilter('formal')">📋 正式学生</button>
@@ -331,8 +337,8 @@ function switchCtTask(taskId) {
   ctCurrentTask = taskId;
   var labels = { 'TASK_HSK3_RW_01': '任务一', 'TASK_L1_REVIEW_02': '任务二', 'TASK_L2_REVIEW_03': '任务三', 'TASK_SEAL_WORK_04': '任务四' };
   ctTaskLabel = labels[taskId] || taskId;
-  ['TASK_HSK3_RW_01','TASK_L1_REVIEW_02','TASK_L2_REVIEW_03','TASK_SEAL_WORK_04'].forEach(function(tid) {
-    var el = document.getElementById('ctTask' + { 'TASK_HSK3_RW_01': '1', 'TASK_L1_REVIEW_02': '2', 'TASK_L2_REVIEW_03': '3', 'TASK_SEAL_WORK_04': '4' }[tid]);
+  ['TASK_HSK3_RW_01','TASK_L1_REVIEW_02','TASK_L2_REVIEW_03','TASK_SEAL_WORK_04','TASK_CHINESE_MOVIES_05','TASK_CHINESE_FOOD_1_06','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_HSK3_TEST_2_09','TASK_STUDY_LIFE_CHINA_10'].forEach(function(tid) {
+    var el = document.getElementById('ctTask' + { 'TASK_HSK3_RW_01': '1', 'TASK_L1_REVIEW_02': '2', 'TASK_L2_REVIEW_03': '3', 'TASK_SEAL_WORK_04': '4', 'TASK_CHINESE_MOVIES_05': '5', 'TASK_CHINESE_FOOD_1_06': '6', 'TASK_PAPER_CUTTING_07': '7', 'TASK_CHINESE_FOOD_2_08': '8', 'TASK_HSK3_TEST_2_09': '9', 'TASK_STUDY_LIFE_CHINA_10': '10' }[tid]);
     if (el) el.style.cssText = tid === taskId ? 'background:#2563eb;color:#fff;font-weight:700' : 'background:#fff;color:#64748b;border:1.5px solid #e2e8f0';
   });
   loadCourseTaskStats();
@@ -442,7 +448,8 @@ function viewStudentAnswers(uid, name) {
     }
     delete window[cb];
   };
-  var action = ctCurrentTask === 'TASK_HSK3_RW_01' ? 'get_course_task_result' : 'get_task2_4_result';
+  var isHSKTask = ctCurrentTask === 'TASK_HSK3_RW_01' || ctCurrentTask === 'TASK_HSK3_TEST_2_09';
+  var action = isHSKTask ? 'get_course_task_result' : 'get_task2_4_result';
   var s = document.createElement('script');
   s.src = API + '?callback=' + cb + '&action=' + action + '&taskId=' + ctCurrentTask + '&studentUid=' + encodeURIComponent(uid);
   document.head.appendChild(s);
@@ -462,7 +469,7 @@ function showAnswerModal(data, name) {
   document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — ' + ctTaskLabel + ' 答卷';
   var html = '';
   // Task 1: show reading/writing scores
-  if (ctCurrentTask === 'TASK_HSK3_RW_01') {
+  if (isHSKTask) {
     html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
     html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
     html += '阅读分：' + (data.readingScore || 0) + ' · ';
