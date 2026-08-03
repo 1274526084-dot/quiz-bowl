@@ -243,6 +243,8 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
+window.addEventListener('error', function(e) { var el = document.getElementById('loginBox'); if (el) el.insertAdjacentHTML('beforeend', '<div style=\"color:#dc2626;font-size:11px;padding:8px\">页面运行错误：' + (e.message || e.error || '') + ' (行' + (e.lineno||'') + ')</div>'); });
+console.log('TASK510_LOGIN_RUNTIME_FIX_V12_20260804');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
