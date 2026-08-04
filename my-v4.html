@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">请使用教师分配的学生编号和个人口令登录</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜ECRL_STUDENT_PRODUCTION_V31_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -243,7 +243,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
-console.log('ECRL_STUDENT_PRODUCTION_V31_20260804');
+console.log('ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
@@ -577,25 +577,24 @@ function renderTasks(){
     } else if (t.no === 9) {
       // Task 9: HSK3 Test 2 — separate flow
       var task9Id = 'TASK_HSK3_TEST_2_09';
-      if (!isTestAccount()) { tag='tag-gray';txt='测试中'; btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>'; }
+      if (isPreviewMode) { tag='tag-gray';txt='已开放，未完成'; btn=''; }
       else if(!st){ tag='tag-gray';txt='未开始'; btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask9()">📝 开始测试</button>'; }
       else if(st==='submitted'){ tag='tag-green';txt='已提交'; btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask1Result()">📊 查看结果</button>'; }
-      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#16a34a">已开放｜'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
     } else if (t.no === 5 || t.no === 6 || t.no === 7 || t.no === 8 || t.no === 10) {
       // Tasks 5-8,10: test-only, using isolated task510 overlay
       var taskIdMap5 = {5:'TASK_CHINESE_MOVIES_05',6:'TASK_CHINESE_FOOD_1_06',7:'TASK_PAPER_CUTTING_07',8:'TASK_CHINESE_FOOD_2_08',10:'TASK_STUDY_LIFE_CHINA_10'};
       var task510Id = taskIdMap5[t.no];
-      if (!isTestAccount()) {
-        tag='tag-gray';txt='测试中';
-        btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>';
+      if (isPreviewMode) {
+        tag='tag-gray';txt='已开放，未完成'; btn='';
       } else if(!st){
         tag='tag-gray';txt='未开始';
-        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="openTask510(\''+task510Id+'\')">📝 开始测试</button>';
+        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="openTask510(\''+task510Id+'\')">📝 开始任务</button>';
       } else if(st==='submitted'){
         tag='tag-green';txt='已提交';
         btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task510Id+'\')">📊 查看结果</button>';
       }
-      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'">';
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
       h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
     } else if (t.no >= 2 && t.no <= 4) {
       // Tasks 2-4: open to all students (class release)
@@ -1608,7 +1607,7 @@ function showTask2to4Result(data) {
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
   var isTask6 = data.taskId === 'TASK_CHINESE_FOOD_1_06';
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：ECRL_STUDENT_PRODUCTION_V31_20260804</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
@@ -2616,7 +2615,7 @@ function submitTask1() {
     studentId: student.id,
     attemptNo: 1,
     startedAt: quizState.startedAt,
-    apiVersion: isTask9 ? 'ECRL_STUDENT_PRODUCTION_V31_20260804' : '',
+    apiVersion: isTask9 ? 'ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804' : '',
     answers: JSON.stringify(quizState.answers)
   };
 
