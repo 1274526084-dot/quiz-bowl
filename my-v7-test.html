@@ -1,0 +1,3015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>马来西亚学生中文学习端</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',sans-serif;background:#eef2ff;min-height:100vh}
+.container{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column}
+.topbar{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}.topbar .back{font-size:20px;cursor:pointer;width:28px;text-align:center;display:none}.topbar .back.show{display:block}.topbar .title{flex:1;font-size:15px;font-weight:700;text-align:center}.topbar .home-btn{font-size:18px;cursor:pointer;padding:2px 8px}
+.login-card{margin:16px;background:#fff;border-radius:14px;padding:20px;border:1.5px solid #e2e8f0}.login-card h3{font-size:17px;color:#1e293b;margin-bottom:12px;text-align:center}.login-card label{font-size:14px;color:#475569;display:block;margin:8px 0 4px;font-weight:600}.login-card input{width:100%;padding:14px;border:1.5px solid #d1d5db;border-radius:10px;font-size:16px;outline:none;background:#f9fafb}.check-row{display:flex;align-items:flex-start;gap:8px;margin:12px 0;font-size:13px;color:#475569}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;min-height:46px}.btn-primary{background:#2563eb;color:#fff}.btn-submit{background:#16a34a;color:#fff}.btn-outline{background:#fff;color:#2563eb;border:1.5px solid #2563eb}.btn-danger{background:#dc2626;color:#fff}.btn-small{padding:8px 14px;font-size:13px;min-height:36px;width:auto;display:inline-block;border-radius:10px}
+.main{flex:1;overflow-y:auto;padding-bottom:80px}
+.info-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-size:13px;color:#64748b}.info-bar b{color:#1e293b}
+.section-card{background:#fff;border-radius:12px;padding:14px;margin:8px 12px;border:1.5px solid #e2e8f0}.section-card h3{font-size:15px;color:#1e293b;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#475569}.row:last-child{border-bottom:none}.row .val{font-weight:600;color:#1e293b;text-align:right}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}.tag-green{background:#f0fdf4;color:#16a34a}.tag-amber{background:#fffbeb;color:#d97706}.tag-gray{background:#f1f5f9;color:#64748b}
+.progress-bar{height:8px;background:#e2e8f0;border-radius:4px;margin:6px 0;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#6366f1);border-radius:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid-item{background:#f8fafc;border-radius:10px;padding:12px;text-align:center}.grid-item .num{font-size:28px;font-weight:800;color:#2563eb;display:block}.grid-item .lbl{font-size:11px;color:#94a3b8;margin-top:4px}
+.empty-state{text-align:center;padding:20px 16px;color:#94a3b8;font-size:13px}.empty-state .icon{font-size:32px;display:block;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.chip{padding:6px 12px;border-radius:16px;font-size:13px;border:1.5px solid #e2e8f0;cursor:pointer;background:#fff;color:#64748b}.chip.sel{background:#eff6ff;color:#2563eb;border-color:#2563eb}
+.write-input{width:100%;padding:12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:15px;margin-top:5px}
+.msg{text-align:center;font-size:13px;padding:8px;display:none}.msg.show{display:block}.msg.ok{color:#16a34a}.msg.err{color:#dc2626}.msg.warn{color:#d97706}
+.learning-card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;margin-top:6px;font-size:12px;line-height:1.8}
+.tabbar{display:flex;background:#fff;border-top:1px solid #e2e8f0;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:10;padding-bottom:env(safe-area-inset-bottom)}.tab{flex:1;text-align:center;padding:8px 4px;font-size:11px;color:#94a3b8;cursor:pointer}.tab .icon{font-size:18px;display:block;margin-bottom:1px}.tab.active{color:#2563eb;font-weight:600}
+.page{display:none}.page.show{display:block}
+.overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:100}.overlay.show{display:block}
+.panel{display:none;position:fixed;top:10px;left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:420px;bottom:20px;background:#f8fafc;border-radius:16px;z-index:101;overflow-y:auto}
+.panel .phead{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:12px;border-radius:16px 16px 0 0;display:flex;align-items:center;gap:8px;position:sticky;top:0}.phead .pback{font-size:18px;cursor:pointer}.phead .ptitle{flex:1;font-size:14px;font-weight:700}.phead .phome{font-size:16px;cursor:pointer}.pbody{padding:12px}
+.modal-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}.modal-mask.show{display:flex}.modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:360px;text-align:center}.modal-box h3{font-size:17px;color:#1e293b;margin-bottom:12px}.modal-box p{font-size:14px;color:#64748b;margin-bottom:16px;line-height:1.6}.modal-box .btn{margin-top:8px}
+.big-num{font-size:38px;font-weight:900;color:#2563eb;text-align:center;display:block}.big-label{font-size:12px;color:#64748b;text-align:center;display:block;margin-top:2px}
+.ext-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+.ext-card{background:#f8fafc;border-radius:10px;padding:14px 8px;text-align:center;border:1px solid #e2e8f0;font-size:12px;cursor:pointer;min-width:0;overflow:hidden}.ext-card:active{background:#eff6ff}.ext-card .ec-icon{font-size:24px;display:block;margin-bottom:4px}.ext-card .ec-title{font-size:13px;color:#1e293b;font-weight:600;display:block}.ext-card .ec-status{font-size:11px;color:#94a3b8;margin-top:3px;display:block}.ext-card .ec-status.open{color:#16a34a;font-weight:600}
+
+.preview-banner{background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b;display:none}.preview-banner.show{display:block}
+.preview-hidden{display:none!important}
+
+/* ===== Quiz Task Styles ===== */
+.quiz-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:300;overflow-y:auto}
+.quiz-overlay.show{display:block}
+.quiz-header{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:10px 14px;position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.quiz-header .qback{font-size:18px;cursor:pointer;width:28px;text-align:center}
+.quiz-header .qtitle{flex:1;font-size:14px;font-weight:700;min-width:120px}
+.quiz-header .qtimer{font-size:20px;font-weight:900;white-space:nowrap}
+.quiz-header .qtimer.warn{color:#fbbf24;animation:blink 1s infinite}
+.quiz-header .qtimer.danger{color:#ef4444;animation:blink 0.5s infinite}
+@keyframes blink{50%{opacity:0.5}}
+@keyframes pulse{0%{opacity:0.6}50%{opacity:1}100%{opacity:0.6}}
+.quiz-stepbar{display:flex;gap:4px;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;overflow-x:auto}
+.quiz-stepbar .step{flex:1;min-width:60px;text-align:center;padding:6px 4px;font-size:10px;border-radius:6px;background:#e2e8f0;color:#94a3b8;cursor:pointer;white-space:nowrap}
+.quiz-stepbar .step.active{background:#2563eb;color:#fff;font-weight:700}
+.quiz-stepbar .step.done{background:#dbeafe;color:#2563eb}
+.quiz-body{padding:12px;padding-bottom:120px}
+.quiz-section-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.quiz-section-title .sec-badge{font-size:10px;background:#eff6ff;color:#2563eb;padding:2px 8px;border-radius:8px}
+.quiz-instructions{font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6;padding:8px;background:#fffbeb;border-radius:8px;border-left:3px solid #f59e0b}
+.quiz-example{font-size:12px;color:#475569;padding:8px 12px;background:#f0fdf4;border-radius:8px;margin-bottom:12px;border:1px solid #bbf7d0}
+.quiz-example .ex-label{font-weight:700;color:#16a34a;font-size:10px}
+.option-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:8px;background:#f1f5f9;border-radius:8px}
+.opt-chip{padding:8px 14px;border-radius:20px;font-size:13px;border:2px solid #e2e8f0;cursor:pointer;background:#fff;color:#1e293b;font-weight:600;transition:all 0.15s}
+.opt-chip:active,.opt-chip.sel{background:#2563eb;color:#fff;border-color:#2563eb}
+.opt-chip.used{background:#e2e8f0;color:#94a3b8;border-color:#e2e8f0;cursor:not-allowed;text-decoration:line-through}
+.opt-chip.wrong{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.opt-chip.correct{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+.quiz-qcard{background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px}
+.quiz-qcard .qnum{font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:4px}
+.quiz-qcard .qtext{font-size:15px;color:#1e293b;line-height:1.6;margin-bottom:8px}
+.quiz-qcard .qpassage{font-size:14px;color:#475569;line-height:1.7;margin-bottom:8px;padding:8px;background:#f8fafc;border-radius:6px}
+.quiz-qcard .qstem{font-size:14px;color:#1e293b;font-weight:600;margin-bottom:8px}
+.quiz-qcard .qopt{display:block;width:100%;padding:12px;margin:4px 0;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;background:#fff;text-align:left;cursor:pointer}
+.quiz-qcard .qopt:active,.quiz-qcard .qopt.sel{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+.quiz-qcard .qopt.marked-correct{background:#f0fdf4;border-color:#22c55e;color:#16a34a}
+.quiz-qcard .qopt.marked-wrong{background:#fef2f2;border-color:#ef4444;color:#dc2626}
+.sentence-area{min-height:48px;padding:10px;border:2px dashed #cbd5e1;border-radius:10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fafbfc}
+.sentence-area .sword{padding:6px 14px;background:#2563eb;color:#fff;border-radius:16px;font-size:14px;cursor:pointer}
+.sentence-area .placeholder{color:#94a3b8;font-size:13px}
+.word-pool{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.word-chip{padding:8px 16px;background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;font-size:14px;cursor:pointer;transition:all 0.15s}
+.word-chip:active{background:#2563eb;color:#fff;border-color:#2563eb}
+.word-chip.placed{opacity:0.4;pointer-events:none;background:#e2e8f0}
+.write-char-input{width:64px;height:56px;border:2px solid #d1d5db;border-radius:10px;font-size:28px;text-align:center;margin:4px auto;display:block;background:#f9fafb}
+.write-char-input:focus{border-color:#2563eb;background:#fff}
+.quiz-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #e2e8f0;padding:10px 12px;display:flex;gap:8px;z-index:310;padding-bottom:env(safe-area-inset-bottom)}
+.quiz-nav .btn{flex:1;font-size:13px;min-height:42px}
+.quiz-nav .btn-sm{flex:0;padding:10px 16px;font-size:12px;min-height:36px}
+.result-header{text-align:center;padding:16px;background:linear-gradient(135deg,#f0fdf4,#dbeafe);border-radius:12px;margin-bottom:12px}
+.result-header h3{color:#16a34a;font-size:18px;margin-bottom:4px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.result-item{background:#f8fafc;border-radius:10px;padding:12px;text-align:center}
+.result-item .rnum{font-size:24px;font-weight:800;color:#2563eb;display:block}
+.result-item .rlbl{font-size:11px;color:#94a3b8;margin-top:2px}
+.result-note{font-size:11px;color:#94a3b8;text-align:center;line-height:1.6;padding:8px;background:#fffbeb;border-radius:8px;margin-bottom:12px}
+.result-review .rq{font-size:13px;padding:8px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:8px}
+.result-review .rq-num{font-size:11px;color:#94a3b8;font-weight:700;min-width:30px}
+.result-review .rq-detail{flex:1;font-size:12px;line-height:1.5}
+.result-review .rq-mark{font-size:16px;min-width:24px;text-align:center}
+.quiz-review-section{margin-bottom:10px}
+.quiz-review-section h4{font-size:13px;color:#1e293b;padding:8px;background:#f8fafc;border-radius:6px;margin-bottom:4px}
+</style></head><body><div class="container" id="app">
+<div class="topbar"><span class="back" id="topBack" onclick="goBack()">←</span><span class="title" id="topTitle">马来西亚学生中文学习端</span><span class="home-btn" onclick="goHome()">🏠</span></div>
+
+<div id="loginBox"><div class="login-card"><h3>📝 学生登录</h3>
+<label>学生编号 Student ID *</label><input id="studentId" placeholder="如 MY001">
+<label>个人口令 Login PIN *</label><input id="loginPin" type="password" placeholder="4-6位个人口令">
+<label>英文姓名（首次登录填写）</label><input id="studentName" placeholder="首次登录时填写英文姓名">
+<label>中文姓名（选填）</label><input id="chineseName" placeholder="首次登录时填写中文名">
+<div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>
+<button class="btn btn-primary" id="studentLoginBtn" type="button">确认进入</button>
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
+<p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
+
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804｜数据不可修改 · 不可提交</div>
+  <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
+
+  <!-- 首页 -->
+  <div class="page show" id="pageHome">
+    <div class="section-card"><h3>📋 今日任务</h3><div class="empty-state"><span class="icon">📋</span>今天暂未发布课程任务。</div></div>
+    <div class="section-card"><h3>📊 课程任务进度</h3>
+      <span class="big-num"><span id="doneTasks">0</span>/10</span><span class="big-label">已完成任务</span>
+      <div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskProgress"></div></div>
+      <div class="row"><span>待完成</span><span class="val"><span id="pendingTasks">10</span></span></div>
+      <button class="btn btn-outline" style="margin-top:8px;font-size:13px;min-height:36px" onclick="switchTab(1)">查看全部任务</button>
+    </div>
+    <div class="section-card"><h3>🌱 今日中文拓展</h3>
+      <div class="row"><span>状态</span><span class="val"><span id="extHomeStatus" class="tag tag-gray">未完成</span></span></div>
+      <div class="row"><span>累计</span><span class="val"><span id="extHomeTotal">0</span>次</span></div>
+      <button class="btn btn-outline" style="margin-top:8px;font-size:13px;min-height:36px" onclick="switchTab(2)">去拓展</button>
+    </div>
+  </div>
+
+  <!-- 任务页 -->
+  <div class="page" id="pageLearn"><div class="section-card"><h3>📋 课程任务</h3><span class="big-num"><span id="taskDone2">0</span>/10</span><div class="progress-bar"><div class="progress-fill" style="width:0%" id="taskBar2"></div></div></div><div id="taskCards"></div></div>
+
+  <!-- 拓展页 -->
+  <div class="page" id="pageCheckin">
+    <div class="section-card"><h3>🌱 每日中文拓展</h3>
+      <span style="font-size:12px;color:#64748b;line-height:1.6;display:block;margin-bottom:8px">每天认识一点中文，了解中华文化和跨境铁路。没有考试，留下一个小成果。</span>
+      <div class="row"><span>今日拓展</span><span class="val"><span id="extTodayStatus" class="tag tag-gray">未完成</span></span></div>
+      <div class="row"><span>累计</span><span class="val"><span id="extTodayTotal">0</span>次</span></div>
+      <button class="btn btn-primary" style="margin-top:8px;font-size:14px;min-height:40px" onclick="openTodayExtension()">📖 开始今日拓展</button>
+    </div>
+    <div class="section-card"><h3>🏮 中华文化</h3><div class="ext-grid" id="cultureList"></div></div>
+    <div class="section-card"><h3>🚂 跨境铁路中文 · 信号</h3><div class="ext-grid" id="railwayList"></div></div>
+    <div class="section-card"><h3>👣 我的拓展足迹</h3><div class="grid-2" id="extFootprint"></div><div id="extCards"></div></div>
+  </div>
+
+  <!-- 档案页 -->
+  <div class="page" id="pageProfile">
+    <div class="section-card"><h3>📊 中文学习发展档案</h3>
+      <span style="font-size:12px;color:#64748b;line-height:1.6;display:block;margin-bottom:8px">你的学习档案会随着学习过程持续更新。完成全部课程任务后，可以生成完整阶段总结。</span>
+      <div class="row"><span>档案状态</span><span class="val"><span id="profileStatusTag" class="tag tag-green">动态更新中</span></span></div>
+      <div class="row"><span>课程任务</span><span class="val"><span id="archTaskCount">0</span>/10</span></div>
+      <div class="row"><span>中文拓展</span><span class="val"><span id="archExtCount">0</span>次</span></div>
+      <div class="row"><span>最近更新</span><span class="val" id="archLastUpdate">—</span></div>
+      <div id="summaryReady" style="display:none;text-align:center;margin-top:12px"><span style="color:#16a34a;font-weight:600;font-size:14px;display:block">✅ 已完成全部10个课程任务</span><button class="btn btn-submit" style="margin-top:8px;width:auto;display:inline-block;padding:10px 28px" onclick="generateSummary()">📊 生成阶段总结报告</button></div>
+    </div>
+
+    <!-- 入项前汉语基础 -->
+    <div class="section-card" style="border-left:4px solid #f59e0b"><h3>📋 入项前汉语基础</h3><div id="baselineSection"><span class="empty-state" style="font-size:12px">加载中...</span></div></div>
+
+    <!-- 前置学习经历 -->
+    <div class="section-card"><h3>📚 前置学习经历</h3><div id="priorCourses"><span class="empty-state" style="font-size:12px">前置课程信息待教师补充。</span></div></div>
+
+    <!-- 当前项目学习 -->
+    <div class="section-card"><h3>📖 当前项目学习</h3><div id="currentProject"><span class="empty-state" style="font-size:12px">课程任务尚未开始。</span></div></div>
+
+    <!-- 学习变化 -->
+    <div class="section-card" style="border-left:4px solid #6366f1"><h3>📈 学习发展变化</h3><div id="learningChange"><span style="font-size:12px;color:#64748b;line-height:1.8;display:block">已建立入项前汉语学习基线。完成课程任务和学习活动后，系统将持续生成学习变化。</span></div></div>
+
+    <!-- 学习时间轴 -->
+    <div class="section-card"><h3>📅 学习时间轴</h3><div id="timeline"><span class="empty-state" style="font-size:12px">加载中...</span></div></div>
+
+    <!-- 中文能力雷达 -->
+    <div class="section-card"><h3>🎯 中文能力分析</h3>
+      <span style="font-size:11px;color:#94a3b8;display:block;margin-bottom:8px" id="radarNote">当前基于0条学习记录。继续学习后结果将更加准确。</span>
+      <div id="radarChart"></div>
+    </div>
+
+    <!-- 学习成果 -->
+    <div class="section-card"><h3>🌟 学习成果</h3>
+      <div class="grid-2">
+        <div class="grid-item"><span class="num" id="lcWords">0</span><span class="lbl">新词收藏</span></div>
+        <div class="grid-item"><span class="num" id="lcSentences">0</span><span class="lbl">句子输出</span></div>
+        <div class="grid-item"><span class="num" id="lcCulture">0</span><span class="lbl">中华文化</span></div>
+        <div class="grid-item"><span class="num" id="lcRailway">0</span><span class="lbl">铁路中文</span></div>
+      </div>
+      <div id="lcWordsList" style="font-size:12px;color:#64748b;margin-top:6px"></div>
+    </div>
+
+    <!-- 错题与反馈 -->
+    <div class="section-card"><h3>📝 反馈记录</h3><div class="empty-state" style="font-size:12px"><span class="icon">💬</span>教师反馈发布后显示</div></div>
+  </div>
+</div>
+
+<div class="tabbar" id="tabBar" style="display:none"><div class="tab active" onclick="switchTab(0)"><span class="icon">🏠</span>首页</div><div class="tab" onclick="switchTab(1)"><span class="icon">📋</span>任务</div><div class="tab" onclick="switchTab(2)"><span class="icon">🌱</span>拓展</div><div class="tab" onclick="switchTab(3)"><span class="icon">📊</span>档案</div></div>
+
+<div class="overlay" id="extOverlay"></div><div class="panel" id="extPanel"><div class="phead"><span class="pback" onclick="closeExt()">←</span><div class="ptitle">每日一词：信号机</div><span class="phome" onclick="closeExt();goHome()">🏠</span></div><div class="pbody" id="extContent"></div></div>
+
+<div class="modal-mask" id="switchModal"><div class="modal-box"><h3>切换学生</h3><p>是否退出当前学生账号？未提交内容将先保存为草稿。</p><button class="btn btn-submit" onclick="switchStudent('save')">💾 保存并切换</button><button class="btn btn-danger" onclick="switchStudent('direct')">直接切换</button><button class="btn btn-outline" onclick="closeSwitchModal()">取消</button></div></div>
+
+<!-- ===== Task 1 Quiz Overlay ===== -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-header">
+    <span class="qback" onclick="exitQuiz()">←</span>
+    <span class="qtitle" id="quizTitle">任务一：HSK三级阅读与书写练习</span>
+    <span class="qtimer" id="quizTimer">45:00</span>
+  </div>
+  <div class="quiz-stepbar" id="quizStepbar"></div>
+  <div class="quiz-body" id="quizBody"></div>
+  <div class="quiz-nav" id="quizNav">
+    <button class="btn btn-outline btn-sm" onclick="quizPrev()" id="quizPrevBtn">上一页</button>
+    <span style="flex:1;text-align:center;font-size:12px;color:#94a3b8;align-self:center" id="quizProgress">1/4</span>
+    <button class="btn btn-primary btn-sm" onclick="quizNext()" id="quizNextBtn">下一页</button>
+    <button class="btn btn-submit" style="display:none" onclick="quizConfirm()" id="quizSubmitBtn">确认提交</button>
+  </div>
+</div>
+
+<!-- ===== Task 5-10 Isolated Overlay ===== -->
+<div class="quiz-overlay" id="task510Overlay">
+  <div class="quiz-header">
+    <span class="qback" id="task510BackBtn" onclick="window.task510BackAction(event)" style="cursor:pointer">←</span>
+    <span class="qtitle" id="task510Title">任务加载中...</span>
+    <span class="qtimer" id="task510Timer"></span>
+  </div>
+  <div class="quiz-stepbar" id="task510Stepbar"></div>
+  <div class="quiz-body" id="task510Body"></div>
+  <div class="quiz-nav" id="task510Footer">
+    <button type="button" class="btn btn-outline btn-sm" id="task510PrevBtn" onclick="window.task510PrevAction(event)">上一页</button>
+    <span style="flex:1;text-align:center;font-size:12px;color:#94a3b8;align-self:center" id="task510Progress">1/4</span>
+    <button type="button" class="btn btn-primary btn-sm" id="task510NextBtn" onclick="window.task510NextAction(event)">下一页</button>
+    <button type="button" class="btn btn-submit" style="display:none" id="task510SubmitBtn" onclick="window.task510SubmitAction(event)">确认提交</button>
+  </div>
+</div>
+
+<!-- ===== Task 1 Results Overlay ===== -->
+<div class="quiz-overlay" id="resultOverlay">
+  <div class="quiz-header"><span class="qback" onclick="closeResult()">←</span><span class="qtitle">任务一：已完成</span></div>
+  <div class="quiz-body" id="resultBody"></div>
+</div>
+
+</div>
+
+<script
+  src="https://static.cloudbase.net/cloudbase-js-sdk/2.27.1/cloudbase.full.js"
+  onerror="window.__cloudbaseSdkLoadError = true;">
+</script>
+<script>
+console.log('TASK510_LOGIN_BINDING_FIX_V14_20260804');
+var cbsApp = null;
+var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
+
+console.log({ sdkVersion: '2.27.1', hasCloudbase: !!window.cloudbase, hasInit: typeof (window.cloudbase||{}).init === 'function' });
+
+function waitForCloudBaseSdk() {
+  return new Promise(function(resolve) {
+    if (window.cloudbase && typeof window.cloudbase.init === 'function') { resolve(true); return; }
+    var start = Date.now();
+    var timer = setInterval(function() {
+      if (window.cloudbase && typeof window.cloudbase.init === 'function') { clearInterval(timer); resolve(true); return; }
+      if (Date.now() - start > 10000) { clearInterval(timer); resolve(false); }
+    }, 200);
+  });
+}
+
+function initCloudBase() {
+  if (cbsApp) return Promise.resolve(cbsApp);
+  cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
+  return waitForCloudBaseSdk().then(function(loaded) {
+    if (!loaded) {
+      cbsDiag.errors.push({ step: 'SDK加载', error: 'CloudBase SDK V2.27.1 加载超时（超过10秒），请检查 static.cloudbase.net 是否可访问' });
+      return null;
+    }
+    cbsDiag.sdkLoaded = true;
+    try {
+      cbsApp = window.cloudbase.init({ env: CBS_ENV_ID, region: 'ap-shanghai', lang: 'zh-CN' });
+      cbsDiag.envInit = true;
+    } catch(e) {
+      cbsDiag.errors.push({ step: '环境初始化', error: e.message || 'init failed', code: e.code||'', name: e.name||'' });
+      return null;
+    }
+    if (!cbsApp || !cbsApp.auth) {
+      cbsDiag.errors.push({ step: '环境初始化', error: 'cloudbase.init 返回值异常：auth不存在' });
+      return null;
+    }
+    // V2 anonymous auth: auth is a property, returns {data, error}
+    return cbsApp.auth.signInAnonymously().then(function(result) {
+      cbsDiag.authDone = true;
+      var d = (result && result.data) || result || {};
+      if (d.user && d.user.uid) cbsDiag.uid = d.user.uid;
+      else if (d.uid) cbsDiag.uid = d.uid;
+      if (!cbsDiag.uid) { try { var ls = cbsApp.auth.getLoginState(); if (ls && ls.user && ls.user.uid) cbsDiag.uid = ls.user.uid; } catch(e2) {} }
+      return cbsApp;
+    }).catch(function(err) {
+      cbsDiag.errors.push({ step: '匿名登录', error: (err||{}).message || String(err), code: (err||{}).code||'', name: (err||{}).name||'' });
+      cbsApp = null;
+      return null;
+    });
+  });
+}
+(function(){var q=window.location.search;if(q.indexOf('previewToken=')===-1&&q.indexOf('preview=')===-1)return;var lb=document.getElementById('loginBox');if(!lb)return;lb.innerHTML='<div class="login-card" style="text-align:center"><h3>🔍 教师只读预览模式</h3><p style="color:#64748b">正在验证预览链接…</p></div>';var t='';try{var p=new URLSearchParams(q);t=p.get('previewToken')||p.get('preview')||'';}catch(e){var m=q.match(/[?&]previewToken=([^&]+)/)||q.match(/[?&]preview=([^&]+)/);if(m)t=decodeURIComponent(m[1]);}if(!t){lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p>未检测到预览令牌</p></div>';return;}var cb='_pvx'+Date.now();window[cb]=function(res){if(res&&res.success){window._pvStudent={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',isPreview:true};enterApp();}else{lb.innerHTML='<div class="login-card" style="text-align:center"><h3>⛔ 预览链接已失效</h3><p style="color:#dc2626">教师预览链接已失效，请返回教师看板重新点击预览。</p><p style="font-size:11px">错误：'+(res&&res.error||'未知')+'</p><button class="btn btn-outline" onclick="window.close()">← 返回教师看板</button></div>';}delete window[cb];};var s=document.createElement('script');s.src='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api?callback='+cb+'&action=validate_preview_token&previewToken='+encodeURIComponent(t);document.head.appendChild(s);})();
+var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
+var student=null,totalTasks=10,taskStatuses={},extRecords=[],extTotal=0;
+	var isPreviewMode=false;
+var TASK_DEFS=[{no:1,title:'HSK三级阅读与书写练习',cat:'阅读30题 + 书写10题',icon:'📝'},{no:2,title:'认识新同学',cat:'写作+口语·第一课复习',icon:'🎙️'},{no:3,title:'住校内还是住校外',cat:'写作+口语·第二课复习',icon:'🏠'},{no:4,title:'我的印章作品',cat:'写作+口语·文化体验',icon:'🔖'},{no:5,title:'中国电影',cat:'阅读+写作+口语',icon:'🎬'},{no:6,title:'中国菜（1）',cat:'12道客观题',icon:'🍜'},{no:7,title:'剪纸作品',cat:'写作+口语+照片',icon:'✂️'},{no:8,title:'中国菜（2）',cat:'阅读+写作+口语',icon:'🥢'},{no:9,title:'HSK三级测试（2）',cat:'阅读40题+书写10题',icon:'📋'},{no:10,title:'中国留学生活',cat:'阅读+写作+口语',icon:'🎓'}];
+var navStack=[];
+
+// ===== Storage keys (student-scoped) =====
+function sKey(base){return student?(base+'_'+student.id):base;}
+function loadS(key){if(!student)return null;var v=localStorage.getItem(key+'_'+student.id);return v?JSON.parse(v):null;}
+function saveS(key,data){if(!student||isPreviewMode)return;localStorage.setItem(key+'_'+student.id,JSON.stringify(data));}
+
+// ===== Login =====
+function showIdentityConfirm(res){
+  var h='<div style="text-align:center"><h3 style="margin-bottom:16px">👋 请确认你的信息</h3>';
+  h+='<div class="section-card" style="text-align:left"><div class="row"><span>英文名</span><span class="val">'+(res.englishName||'—')+'</span></div><div class="row"><span>中文名</span><span class="val">'+(res.chineseName||'—')+'</span></div><div class="row"><span>学生编号</span><span class="val">'+res.studentId+'</span></div><div class="row"><span>班级</span><span class="val">'+(res.className||'马来西亚学生中文学习班')+'</span></div></div>';
+  h+='<p style="font-size:13px;color:#64748b;margin:16px 0">这是你吗？</p>';
+  h+='<button class="btn btn-submit" onclick="confirmIdentity()">✅ 这是我</button><button class="btn btn-danger" style="margin-top:8px" onclick="notMe()">不是我，退出</button></div>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+  window._pendingRes=res;
+}
+function confirmIdentity(){
+  var res=window._pendingRes;if(!res)return;
+  var h='<div style="text-align:center"><h3 style="margin-bottom:16px">🔐 设置个人密码</h3><p style="font-size:13px;color:#64748b;margin-bottom:16px">请设置4-6位数字密码，用于以后登录。</p>';
+  h+='<label>新密码（4-6位数字）</label><input type="password" id="newPin1" placeholder="输入新密码" maxlength="6">';
+  h+='<label>再次输入密码</label><input type="password" id="newPin2" placeholder="再次输入" maxlength="6">';
+  h+='<button class="btn btn-submit" onclick="setNewPin()">✅ 确认设置</button></div>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+}
+function setNewPin(){
+  var p1=document.getElementById('newPin1').value.trim(),p2=document.getElementById('newPin2').value.trim();
+  if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请输入4-6位数字密码');return;}
+  if(p1!==p2){alert('两次密码不一致');return;}
+  var res=window._pendingRes;
+  var cb='_pin'+Date.now();window[cb]=function(r){if(r&&r.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName,chineseName:res.chineseName,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}else{alert('设置失败');}delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_set_pin&studentUid='+encodeURIComponent(res.studentUid)+'&newPin='+encodeURIComponent(p1);document.head.appendChild(s);
+}
+function notMe(){localStorage.removeItem('activeStudentSession');student=null;location.reload();}
+
+function showRegister(){
+  var h='<h3>🆕 创建新账号</h3>';
+  h+='<label>英文名 English Name</label><input id="regEn" placeholder="如 Ahmad">';
+  h+='<label>中文名 Chinese Name（选填）</label><input id="regCn" placeholder="如 陈小明">';
+  h+='<label>国家 Country</label><input id="regCountry" placeholder="如 Malaysia" value="Malaysia">';
+  h+='<label>个人密码 Login PIN（4-6位数字）*</label><input id="regPin1" type="password" placeholder="设置4-6位数字密码" maxlength="6">';
+  h+='<label>再次输入密码</label><input id="regPin2" type="password" placeholder="再次输入" maxlength="6">';
+  h+='<div class="check-row"><input type="checkbox" id="consent2"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>';
+  h+='<button class="btn btn-submit" onclick="doRegister()">✅ 创建账号</button><button class="btn btn-ghost" style="margin-top:8px;min-height:40px;font-size:14px;background:#f1f5f9;color:#64748b" onclick="location.reload()">← 返回登录</button>';
+  h+='<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">创建后可使用公开学习内容。加入班级需要班级码。</p>';
+  document.getElementById('loginBox').innerHTML='<div class="login-card">'+h+'</div>';
+}
+function doRegister(){
+  var en=document.getElementById('regEn').value.trim(),cn=document.getElementById('regCn').value.trim(),p1=document.getElementById('regPin1').value.trim(),p2=document.getElementById('regPin2').value.trim(),country=document.getElementById('regCountry').value.trim();
+  if(!en){alert('请输入英文名');return;}if(!p1||p1.length<4||!/^\d+$/.test(p1)){alert('请设置4-6位数字密码');return;}if(p1!==p2){alert('两次密码不一致');return;}if(!document.getElementById('consent2').checked){alert('请勾选同意');return;}
+  var cb='_reg'+Date.now();window[cb]=function(res){
+    if(res&&res.success){student={id:res.studentId,uid:res.studentUid,name:res.englishName||en,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,accountOrigin:res.accountOrigin||''};if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}
+    else{alert((res&&res.error)||'注册失败');}delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=student_register&englishName='+encodeURIComponent(en)+'&chineseName='+encodeURIComponent(cn)+'&loginPin='+encodeURIComponent(p1)+'&country='+encodeURIComponent(country||'Malaysia');document.head.appendChild(s);
+}
+
+function login(){
+  var sid=document.getElementById('studentId').value.trim(),pin=document.getElementById('loginPin').value.trim(),sn=document.getElementById('studentName').value.trim(),cn=document.getElementById('chineseName').value.trim();
+  if(!sid){alert('请输入学生编号');return;}if(!pin){alert('请输入个人口令');return;}if(!document.getElementById('consent').checked){alert('请勾选同意');return;}
+  // Cloud auth
+  var params='action=student_login&studentId='+encodeURIComponent(sid)+'&loginPin='+encodeURIComponent(pin)+(sn?'&englishName='+encodeURIComponent(sn):'')+(cn?'&chineseName='+encodeURIComponent(cn):'');
+  var cb='_login'+Date.now();window[cb]=function(res){
+    if(res&&res.success){student={id:sid,uid:res.studentUid,name:res.englishName||sn,chineseName:res.chineseName||cn,sessionToken:res.sessionToken,classId:res.classId||'',className:res.className||''};if(res.needsSetup){showIdentityConfirm(res);}else{if(!isPreviewMode){localStorage.setItem('activeStudentSession',JSON.stringify(student));}enterApp();}}
+    else{alert((res&&res.error)||'登录失败');}delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&'+params;document.head.appendChild(s);
+  setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
+}
+function enterApp(){if(window._pvStudent){student=window._pvStudent;window._pvReady=false;document.getElementById('tabBar').style.display='none';var pb=document.createElement('div');pb.id='previewBanner';pb.style.cssText='background:#fef3c7;color:#92400e;text-align:center;padding:8px;font-size:13px;font-weight:600;border-bottom:2px solid #f59e0b';pb.textContent='🔍 教师只读预览模式 · 数据不可修改';var mc=document.getElementById('mainContent');if(mc)mc.insertBefore(pb,mc.firstChild);}if(!student){var s=localStorage.getItem('activeStudentSession');if(s)student=JSON.parse(s);else return;}
+  document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';if(isPreviewMode){document.getElementById('previewBanner').classList.add('show');document.getElementById('tabBar').style.display='none';}else{document.getElementById('tabBar').style.display='flex';}
+  document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';
+  if(!isPreviewMode){taskStatuses=loadS('taskStatuses')||{};}else{taskStatuses={};}if(!isPreviewMode){var er=loadS('extRecords');extRecords=er||[];}else{extRecords=[];}extTotal=extRecords.length;renderAll();updateHomeProgress();
+  fetchCloudRecords();
+}
+var studentProfile = null;
+
+function loadStudentProfile(callback) {
+  if (!student) return;
+  var cb = '_prf' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      studentProfile = res.profile;
+      // Sync taskStatuses from cloud
+      if (studentProfile.courseProgress && studentProfile.courseProgress.completedRequiredTasks > 0) {
+        var tasks = studentProfile.currentProject.tasks || [];
+        tasks.forEach(function(t) {
+          var taskNoMap = { 'TASK_HSK3_RW_01': 1, 'TASK_L1_REVIEW_02': 2, 'TASK_L2_REVIEW_03': 3, 'TASK_SEAL_WORK_04': 4, 'TASK_CHINESE_MOVIES_05': 5, 'TASK_CHINESE_FOOD_1_06': 6, 'TASK_PAPER_CUTTING_07': 7, 'TASK_CHINESE_FOOD_2_08': 8, 'TASK_HSK3_TEST_2_09': 9, 'TASK_STUDY_LIFE_CHINA_10': 10 };
+          var tn = taskNoMap[t.taskId];
+          if (tn) taskStatuses[tn] = 'submitted';
+        });
+        saveS('taskStatuses', taskStatuses);
+      }
+      renderStudentProfile();
+    } else {
+      document.getElementById('baselineSection').innerHTML = '<span style="font-size:12px;color:#94a3b8">加载失败</span>';
+    }
+    if (callback) callback();
+    delete window[cb];
+  };
+  var qs = 'callback=' + cb + '&action=get_student_learning_profile&studentUid=' + encodeURIComponent(student.uid);
+  if (student.isPreview) qs += '&previewToken=' + encodeURIComponent(student.sessionToken || '');
+  var s = document.createElement('script');
+  s.src = API + '?' + qs;
+  document.head.appendChild(s);
+}
+
+function renderStudentProfile() {
+  var p = studentProfile;
+  if (!p) return;
+
+  // Student info
+  var stu = p.student;
+  // Baseline
+  var bl = '';
+  if (p.baseline) {
+    var b = p.baseline;
+    bl = '<div style="font-size:13px;line-height:2"><b>HSK三级</b></div>';
+    if (b.examDate) bl += '<div style="font-size:13px;line-height:2"><b>考试日期：</b>' + b.examDate + '</div>';
+    bl += '<div style="font-size:13px;line-height:2"><b>听力：</b>' + (b.listeningScore||'—') + ' · <b>阅读：</b>' + (b.readingScore||'—') + ' · <b>写作：</b>' + (b.writingScore||'—') + '</div>';
+    bl += '<div style="font-size:13px;line-height:2"><b>总分：</b>' + (b.totalScore||'—') + ' · <b>结果：</b>' + (b.passStatus === 'pass' ? '✅合格' : '未合格') + '</div>';
+    bl += '<div style="font-size:11px;color:#94a3b8;margin-top:4px">数据来源：教师导入·历史成绩</div>';
+  } else {
+    bl = '<span style="font-size:12px;color:#94a3b8">暂无入项前汉语基础数据。</span>';
+  }
+  document.getElementById('baselineSection').innerHTML = bl;
+
+  // Course progress
+  var cp = p.courseProgress;
+  document.getElementById('archTaskCount').textContent = cp.completedRequiredTasks;
+  document.getElementById('doneTasks').textContent = cp.completedRequiredTasks;
+  document.getElementById('pendingTasks').textContent = 10 - cp.completedRequiredTasks;
+  document.getElementById('taskProgress').style.width = (cp.completedRequiredTasks / 10 * 100) + '%';
+  document.getElementById('taskDone2').textContent = cp.completedRequiredTasks;
+  document.getElementById('taskBar2').style.width = (cp.completedRequiredTasks / 10 * 100) + '%';
+  document.getElementById('profileStatusTag').textContent = cp.completedRequiredTasks > 0 ? '动态更新中' : '等待学习记录';
+  document.getElementById('profileStatusTag').className = 'tag ' + (cp.completedRequiredTasks > 0 ? 'tag-green' : 'tag-gray');
+  document.getElementById('summaryReady').style.display = cp.completedRequiredTasks >= 10 ? 'block' : 'none';
+
+  // Current project learning
+  var cpHtml = '';
+  var tasks = p.currentProject.tasks || [];
+  if (tasks.length > 0) {
+    tasks.forEach(function(t) {
+      var correctedNote = t.scoreCorrected ? '<div style="font-size:10px;color:#f59e0b;margin-top:2px">句子排序题评分规则已修正，当前显示为修正后的成绩。</div>' : '';
+      cpHtml += '<div class="learning-card" style="margin-bottom:8px;font-size:12px;line-height:1.8">';
+      cpHtml += '<b>' + t.taskTitle + '</b><br>';
+      cpHtml += '状态：✅ 已完成<br>';
+      if (t.readingCorrectCount != null) {
+        cpHtml += '阅读：答对 ' + t.readingCorrectCount + '/30，换算分 ' + (t.readingScore||0) + '/100<br>';
+        cpHtml += '书写：' + (t.writingScore||0) + '/100<br>';
+        cpHtml += '总分：' + (t.totalScore||0) + '/200';
+        if (t.durationSeconds) {
+          var dm = Math.floor(t.durationSeconds / 60);
+          var ds = t.durationSeconds % 60;
+          cpHtml += ' · 用时：' + dm + '分' + ds + '秒';
+        }
+        cpHtml += '<br>';
+      }
+      if (t.submittedAt) cpHtml += '<span style="font-size:10px;color:#94a3b8">完成时间：' + t.submittedAt.replace('T',' ').slice(0,19) + '</span>';
+      cpHtml += correctedNote;
+      cpHtml += '</div>';
+    });
+  } else {
+    cpHtml = '<span style="font-size:12px;color:#94a3b8">暂无课程任务数据。<br>已建立入项前汉语学习基线。完成课程任务后，系统将持续生成学习变化。</span>';
+  }
+  document.getElementById('currentProject').innerHTML = cpHtml;
+
+  // Learning change comparison
+  var chHtml = '';
+  if (p.baseline && tasks.length > 0) {
+    var t1 = tasks[0];
+    chHtml = '<div style="font-size:12px;color:#64748b;line-height:1.8">';
+    chHtml += '入项前HSK阅读：' + (p.baseline.readingScore||'—') + '分<br>';
+    chHtml += '本次阅读练习：' + (t1.readingScore||0) + '分<br>';
+    chHtml += '<br>入项前HSK书写：' + (p.baseline.writingScore||'—') + '分<br>';
+    chHtml += '本次书写练习：' + (t1.writingScore||0) + '分<br>';
+    chHtml += '<br>';
+    // Comparison
+    if (p.baseline.readingScore != null && t1.readingScore != null) {
+      var rDiff = t1.readingScore - p.baseline.readingScore;
+      var rLabel = rDiff > 10 ? '本次阅读高于前置成绩' : (rDiff < -10 ? '本次阅读低于前置成绩' : '本次阅读与前置成绩接近');
+      chHtml += '阅读：' + rLabel + '<br>';
+    }
+    if (p.baseline.writingScore != null && t1.writingScore != null) {
+      var wDiff = t1.writingScore - p.baseline.writingScore;
+      var wLabel = wDiff > 10 ? '本书写高于前置成绩' : (wDiff < -10 ? '本书写低于前置成绩' : '本书写与前置成绩接近');
+      chHtml += '书写：' + wLabel + '<br>';
+    }
+    chHtml += '<br><span style="font-size:10px;color:#94a3b8">前置成绩来自正式HSK考试，本次成绩为课堂练习换算分，两者仅用于学习观察，不进行等值认定。</span><br>';
+    chHtml += '<span style="font-size:10px;color:#94a3b8">仅供课堂观察。</span>';
+    chHtml += '</div>';
+  } else if (p.baseline) {
+    chHtml = '<span style="font-size:12px;color:#64748b;line-height:1.8">已建立入项前汉语学习基线。完成课程任务后，系统将持续生成学习变化。</span>';
+  }
+  document.getElementById('learningChange').innerHTML = chHtml;
+
+  // Evidence
+  var ev = p.evidence;
+  var evHtml = '<div style="font-size:12px;line-height:2">';
+  evHtml += '<b>阅读理解：</b>' + (ev.reading.hasEvidence ? '已有任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>写作表达：</b>' + (ev.writing.hasEvidence ? '已有任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>口语表达：</b>' + (ev.speaking.hasEvidence ? '已有任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>听力理解：</b>' + (ev.listening.hasCurrentProjectEvidence ? '已有任务证据' : '暂无当前项目任务证据') + '<br>';
+  evHtml += '<b>岗位汉语：</b>' + (ev.jobChinese.hasEvidence ? '已有任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '<b>跨文化学习：</b>' + (ev.culture.hasEvidence ? '已有任务证据' : '暂无当前项目证据') + '<br>';
+  evHtml += '</div>';
+  document.getElementById('radarChart').innerHTML = evHtml;
+  document.getElementById('radarNote').textContent = '当前基于' + cp.completedRequiredTasks + '条学习记录。继续学习后结果将更加准确。';
+
+  // Timeline
+  var tlHtml = '';
+  var tl = p.timeline || [];
+  tl.slice(0, 15).forEach(function(e) {
+    tlHtml += '<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>' + (e.date||'').slice(0,10) + '</b> · ' + e.title + '<br><span style="color:#94a3b8">' + (e.description||'') + '</span></div>';
+  });
+  document.getElementById('timeline').innerHTML = tlHtml || '<span style="font-size:12px;color:#94a3b8">暂无记录。</span>';
+
+  // Archive meta
+  document.getElementById('archLastUpdate').textContent = cp.completedRequiredTasks > 0 ? new Date().toLocaleString('zh-CN') : '—';
+  document.getElementById('archExtCount').textContent = extTotal;
+
+  // Learning成果
+  document.getElementById('lcWords').textContent = extTotal > 0 ? extTotal * 3 : 0;
+  document.getElementById('lcSentences').textContent = extRecords.filter(function(r) { return r.sentence; }).length;
+  document.getElementById('lcCulture').textContent = 0;
+  document.getElementById('lcRailway').textContent = extTotal;
+}
+
+function fetchCloudRecords(){
+  if(!student)return;
+  // Load extensions from list API (keep backward compat)
+  var cb='_sync'+Date.now();window[cb]=function(res){if(res&&res.data){var my=res.data.filter(function(r){return(r.studentUid||'')===student.uid||r.studentId===student.id;});extRecords=[];my.forEach(function(r){if(r.dataType==='extension_record'&&r.submitStatus==='submitted'){extRecords.push({date:(r.submitTime||'').slice(0,10),title:r.extensionTitle||'',word:r.selectedWord||'',sentence:r.studentSentence||'',time:r.submitTime||''});}});var seen={},u=[];extRecords.forEach(function(r){var k=r.date+r.title;if(!seen[k]){seen[k]=true;u.push(r);}});extRecords=u;extTotal=extRecords.length;saveS('extRecords',extRecords);}renderAll();updateHomeProgress();delete window[cb];};
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=list';document.head.appendChild(s);
+  // Load profile from new API
+  loadStudentProfile();
+}
+
+function updateArchiveDisplay(){}
+function updateArchive(){}
+
+function showSwitchModal(){document.getElementById('switchModal').classList.add('show');}
+function closeSwitchModal(){document.getElementById('switchModal').classList.remove('show');}
+function switchStudent(mode){if(mode==='save'){saveS('taskStatuses',taskStatuses);saveS('extRecords',extRecords);}
+  localStorage.removeItem('activeStudentSession');student=null;taskStatuses={};extRecords=[];extTotal=0;closeSwitchModal();document.getElementById('loginBox').style.display='block';document.getElementById('mainContent').style.display='none';document.getElementById('tabBar').style.display='none';}
+
+function goHome(){navStack=[];switchTab(0);document.getElementById('topBack').classList.remove('show');document.getElementById('topTitle').textContent='马来西亚学生中文学习端';}
+function goBack(){if(navStack.length>0){var prev=navStack.pop();switchTab(prev.tab);document.getElementById('topBack').classList.toggle('show',navStack.length>0);if(navStack.length===0)document.getElementById('topTitle').textContent='马来西亚学生中文学习端';}}
+function switchTab(idx,track){
+  if(track&&idx!==0){var cur=document.querySelector('.tab.active');var curIdx=-1;document.querySelectorAll('.tab').forEach(function(t,i){if(t.classList.contains('active'))curIdx=i;});if(curIdx!==idx)navStack.push({tab:curIdx});document.getElementById('topBack').classList.add('show');document.getElementById('topTitle').textContent=['首页','课程任务','每日中文拓展','中文学习发展档案'][idx];}
+  document.querySelectorAll('.page').forEach(function(p,i){p.classList.toggle('show',i===idx);});
+  document.querySelectorAll('.tab').forEach(function(t,i){t.classList.toggle('active',i===idx);});
+  if(idx===3){loadStudentProfile();}
+}
+
+// ===== Tasks =====
+function renderTasks(){
+  var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
+  document.getElementById('taskDone2').textContent=sub;document.getElementById('taskBar2').style.width=(sub/totalTasks*100)+'%';
+  var h='';
+  TASK_DEFS.forEach(function(t){
+    var st=taskStatuses[t.no]||'',tag='',txt='',btn='';
+    if(t.no===1){
+      // Real Task 1 card
+      if(!st){
+        tag='tag-gray';txt='未开始';
+        btn='<div style="margin-top:6px"><span style="font-size:11px;color:#64748b;display:block">40道题 · 建议45分钟 · 阅读100分 + 书写100分 = 总分200分</span><button class="btn btn-primary" style="margin-top:6px;font-size:13px;min-height:36px" onclick="startTask1()">📝 开始答题</button></div>';
+      } else if(st==='submitted'){
+        tag='tag-green';txt='已提交';
+        btn='<button class="btn btn-outline" style="margin-top:6px;font-size:13px;min-height:36px" onclick="viewTask1Result()">📊 查看结果</button>';
+      }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn;
+      h+='<div style="font-size:10px;color:#cbd5e1;margin-top:4px">版本：TASK1-02</div></div>';
+    } else if (t.no === 9) {
+      // Task 9: HSK3 Test 2 — separate flow
+      var task9Id = 'TASK_HSK3_TEST_2_09';
+      if (!isTestAccount()) { tag='tag-gray';txt='测试中'; btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>'; }
+      else if(!st){ tag='tag-gray';txt='未开始'; btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask9()">📝 开始测试</button>'; }
+      else if(st==='submitted'){ tag='tag-green';txt='已提交'; btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask1Result()">📊 查看结果</button>'; }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    } else if (t.no === 5 || t.no === 6 || t.no === 7 || t.no === 8 || t.no === 10) {
+      // Tasks 5-8,10: test-only, using isolated task510 overlay
+      var taskIdMap5 = {5:'TASK_CHINESE_MOVIES_05',6:'TASK_CHINESE_FOOD_1_06',7:'TASK_PAPER_CUTTING_07',8:'TASK_CHINESE_FOOD_2_08',10:'TASK_STUDY_LIFE_CHINA_10'};
+      var task510Id = taskIdMap5[t.no];
+      if (!isTestAccount()) {
+        tag='tag-gray';txt='测试中';
+        btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>';
+      } else if(!st){
+        tag='tag-gray';txt='未开始';
+        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="openTask510(\''+task510Id+'\')">📝 开始测试</button>';
+      } else if(st==='submitted'){
+        tag='tag-green';txt='已提交';
+        btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task510Id+'\')">📊 查看结果</button>';
+      }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'">';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    } else if (t.no >= 2 && t.no <= 4) {
+      // Tasks 2-4: open to all students (class release)
+      var taskIdMap = {2:'TASK_L1_REVIEW_02',3:'TASK_L2_REVIEW_03',4:'TASK_SEAL_WORK_04'};
+      var task24Id = taskIdMap[t.no];
+      if(!st){
+        tag='tag-gray';txt='未开始';
+        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask2to4(\''+task24Id+'\')">📝 开始答题</button>';
+      } else if(st==='submitted'){
+        tag='tag-green';txt='已提交';
+        btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task24Id+'\')">📊 查看结果</button>';
+      }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
+      h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#16a34a">已开放｜'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    } else {
+      // Placeholder for tasks 5-10
+      if(!st){tag='tag-gray';txt='未开始';btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="openTask('+t.no+')">去完成</button>';}
+      else if(st==='submitted'){tag='tag-green';txt='已提交';btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px;padding:5px" onclick="viewTask('+t.no+')">查看结果</button>';}
+      h+='<div class="section-card" style="border-left:3px solid '+(st==='submitted'?'#22c55e':'#e2e8f0')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#94a3b8">'+t.cat+' · 教师后续发布</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    }
+  });
+  document.getElementById('taskCards').innerHTML=h;
+}
+function openTask(no){
+  if(isPreviewMode){alert('教师预览模式下不可答题');return;}
+  if(Number(no)===1){
+    startTask1();
+    return;
+  }
+  alert('该任务由教师后续开放。');
+}
+function viewTask(no){
+  if(Number(no)===1){
+    viewTask1Result();
+    return;
+  }
+  alert('该任务暂未开放。');
+}
+function updateHomeProgress(){var sub=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length,pct=Math.round(sub/totalTasks*100);
+  document.getElementById('doneTasks').textContent=sub;document.getElementById('pendingTasks').textContent=totalTasks-sub;document.getElementById('taskProgress').style.width=pct+'%';
+  updateArchive();}
+
+function updateArchive(){
+  if(!student)return;
+  var taskCount=Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length;
+  var totalEvidence=taskCount+extTotal;
+  document.getElementById('archTaskCount').textContent=taskCount;
+  document.getElementById('archExtCount').textContent=extTotal;
+  var el=document.getElementById('archOutputCount');if(el)el.textContent=extTotal;
+  document.getElementById('archLastUpdate').textContent=totalEvidence>0?new Date().toLocaleString('zh-CN'):'—';
+
+  // Status
+  var tagEl=document.getElementById('profileStatusTag');
+  if(totalEvidence>0){tagEl.textContent='动态更新中';tagEl.className='tag tag-green';}
+  else{tagEl.textContent='等待学习记录';tagEl.className='tag tag-gray';}
+
+  // Summary button
+  document.getElementById('summaryReady').style.display=taskCount>=totalTasks?'block':'none';
+
+  // Timeline
+  var tlItems=[];extRecords.forEach(function(r){tlItems.push({time:r.time,title:r.title,desc:'认识新词：'+(r.word||'—')+(r.sentence?' · 写了一句：'+r.sentence:''),type:'拓展'});});
+  Object.keys(taskStatuses).forEach(function(k){if(taskStatuses[k]==='submitted'){var t=TASK_DEFS[parseInt(k)-1];tlItems.push({time:new Date().toLocaleString('zh-CN'),title:'任务'+k+': '+t.title,desc:'课程任务已提交',type:'任务'});}});
+  tlItems.sort(function(a,b){return a.time<b.time?1:-1;});
+  var tlHtml='';tlItems.slice(0,10).forEach(function(i){tlHtml+='<div style="font-size:12px;color:#475569;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>'+(i.time||'').slice(0,16)+'</b> · '+i.title+'<br><span style="color:#94a3b8">'+i.desc+'</span></div>';});
+  document.getElementById('timeline').innerHTML=tlHtml||'<span class="empty-state" style="font-size:12px">完成第一项学习活动后，时间轴将自动显示。</span>';
+
+  // Radar
+  var evCount=totalEvidence;
+  document.getElementById('radarNote').textContent='当前基于'+evCount+'条学习记录。继续学习后结果将更加准确。';
+  var dims=[{name:'词语理解',score:taskCount>0?50:0,ev:taskCount},{name:'阅读理解',score:taskCount>=3?40:0,ev:Math.min(taskCount,3)},{name:'写作表达',score:extTotal>0?60:0,ev:extTotal},{name:'口语表达',score:0,ev:0},{name:'岗位中文',score:extTotal>0?55:0,ev:extTotal},{name:'文化理解',score:0,ev:0}];
+  var confidence=function(ev){return ev>=4?'high':(ev>=2?'medium':(ev>0?'low':'none'));};
+  var confColor=function(c){return c==='high'?'#22c55e':(c==='medium'?'#f59e0b':(c==='low'?'#ef4444':'#e2e8f0'));};
+  var radarHtml='';dims.forEach(function(d){var c=confidence(d.ev);radarHtml+='<div style="display:flex;align-items:center;gap:8px;margin:6px 0"><span style="font-size:12px;color:#475569;width:60px">'+d.name+'</span><div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden"><div style="height:100%;background:'+confColor(c)+';width:'+Math.max(d.score,4)+'%"></div></div><span style="font-size:10px;color:#94a3b8;width:40px">'+(d.score>0?d.score+'分':(d.ev>0?'证据少':'—'))+'</span><span style="font-size:9px;color:'+confColor(c)+'">'+(d.ev>0?c==='high'?'可靠':(c==='medium'?'中等':'初步'):'')+'</span></div>';});
+  document.getElementById('radarChart').innerHTML=radarHtml;
+
+  // Learning成果
+  document.getElementById('lcWords').textContent=extTotal>0?extTotal*3:0;
+  document.getElementById('lcSentences').textContent=extRecords.filter(function(r){return r.sentence;}).length;
+  document.getElementById('lcCulture').textContent=0;document.getElementById('lcRailway').textContent=extTotal;
+  var wordsList='';extRecords.forEach(function(r){if(r.word)wordsList+='<span style="display:inline-block;background:#eff6ff;color:#2563eb;padding:2px 8px;border-radius:8px;font-size:11px;margin:2px">'+r.word+'</span>';});
+  document.getElementById('lcWordsList').innerHTML=wordsList||'<span style="font-size:11px;color:#94a3b8">暂无</span>';
+}
+
+function generateSummary(){if(isPreviewMode){alert('教师预览模式下不可操作');return;}alert('阶段总结报告生成中...\n\n基于'+Object.values(taskStatuses).filter(function(s){return s==='submitted';}).length+'个课程任务和'+extTotal+'次中文拓展。\n\n此功能后续开放。');}
+
+// ===== Extensions =====
+function renderExtensionGrids(){
+  try{
+    var cultureList=document.getElementById('cultureList'),railwayList=document.getElementById('railwayList');
+    if(!cultureList||!railwayList)return;
+    var cultureItems=[{id:'daily_book',title:'每日一书',icon:'📖'},{id:'daily_song',title:'每日一曲',icon:'🎵'},{id:'daily_place',title:'每日一地',icon:'📍'},{id:'daily_object',title:'每日一物',icon:'🏺'}];
+    var railwayItems=[{id:'railway_station',title:'每日一站',icon:'🚉'},{id:'railway_word',title:'每日一词',icon:'📝',open:true,action:'openTodayExtension()'},{id:'railway_job',title:'每日一岗',icon:'👷'},{id:'railway_knowledge',title:'每日一知识',icon:'📋'}];
+    var buildCard=function(item){return'<div class="ext-card" onclick="'+(item.open?item.action:'alert(\'该内容由教师后续开放。\')')+'"><span class="ec-icon">'+item.icon+'</span><span class="ec-title">'+item.title+'</span><span class="ec-status'+(item.open?' open':'')+'">'+(item.open?'已开放':'教师后续开放')+'</span></div>';};
+    cultureList.innerHTML=cultureItems.map(buildCard).join('');
+    railwayList.innerHTML=railwayItems.map(buildCard).join('');
+  }catch(e){console.log('Grid render error:',e);}
+}
+
+function renderExtensions(){
+  document.getElementById('extFootprint').innerHTML='<div class="grid-item"><span class="num">'+extTotal+'</span><span class="lbl">完成拓展</span></div><div class="grid-item"><span class="num">0</span><span class="lbl">中华文化</span></div><div class="grid-item"><span class="num">'+extTotal+'</span><span class="lbl">铁路中文</span></div><div class="grid-item"><span class="num">0</span><span class="lbl">新词收藏</span></div>';
+  var cards='';extRecords.slice(-5).reverse().forEach(function(r){cards+='<div class="learning-card"><b>📅 '+r.date+'</b> '+r.title+'<br>选词：'+(r.word||'—')+' · 句子：'+(r.sentence||'—')+'<br><span style="color:#94a3b8;font-size:10px">'+r.time+'</span></div>';});
+  document.getElementById('extCards').innerHTML=cards||'<span class="empty-state" style="font-size:12px">暂无学习卡</span>';
+  document.getElementById('extHomeStatus').innerHTML=extTotal>0?'<span class="tag tag-green">✅ 已完成</span>':'<span class="tag tag-gray">未完成</span>';
+  document.getElementById('extHomeTotal').textContent=extTotal+'次';document.getElementById('extTodayTotal').textContent=extTotal+'次';
+  document.getElementById('extTodayStatus').innerHTML=extTotal>0?'<span class="tag tag-green">✅ 已完成</span>':'<span class="tag tag-gray">未完成</span>';
+}
+
+function openTodayExtension(){
+  document.getElementById('extOverlay').classList.add('show');document.getElementById('extPanel').style.display='block';
+  var h='<div style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:12px">信号机是铁路上用来传递运行信息的重要设备。</div>';
+  h+='<div style="font-size:13px;font-weight:600;color:#475569;margin-bottom:4px">📖 关键词</div>';
+  ['信号机(xìn hào jī) · signal','红灯(hóng dēng) · red','绿灯(lǜ dēng) · green','停车(tíng chē) · stop','通过(tōng guò) · proceed'].forEach(function(w){h+='<span style="display:inline-block;background:#eff6ff;color:#2563eb;padding:4px 10px;border-radius:10px;font-size:12px;margin:3px">'+w+'</span>';});
+  h+='<div style="font-size:13px;font-weight:600;color:#475569;margin:12px 0 4px">📝 选一个新词</div><div class="chips" id="extWords">';
+  ['信号机','红灯','绿灯','停车','通过'].forEach(function(w,i){h+='<span class="chip" id="ew_'+i+'" onclick="pickExtWord('+i+')">'+w+'</span>';});h+='</div>';
+  h+='<div style="font-size:13px;font-weight:600;color:#475569;margin:12px 0 4px">✍️ 写一句话</div>';
+  h+='<input class="write-input" id="extSentence" placeholder="红灯表示______。绿灯表示______。">';
+  h+='<div class="msg" id="extMsg"></div><button class="btn btn-submit" style="margin-top:10px" onclick="submitExtension()">✅ 完成今日拓展</button>';
+  document.getElementById('extContent').innerHTML=h;window._extSelWord='';
+}
+function pickExtWord(i){document.querySelectorAll('#extWords .chip').forEach(function(c){c.classList.remove('sel');});document.getElementById('ew_'+i).classList.add('sel');window._extSelWord=['信号机','红灯','绿灯','停车','通过'][i];}
+function closeExt(){document.getElementById('extOverlay').classList.remove('show');document.getElementById('extPanel').style.display='none';}
+
+function submitExtension(){if(window._pvStudent){alert('教师预览模式下不可提交');return;}if(isPreviewMode){alert('教师预览模式下不可提交');return;}
+  if(!student)return;var word=window._extSelWord||'',sentence=document.getElementById('extSentence').value.trim();
+  var today=new Date().toISOString().split('T')[0],now=new Date().toLocaleString('zh-CN'),record={date:today,title:'每日一词：信号机',category:'railway',word:word,sentence:sentence,time:now};
+  extRecords.push(record);extTotal++;saveS('extRecords',extRecords);
+  var params={action:'submit',projectId:'ECRL_MY_CHINESE',schemaVersion:2,learningTrack:'chinese_track',studentUid:student.uid||'',dataType:'extension_record',activityType:'daily_extension',name:student.name,studentName:student.name,studentId:student.id,chineseName:student.chineseName||'',country:'Malaysia',learnerType:'international_student',source:'h5',extensionId:'signal_light_001',extensionTitle:'每日一词：信号机',extensionType:'daily_word',mainCategory:'railway',railwayTopic:'signal',selectedWord:word,studentSentence:sentence,submitStatus:'submitted',submitTime:new Date().toISOString()};
+  var cb='_ext'+Date.now();window[cb]=function(res){var m=document.getElementById('extMsg');if(res&&(res.success||res.ok)){m.innerHTML='✅ 提交成功！<br>编号：'+(res.submissionId||'—')+'<br><small>你的中文学习档案已更新</small>';m.className='msg ok show';renderExtensions();updateArchive();}else{m.innerHTML='提交失败，已保存本地。';m.className='msg err show';}setTimeout(function(){m.className='msg';},6000);delete window[cb];};
+  var qs='callback='+cb;for(var k in params)qs+='&'+encodeURIComponent(k)+'='+encodeURIComponent(params[k]);var s=document.createElement('script');s.src=API+'?'+qs;document.head.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},8000);
+}
+
+function renderAll(){renderTasks();renderExtensions();renderExtensionGrids();updateHomeProgress();}
+
+// Auto-restore
+// ===== Teacher preview mode =====
+function tryPreviewMode(){
+  var params=new URLSearchParams(window.location.search);
+  var previewToken=params.get('preview')||'';
+  var uid=params.get('uid')||'';
+  if(!previewToken||!uid)return false;
+  var cb='_pv'+Date.now();window[cb]=function(res){
+    if(res&&res.success){
+      isPreviewMode=true;
+      student={id:res.studentId,uid:res.studentUid,name:res.englishName||'',chineseName:res.chineseName||'',sessionToken:'preview_'+previewToken,classId:'',className:'',isPreview:true};
+      enterApp();
+    }else{console.log('Preview validation failed');}
+    delete window[cb];
+  };
+  var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=validate_session&studentUid='+encodeURIComponent(uid);document.head.appendChild(s);
+  return true;
+}
+
+// Auto-restore (skip if preview mode)
+(function(){
+  if(window.location.search.indexOf('previewToken=')!==-1||window.location.search.indexOf('preview=')!==-1||window._pvStudent){return;}
+  var s=localStorage.getItem('activeStudentSession');if(s){student=JSON.parse(s);document.getElementById('loginBox').style.display='none';document.getElementById('mainContent').style.display='block';document.getElementById('tabBar').style.display='flex';document.getElementById('stuName').textContent=(student.chineseName||student.name)+' ['+student.id+']';taskStatuses=loadS('taskStatuses')||{};var er=loadS('extRecords');extRecords=er||[];extTotal=extRecords.length;renderAll();updateHomeProgress();}
+})();
+
+// ===== Task 1: HSK3 Reading & Writing Quiz =====
+var TASK1_ID = 'TASK_HSK3_RW_01';
+var quizState = {
+  active: false, currentStep: 0, totalSteps: 4,
+  answers: {}, taskData: null, startedAt: null,
+  timerSeconds: 2700, timerInterval: null, timerActive: false,
+  submitting: false, submitted: false
+};
+
+// (openTask and viewTask handle Task 1 directly — no overrides needed)
+
+function getDraftKey() {
+  return 'draft_' + (student ? student.uid : 'anon') + '_TASK_HSK3_RW_01';
+}
+
+function saveQuizDraft() {
+  if (!student || isPreviewMode) return;
+  var draft = {
+    answers: quizState.answers,
+    currentStep: quizState.currentStep,
+    startedAt: quizState.startedAt,
+    timerSeconds: quizState.timerSeconds,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem(getDraftKey(), JSON.stringify(draft));
+}
+
+function loadQuizDraft() {
+  if (!student) return null;
+  try {
+    var raw = localStorage.getItem(getDraftKey());
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function clearQuizDraft() {
+  if (!student) return;
+  localStorage.removeItem(getDraftKey());
+}
+
+// ===== Unified Audio Recorder with State Machine & Visualizer =====
+var REC_STATE = { IDLE:'idle', REQUESTING:'requesting_permission', RECORDING:'recording', RECORDED:'recorded_local', UPLOADING:'uploading', UPLOADED:'uploaded', UPLOAD_FAILED:'upload_failed' };
+
+var AudioRecorder = {
+  state: 'idle', mediaRecorder: null, chunks: [], blob: null, stream: null,
+  startTime: 0, elapsed: 0, maxDuration: 300, audioContext: null, analyser: null, visAnimId: null,
+  onRender: null, uploadStartTime: 0, uploadBytes: 0, uploadTotal: 0, lastError: '', uploadLog: [],
+
+  init: function(opts) {
+    this.maxDuration = opts.maxDuration || 300;
+    this.onRender = opts.onRender || null;
+  },
+
+  getState: function() { return this.state; },
+  getDuration: function() { return Math.round(this.elapsed / 1000); },
+  getBlob: function() { return this.blob; },
+  getUploadLog: function() { return this.uploadLog; },
+  getUploadElapsed: function() { return this.state === 'uploading' ? Math.round((Date.now() - this.uploadStartTime) / 1000) : 0; },
+
+  _setState: function(s) { this.state = s; if (this.onRender) this.onRender(); },
+
+  requestMic: function() {
+    var self = this;
+    self._setState('requesting_permission');
+    self.lastError = '';
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      self._startRecording(stream);
+    }).catch(function(err) {
+      self.lastError = err.name === 'NotAllowedError' ? '麦克风权限被拒绝' : ('麦克风错误：' + (err.message || ''));
+      self._setState('idle');
+      if (self.onRender) self.onRender();
+    });
+  },
+
+  _startRecording: function(stream) {
+    var self = this;
+    self.stream = stream;
+    self.chunks = [];
+    self.blob = null;
+    self.startTime = Date.now();
+    self.elapsed = 0;
+    self.uploadLog = [];
+
+    // Detect supported mime
+    var mimeType = 'audio/webm';
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+    else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+
+    self.mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+    self.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) self.chunks.push(e.data); };
+    self.mediaRecorder.onstop = function() {
+      self.blob = new Blob(self.chunks, { type: mimeType });
+      if (self.stream) { self.stream.getTracks().forEach(function(t) { t.stop(); }); self.stream = null; }
+      self._stopVisualizer();
+      self._setState('recorded_local');
+    };
+    self.mediaRecorder.start(100);
+    self._setState('recording');
+    self._startTimer();
+    self._startVisualizer(stream);
+  },
+
+  stopRecording: function() {
+    if (this.state !== 'recording') return;
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') { this.mediaRecorder.stop(); }
+    this._stopTimer();
+  },
+
+  reset: function() {
+    if (this.state === 'recording') this.stopRecording();
+    this.chunks = []; this.blob = null; this.elapsed = 0; this.lastError = '';
+    this.uploadLog = []; this.uploadBytes = 0; this.uploadTotal = 0;
+    this._stopVisualizer();
+    this._setState('idle');
+    if (this.stream) { this.stream.getTracks().forEach(function(t) { t.stop(); }); this.stream = null; }
+  },
+
+  playPreview: function() {
+    if (!this.blob) return;
+    var url = URL.createObjectURL(this.blob);
+    var a = new Audio(url); a.play();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+  },
+
+  uploadAsFile: function(file) {
+    this.reset();
+    this.blob = file;
+    this._setState('recorded_local');
+  },
+
+  setUploading: function() {
+    this.uploadStartTime = Date.now();
+    this.uploadBytes = 0; this.uploadTotal = this.blob ? this.blob.size : 0;
+    this.uploadLog = [{ step: '录音Blob已生成', status: 'success' }];
+    this._setState('uploading');
+  },
+
+  addUploadLog: function(step, status) { this.uploadLog.push({ step: step, status: status }); },
+  setUploadProgress: function(bytes, total) { this.uploadBytes = bytes; this.uploadTotal = total || this.uploadTotal; },
+  setUploaded: function() { this.addUploadLog('上传完成', 'success'); this._setState('uploaded'); },
+  setUploadFailed: function(err) { this.lastError = err || '上传失败'; this.addUploadLog(err, 'failed'); this._setState('upload_failed'); },
+
+  // Visualizer
+  _startVisualizer: function(stream) {
+    var self = this;
+    try {
+      self.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      self.analyser = self.audioContext.createAnalyser();
+      self.analyser.fftSize = 256;
+      var source = self.audioContext.createMediaStreamSource(stream);
+      source.connect(self.analyser);
+      var bufferLength = self.analyser.frequencyBinCount;
+      var dataArray = new Uint8Array(bufferLength);
+      var canvas = document.getElementById('recVisCanvas');
+      var ctx = canvas ? canvas.getContext('2d') : null;
+      function draw() {
+        if (self.state !== 'recording') { self.visAnimId = null; return; }
+        self.visAnimId = requestAnimationFrame(draw);
+        if (!ctx || !canvas) return;
+        self.analyser.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var barW = canvas.width / 20;
+        for (var i = 0; i < 20; i++) {
+          var h = (dataArray[i] || 0) / 255 * canvas.height;
+          ctx.fillStyle = 'rgb(' + Math.min(255, 37 + i*4) + ',' + Math.min(255, 99 + i*3) + ',235)';
+          ctx.fillRect(i * barW + 1, canvas.height - h, barW - 2, Math.max(h, 2));
+        }
+      }
+      draw();
+    } catch(e) { /* visualizer not critical */ }
+  },
+
+  _stopVisualizer: function() {
+    if (this.visAnimId) { cancelAnimationFrame(this.visAnimId); this.visAnimId = null; }
+    if (this.audioContext && this.audioContext.state !== 'closed') { this.audioContext.close().catch(function(){}); }
+    this.audioContext = null; this.analyser = null;
+  },
+
+  _timer: null,
+  _startTimer: function() {
+    var self = this;
+    self._timer = setInterval(function() {
+      self.elapsed = Date.now() - self.startTime;
+      if (self.elapsed >= self.maxDuration * 1000) { self.stopRecording(); }
+      if (self.onRender) self.onRender();
+    }, 200);
+  },
+  _stopTimer: function() { if (this._timer) { clearInterval(this._timer); this._timer = null; } }
+};
+
+// ===== Task Session Management =====
+var activeTaskSession = null;
+var sessionCounter = 0;
+function createTaskSession(taskId) {
+  sessionCounter++;
+  disposeTaskSession();
+  activeTaskSession = { token: sessionCounter, taskId: taskId, taskType: null, stepList: [], stepIndex: 0, answers: {}, disposed: false, taskData: null, preSubmissionId: '', writingText: '', audioFileId: '', audioDuration: 0, imageFileId: '', submitted: false, _photoUploading: false, imageFile: null, _photoAssetId: '', _audioAssetId: '' };
+  console.log('[OPEN_TASK]', taskId, 'sessionToken', sessionCounter);
+  return activeTaskSession;
+}
+function disposeTaskSession() {
+  if (!activeTaskSession) return;
+  console.log('[DISPOSE_TASK]', activeTaskSession.taskId, activeTaskSession.token);
+  activeTaskSession.disposed = true;
+  AudioRecorder.reset();
+  activeTaskSession = null;
+}
+function sessionValid(token) { return activeTaskSession && !activeTaskSession.disposed && activeTaskSession.token === token; }
+
+// Backward-compat wrapper
+var task2to4State = { active: false, taskId: '', taskData: null, currentStep: 0, answers: {}, writingText: '', audioBlob: null, audioDuration: 0, audioFileId: '', imageFileId: '', submitted: false };
+function syncSessionToState(s) {
+  if (!s) return;
+  task2to4State.active = true; task2to4State.taskId = s.taskId; task2to4State.taskData = s.taskData;
+  task2to4State.currentStep = s.stepIndex; task2to4State.answers = s.answers;
+  task2to4State.writingText = s.writingText; task2to4State.audioFileId = s.audioFileId;
+  task2to4State.audioDuration = s.audioDuration; task2to4State.imageFileId = s.imageFileId;
+  task2to4State.submitted = s.submitted; task2to4State.preSubmissionId = s.preSubmissionId;
+  task2to4State._photoUploading = s._photoUploading; task2to4State.imageFile = s.imageFile;
+  task2to4State._photoAssetId = s._photoAssetId; task2to4State._audioAssetId = s._audioAssetId;
+}
+function syncStateToSession(s) {
+  if (!s) return;
+  s.answers = task2to4State.answers; s.writingText = task2to4State.writingText;
+  s.audioFileId = task2to4State.audioFileId; s.audioDuration = task2to4State.audioDuration;
+  s.imageFileId = task2to4State.imageFileId; s.submitted = task2to4State.submitted;
+  s.preSubmissionId = task2to4State.preSubmissionId; s._photoUploading = task2to4State._photoUploading;
+  s.imageFile = task2to4State.imageFile; s._photoAssetId = task2to4State._photoAssetId;
+  s._audioAssetId = task2to4State._audioAssetId;
+}
+
+function isTestAccount() {
+  if (!student) return false;
+  var sid = student.id || '';
+  return sid === 'MY001' || sid === 'MY002' || sid === 'MY003';
+}
+
+function startTask2to4(taskId) {
+  if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
+  if (!student) { alert('请先登录'); return; }
+  // Open to all students (class release)
+  // Task 9 routes to HSK test flow (Task 1 pattern)
+  if (taskId === 'TASK_HSK3_TEST_2_09') { startTask9(); return; }
+  // Show loading overlay immediately
+  var session = createTaskSession(taskId);
+  var stoken = session.token;
+  AudioRecorder.reset();
+  document.getElementById('quizOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('quizStepbar').innerHTML = '';
+  document.getElementById('quizTitle').textContent = '查询中...';
+  document.getElementById('quizTimer').textContent = '';
+  document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b" data-task-id="'+taskId+'" data-session-token="'+stoken+'">⏳ 正在检查任务状态……</div>';
+  var TASK_NO_MAP = { 'TASK_HSK3_RW_01':1,'TASK_L1_REVIEW_02':2,'TASK_L2_REVIEW_03':3,'TASK_SEAL_WORK_04':4,'TASK_CHINESE_MOVIES_05':5,'TASK_CHINESE_FOOD_1_06':6,'TASK_PAPER_CUTTING_07':7,'TASK_CHINESE_FOOD_2_08':8,'TASK_HSK3_TEST_2_09':9,'TASK_STUDY_LIFE_CHINA_10':10};
+  var cbCheck = '_chk' + Date.now();
+  window[cbCheck] = function(checkRes) {
+    if (!sessionValid(stoken)) { delete window[cbCheck]; return; }
+    if (checkRes && checkRes.success && checkRes.submissionId) {
+      var tno = TASK_NO_MAP[taskId] || 0;
+      if (tno) { taskStatuses[tno] = 'submitted'; saveS('taskStatuses', taskStatuses); }
+      showTask2to4Result(checkRes);
+    } else {
+      session.preSubmissionId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      syncSessionToState(session);
+      document.getElementById('quizTitle').textContent = '加载中...';
+      document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
+      fetchTask2to4Data(taskId, stoken);
+    }
+    delete window[cbCheck];
+  };
+  var sCheck = document.createElement('script');
+  sCheck.src = API + '?callback=' + cbCheck + '&action=get_task2_4_result&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(sCheck);
+}
+
+function fetchTask2to4Data(taskId, stoken) {
+  console.log('[LOAD_DEFINITION_REQUEST]', taskId, stoken);
+  var cb = '_t24_' + Date.now();
+  window[cb] = function(res) {
+    if (!sessionValid(stoken)) { delete window[cb]; return; }
+    console.log('[LOAD_DEFINITION_RESPONSE]', taskId, (res&&res.task?res.task.taskId:'none'), 'isCurrent:', sessionValid(stoken));
+    if (res && res.success && res.task) {
+      if (res.task.taskId !== taskId) { alert('任务数据不匹配，请重试。'); delete window[cb]; return; }
+      var s = activeTaskSession;
+      s.taskData = res.task;
+      syncSessionToState(s);
+      document.getElementById('quizTitle').textContent = res.task.title || '';
+      document.getElementById('quizTimer').textContent = (res.task.recommendedMinutes || '') + '分钟';
+      renderTask2to4Step(0);
+    } else { if (sessionValid(stoken)) alert('加载任务失败'); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function renderTask2to4Step(step) {
+  var s = activeTaskSession;
+  if (!s) return;
+  s.stepIndex = step;
+  syncSessionToState(s);
+  var td = s.taskData;
+  if (!td) return;
+  var body = document.getElementById('quizBody');
+  var stoken = s.token;
+  var hasObj = (td.sections||[]).length > 0 && (td.sections[0].questions||[]).length > 0 && !td.noObjective;
+  var hasWriting = !td.noWriting;
+  var hasAudio = !td.noSpeaking;
+  var hasPhoto = td.hasPhotoUpload;
+  // Build step list
+  var stepList = [];
+  if (hasObj) stepList.push({label:'客观题', type:'objective'});
+  if (hasWriting) stepList.push({label:'写作', type:'writing'});
+  if (hasAudio) stepList.push({label:'录音', type:'audio'});
+  if (hasPhoto) stepList.push({label:'照片', type:'photo'});
+  stepList.push({label:'提交', type:'review'});
+  s.stepList = stepList;
+  var totalSteps = stepList.length;
+  var currentStepType = stepList[step] ? stepList[step].type : 'review';
+  var html = '';
+  // Step bar
+  html += '<div class="quiz-stepbar">';
+  for (var i = 0; i < stepList.length; i++) {
+    html += '<div class="step' + (i === step ? ' active' : '') + '" onclick="renderTask2to4Step(' + i + ')">' + (i+1) + '. ' + stepList[i].label + '</div>';
+  }
+  html += '</div>';
+
+  if (currentStepType === 'objective') {
+    // Objective questions
+    var sec = td.sections[0];
+    html += '<div class="quiz-section-title">' + (sec.title || '客观题') + '</div>';
+    if (sec.instructions) html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
+    sec.questions.forEach(function(q) {
+      var selected = task2to4State.answers[q.id];
+      html += '<div class="quiz-qcard"><div class="qnum">第' + q.number + '题（' + qScore + '分）</div>';
+      if (q.type === 'word_choice' || q.type === 'structure_choice' || q.type === 'choice') {
+        html += '<div class="qtext">' + q.text + '</div>';
+        q.options.forEach(function(opt) {
+          html += '<div class="qopt' + (selected === opt.id ? ' sel' : '') + '" onclick="selectTask2to4Opt(this,\'' + q.id + '\',\'' + opt.id + '\')">' + opt.id + '. ' + opt.text + '</div>';
+        });
+      } else if (q.type === 'sentence_order') {
+        html += '<div class="qtext">' + q.text + '</div>';
+        html += '<div style="padding:8px;background:#f8fafc;border-radius:6px;font-size:13px">词语：' + (q.words||[]).join('、') + '</div>';
+        html += '<input class="write-input" id="so_' + q.id + '" placeholder="请输入正确句子" value="' + (selected||'') + '" oninput="task2to4State.answers[\'' + q.id + '\']=this.value">';
+      }
+      html += '</div>';
+    });
+  } else if (currentStepType === 'writing') {
+    // Writing (no word limit enforced)
+    html += '<div class="quiz-section-title">📝 写作</div>';
+    html += '<div class="quiz-instructions">' + (td.writingPrompt || '请根据本课内容写作。') + '</div>';
+    html += renderScaffold(td);
+    html += '<textarea class="write-input" id="t24writing" style="min-height:150px" placeholder="在这里写作...">' + (task2to4State.writingText || '') + '</textarea>';
+    html += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t24charCount">当前字数：0字</div>';
+  } else if (currentStepType === 'audio') {
+    // Recording
+    html += '<div class="quiz-section-title">🎙️ 口语录音</div>';
+    html += '<div class="quiz-instructions">' + (td.speakingPrompt || '请根据自己的实际情况进行介绍。') + '<br><span style="color:#94a3b8">建议时长仅供参考，不影响提交。最长5分钟，最大30MB。</span></div>';
+    html += renderScaffold(td);
+    html += '<div id="recorderUI"></div>';
+  } else if (currentStepType === 'photo') {
+    // Photo upload — with real CloudBase upload
+    html += '<div class="quiz-section-title">📷 印章照片</div>';
+    html += '<div class="quiz-instructions">请选择并上传你的印章作品照片（jpg/png/webp，最大10MB）。</div>';
+    if (task2to4State.imageFileId) {
+      html += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 照片已上传云端</div>';
+      html += '<div id="photoPreview" style="margin-top:8px"></div>';
+      html += '<button class="btn btn-outline" style="margin:4px" onclick="task2to4State.imageFileId=\'\';task2to4State.imageFile=null;renderTask2to4Step(3)">🗑 删除重新上传</button>';
+    } else if (task2to4State._photoUploading) {
+      html += '<div style="text-align:center;color:#f59e0b;padding:12px">⏳ 正在上传照片...</div>';
+    } else {
+      html += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t24photo" onchange="onPhotoSelected(this)" style="display:block;margin:12px 0;font-size:12px">';
+      html += '<div id="photoPreview" style="margin-top:8px"></div>';
+      if (task2to4State.imageFile) {
+        html += '<button class="btn btn-submit" onclick="uploadTask4Photo()" style="margin-top:6px">☁️ 上传到云端</button>';
+      }
+    } else {
+    // Review/Submit
+    var audioStatus = task2to4State.audioFileId ? '✅ 已上传' : (AudioRecorder.getBlob() && AudioRecorder.getBlob().size > 0 ? '⚠️ 已录制但尚未上传' : '尚未录制');
+    var hasPhoto = !!(task2to4State.imageFileId || task2to4State.imageFile);
+    html += '<div class="quiz-section-title">✅ 确认提交</div>';
+    html += '<div class="section-card"><div class="row"><span>客观题已答</span><span class="val">' + Object.keys(task2to4State.answers).length + '/' + td.questionCount + '</span></div>';
+    html += '<div class="row"><span>写作</span><span class="val">' + ((task2to4State.writingText||'').length > 0 ? '✅ 已填写' : '未填写') + '</span></div>';
+    html += '<div class="row"><span>录音</span><span class="val">' + audioStatus + '</span></div>';
+    if (td.hasPhotoUpload) html += '<div class="row"><span>照片</span><span class="val">' + (hasPhoto ? '✅ 已准备' : '📷 待补交') + '</span></div>';
+    html += '</div>';
+    html += '<button class="btn btn-submit" style="margin-top:12px" onclick="submitTask2to4()">确认提交</button>';
+  }
+
+  body.innerHTML = html;
+
+  if (currentStepType === 'writing') {
+    var ta = document.getElementById('t24writing');
+    if (ta) { ta.addEventListener('input', function() { task2to4State.writingText = ta.value; var cnt = document.getElementById('t24charCount'); if(cnt) cnt.textContent = '当前字数：' + ta.value.length + '字'; }); }
+  }
+  if (currentStepType === 'audio') { setTimeout(renderRecorderUI, 100); }
+  if (currentStepType === 'photo') { setTimeout(renderPhotoPreview, 100); }
+  updateTask2to4Nav();
+}
+
+function renderScaffold(td) {
+  if (!td || !td.scaffold) return '';
+  var sc = td.scaffold;
+  var h = '<div class="section-card" style="background:#f0fdf4;border:1px solid #bbf7d0;margin-bottom:10px">';
+  h += '<div style="font-size:13px;font-weight:700;color:#16a34a;cursor:pointer" onclick="var p=this.nextElementSibling;p.style.display=p.style.display===\'none\'?\'\':\'none\'">📖 语言支架 ▾</div>';
+  h += '<div style="display:none;font-size:12px;line-height:1.8;margin-top:6px">';
+  if (sc.vocabulary) {
+    h += '<b>词语库：</b><br>';
+    for (var k in sc.vocabulary) {
+      h += '<span style="color:#64748b">' + k + '：</span>' + sc.vocabulary[k].join('、') + '<br>';
+    }
+  }
+  if (sc.patterns) { h += '<br><b>句型库：</b><br>' + sc.patterns.map(function(p){return '· '+p;}).join('<br>') + '<br>'; }
+  if (sc.structure) { h += '<br><b>表达结构：</b><br>' + sc.structure.map(function(s){return '· '+s;}).join('<br>') + '<br>'; }
+  h += '</div></div>';
+  return h;
+}
+
+function selectTask2to4Opt(el, qid, oid) {
+  task2to4State.answers[qid] = oid;
+  var card = el.parentNode;
+  card.querySelectorAll('.qopt').forEach(function(o) { o.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+function updateTask2to4Nav() {
+  var s = activeTaskSession;
+  if (!s) return;
+  var sl = s.stepList;
+  var total = sl.length;
+  var step = s.stepIndex;
+  var prevBtn = document.getElementById('quizPrevBtn');
+  var nextBtn = document.getElementById('quizNextBtn');
+  var submitBtn = document.getElementById('quizSubmitBtn');
+  var progress = document.getElementById('quizProgress');
+  var stoken = s.token;
+  if (step === 0) { prevBtn.style.display = 'none'; } else { prevBtn.style.display = ''; }
+  if (step >= total - 1) { nextBtn.style.display = 'none'; submitBtn.style.display = ''; } else { nextBtn.style.display = ''; submitBtn.style.display = 'none'; }
+  progress.textContent = (step + 1) + '/' + total;
+  // Clone to remove old listeners
+  var newPrev = prevBtn.cloneNode(true); prevBtn.parentNode.replaceChild(newPrev, prevBtn); newPrev.id = 'quizPrevBtn'; newPrev.onclick = function() { if (sessionValid(stoken)) renderTask2to4Step(step - 1); };
+  var newNext = nextBtn.cloneNode(true); nextBtn.parentNode.replaceChild(newNext, nextBtn); newNext.id = 'quizNextBtn'; newNext.onclick = function() { if (sessionValid(stoken)) renderTask2to4Step(step + 1); };
+  var newSubmit = submitBtn.cloneNode(true); submitBtn.parentNode.replaceChild(newSubmit, submitBtn); newSubmit.id = 'quizSubmitBtn'; newSubmit.onclick = function() { if (sessionValid(stoken)) submitTask2to4(); };
+}
+
+function renderRecorderUI() {
+  var ui = document.getElementById('recorderUI');
+  if (!ui) return;
+  var st = AudioRecorder.getState();
+  var dur = AudioRecorder.getDuration();
+  var durStr = Math.floor(dur/60) + '分' + (dur%60).toString().padStart(2,'0') + '秒';
+  var blob = AudioRecorder.getBlob();
+  var blobSize = blob ? (blob.size/1024).toFixed(1) + ' KB' : '';
+  if (blob && blob.size > 1024*1024) blobSize = (blob.size/(1024*1024)).toFixed(1) + ' MB';
+  var blobType = blob ? (blob.type || 'webm').replace('audio/','') : '';
+  var h = '<div style="padding:12px;background:#f8fafc;border-radius:12px;margin-top:8px">';
+
+  // State: IDLE
+  if (st === 'idle') {
+    h += '<div style="text-align:center">';
+    if (AudioRecorder.lastError) {
+      h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px">';
+      h += '<div style="color:#dc2626;font-weight:700;margin-bottom:4px">⚠️ ' + AudioRecorder.lastError + '</div>';
+      h += '<div style="color:#64748b">请点击浏览器地址栏左侧的锁形图标，将麦克风改为"允许"，然后重新尝试。</div>';
+      h += '</div>';
+    }
+    h += '<button class="btn btn-primary" onclick="AudioRecorder.requestMic()" style="font-size:16px;padding:14px 40px">🎙️ 开始录音</button>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:8px">或上传已有录音文件：</div>';
+    h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onAudioFileSelected(this)" style="font-size:12px;margin-top:4px">';
+    h += '</div>';
+  }
+
+  // State: REQUESTING
+  else if (st === 'requesting_permission') {
+    h += '<div style="text-align:center;padding:20px"><div style="font-size:16px;color:#64748b">⏳ 正在请求麦克风权限……</div></div>';
+  }
+
+  // State: RECORDING
+  else if (st === 'recording') {
+    h += '<div style="text-align:center">';
+    h += '<div style="display:inline-block;width:14px;height:14px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px"></div>';
+    h += '<span style="font-size:18px;font-weight:900;color:#dc2626;vertical-align:middle">正在录音</span>';
+    h += '<div style="font-size:36px;font-weight:900;color:#1e293b;margin:8px 0" id="recDur">' + durStr + '</div>';
+    h += '<canvas id="recVisCanvas" width="300" height="60" style="width:100%;max-width:300px;height:60px;background:#fff;border-radius:8px;border:1px solid #e2e8f0"></canvas>';
+    h += '<div style="font-size:12px;color:#94a3b8;margin-top:4px">请对着麦克风讲话 · 最长5分钟</div>';
+    h += '<button class="btn btn-danger" onclick="AudioRecorder.stopRecording()" style="margin-top:8px;font-size:14px;padding:10px 30px">⏹ 停止录音</button>';
+    h += '</div>';
+  }
+
+  // State: RECORDED (local only)
+  else if (st === 'recorded_local') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-bottom:10px">';
+    h += '<div style="font-size:14px;font-weight:700;color:#92400e">⚠️ 录音已完成，尚未上传到云端</div>';
+    h += '</div>';
+    h += '<div style="font-size:28px;font-weight:900;color:#1e293b">' + durStr + '</div>';
+    h += '<div style="font-size:12px;color:#64748b">文件大小：' + blobSize + ' · 格式：' + blobType + '</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:4px">▶ 试听</button>';
+    h += '<button class="btn btn-outline" onclick="if(confirm(\'重新录制会替换当前尚未上传的录音，确定继续吗？\')){AudioRecorder.reset();renderRecorderUI();}" style="margin:4px">🎙️ 重新录制</button>';
+    h += '<button class="btn btn-submit" onclick="uploadAudioToCloud()" style="margin:4px;font-size:15px;padding:12px 36px">☁️ 上传录音</button>';
+    h += '</div>';
+  }
+
+  // State: UPLOADING
+  else if (st === 'uploading') {
+    var upSec = AudioRecorder.getUploadElapsed();
+    var pct = AudioRecorder.uploadTotal > 0 ? Math.round(AudioRecorder.uploadBytes / AudioRecorder.uploadTotal * 100) : -1;
+    h += '<div style="text-align:center">';
+    h += '<div style="font-size:16px;font-weight:700;color:#2563eb;margin-bottom:8px">⏳ 正在上传录音，请不要关闭页面……</div>';
+    if (pct >= 0) {
+      h += '<div style="font-size:13px;color:#64748b">上传进度：' + pct + '%</div>';
+      h += '<div style="font-size:12px;color:#94a3b8">已上传：' + (AudioRecorder.uploadBytes/1024).toFixed(0) + ' KB / ' + (AudioRecorder.uploadTotal/1024).toFixed(0) + ' KB</div>';
+    }
+    h += '<div style="font-size:12px;color:#94a3b8">已等待：' + upSec + '秒</div>';
+    h += '<div class="progress-bar" style="margin:8px 0"><div class="progress-fill" style="width:' + (pct >= 0 ? pct : 50) + '%;animation:' + (pct < 0 ? 'pulse 1.5s infinite' : '') + '"></div></div>';
+    if (upSec > 30) h += '<div style="font-size:11px;color:#f59e0b">录音上传时间较长，请继续等待或重试。</div>';
+    if (upSec > 60) { AudioRecorder.setUploadFailed('上传超时（超过60秒）'); renderRecorderUI(); return; }
+    h += '</div>';
+  }
+
+  // State: UPLOADED
+  else if (st === 'uploaded') {
+    h += '<div style="text-align:center">';
+    h += '<div style="color:#16a34a;font-size:18px;font-weight:700;margin-bottom:8px">✅ 录音上传成功</div>';
+    h += '<div style="font-size:14px;color:#475569">时长：' + durStr + ' · 文件大小：' + blobSize + '</div>';
+    h += '<div style="font-size:12px;color:#16a34a;margin-top:2px">保存状态：已保存到云端</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:6px">▶ 试听录音</button>';
+    h += '<button class="btn btn-outline" onclick="if(confirm(\'当前录音已经保存到云端。重新录制并上传后将使用新录音，是否继续？\')){AudioRecorder.reset();task2to4State.audioFileId=\'\';renderRecorderUI();}" style="margin:6px">🎙️ 重新录制并替换</button>';
+    h += '</div>';
+  }
+
+  // State: UPLOAD_FAILED
+  else if (st === 'upload_failed') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;margin-bottom:10px">';
+    h += '<div style="color:#dc2626;font-weight:700;font-size:14px">❌ 录音上传失败</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:4px">失败原因：' + (AudioRecorder.lastError || '未知错误') + '</div>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:2px">本地录音仍然保留，可以重新上传。</div>';
+    h += '</div>';
+    h += '<button class="btn btn-submit" onclick="uploadAudioToCloud()" style="margin:4px">🔄 重新上传</button>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.reset();task2to4State.audioFileId=\'\';renderRecorderUI()" style="margin:4px">🎙️ 重新录制</button>';
+    h += '</div>';
+  }
+
+  // Upload detail log (collapsible)
+  var log = AudioRecorder.getUploadLog();
+  if (log && log.length > 0) {
+    h += '<details style="margin-top:8px;font-size:10px;color:#94a3b8" ' + (st === 'upload_failed' ? 'open' : '') + '>';
+    h += '<summary>上传详情</summary>';
+    log.forEach(function(l) { h += '<div>' + (l.status === 'success' ? '✅' : l.status === 'failed' ? '❌' : '⏳') + ' ' + l.step + '</div>'; });
+    h += '</details>';
+  }
+
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V4_1_AUTH_FIX_20260803</div>';
+  h += '</div>';
+  ui.innerHTML = h;
+  AudioRecorder.init({ maxDuration: 300, onRender: function() { renderRecorderUI(); } });
+  // Restart visualizer canvas after DOM update if recording
+  if (st === 'recording' && AudioRecorder.stream && AudioRecorder.analyser) {
+    setTimeout(function() { AudioRecorder._startVisualizer(AudioRecorder.stream); }, 50);
+  }
+}
+
+function uploadAudioToCloud() {
+  var blob = AudioRecorder.getBlob();
+  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空（blob.size===0）'); renderRecorderUI(); return; }
+  if (blob.size > 30 * 1024 * 1024) { AudioRecorder.setUploadFailed('文件过大（超过30MB）：' + (blob.size/(1024*1024)).toFixed(1) + 'MB'); renderRecorderUI(); return; }
+  AudioRecorder.setUploading();
+  AudioRecorder.addUploadLog('录音Blob已生成', 'success');
+  AudioRecorder.addUploadLog('SDK状态检查中', 'pending');
+  renderRecorderUI();
+
+  // Check SDK
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') {
+    AudioRecorder.addUploadLog('CloudBase SDK V2.27.1加载', 'failed');
+    AudioRecorder.setUploadFailed('CloudBase SDK V2.27.1未加载：window.cloudbase不存在');
+    renderRecorderUI(); return;
+  }
+  AudioRecorder.addUploadLog('CloudBase SDK V2.27.1已加载', 'success');
+
+  initCloudBase().then(function(app) {
+    if (!app) {
+      var lastErr = cbsDiag.errors.length > 0 ? cbsDiag.errors[cbsDiag.errors.length-1] : null;
+      var msg = '环境初始化或匿名登录失败';
+      if (lastErr) msg = lastErr.step + '：' + (lastErr.code || '') + ' ' + (lastErr.error || '');
+      AudioRecorder.addUploadLog('环境初始化/匿名登录', 'failed');
+      AudioRecorder.setUploadFailed(msg);
+      renderRecorderUI(); return;
+    }
+    AudioRecorder.addUploadLog('环境初始化（' + CBS_ENV_ID + '）', 'success');
+    AudioRecorder.addUploadLog('匿名登录', 'success');
+    AudioRecorder.addUploadLog('CloudBase UID: ' + (cbsDiag.uid || '—'), 'success');
+
+    // Convert Blob to File
+    var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var mimeType = blob.type || ('audio/' + ext);
+    var audioFile = new File([blob], 'audio_' + Date.now() + '.' + ext, { type: mimeType });
+    AudioRecorder.addUploadLog('Blob→File转换完成（' + ext + ', ' + (audioFile.size/1024).toFixed(1) + 'KB）', 'success');
+
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + task2to4State.taskId + '/' + student.uid + '/audio_' + Date.now() + '.' + ext;
+    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+
+    app.uploadFile({ cloudPath: cloudPath, filePath: audioFile }).then(function(result) {
+      console.log('uploadFile result:', JSON.stringify(result).slice(0, 200));
+      if (!result || !result.fileID) {
+        AudioRecorder.addUploadLog('uploadFile返回结果：' + JSON.stringify(result || {}).slice(0,100), 'failed');
+        AudioRecorder.setUploadFailed('未获取fileID：uploadFile返回结果异常');
+        renderRecorderUI(); return;
+      }
+      AudioRecorder.addUploadLog('云存储上传成功', 'success');
+      AudioRecorder.addUploadLog('fileId已获得：' + result.fileID.slice(0,50) + '...', 'success');
+      task2to4State.audioFileId = result.fileID;
+      task2to4State.audioDuration = AudioRecorder.getDuration();
+
+      AudioRecorder.addUploadLog('learning_assets写入中', 'pending');
+      var cb = '_cfa' + Date.now();
+      window[cb] = function(res) {
+        if (res && res.success) {
+          task2to4State._audioAssetId = res.assetId;
+          AudioRecorder.addUploadLog('learning_assets写入成功', 'success');
+          AudioRecorder.addUploadLog('assetId已获得', 'success');
+          AudioRecorder.setUploaded();
+        } else {
+          AudioRecorder.addUploadLog('confirm_asset_upload失败：' + (res ? (res.error || JSON.stringify(res).slice(0,80)) : 'no response'), 'failed');
+          AudioRecorder.setUploadFailed('learning_assets写入失败：' + (res ? res.error : '无响应'));
+        }
+        renderRecorderUI();
+        delete window[cb];
+      };
+      var s = document.createElement('script');
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(task2to4State.preSubmissionId || '') + '&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(mimeType) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s);
+    }).catch(function(err) {
+      console.error('uploadFile error:', err.name, err.code, err.message, err);
+      var errMsg = (err.code || '') + ': ' + (err.message || err.toString());
+      AudioRecorder.addUploadLog('云存储上传失败：' + errMsg, 'failed');
+      AudioRecorder.setUploadFailed(errMsg);
+      renderRecorderUI();
+    });
+  }).catch(function(err) {
+    AudioRecorder.addUploadLog('initCloudBase异常：' + (err.message || err), 'failed');
+    AudioRecorder.setUploadFailed('初始化异常：' + (err.message || ''));
+    renderRecorderUI();
+  });
+}
+
+function onAudioFileSelected(input) {
+  if (input.files && input.files[0]) {
+    var file = input.files[0];
+    if (file.size > 30 * 1024 * 1024) { alert('文件过大（超过30MB）。'); return; }
+    AudioRecorder.uploadAsFile(file);
+    renderRecorderUI();
+  }
+}
+
+function onPhotoSelected(input) {
+  if (input.files && input.files[0]) {
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('图片过大（超过10MB），请选择较小的文件。'); return; }
+    task2to4State.imageFile = file;
+    renderPhotoPreview();
+    renderTask2to4Step(3);
+  }
+}
+
+function uploadTask4Photo() {
+  var file = task2to4State.imageFile;
+  if (!file) return;
+  task2to4State._photoUploading = true;
+  renderTask2to4Step(3);
+  initCloudBase().then(function(app) {
+    if (!app) { alert('云服务未连接，请检查网络。'); task2to4State._photoUploading = false; renderTask2to4Step(3); return; }
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/TASK_SEAL_WORK_04/' + student.uid + '/photo_' + Date.now() + '.' + ext;
+    app.uploadFile({ cloudPath: cloudPath, filePath: file }).then(function(result) {
+      if (!result || !result.fileID) { throw new Error('未获取fileID'); }
+      task2to4State.imageFileId = result.fileID;
+      task2to4State._photoUploading = false;
+      // confirm asset
+      var cb = '_pcf2' + Date.now();
+      window[cb] = function(res) {
+        if (res && res.success) { task2to4State._photoAssetId = res.assetId; }
+        renderTask2to4Step(3);
+        delete window[cb];
+      };
+      var s = document.createElement('script');
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(task2to4State.preSubmissionId || '') + '&taskId=TASK_SEAL_WORK_04&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=image&mimeType=' + encodeURIComponent(file.type) + '&fileSize=' + file.size + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s);
+    }).catch(function(err) {
+      alert('照片上传失败：' + (err.message || '网络错误') + '\n请重试。');
+      task2to4State._photoUploading = false;
+      renderTask2to4Step(3);
+    });
+  });
+}
+
+function renderPhotoPreview() {
+  var prev = document.getElementById('photoPreview');
+  if (!prev) return;
+  if (task2to4State.imageFile) {
+    var url = URL.createObjectURL(task2to4State.imageFile);
+    prev.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:200px;border-radius:8px">';
+  }
+}
+
+function submitTask2to4() {
+  var td = task2to4State.taskData;
+  var writingEl = document.getElementById('t24writing');
+  var writingText = writingEl ? writingEl.value.trim() : (task2to4State.writingText || '');
+  task2to4State.writingText = writingText;
+  // Require audio upload before submit
+  var blob = AudioRecorder.getBlob();
+  if (blob && blob.size > 0 && !task2to4State.audioFileId) {
+    alert('请先点击"☁️ 上传到云端"上传录音后再提交。');
+    return;
+  }
+  // Task 4: allow submit without photo with confirmation
+  if (td && td.hasPhotoUpload && !task2to4State.imageFileId && !task2to4State.imageFile) {
+    if (!confirm('你还没有上传印章照片。可以先提交文字和录音，之后在任务结果页补交照片。\n\n点击"确定"继续提交，点击"取消"返回上传照片。')) {
+      return;
+    }
+  }
+  var doSubmit = function() {
+    var params = 'action=submit_task2_4&taskId=' + task2to4State.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(task2to4State.answers)) + '&writingText=' + encodeURIComponent(writingText) + '&audioFileId=' + encodeURIComponent(task2to4State.audioFileId || '') + '&audioDuration=' + (task2to4State.audioDuration || AudioRecorder.getDuration() || 0) + '&imageFileId=' + encodeURIComponent(task2to4State.imageFileId || '') + '&imageAssetId=' + encodeURIComponent(task2to4State._photoAssetId || '');
+    var cb = '_st24_' + Date.now();
+    var sstoken = (activeTaskSession ? activeTaskSession.token : 0);
+    window[cb] = function(res) {
+      if (!sessionValid(sstoken)) { delete window[cb]; return; }
+      if (res && res.success) {
+        task2to4State.submitted = true;
+        var taskNo = task2to4State.taskId === 'TASK_L1_REVIEW_02' ? 2 : (task2to4State.taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
+        taskStatuses[taskNo] = 'submitted';
+        saveS('taskStatuses', taskStatuses);
+        res._isFreshSubmit = true;
+        res.audioFileId = res.audioFileId || task2to4State.audioFileId;
+        res.audioDuration = res.audioDuration || task2to4State.audioDuration;
+        showTask2to4Result(res);
+      } else if (res && res.error === 'already submitted') {
+        // Already submitted — auto-load results
+        var taskNo = task2to4State.taskId === 'TASK_L1_REVIEW_02' ? 2 : (task2to4State.taskId === 'TASK_L2_REVIEW_03' ? 3 : 4);
+        taskStatuses[taskNo] = 'submitted';
+        saveS('taskStatuses', taskStatuses);
+        document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:14px;color:#16a34a">该任务已经提交，正在打开原任务结果……</div>';
+        setTimeout(function() { viewTask2to4Result(task2to4State.taskId); }, 500);
+      } else { alert('提交失败：' + (res ? res.error : '网络错误') + '\n请重试。'); }
+      delete window[cb];
+    };
+    var s = document.createElement('script');
+    s.src = API + '?callback=' + cb + '&' + params;
+    document.head.appendChild(s);
+  };
+  doSubmit();
+}
+
+function viewTask2to4Result(taskId) {
+  var cb = '_vr24_' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) { showTask2to4Result(res); }
+    else { alert('加载结果失败'); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_task2_4_result&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function showTask2to4Result(data) {
+  window._lastTask24Result = data;
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('resultOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  // Push history state for back button
+  try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
+  var answered = (data.itemResults || []).length;
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804</div></div>';
+  if (data.objectiveScore != null && data.autoGraded) {
+    var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
+    html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
+    html += '<div style="text-align:center;font-size:13px;color:#16a34a;margin-bottom:8px">✅ 客观题已自动评分 · 正确率 ' + pct + '%</div>';
+    // Per-question results
+    var irs = data.itemResults || [];
+    if (irs.length > 0) {
+      html += '<div class="section-card"><h4>📋 逐题结果</h4>';
+      irs.forEach(function(ir) {
+        var mark = ir.isCorrect ? '✅' : '❌';
+        var detail = ir.isCorrect ? '回答正确，获得' + (ir.itemScore||ir.score||0) + '分' : '回答错误 · 你的答案：' + (ir.studentAnswer||'—') + ' · 正确答案：' + (ir.correctAnswer||'');
+        html += '<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f1f5f9"><b>' + ir.questionId + '</b> ' + mark + ' ' + detail + '</div>';
+      });
+      html += '</div>';
+    }
+  }
+  // Subjective status
+  if (data.subjectiveStatus === 'pending_teacher_review') {
+    html += '<div class="section-card" style="background:#fffbeb"><div style="font-size:13px;color:#92400e">📝 写作和口语由教师评价，完成后可见。</div></div>';
+  }
+  if (data.writingText) {
+    html += '<div class="section-card"><h4>📝 我的写作</h4><div style="font-size:13px;white-space:pre-wrap">' + data.writingText + '</div></div>';
+  }
+  if (data.audioUrl || data.audioFileId) {
+    html += '<div class="section-card"><h4>🎙️ 我的录音</h4>';
+    if (data.audioUrl) html += '<audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio>';
+    else html += '<div style="font-size:12px;color:#94a3b8">录音已保存。教师可以播放。</div>';
+    html += '</div>';
+  } else if (!data._isFreshSubmit && !data.audioFileId && isTestAccount()) {
+    // Supplement audio: only for EXISTING submissions without audio (not fresh submits)
+    html += '<div class="section-card" style="border:2px dashed #f59e0b"><h4>🎙️ 补传口语录音</h4>';
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的文字和客观题已经提交，只需补充口语录音，不需要重新答题。</div>';
+    html += '<div id="supplementRecorderUI"></div>';
+    html += '<div id="supplementStatus" style="font-size:11px;color:#94a3b8;margin-top:4px"></div>';
+    html += '</div>';
+  }
+  // Task 4: Supplement photo
+  if (!data._isFreshSubmit && data.taskId === 'TASK_SEAL_WORK_04' && !data.imageFileId && !data.imageAssetId) {
+    html += '<div class="section-card" style="border:2px dashed #f59e0b"><h4>📷 补交印章照片</h4>';
+    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的文字和录音已经提交，不需要重新答题。请选择印章照片并上传。</div>';
+    html += '<input type="file" accept="image/jpeg,image/png,image/webp" id="supplementPhotoInput" onchange="onSupplementPhotoSelected(this)" style="display:block;margin:8px 0;font-size:12px">';
+    html += '<div id="supplementPhotoPreview" style="margin:8px 0"></div>';
+    html += '<div id="supplementPhotoStatus" style="font-size:11px;color:#94a3b8;margin-top:4px"></div>';
+    html += '<button class="btn btn-submit" id="supplementPhotoBtn" onclick="uploadSupplementPhoto()" style="font-size:13px;margin-top:4px">☁️ 上传并关联原答卷</button>';
+    html += '</div>';
+  }
+  // Show existing photo for Task 4
+  if (data.taskId === 'TASK_SEAL_WORK_04' && (data.imageFileId || data.imageAssetId)) {
+    html += '<div class="section-card"><h4>📷 印章照片</h4>';
+    html += '<div style="font-size:12px;color:#16a34a;margin-bottom:4px">✅ 印章照片已补交</div>';
+    html += '</div>';
+  }
+  // AI evaluation
+  if (data.aiEvaluation && data.aiEvaluation.status === 'completed') {
+    var ai = data.aiEvaluation;
+    html += '<div class="section-card" style="border-left:3px solid #6366f1"><h4>🤖 AI写作初评 <span style="font-size:10px;color:#94a3b8">仅供参考</span></h4>';
+    html += '<div class="row"><span>总分</span><span class="val">' + ai.score + '/100</span></div>';
+    if (ai.strengths && ai.strengths.length) html += '<div style="font-size:12px;color:#16a34a">✅ ' + ai.strengths.join('；') + '</div>';
+    if (ai.improvements && ai.improvements.length) html += '<div style="font-size:12px;color:#f59e0b">📝 ' + ai.improvements.join('；') + '</div>';
+    html += '</div>';
+  }
+  // Teacher review
+  if (data.teacherReview && data.teacherReview.isPublished) {
+    var tr = data.teacherReview;
+    html += '<div class="section-card" style="border-left:3px solid #22c55e"><h4>👩‍🏫 教师点评</h4>';
+    html += '<div class="row"><span>发音</span><span class="val">' + (tr.scores.pronunciation||0) + '/5</span></div>';
+    html += '<div class="row"><span>词语</span><span class="val">' + (tr.scores.vocabulary||0) + '/5</span></div>';
+    html += '<div class="row"><span>语法</span><span class="val">' + (tr.scores.grammar||0) + '/5</span></div>';
+    html += '<div class="row"><span>逻辑</span><span class="val">' + (tr.scores.logic||0) + '/5</span></div>';
+    html += '<div class="row"><span>内容</span><span class="val">' + (tr.scores.content||0) + '/5</span></div>';
+    html += '<div class="row"><span>流利</span><span class="val">' + (tr.scores.fluency||0) + '/5</span></div>';
+    html += '<div class="row"><b>总分</b><span class="val"><b>' + (tr.totalScore||0) + '/30</b></span></div>';
+    if (tr.comment) html += '<div style="font-size:12px;color:#475569;margin-top:6px">' + tr.comment + '</div>';
+    html += '</div>';
+  }
+  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="exitTask2to4Result()" style="width:auto;padding:12px 40px">← 返回任务列表</button></div>';
+  document.getElementById('resultBody').innerHTML = html;
+  document.getElementById('resultBody').scrollTop = 0;
+  window.scrollTo(0, 0);
+  loadStudentProfile();
+  // Init supplement recorder if audio missing
+  setTimeout(function() {
+    var suppUI = document.getElementById('supplementRecorderUI');
+    if (suppUI) renderSupplementRecorder(data);
+  }, 200);
+}
+
+var _supplementData = null;
+
+function renderSupplementRecorder(data) {
+  _supplementData = data;
+  var ui = document.getElementById('supplementRecorderUI');
+  if (!ui) return;
+  AudioRecorder.init({ maxDuration: 300, onRender: function() { renderSupplementRecorder(_supplementData); } });
+  var st = AudioRecorder.getState();
+  var dur = AudioRecorder.getDuration();
+  var durStr = Math.floor(dur/60) + '分' + (dur%60).toString().padStart(2,'0') + '秒';
+  var blob = AudioRecorder.getBlob();
+  var blobSize = blob ? (blob.size/1024).toFixed(1) + ' KB' : '';
+  if (blob && blob.size > 1024*1024) blobSize = (blob.size/(1024*1024)).toFixed(1) + ' MB';
+  var blobType = blob ? (blob.type || 'webm').replace('audio/','') : '';
+  var h = '<div style="padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px">';
+
+  // --- idle ---
+  if (st === 'idle') {
+    if (data._suppAudioUploaded) {
+      h += '<div style="text-align:center;color:#16a34a;font-size:16px;font-weight:700">✅ 录音补传成功</div>';
+      h += '<div style="text-align:center;font-size:12px;color:#64748b">已保存到云端，已关联原任务答卷</div>';
+    } else {
+      if (AudioRecorder.lastError) {
+        h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px;margin-bottom:8px;font-size:12px;color:#dc2626">⚠️ ' + AudioRecorder.lastError + '</div>';
+      }
+      h += '<div style="text-align:center"><button class="btn btn-primary" onclick="startSupplementRec()" style="font-size:14px;padding:12px 36px">🎙️ 开始录音</button>';
+      h += '<div style="font-size:11px;color:#94a3b8;margin-top:6px">或上传已有录音文件：</div>';
+      h += '<input type="file" accept="audio/*,.mp3,.wav,.webm,.m4a" onchange="onSupplementFileSelected(this)" style="font-size:12px;margin-top:4px"></div>';
+    }
+  }
+
+  // --- requesting_permission ---
+  else if (st === 'requesting_permission') {
+    h += '<div style="text-align:center;padding:16px;font-size:15px;color:#64748b">⏳ 正在请求麦克风权限……</div>';
+  }
+
+  // --- recording ---
+  else if (st === 'recording') {
+    h += '<div style="text-align:center">';
+    h += '<div style="display:inline-block;width:14px;height:14px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px"></div>';
+    h += '<span style="font-size:18px;font-weight:900;color:#dc2626;vertical-align:middle">正在录音</span>';
+    h += '<div style="font-size:36px;font-weight:900;color:#1e293b;margin:8px 0">' + durStr + '</div>';
+    h += '<canvas id="recVisCanvas" width="300" height="60" style="width:100%;max-width:300px;height:60px;background:#fff;border-radius:8px;border:1px solid #e2e8f0"></canvas>';
+    h += '<div style="font-size:12px;color:#94a3b8;margin-top:4px">请对着麦克风讲话</div>';
+    h += '<button class="btn btn-danger" onclick="AudioRecorder.stopRecording()" style="margin-top:8px;font-size:14px;padding:10px 30px">⏹ 停止录音</button>';
+    h += '</div>';
+  }
+
+  // --- recorded_local ---
+  else if (st === 'recorded_local') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:8px;margin-bottom:8px;font-size:13px;color:#92400e">⚠️ 录音已完成，尚未上传到云端</div>';
+    h += '<div style="font-size:26px;font-weight:900">' + durStr + '</div>';
+    h += '<div style="font-size:12px;color:#64748b">文件大小：' + blobSize + ' · 格式：' + blobType + '</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:4px">▶ 试听</button>';
+    h += '<button class="btn btn-outline" onclick="if(confirm(\'重新录制会替换当前录音，确定继续吗？\')){AudioRecorder.reset();renderSupplementRecorder(_supplementData);}" style="margin:4px">🎙️ 重新录制</button>';
+    h += '<button class="btn btn-submit" onclick="uploadSupplementAudio(_supplementData)" style="margin:4px;font-size:14px;padding:10px 30px">☁️ 上传并关联原答卷</button>';
+    h += '</div>';
+  }
+
+  // --- uploading ---
+  else if (st === 'uploading') {
+    var upSec = AudioRecorder.getUploadElapsed();
+    var pct = AudioRecorder.uploadTotal > 0 ? Math.round(AudioRecorder.uploadBytes / AudioRecorder.uploadTotal * 100) : -1;
+    h += '<div style="text-align:center">';
+    h += '<div style="font-size:15px;font-weight:700;color:#2563eb;margin-bottom:6px">⏳ 正在上传录音，请不要关闭页面……</div>';
+    if (pct >= 0) {
+      h += '<div style="font-size:12px;color:#64748b">上传进度：' + pct + '% · ' + (AudioRecorder.uploadBytes/1024).toFixed(0) + ' KB / ' + (AudioRecorder.uploadTotal/1024).toFixed(0) + ' KB</div>';
+    }
+    h += '<div style="font-size:12px;color:#94a3b8">已等待：' + upSec + '秒</div>';
+    h += '<div class="progress-bar" style="margin:8px 0"><div class="progress-fill" style="width:' + (pct >= 0 ? pct : 50) + '%;animation:' + (pct < 0 ? 'pulse 1.5s infinite' : '') + '"></div></div>';
+    if (upSec > 30) h += '<div style="font-size:11px;color:#f59e0b">上传时间较长，请继续等待或重试。</div>';
+    if (upSec > 60) { AudioRecorder.setUploadFailed('上传超时（超过60秒）'); renderSupplementRecorder(_supplementData); return; }
+    h += '</div>';
+  }
+
+  // --- uploaded ---
+  else if (st === 'uploaded') {
+    data._suppAudioUploaded = true;
+    var suppTaskNo = (data.taskId === 'TASK_L1_REVIEW_02') ? 2 : ((data.taskId === 'TASK_L2_REVIEW_03') ? 3 : 4);
+    taskStatuses[suppTaskNo] = 'submitted';
+    saveS('taskStatuses', taskStatuses);
+    h += '<div style="text-align:center">';
+    h += '<div style="color:#16a34a;font-size:18px;font-weight:700;margin-bottom:8px">✅ 录音补传成功</div>';
+    h += '<div style="font-size:13px;color:#475569">时长：' + durStr + ' · 文件大小：' + blobSize + '</div>';
+    h += '<div style="font-size:12px;color:#16a34a;margin-top:2px">已保存到云端 · 已关联原任务答卷</div>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.playPreview()" style="margin:6px">▶ 试听录音</button>';
+    h += '<button class="btn btn-primary" onclick="closeResult();viewTask2to4Result(data.taskId)" style="margin:6px;display:block;width:auto;margin-left:auto;margin-right:auto">📊 查看任务结果</button>';
+    h += '</div>';
+  }
+
+  // --- upload_failed ---
+  else if (st === 'upload_failed') {
+    h += '<div style="text-align:center">';
+    h += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px;margin-bottom:8px">';
+    h += '<div style="color:#dc2626;font-weight:700">❌ 上传失败</div>';
+    h += '<div style="font-size:12px;color:#64748b;margin-top:2px">失败原因：' + (AudioRecorder.lastError || '未知错误') + '</div>';
+    h += '<div style="font-size:11px;color:#94a3b8">本地录音仍然保留，可以重新上传。</div>';
+    h += '</div>';
+    h += '<button class="btn btn-submit" onclick="uploadSupplementAudio(_supplementData)" style="margin:4px">🔄 重新上传</button>';
+    h += '<button class="btn btn-outline" onclick="AudioRecorder.reset();renderSupplementRecorder(_supplementData)" style="margin:4px">🎙️ 重新录制</button>';
+    h += '</div>';
+  }
+
+  // Upload log
+  var log = AudioRecorder.getUploadLog();
+  if (log && log.length > 0) {
+    h += '<details style="margin-top:6px;font-size:10px;color:#94a3b8" ' + (st === 'upload_failed' ? 'open' : '') + '>';
+    h += '<summary>上传详情</summary>';
+    log.forEach(function(l) { h += '<div>' + (l.status === 'success' ? '✅' : l.status === 'failed' ? '❌' : '⏳') + ' ' + l.step + '</div>'; });
+    h += '</details>';
+  }
+
+  h += '<div style="font-size:10px;color:#cbd5e1;margin-top:6px;text-align:center">录音组件版本：AUDIO_RECORDER_V4_1_AUTH_FIX_20260803</div>';
+  h += '</div>';
+  ui.innerHTML = h;
+}
+
+// ===== Task 4 Photo Supplement =====
+var _supplementPhotoFile = null;
+
+function onSupplementPhotoSelected(input) {
+  if (input.files && input.files[0]) {
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) { alert('图片过大（超过10MB），请选择较小的文件。'); return; }
+    _supplementPhotoFile = file;
+    var prev = document.getElementById('supplementPhotoPreview');
+    var url = URL.createObjectURL(file);
+    if (prev) prev.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:200px;border-radius:8px"><div style="font-size:11px;color:#64748b">' + file.name + ' · ' + (file.size/1024).toFixed(1) + ' KB</div>';
+  }
+}
+
+function uploadSupplementPhoto() {
+  if (!_supplementPhotoFile) { alert('请先选择印章照片。'); return; }
+  var statusEl = document.getElementById('supplementPhotoStatus');
+  var btnEl = document.getElementById('supplementPhotoBtn');
+  if (statusEl) statusEl.innerHTML = '⏳ 上传中...';
+  if (btnEl) btnEl.disabled = true;
+  var file = _supplementPhotoFile;
+  initCloudBase().then(function(app) {
+    if (!app) { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：云服务未连接</span>'; if (btnEl) btnEl.disabled = false; return; }
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/TASK_SEAL_WORK_04/' + student.uid + '/photo_' + Date.now() + '.' + ext;
+    app.uploadFile({ cloudPath: cloudPath, filePath: file }).then(function(result) {
+      if (!result || !result.fileID) { throw new Error('未获取fileID'); }
+      // confirm_asset_upload with submissionId
+      var cb1 = '_pcf' + Date.now();
+      window[cb1] = function(res) {
+        if (res && res.success) {
+          // attach to submission
+          var cb2 = '_patt' + Date.now();
+          window[cb2] = function(res2) {
+            if (res2 && res2.success) {
+              if (statusEl) statusEl.innerHTML = '<div style="color:#16a34a;font-weight:700">✅ 照片补交成功</div><div style="font-size:11px;color:#16a34a">已保存到云端 · 已关联原任务答卷</div>';
+              if (btnEl) btnEl.style.display = 'none';
+              _supplementPhotoFile = null;
+            } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">关联失败：' + (res2 ? res2.error : '') + '</span>'; if (btnEl) btnEl.disabled = false; }
+            delete window[cb2];
+          };
+          var s2 = document.createElement('script');
+          s2.src = API + '?callback=' + cb2 + '&action=attach_asset_to_submission&studentUid=' + encodeURIComponent(student.uid) + '&taskId=TASK_SEAL_WORK_04&submissionId=' + encodeURIComponent(window._lastTask24Result ? window._lastTask24Result.submissionId : '') + '&assetId=' + res.assetId;
+          document.head.appendChild(s2);
+        } else { if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">确认失败：' + (res ? res.error : '') + '</span>'; if (btnEl) btnEl.disabled = false; }
+        delete window[cb1];
+      };
+      var s1 = document.createElement('script');
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(window._lastTask24Result ? window._lastTask24Result.submissionId : '') + '&taskId=TASK_SEAL_WORK_04&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=image&mimeType=' + encodeURIComponent(file.type) + '&fileSize=' + file.size + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s1);
+    }).catch(function(err) {
+      if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626">上传失败：' + (err.message || '') + '</span>';
+      if (btnEl) btnEl.disabled = false;
+    });
+  });
+}
+
+function startSupplementRec() { AudioRecorder.requestMic(); }
+
+function onSupplementFileSelected(input) {
+  if (input.files && input.files[0]) {
+    AudioRecorder.uploadAsFile(input.files[0]);
+    renderSupplementRecorder(_supplementData || {});
+  }
+}
+
+function uploadSupplementAudio(data) {
+  var blob = AudioRecorder.getBlob();
+  if (!blob || blob.size === 0) { AudioRecorder.setUploadFailed('录音文件为空（blob.size===0）'); renderSupplementRecorder(data); return; }
+  AudioRecorder.setUploading();
+  AudioRecorder.addUploadLog('录音Blob已生成', 'success');
+  renderSupplementRecorder(data);
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') { AudioRecorder.setUploadFailed('CloudBase SDK V2.27.1未加载'); renderSupplementRecorder(data); return; }
+  initCloudBase().then(function(app) {
+    if (!app) {
+      var le = cbsDiag.errors.length > 0 ? cbsDiag.errors[cbsDiag.errors.length-1] : null;
+      AudioRecorder.setUploadFailed(le ? (le.step + '：' + (le.code||'') + ' ' + (le.error||'')) : '环境初始化或匿名登录失败');
+      renderSupplementRecorder(data); return;
+    }
+    AudioRecorder.addUploadLog('环境初始化', 'success');
+    AudioRecorder.addUploadLog('匿名登录', 'success');
+    var ext = blob.type.indexOf('webm') !== -1 ? 'webm' : (blob.type.indexOf('mp4') !== -1 ? 'mp4' : 'webm');
+    var mimeType = blob.type || ('audio/' + ext);
+    var audioFile = new File([blob], 'supplement_' + Date.now() + '.' + ext, { type: mimeType });
+    var cloudPath = 'learning_assets/ECRL_MY_CHINESE/' + (data.taskId || task2to4State.taskId) + '/' + student.uid + '/supplement_' + Date.now() + '.' + ext;
+    AudioRecorder.addUploadLog('开始上传云存储', 'pending');
+    app.uploadFile({ cloudPath: cloudPath, filePath: audioFile }).then(function(result) {
+      if (!result || !result.fileID) { AudioRecorder.setUploadFailed('未获取fileID'); renderSupplementRecorder(data); return; }
+      AudioRecorder.addUploadLog('云存储上传成功', 'success');
+      AudioRecorder.addUploadLog('fileId已获得', 'success');
+      AudioRecorder.addUploadLog('learning_assets写入中', 'pending');
+      var cb1 = '_cfa2' + Date.now();
+      window[cb1] = function(res) {
+        if (res && res.success) {
+          AudioRecorder.addUploadLog('learning_assets写入成功', 'success');
+          AudioRecorder.addUploadLog('关联原答卷中', 'pending');
+          var cb2 = '_att' + Date.now();
+          window[cb2] = function(res2) {
+            if (res2 && res2.success) {
+              AudioRecorder.addUploadLog('任务提交关联成功', 'success');
+              AudioRecorder.setUploaded();
+            } else {
+              AudioRecorder.setUploadFailed('关联原答卷失败：' + (res2 ? res2.error : ''));
+            }
+            renderSupplementRecorder(data);
+            delete window[cb2];
+          };
+          var s2 = document.createElement('script');
+          s2.src = API + '?callback=' + cb2 + '&action=attach_asset_to_submission&studentUid=' + encodeURIComponent(student.uid) + '&taskId=' + (data.taskId || task2to4State.taskId) + '&submissionId=' + encodeURIComponent(data.submissionId) + '&assetId=' + res.assetId;
+          document.head.appendChild(s2);
+        } else {
+          AudioRecorder.setUploadFailed('learning_assets写入失败：' + (res ? res.error : ''));
+          renderSupplementRecorder(data);
+        }
+        delete window[cb1];
+      };
+      var s1 = document.createElement('script');
+      s1.src = API + '?callback=' + cb1 + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(data.submissionId || '') + '&taskId=' + (data.taskId || task2to4State.taskId) + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&fileId=' + encodeURIComponent(result.fileID) + '&fileType=audio&mimeType=' + encodeURIComponent(blob.type) + '&fileSize=' + blob.size + '&durationSeconds=' + AudioRecorder.getDuration() + '&cloudPath=' + encodeURIComponent(cloudPath);
+      document.head.appendChild(s1);
+    }).catch(function(err) {
+      AudioRecorder.setUploadFailed(err.message || '上传失败');
+      renderSupplementRecorder(data);
+    });
+  }).catch(function(err) {
+    AudioRecorder.setUploadFailed('云服务连接失败：' + (err.message || ''));
+    renderSupplementRecorder(data);
+  });
+}
+
+console.log('TASK_RESULT_ROUTING_FIX_20260803');
+
+// Task 9 — HSK3 Test (2): route to Task 1 flow
+function startTask9() {
+  TASK1_ID = 'TASK_HSK3_TEST_2_09';
+  AudioRecorder.reset();
+  if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
+  if (!student) { alert('请先登录'); return; }
+  if (taskStatuses[9] === 'submitted') { viewTask1Result(); return; }
+  quizState = { active: true, currentStep: 0, totalSteps: 4, answers: {}, taskData: null, startedAt: new Date().toISOString(), timerSeconds: 3000, timerInterval: null, timerActive: false, submitting: false, submitted: false };
+  fetchTaskAndStart();
+}
+function startTask1() {
+  TASK1_ID = 'TASK_HSK3_RW_01';
+  console.log('TASK1_BUILD_20260802_02');
+  if (isPreviewMode) { alert('教师预览模式下不可答题'); return; }
+  if (!student) { alert('请先登录'); return; }
+
+  // Check if already submitted (from taskStatuses)
+  if (taskStatuses[1] === 'submitted') {
+    viewTask1Result();
+    return;
+  }
+
+  // Show loading
+  var loadingMsg = document.createElement('div');
+  loadingMsg.id = 'task1Loading';
+  loadingMsg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:24px 36px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;text-align:center;font-size:15px;color:#1e293b';
+  loadingMsg.innerHTML = '⏳<br>正在加载40道题……';
+  document.body.appendChild(loadingMsg);
+
+  // Load draft
+  var draft = loadQuizDraft();
+  if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
+    var ansCount = Object.keys(draft.answers).length;
+    if (confirm('检测到未提交的答题草稿（已答' + ansCount + '题）。\n\n是否恢复继续答题？\n\n选择"确定"恢复，选择"取消"重新开始。')) {
+      quizState.answers = draft.answers;
+      quizState.currentStep = draft.currentStep || 0;
+      quizState.startedAt = draft.startedAt || new Date().toISOString();
+      quizState.timerSeconds = draft.timerSeconds || 2700;
+      fetchTaskAndStart();
+      return;
+    }
+  }
+
+  // Fresh start
+  quizState = {
+    active: true, currentStep: 0, totalSteps: 4,
+    answers: {}, taskData: null,
+    startedAt: new Date().toISOString(),
+    timerSeconds: 2700, timerInterval: null, timerActive: false,
+    submitting: false, submitted: false
+  };
+  fetchTaskAndStart();
+}
+
+function fetchTaskAndStart() {
+  var cb = '_gt' + Date.now();
+  window[cb] = function(res) {
+    // Remove loading indicator
+    var ld = document.getElementById('task1Loading');
+    if (ld) ld.remove();
+    if (res && res.success) {
+      if (res.submissionStatus === 'submitted') {
+        // Already submitted on server - show results
+        taskStatuses[1] = 'submitted';
+        saveS('taskStatuses', taskStatuses);
+        fetchAndShowResult();
+        return;
+      }
+      quizState.taskData = res.task;
+      quizState.active = true;
+      startQuizTimer();
+      showQuizOverlay();
+      renderQuizStep(quizState.currentStep);
+    } else {
+      var errMsg = '加载任务失败：' + (res ? (res.error || '未知错误') : '网络请求失败，请检查网络后重试');
+      alert(errMsg);
+      quizState.active = false;
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task&taskId=' + TASK1_ID + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function startQuizTimer() {
+  if (quizState.timerInterval) clearInterval(quizState.timerInterval);
+  quizState.timerActive = true;
+  updateTimerDisplay();
+  quizState.timerInterval = setInterval(function() {
+    if (!quizState.timerActive) return;
+    quizState.timerSeconds--;
+    updateTimerDisplay();
+    if (quizState.timerSeconds <= 0) {
+      clearInterval(quizState.timerInterval);
+      quizState.timerActive = false;
+      alert('时间到！系统将自动提交当前答案。');
+      submitTask1();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  var el = document.getElementById('quizTimer');
+  if (!el) return;
+  var m = Math.floor(quizState.timerSeconds / 60);
+  var s = quizState.timerSeconds % 60;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  el.className = 'qtimer' + (quizState.timerSeconds < 300 ? ' danger' : (quizState.timerSeconds < 600 ? ' warn' : ''));
+}
+
+function showQuizOverlay() {
+  document.getElementById('quizOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  renderStepBar();
+}
+
+function exitQuiz() {
+  if (quizState.active && !quizState.submitted) {
+    var answered = Object.keys(quizState.answers).length;
+    if (answered > 0 && confirm('确定退出答题吗？\n\n已作答 ' + answered + ' 题。\n退出后草稿将保留，下次可以继续答题。')) {
+      saveQuizDraft();
+      closeQuiz();
+    } else if (answered === 0) {
+      if (confirm('确定退出吗？当前没有已作答题目。')) {
+        closeQuiz();
+      }
+    } else {
+      saveQuizDraft();
+      closeQuiz();
+    }
+  } else {
+    closeQuiz();
+  }
+}
+
+function closeQuiz() {
+  quizState.active = false;
+  if (quizState.timerInterval) { clearInterval(quizState.timerInterval); quizState.timerInterval = null; }
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('resultOverlay').classList.remove('show');
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  renderAll();
+}
+
+function renderStepBar() {
+  var steps = ['阅读 41-50题', '阅读 51-60题', '阅读 61-70题', '书写 71-80题'];
+  var html = '';
+  for (var i = 0; i < 4; i++) {
+    var cls = 'step';
+    if (i === quizState.currentStep) cls += ' active';
+    else if (i < quizState.currentStep) cls += ' done';
+    html += '<div class="' + cls + '" onclick="goToStep(' + i + ')">' + steps[i] + '</div>';
+  }
+  document.getElementById('quizStepbar').innerHTML = html;
+}
+
+function goToStep(step) {
+  quizState.currentStep = step;
+  renderQuizStep(step);
+  renderStepBar();
+  saveQuizDraft();
+}
+
+function renderQuizStep(step) {
+  quizState.currentStep = step;
+  renderStepBar();
+  updateQuizNav();
+  var body = document.getElementById('quizBody');
+  if (!quizState.taskData) { body.innerHTML = '<p style="text-align:center;padding:20px">加载中...</p>'; return; }
+
+  var sections = quizState.taskData.sections;
+  var html = '';
+
+  if (step === 0) {
+    // Reading Part 1: Q41-45 and Q46-50
+    html += renderMatchingSection(sections[0]); // Q41-45
+    html += '<div style="margin-top:20px"></div>';
+    html += renderMatchingSection(sections[1]); // Q46-50
+  } else if (step === 1) {
+    // Reading Part 2: Q51-55 and Q56-60
+    html += renderWordFillSection(sections[2]); // Q51-55
+    html += '<div style="margin-top:20px"></div>';
+    html += renderWordFillSection(sections[3]); // Q56-60
+  } else if (step === 2) {
+    // Reading Part 3: Q61-70
+    html += renderSingleChoiceSection(sections[4]);
+  } else if (step === 3) {
+    // Writing: Q71-75 and Q76-80
+    html += renderSentenceOrderSection(sections[5]);
+    html += '<div style="margin-top:20px"></div>';
+    html += renderWriteCharSection(sections[6]);
+  }
+
+  body.innerHTML = html || '<p style="text-align:center;padding:20px">暂无题目数据</p>';
+  // Re-highlight selections
+  setTimeout(restoreQuizSelections, 50);
+}
+
+function restoreQuizSelections() {
+  // Restore matching/wordfill selections
+  var allChips = document.querySelectorAll('.opt-chip[data-qid]');
+  allChips.forEach(function(chip) {
+    var qid = chip.getAttribute('data-qid');
+    if (quizState.answers[qid] === chip.getAttribute('data-oid')) {
+      chip.classList.add('sel');
+    }
+  });
+  // Restore single choice
+  var allOpts = document.querySelectorAll('.qopt[data-qid]');
+  allOpts.forEach(function(opt) {
+    if (quizState.answers[opt.getAttribute('data-qid')] === opt.getAttribute('data-oid')) {
+      opt.classList.add('sel');
+    }
+  });
+  // Restore word order
+  for (var wi = 71; wi <= 75; wi++) {
+    restoreSentenceOrder('Q' + wi);
+  }
+  // Restore character inputs
+  for (var ci = 76; ci <= 80; ci++) {
+    var inp = document.getElementById('char_' + ci);
+    if (inp) inp.value = quizState.answers['Q' + ci] || '';
+  }
+}
+
+function renderMatchingSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">' + section.type + '</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  if (section.example) {
+    html += '<div class="quiz-example"><span class="ex-label">例题</span><br>' + section.example.text + '<br><b>答案：' + section.example.answer + '</b></div>';
+  }
+  // Options pool
+  html += '<div class="option-pool" id="pool_' + section.sectionId + '">';
+  section.options.forEach(function(opt) {
+    var usedEx = opt.usedInExample;
+    var cls = 'opt-chip' + (usedEx ? ' used' : '');
+    html += '<span class="' + cls + '" data-oid="' + opt.id + '" ' + (usedEx ? '' : 'onclick="selectMatchingOption(this,\'' + section.sectionId + '\')"') + '>' + opt.id + '. ' + opt.text + (usedEx ? '（例题已使用）' : '') + '</span>';
+  });
+  html += '</div>';
+  // Questions
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qtext">' + q.text + '</div>';
+    html += '<div style="font-size:12px;color:#64748b;margin-top:4px">选择：<b>' + (selected || '—') + '</b></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectMatchingOption(chip, sectionId) {
+  if (chip.classList.contains('used')) return;
+  // Find which question in this section the user is answering
+  // For matching_dialogue, unselect any previous use of this option in this section
+  var oid = chip.getAttribute('data-oid');
+  var pool = document.getElementById('pool_' + sectionId);
+  if (!pool) return;
+
+  // Find the first unanswered question in this section
+  var section = null;
+  quizState.taskData.sections.forEach(function(sec) {
+    if (sec.sectionId === sectionId) section = sec;
+  });
+  if (!section) return;
+
+  // Check if this option is already used in this section
+  var alreadyUsedQid = null;
+  section.questions.forEach(function(q) {
+    if (quizState.answers[q.id] === oid) alreadyUsedQid = q.id;
+  });
+
+  if (alreadyUsedQid) {
+    // Deselect
+    quizState.answers[alreadyUsedQid] = '';
+    // Find and update the chip
+    var allChips = pool.querySelectorAll('.opt-chip');
+    allChips.forEach(function(c) { if (c.getAttribute('data-oid') === oid) c.classList.remove('sel'); });
+  }
+
+  // Find first unanswered question
+  var targetQ = null;
+  section.questions.forEach(function(q) {
+    if (!targetQ && !quizState.answers[q.id]) targetQ = q;
+  });
+
+  if (!targetQ) {
+    alert('本组所有题目都已作答。如需修改，请点击已选中的选项取消，然后重新选择。');
+    return;
+  }
+
+  // Select
+  if (!alreadyUsedQid) {
+    quizState.answers[targetQ.id] = oid;
+    chip.classList.add('sel');
+  }
+
+  saveQuizDraft();
+  renderQuizStep(quizState.currentStep);
+}
+
+function renderWordFillSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">选词填空</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  if (section.example) {
+    html += '<div class="quiz-example"><span class="ex-label">例题</span><br>' + section.example.text + '<br><b>答案：' + section.example.answer + '</b></div>';
+  }
+  html += '<div class="option-pool" id="pool_' + section.sectionId + '">';
+  section.options.forEach(function(opt) {
+    var usedEx = opt.usedInExample;
+    var cls = 'opt-chip' + (usedEx ? ' used' : '');
+    html += '<span class="' + cls + '" data-oid="' + opt.id + '" ' + (usedEx ? '' : 'onclick="selectWordFill(this,\'' + section.sectionId + '\')"') + '>' + opt.id + '. ' + opt.text + (usedEx ? '（例题已使用）' : '') + '</span>';
+  });
+  html += '</div>';
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qtext">' + q.text + '</div>';
+    html += '<div style="font-size:12px;color:#64748b;margin-top:4px">选择：<b>' + (selected || '—') + '</b></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectWordFill(chip, sectionId) {
+  if (chip.classList.contains('used')) return;
+  var oid = chip.getAttribute('data-oid');
+  var section = null;
+  quizState.taskData.sections.forEach(function(sec) {
+    if (sec.sectionId === sectionId) section = sec;
+  });
+  if (!section) return;
+
+  var alreadyUsedQid = null;
+  section.questions.forEach(function(q) {
+    if (quizState.answers[q.id] === oid) alreadyUsedQid = q.id;
+  });
+
+  if (alreadyUsedQid) {
+    quizState.answers[alreadyUsedQid] = '';
+    var pool = document.getElementById('pool_' + sectionId);
+    if (pool) {
+      pool.querySelectorAll('.opt-chip').forEach(function(c) {
+        if (c.getAttribute('data-oid') === oid) c.classList.remove('sel');
+      });
+    }
+  }
+
+  var targetQ = null;
+  section.questions.forEach(function(q) {
+    if (!targetQ && !quizState.answers[q.id]) targetQ = q;
+  });
+
+  if (!targetQ) {
+    alert('本组所有题目都已作答。如需修改，请点击已选中的选项取消，然后重新选择。');
+    return;
+  }
+
+  if (!alreadyUsedQid) {
+    quizState.answers[targetQ.id] = oid;
+    chip.classList.add('sel');
+  }
+
+  saveQuizDraft();
+  renderQuizStep(quizState.currentStep);
+}
+
+function renderSingleChoiceSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">单选题</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    var selected = quizState.answers[q.id];
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题</div>';
+    html += '<div class="qpassage">' + q.passage + '</div>';
+    html += '<div class="qstem">' + q.stem + '</div>';
+    q.options.forEach(function(opt) {
+      var cls = 'qopt' + (selected === opt.id ? ' sel' : '');
+      html += '<div class="' + cls + '" data-qid="' + q.id + '" data-oid="' + opt.id + '" onclick="selectSingleChoice(this)">' + opt.id + '. ' + opt.text + '</div>';
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+function selectSingleChoice(el) {
+  var qid = el.getAttribute('data-qid');
+  var oid = el.getAttribute('data-oid');
+  quizState.answers[qid] = oid;
+  // Update visual
+  var card = el.parentNode;
+  card.querySelectorAll('.qopt').forEach(function(o) { o.classList.remove('sel'); });
+  el.classList.add('sel');
+  saveQuizDraft();
+}
+
+function renderSentenceOrderSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">完成句子</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题（12分）</div>';
+    html += '<div class="sentence-area" id="sa_' + q.id + '"><span class="placeholder">点击下方词语卡片组成句子</span></div>';
+    html += '<div class="word-pool" id="wp_' + q.id + '">';
+    // Shuffle words
+    var words = q.words.slice();
+    for (var i = words.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = words[i]; words[i] = words[j]; words[j] = tmp;
+    }
+    words.forEach(function(w, idx) {
+      html += '<span class="word-chip" data-qid="' + q.id + '" data-widx="' + idx + '" data-word="' + w.replace(/"/g,'&quot;') + '" onclick="addSentenceWord(this)">' + w + '</span>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;gap:6px;margin-top:4px"><button class="btn-small btn-outline" onclick="undoSentenceWord(\'' + q.id + '\')" style="font-size:11px">↩ 撤销</button><button class="btn-small btn-outline" onclick="clearSentenceWord(\'' + q.id + '\')" style="font-size:11px">🔄 重新排列</button><button class="btn-small btn-outline" onclick="resetSentenceWords(\'' + q.id + '\')" style="font-size:11px;color:#dc2626">🗑 清空</button></div>';
+    html += '</div>';
+  });
+  return html;
+}
+
+// Sentence order state
+var sentenceState = {};
+
+function getSentenceState(qid) {
+  if (!sentenceState[qid]) sentenceState[qid] = { placed: [], available: [] };
+  return sentenceState[qid];
+}
+
+function initSentenceState(qid, totalWords) {
+  var st = getSentenceState(qid);
+  st.available = [];
+  for (var i = 0; i < totalWords; i++) st.available.push(i);
+  st.placed = [];
+}
+
+function addSentenceWord(chip) {
+  var qid = chip.getAttribute('data-qid');
+  var widx = parseInt(chip.getAttribute('data-widx'));
+  var word = chip.getAttribute('data-word').replace(/&quot;/g, '"');
+  var st = getSentenceState(qid);
+
+  // Init if needed
+  if (st.available.length === 0 && st.placed.length === 0) {
+    var totalChips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]').length;
+    initSentenceState(qid, totalChips);
+  }
+
+  if (st.placed.indexOf(widx) !== -1) return; // already placed
+  if (st.available.indexOf(widx) === -1) return; // not available
+
+  st.placed.push(widx);
+  st.available = st.available.filter(function(i) { return i !== widx; });
+
+  // Build sentence string
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+}
+
+function undoSentenceWord(qid) {
+  var st = getSentenceState(qid);
+  if (st.placed.length === 0) return;
+  var lastWidx = st.placed.pop();
+  st.available.push(lastWidx);
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+}
+
+function clearSentenceWord(qid) {
+  var st = getSentenceState(qid);
+  if (st.placed.length === 0) return;
+  while (st.placed.length > 0) {
+    st.available.push(st.placed.pop());
+  }
+  quizState.answers[qid] = '';
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function resetSentenceWords(qid) {
+  var st = getSentenceState(qid);
+  var totalChips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]').length;
+  st.available = [];
+  for (var i = 0; i < totalChips; i++) st.available.push(i);
+  st.placed = [];
+  quizState.answers[qid] = '';
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function updateSentenceDisplay(qid) {
+  var st = getSentenceState(qid);
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+  var words = [];
+  st.placed.forEach(function(widx) {
+    chips.forEach(function(c) {
+      if (parseInt(c.getAttribute('data-widx')) === widx) {
+        words.push(c.getAttribute('data-word').replace(/&quot;/g, '"'));
+      }
+    });
+  });
+  quizState.answers[qid] = words.join(' ');
+}
+
+function renderSentenceArea(qid) {
+  var area = document.getElementById('sa_' + qid);
+  if (!area) return;
+  var st = getSentenceState(qid);
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+
+  if (st.placed.length === 0) {
+    area.innerHTML = '<span class="placeholder">点击下方词语卡片组成句子</span>';
+  } else {
+    var html = '';
+    st.placed.forEach(function(widx) {
+      chips.forEach(function(c) {
+        if (parseInt(c.getAttribute('data-widx')) === widx) {
+          html += '<span class="sword" onclick="removePlacedWord(\'' + qid + '\',' + widx + ')">' + c.getAttribute('data-word').replace(/&quot;/g, '"') + '</span>';
+        }
+      });
+    });
+    area.innerHTML = html;
+  }
+
+  // Update word pool visual
+  chips.forEach(function(c) {
+    var widx = parseInt(c.getAttribute('data-widx'));
+    if (st.placed.indexOf(widx) !== -1) {
+      c.classList.add('placed');
+    } else {
+      c.classList.remove('placed');
+    }
+  });
+}
+
+function removePlacedWord(qid, widx) {
+  var st = getSentenceState(qid);
+  st.placed = st.placed.filter(function(i) { return i !== widx; });
+  st.available.push(widx);
+  updateSentenceDisplay(qid);
+  renderSentenceArea(qid);
+  saveQuizDraft();
+}
+
+function restoreSentenceOrder(qid) {
+  var st = getSentenceState(qid);
+  var saved = quizState.answers[qid];
+  if (!saved) {
+    // Initialize from chips
+    var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+    if (chips.length > 0 && st.placed.length === 0 && st.available.length === 0) {
+      initSentenceState(qid, chips.length);
+    }
+    renderSentenceArea(qid);
+    return;
+  }
+  var savedWords = saved.split(' ');
+  var chips = document.querySelectorAll('.word-chip[data-qid="' + qid + '"]');
+  if (chips.length === 0) return;
+
+  // Rebuild state
+  var totalWords = chips.length;
+  st.placed = [];
+  var chipWordMap = [];
+  chips.forEach(function(c) {
+    chipWordMap.push({ widx: parseInt(c.getAttribute('data-widx')), word: c.getAttribute('data-word').replace(/&quot;/g, '"') });
+  });
+
+  savedWords.forEach(function(sw) {
+    for (var i = 0; i < chipWordMap.length; i++) {
+      if (chipWordMap[i].word === sw && st.placed.indexOf(chipWordMap[i].widx) === -1) {
+        st.placed.push(chipWordMap[i].widx);
+        break;
+      }
+    }
+  });
+
+  st.available = [];
+  for (var i = 0; i < totalWords; i++) {
+    if (st.placed.indexOf(i) === -1) st.available.push(i);
+  }
+
+  renderSentenceArea(qid);
+}
+
+function renderWriteCharSection(section) {
+  var html = '<div class="quiz-section-title"><span class="sec-badge">填写汉字</span>' + section.title + '</div>';
+  html += '<div class="quiz-instructions">' + section.instructions + '</div>';
+  section.questions.forEach(function(q) {
+    var val = quizState.answers[q.id] || '';
+    html += '<div class="quiz-qcard">';
+    html += '<div class="qnum">第' + q.number + '题（8分）</div>';
+    html += '<div class="qtext">' + q.prompt + '</div>';
+    html += '<input class="write-char-input" id="char_' + q.number + '" maxlength="1" value="' + val + '" oninput="onCharInput(\'' + q.id + '\',this)" placeholder="字">';
+    html += '</div>';
+  });
+  return html;
+}
+
+function onCharInput(qid, el) {
+  quizState.answers[qid] = el.value.trim();
+  saveQuizDraft();
+}
+
+function updateQuizNav() {
+  var prevBtn = document.getElementById('quizPrevBtn');
+  var nextBtn = document.getElementById('quizNextBtn');
+  var submitBtn = document.getElementById('quizSubmitBtn');
+  var progress = document.getElementById('quizProgress');
+
+  prevBtn.style.display = quizState.currentStep === 0 ? 'none' : '';
+  if (quizState.currentStep === 3) {
+    nextBtn.style.display = 'none';
+    submitBtn.style.display = '';
+    progress.textContent = '4/4 · 最后一步';
+  } else {
+    nextBtn.style.display = '';
+    submitBtn.style.display = 'none';
+    progress.textContent = (quizState.currentStep + 1) + '/4';
+  }
+}
+
+function quizPrev() {
+  if (quizState.currentStep > 0) {
+    goToStep(quizState.currentStep - 1);
+    document.getElementById('quizBody').scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+function quizNext() {
+  if (quizState.currentStep < 3) {
+    goToStep(quizState.currentStep + 1);
+    document.getElementById('quizBody').scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
+}
+
+function quizConfirm() {
+  var answered = 0, unanswered = 0;
+  for (var qn = 41; qn <= 80; qn++) {
+    var a = quizState.answers['Q' + qn];
+    if (a && (typeof a === 'string' ? a.trim() !== '' : true)) answered++;
+    else unanswered++;
+  }
+  var msg = '确认提交答题结果？\n\n已作答：' + answered + ' 题\n未作答：' + unanswered + ' 题\n\n提交后将不能再次作答。';
+  if (unanswered > 0) msg += '\n\n⚠ 注意：未作答的题目将计0分。';
+  if (confirm(msg)) {
+    submitTask1();
+  }
+}
+
+function submitTask1() {
+  if (quizState.submitting) return;
+  quizState.submitting = true;
+
+  // Stop timer
+  quizState.timerActive = false;
+  if (quizState.timerInterval) { clearInterval(quizState.timerInterval); quizState.timerInterval = null; }
+
+  var params = {
+    action: 'submit_course_task',
+    taskId: TASK1_ID,
+    studentUid: student.uid,
+    studentId: student.id,
+    attemptNo: 1,
+    startedAt: quizState.startedAt,
+    answers: JSON.stringify(quizState.answers)
+  };
+
+  var cb = '_st' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      quizState.submitted = true;
+      quizState.active = false;
+      taskStatuses[1] = 'submitted';
+      saveS('taskStatuses', taskStatuses);
+      clearQuizDraft();
+      showTask1Results(res);
+    } else {
+      alert('提交失败：' + (res ? res.error : '网络错误') + '\n\n请检查网络后重试。草稿已保留。');
+      quizState.timerActive = true;
+      startQuizTimer();
+    }
+    quizState.submitting = false;
+    delete window[cb];
+  };
+
+  var qs = 'callback=' + cb;
+  for (var k in params) qs += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  var s = document.createElement('script');
+  s.src = API + '?' + qs;
+  document.head.appendChild(s);
+}
+
+function viewTask1Result() {
+  if (taskStatuses[1] === 'submitted') {
+    fetchAndShowResult();
+  } else {
+    startTask1();
+  }
+}
+
+function fetchAndShowResult() {
+  var cb = '_gr' + Date.now();
+  window[cb] = function(res) {
+    if (res && res.success) {
+      showTask1Results(res);
+    } else if (res && res.error === 'no submission found') {
+      // Not submitted on server, allow retry
+      taskStatuses[1] = '';
+      saveS('taskStatuses', taskStatuses);
+      alert('未找到提交记录。请重新答题。');
+      startTask1();
+    } else {
+      alert('加载结果失败：' + (res ? res.error : '未知错误'));
+    }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&action=get_course_task_result&taskId=' + TASK1_ID + '&studentUid=' + encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function showTask1Results(data) {
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('resultOverlay').classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+
+  var r = data;
+  var html = '';
+
+  // Header
+  html += '<div class="result-header"><h3>✅ 任务一已完成</h3><div style="font-size:12px;color:#64748b">HSK三级阅读与书写练习</div></div>';
+
+  // Scores
+  html += '<div class="result-grid">';
+  html += '<div class="result-item"><span class="rnum">' + (r.readingCorrectCount || 0) + '/30</span><span class="rlbl">阅读答对</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.readingScore || 0) + '/100</span><span class="rlbl">阅读换算分</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingPart1Score || 0) + '/60</span><span class="rlbl">完成句子</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingPart2Score || 0) + '/40</span><span class="rlbl">填写汉字</span></div>';
+  html += '<div class="result-item"><span class="rnum">' + (r.writingScore || 0) + '/100</span><span class="rlbl">书写总分</span></div>';
+  html += '<div class="result-item"><span class="rnum" style="font-size:32px;color:#16a34a">' + (r.totalScore || 0) + '/200</span><span class="rlbl">本次练习总分</span></div>';
+  html += '</div>';
+
+  // Meta
+  var durMin = Math.floor((r.durationSeconds || 0) / 60);
+  var durSec = (r.durationSeconds || 0) % 60;
+  html += '<div class="section-card" style="font-size:12px;color:#64748b">';
+  html += '<div class="row"><span>答题用时</span><span class="val">' + durMin + '分' + durSec + '秒</span></div>';
+  html += '<div class="row"><span>提交时间</span><span class="val">' + (r.submittedAt || '').replace('T',' ').slice(0,19) + '</span></div>';
+  html += '<div class="row"><span>未作答</span><span class="val">' + (r.unansweredCount || 0) + ' 题</span></div>';
+  html += '</div>';
+
+  // Note
+  html += '<div class="result-note">⚠️ 本成绩为课堂练习换算分，不等同于正式HSK考试成绩。<br>本练习不含听力，不能据此判断HSK三级是否合格。</div>';
+
+  // Per-question review
+  html += '<div class="result-review">';
+  var itemResults = r.itemResults || [];
+
+  // Group by section
+  var readingItems = itemResults.filter(function(ir) { return ir.section === 'reading'; });
+  var writingP1 = itemResults.filter(function(ir) { return ir.section === 'writing' && ir.part === 'part1'; });
+  var writingP2 = itemResults.filter(function(ir) { return ir.section === 'writing' && ir.part === 'part2'; });
+
+  html += '<div class="quiz-review-section"><h4>📖 阅读（第41—70题）</h4>';
+  readingItems.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    var correctTag = ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>正确答案：<b>' + ir.correctAnswer + '</b><br>' + correctTag + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="quiz-review-section"><h4>✍️ 书写第一部分（第71—75题）</h4>';
+  writingP1.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>参考答案：<b>' + ir.correctAnswer + '</b><br>' + (ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>') + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '<div class="quiz-review-section"><h4>✍️ 书写第二部分（第76—80题）</h4>';
+  writingP2.forEach(function(ir) {
+    var mark = ir.isCorrect ? '✅' : '❌';
+    html += '<div class="rq"><span class="rq-num">' + ir.questionId + '</span><div class="rq-detail">我的答案：<b>' + (ir.studentAnswer || '未作答') + '</b><br>正确答案：<b>' + ir.correctAnswer + '</b><br>' + (ir.isCorrect ? '<span style="color:#16a34a">正确</span>' : '<span style="color:#dc2626">错误</span>') + ' · ' + ir.itemScore + '/' + ir.itemMaxScore + '分</div><span class="rq-mark">' + mark + '</span></div>';
+  });
+  html += '</div>';
+
+  html += '</div>';
+
+  // Close button
+  html += '<div style="text-align:center;padding:12px"><button class="btn btn-primary" onclick="closeResult()" style="width:auto;display:inline-block;padding:12px 40px">返回</button></div>';
+
+  document.getElementById('resultBody').innerHTML = html;
+  document.getElementById('resultBody').scrollTop = 0;
+  window.scrollTo(0, 0);
+
+  renderAll();
+  updateHomeProgress();
+}
+
+function exitTask2to4Result() {
+  disposeTaskSession();
+  // Stop any playing audio
+  var audios = document.querySelectorAll('#resultBody audio');
+  for (var i = 0; i < audios.length; i++) { try { audios[i].pause(); audios[i].src = ''; } catch(e) {} }
+  // Reset recorder
+  AudioRecorder.reset();
+  // Clean up both task states
+  quizState.active = false;
+  task2to4State.active = false; task2to4State.submitted = false;
+  // Hide overlays
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('quizOverlay').classList.remove('show');
+  // Show tab bar
+  if (!isPreviewMode) { document.getElementById('tabBar').style.display = 'flex'; }
+  // Switch to tasks tab (index 1) and reload
+  switchTab(1);
+  loadStudentProfile();
+  renderAll();
+  updateHomeProgress();
+  window.scrollTo(0, 0);
+  // Safety fallback: if still on result page after 500ms, force reload
+  setTimeout(function() {
+    if (document.getElementById('resultOverlay').classList.contains('show')) {
+      window.location.href = window.location.origin + window.location.pathname + '?home=' + Date.now();
+    }
+  }, 500);
+}
+
+function closeResult() {
+  exitTask2to4Result();
+}
+
+// ===== CloudBase Self-Check =====
+function runCloudBaseSelfCheck() {
+  var results = [];
+  function add(step, ok, detail) { results.push({ step: step, ok: ok, detail: detail || '' }); }
+  add('CloudBase SDK V2.27.1加载', !!window.cloudbase, window.cloudbase ? 'window.cloudbase 存在' : 'window.cloudbase === undefined');
+  if (!window.cloudbase || typeof window.cloudbase.init !== 'function') { add('SDK init方法', false, 'cloudbase.init 不是 function'); return results; }
+  add('环境ID', true, CBS_ENV_ID);
+  try { var app = window.cloudbase.init({ env: CBS_ENV_ID }); add('cloudbase.init()', true, '初始化成功'); }
+  catch(e) { add('cloudbase.init()', false, e.message); return results; }
+  add('app.auth', !!app.auth, !!app.auth ? 'auth属性存在' : 'auth属性不存在');
+  add('app.uploadFile', typeof app.uploadFile === 'function', typeof app.uploadFile === 'function' ? 'uploadFile方法存在' : 'uploadFile方法不存在');
+  return app.auth.signInAnonymously().then(function(result) {
+    var d = (result && result.data) || result || {};
+    var uid = (d.user && d.user.uid) || d.uid || '';
+    add('匿名登录', true, uid ? 'UID: ' + uid : '登录成功但UID未获取');
+    add('安全域名', true, '1274526084-dot.github.io（已配置）');
+    try { var state = app.auth.getLoginState(); add('登录状态', !!state, state ? '已登录' : '未知'); } catch(e2) { add('登录状态', false, e2.message); }
+    return results;
+  }).catch(function(err) {
+    add('匿名登录', false, ((err||{}).code||'') + ': ' + ((err||{}).message||''));
+    return results;
+  });
+}
+
+// ===== Beforeunload + browser back key =====
+window.addEventListener('beforeunload', function(e) {
+  var st = AudioRecorder.getState();
+  if (st === 'recording' || st === 'recorded_local' || st === 'uploading') {
+    e.preventDefault(); e.returnValue = '当前录音尚未成功上传，离开页面可能丢失录音。确定离开吗？';
+    return e.returnValue;
+  }
+});
+
+window.addEventListener('popstate', function(e) {
+  if (document.getElementById('resultOverlay').classList.contains('show')) {
+    exitTask2to4Result();
+  }
+});
+
+// ===== Task 5-10 Fully Isolated System =====
+console.log('TASK510_AUDIO_PHYSICAL_ISOLATION_V9_20260804');
+var task510State = null;
+var task510Token = 0;
+
+function disposeTask510() {
+  if (!task510State) return;
+  task510State.disposed = true;
+  Task510AudioV10.destroy();
+  task510State = null;
+  document.getElementById('task510Overlay').classList.remove('show');
+}
+
+function openTask510(taskId) {
+  disposeTask510();
+  task510Token++;
+  var tok = task510Token;
+  task510State = { token: tok, taskId: taskId, taskData: null, stepList: [], stepIndex: 0, answers: {}, writingText: '', preSubmissionId: 'tsk_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), audioFileId: '', audioAssetId: '', audioDuration: 0, imageFile: null, imageFileId: '', imageAssetId: '', photoUploading: false, submitted: false, disposed: false };
+
+  var ov = document.getElementById('task510Overlay');
+  ov.classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('task510Title').textContent = '加载中...';
+  document.getElementById('task510Timer').textContent = '';
+  document.getElementById('task510Stepbar').innerHTML = '';
+  document.getElementById('task510Body').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
+
+  // Query existing submission first
+  var cbChk = '_t510chk' + Date.now();
+  window[cbChk] = function(r) {
+    if (!task510State || task510State.token !== tok) { delete window[cbChk]; return; }
+    if (r && r.success && r.submissionId) {
+      showTask2to4Result(r); // reuse result display
+    } else {
+      loadTask510Definition(taskId, tok);
+    }
+    delete window[cbChk];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback='+cbChk+'&action=get_task2_4_result&taskId='+taskId+'&studentUid='+encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function loadTask510Definition(taskId, tok) {
+  var cb = '_t510def' + Date.now();
+  window[cb] = function(r) {
+    if (!task510State || task510State.token !== tok) { delete window[cb]; return; }
+    if (r && r.success && r.task) {
+      if (r.task.taskId !== taskId) { alert('任务数据不匹配'); delete window[cb]; return; }
+      task510State.taskData = r.task;
+      document.getElementById('task510Title').textContent = r.task.title || '';
+      document.getElementById('task510Timer').textContent = (r.task.recommendedMinutes||'')+'分钟';
+      // Build step list
+      var td = r.task;
+      var hasObj = (td.sections||[]).length>0 && (td.sections[0].questions||[]).length>0 && !td.noObjective;
+      var hasW = !td.noWriting;
+      var hasA = !td.noSpeaking;
+      var hasP = td.hasPhotoUpload;
+      var sl = [];
+      if (hasObj) sl.push({label:'客观题',type:'objective'});
+      if (hasP) sl.push({label:'照片',type:'photo'});
+      if (hasW) sl.push({label:'写作',type:'writing'});
+      if (hasA) sl.push({label:'录音',type:'audio'});
+      sl.push({label:'提交',type:'review'});
+      task510State.stepList = sl;
+      renderTask510Step();
+    } else { if (task510State && task510State.token === tok) alert('加载任务失败'); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback='+cb+'&action=get_course_task&taskId='+taskId+'&studentUid='+encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function renderTask510Step() {
+  var st = task510State; if (!st) return;
+  var sl = st.stepList; var i = st.stepIndex;
+  var ct = sl[i] ? sl[i].type : 'review';
+  var td = st.taskData;
+  var h = '';
+  // Step bar
+  h += '<div class="quiz-stepbar">';
+  for (var si=0;si<sl.length;si++) h += '<div class="step'+(si===i?' active':'')+'">'+(si+1)+'. '+sl[si].label+'</div>';
+  h += '</div>';
+
+  if (ct === 'objective' && td) {
+    var sec = td.sections[0];
+    var qScore = td.questionScore || 10;
+    h += '<div class="quiz-section-title">'+(sec.title||'客观题')+'</div>';
+    if (sec.instructions) h += '<div class="quiz-instructions">'+sec.instructions+'</div>';
+    (sec.questions||[]).forEach(function(q){
+      var sel = st.answers[q.id];
+      h += '<div class="quiz-qcard"><div class="qnum">第'+q.number+'题（'+qScore+'分）</div>';
+      h += '<div class="qtext">'+(q.text||q.stem||'')+'</div>';
+      if (q.options) q.options.forEach(function(o){
+        h += '<div class="qopt'+(sel===o.id?' sel':'')+'" data-qid="'+q.id+'" data-oid="'+o.id+'">'+o.id+'. '+o.text+'</div>';
+      });
+      if (q.words) { h += '<div style="font-size:13px;color:#64748b">词语：'+q.words.join('、')+'</div>'; h += '<input class="write-input" id="so_'+q.id+'" placeholder="请输入正确句子" value="'+(sel||'')+'">'; }
+      h += '</div>';
+    });
+  } else if (ct === 'writing') {
+    h += '<div class="quiz-section-title">📝 写作</div>';
+    if (td && td.writingPrompt) h += '<div class="quiz-instructions">'+td.writingPrompt+'</div>';
+    if (td && td.scaffold) h += renderScaffold(td);
+    h += '<textarea class="write-input" id="t510writing" style="min-height:150px" placeholder="在这里写作...">'+(st.writingText||'')+'</textarea>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t510charCount">当前字数：'+(st.writingText||'').length+'字</div>';
+  } else if (ct === 'audio') {
+    h += '<div class="quiz-section-title">🎙️ 口语录音</div>';
+    h += '<div class="quiz-instructions">请根据自己的实际情况进行介绍。最长5分钟，最大30MB。</div>';
+    if (td && td.scaffold) h += renderScaffold(td);
+    h += '<div id="t510RecorderUI" data-role="audio-component-root"></div>';
+  } else if (ct === 'photo') {
+    h += '<div class="quiz-section-title">📷 照片</div><div class="quiz-instructions">请选择并上传照片（jpg/png/webp，最大10MB）。</div>';
+    if (task510State.imageFileId) {
+      h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 照片已上传云端</div>';
+    } else {
+      h += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t510photoInput" style="display:none">';
+      h += '<button type="button" class="btn btn-outline" id="t510photoSelectBtn">📷 选择照片</button>';
+      h += '<div id="t510photoPreview" style="margin:8px 0"></div>';
+      if (task510State.imageFile) {
+        h += '<div style="font-size:11px;color:#64748b">已选择：' + task510State.imageFile.name + ' (' + (task510State.imageFile.size/1024).toFixed(1) + ' KB)</div>';
+        h += '<button type="button" class="btn btn-submit" id="t510photoUploadBtn">☁️ 上传照片</button>';
+        h += '<button type="button" class="btn btn-outline" id="t510photoReselectBtn">🔄 重新选择</button>';
+      }
+    }
+  } else {
+    // Review
+    var snap = Task510AudioV10.getSnapshot();
+    var aStat = st.audioFileId ? '✅ 已上传' : (snap && snap.taskId === st.taskId && snap.status === 'recorded' ? '⚠️ 已录制未上传' : '尚未录制');
+    h += '<div class="quiz-section-title">✅ 确认提交</div><div class="section-card">';
+    h += '<div class="row"><span>客观题已答</span><span class="val">'+Object.keys(st.answers).length+'/'+(td?td.questionCount:'?')+'</span></div>';
+    h += '<div class="row"><span>写作</span><span class="val">'+(st.writingText&&st.writingText.length>0?'✅ 已填写':'未填写')+'</span></div>';
+    h += '<div class="row"><span>录音</span><span class="val">'+aStat+'</span></div>';
+    h += '</div>';
+  }
+  document.getElementById('task510Body').innerHTML = h;
+
+  // Bind events
+  if (ct === 'objective') {
+    document.querySelectorAll('#task510Body .qopt').forEach(function(el){ el.addEventListener('click',function(){ var qid=el.dataset.qid,oid=el.dataset.oid; task510State.answers[qid]=oid; renderTask510Step(); }); });
+    document.querySelectorAll('#task510Body .write-input').forEach(function(el){ el.addEventListener('input',function(){ task510State.answers[el.id.replace('so_','')]=el.value; }); });
+  }
+  if (ct === 'writing') {
+    var ta = document.getElementById('t510writing');
+    if (ta) ta.addEventListener('input', function(){ task510State.writingText = ta.value; var cnt = document.getElementById('t510charCount'); if(cnt) cnt.textContent = '当前字数：'+ta.value.length+'字'; });
+  }
+  if (ct === 'audio') { setTimeout(function(){ renderTask510AudioStep(); }, 50); }
+  if (ct === 'photo') { bindTask510PhotoEvents(); }
+  updateTask510Nav();
+}
+function bindTask510PhotoEvents() {
+  var pf2 = document.getElementById('t510photoInput');
+  var selBtn = document.getElementById('t510photoSelectBtn');
+  if (pf2 && selBtn) {
+    selBtn.onclick = function() { pf2.click(); };
+    pf2.onchange = function() {
+      if (pf2.files && pf2.files[0]) {
+        var file = pf2.files[0];
+        if (!file.type.match(/^image\//)) { alert('请选择JPG、PNG或WebP格式的图片。'); return; }
+        if (file.size > 10*1024*1024) { alert('图片超过10MB，请选择较小的文件。'); return; }
+        task510State.imageFile = file;
+        if (task510State._photoPreviewUrl) URL.revokeObjectURL(task510State._photoPreviewUrl);
+        task510State._photoPreviewUrl = URL.createObjectURL(file);
+        renderTask510Step();
+      }
+    };
+  }
+  var upBtn = document.getElementById('t510photoUploadBtn');
+  if (upBtn) upBtn.onclick = function() { uploadTask510Photo(); };
+  var reBtn = document.getElementById('t510photoReselectBtn');
+  if (reBtn) reBtn.onclick = function() { task510State.imageFile = null; if (task510State._photoPreviewUrl) { URL.revokeObjectURL(task510State._photoPreviewUrl); task510State._photoPreviewUrl = null; } renderTask510Step(); };
+  // Show existing preview
+  if (task510State._photoPreviewUrl) {
+    var pv2 = document.getElementById('t510photoPreview');
+    if (pv2) pv2.innerHTML = '<img src="'+task510State._photoPreviewUrl+'" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e2e8f0">';
+  }
+}
+
+// ===== Static Navigation — inline onclick via window globals =====
+window.task510BackAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_BACK_ACTION_V15]', task510State ? task510State.taskId : null);
+  Task510AudioV10.destroy();
+  task510State = null;
+  document.getElementById('task510Overlay').classList.remove('show');
+  document.getElementById('tabBar').style.display = 'flex';
+  renderAll();
+};
+window.task510PrevAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_PREV_ACTION_V15]', task510State ? task510State.taskId : null, task510State ? task510State.stepIndex : null);
+  if (!task510State) return;
+  if (task510State.stepIndex <= 0) return;
+  saveTask510StepData();
+  task510State.stepIndex -= 1;
+  renderTask510Step();
+};
+window.task510NextAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_NEXT_ACTION_V15]', task510State ? task510State.taskId : null, task510State ? task510State.stepIndex : null);
+  if (!task510State) return;
+  if (!task510State.stepList || task510State.stepIndex >= task510State.stepList.length - 1) return;
+  saveTask510StepData();
+  task510State.stepIndex += 1;
+  renderTask510Step();
+};
+window.task510SubmitAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  var st = task510State; if (!st) return;
+  alert('本地测试通过\n任务：'+st.taskId+'\n客观题：'+Object.keys(st.answers).length+'题\n写作：'+(st.writingText?st.writingText.length:'无')+'\n录音：'+(st.audioFileId?'已上传':'无')+'\n\n尚未写入数据库。');
+};
+
+function saveTask510StepData() {
+  if (!task510State) return;
+  var ta = document.getElementById('t510writing');
+  if (ta) task510State.writingText = ta.value;
+  // Save objective answers from current DOM
+  var opts = document.querySelectorAll('#task510Body .qopt.sel');
+  // Answers already stored in task510State.answers via click handlers
+}
+
+function updateTask510Nav() {
+  var st = task510State; if (!st) return;
+  var sl = st.stepList; var i = st.stepIndex; var total = sl.length;
+  var prev = document.getElementById('task510PrevBtn');
+  var next = document.getElementById('task510NextBtn');
+  var submit = document.getElementById('task510SubmitBtn');
+  var prog = document.getElementById('task510Progress');
+  if (prev) prev.style.display = i === 0 ? 'none' : '';
+  if (next) next.style.display = i >= total - 1 ? 'none' : '';
+  if (submit) submit.style.display = i >= total - 1 ? '' : 'none';
+  if (prog) prog.textContent = (i + 1) + '/' + total;
+}
+
+// ===== Task510AudioV11 — Event Delegation + Status Machine + Upload/Rerecord Fixes =====
+console.log('TASK510_AUDIO_UPLOAD_RERECORD_V11_20260804');
+var Task510AudioV10 = (function() {
+  var current = null, counter = 0;
+  function createContext(cfg) { counter++; return { contextId: counter, taskId: cfg.taskId, submissionId: cfg.submissionId || '', studentUid: cfg.studentUid || '', sessionToken: cfg.sessionToken || 0, mediaRecorder: null, stream: null, chunks: [], blob: null, objectUrl: null, startedAt: 0, durationSeconds: 0, timerId: null, fileId: '', assetId: '', status: 'idle', destroyed: false, rootElement: cfg.rootElement || null, _errorMsg: '' }; }
+  function render(ctx) {
+    if (!ctx || ctx.destroyed || !ctx.rootElement || !ctx.rootElement.isConnected) return; var root = ctx.rootElement; root.innerHTML = ''; root.className = 'task510-audio-v10'; root.setAttribute('data-task-id', ctx.taskId); root.style.cssText = 'text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px';
+    var tEl = document.createElement('div'); tEl.setAttribute('data-role','timer'); tEl.style.cssText = 'font-size:24px;font-weight:900;color:#2563eb'; tEl.textContent = ctx.durationSeconds + '秒'; root.appendChild(tEl);
+    var sEl = document.createElement('div'); sEl.setAttribute('data-role','status-text'); sEl.style.cssText = 'font-size:13px;margin:4px 0'; root.appendChild(sEl);
+    function ab(text,action,cls) { var b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.setAttribute('data-action',action); b.style.margin='3px';b.style.fontSize='13px'; root.appendChild(b); }
+    var s=ctx.status;
+    if (s==='recording') { sEl.innerHTML='<span style="display:inline-block;width:12px;height:12px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px"></span><span style="color:#dc2626;font-weight:700">正在录音</span>'; ab('停止录音','stop','btn btn-danger'); }
+    else if (s==='recorded') { if(ctx.objectUrl){ var a=document.createElement('audio');a.setAttribute('data-role','preview');a.controls=true;a.src=ctx.objectUrl;a.style.cssText='width:100%;max-width:300px;margin:4px 0';root.appendChild(a); } sEl.innerHTML='<span style="color:#16a34a">录音完成，可以试听</span>'; ab('试听','play','btn btn-outline'); ab('上传录音','upload','btn btn-submit'); ab('重新录音','rerecord','btn btn-outline'); }
+    else if (s==='uploading') { sEl.innerHTML='<span style="color:#f59e0b">正在上传录音，请稍候</span>'; }
+    else if (s==='uploaded') { sEl.innerHTML='<span style="color:#16a34a;font-weight:700">录音上传成功</span>'; if(ctx.objectUrl){ var a2=document.createElement('audio');a2.setAttribute('data-role','preview');a2.controls=true;a2.src=ctx.objectUrl;a2.style.cssText='width:100%;max-width:300px;margin:4px 0';root.appendChild(a2); } ab('试听','play','btn btn-outline'); ab('重新录音','rerecord','btn btn-outline'); }
+    else if (s==='error') { sEl.innerHTML='<span style="color:#dc2626">'+(ctx._errorMsg||'操作失败')+'</span>'; if(ctx.blob&&ctx.blob.size>0){ ab('重试上传','upload','btn btn-submit'); ab('重新录音','rerecord','btn btn-outline'); } else { ab('开始录音','start','btn btn-primary'); } }
+    else { sEl.textContent='尚未录音'; ab('开始录音','start','btn btn-primary'); var fi=document.createElement('input');fi.type='file';fi.accept='audio/*';fi.style.cssText='display:block;margin:6px auto;font-size:11px';fi.addEventListener('change',function(){if(fi.files&&fi.files[0]){var f=fi.files[0];ctx.blob=f;ctx.durationSeconds=0;ctx.status='recorded';if(ctx.objectUrl)URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=URL.createObjectURL(f);render(ctx);}});root.appendChild(fi); }
+    var dbg=document.createElement('div');dbg.setAttribute('data-role','debug-task-id');dbg.style.cssText='font-size:9px;color:#cbd5e1;margin-top:6px';dbg.textContent='V11 status:'+ctx.status+' ctx:'+ctx.contextId+' task:'+ctx.taskId+' sub:'+(ctx.submissionId||'').substring(0,8)+' blob:'+(ctx.blob?ctx.blob.size:0)+' fId:'+(ctx.fileId?'Y':'N')+' aId:'+(ctx.assetId?'Y':'N');root.appendChild(dbg);
+  }
+  function setupDelegation(root,ctx) { root.addEventListener('click',function(e){ var btn=e.target.closest('[data-action]'); if(!btn)return; var cur=current; if(!cur||cur.destroyed||cur!==ctx)return; e.preventDefault();e.stopPropagation(); var act=btn.getAttribute('data-action'); if(act==='start')doStart(cur); else if(act==='stop')doStop(cur); else if(act==='play'){if(cur.objectUrl){var a=new Audio(cur.objectUrl);a.play();}} else if(act==='upload')doUpload(cur); else if(act==='rerecord')doRerecord(cur); }); }
+  function doStart(ctx) { if(!ctx||ctx.destroyed)return; if(!task510State||ctx.taskId!==task510State.taskId)return; var allowed=['TASK_CHINESE_MOVIES_05','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_STUDY_LIFE_CHINA_10']; if(allowed.indexOf(ctx.taskId)===-1)return; navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){ if(ctx.destroyed||ctx!==current){stream.getTracks().forEach(function(t){t.stop();});return;} ctx.stream=stream;ctx.chunks=[];ctx.blob=null;ctx.durationSeconds=0;ctx.startedAt=Date.now();ctx.status='recording'; var mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'; ctx.mediaRecorder=new MediaRecorder(stream,{mimeType:mime}); ctx.mediaRecorder.ondataavailable=function(e){if(e.data.size>0&&!ctx.destroyed)ctx.chunks.push(e.data);}; ctx.mediaRecorder.onstop=function(){if(ctx.destroyed||ctx!==current)return;ctx.blob=new Blob(ctx.chunks,{type:mime});ctx.durationSeconds=Math.round((Date.now()-ctx.startedAt)/1000);if(ctx.stream){ctx.stream.getTracks().forEach(function(t){t.stop();});ctx.stream=null;}if(ctx.objectUrl)URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=URL.createObjectURL(ctx.blob);ctx.mediaRecorder=null;ctx.status='recorded';render(ctx);}; ctx.mediaRecorder.start(100); ctx.timerId=setInterval(function(){if(ctx.destroyed||ctx!==current||!ctx.mediaRecorder){clearInterval(ctx.timerId);return;}ctx.durationSeconds=Math.round((Date.now()-ctx.startedAt)/1000);var tel=ctx.rootElement?ctx.rootElement.querySelector('[data-role="timer"]'):null;if(tel)tel.textContent=ctx.durationSeconds+'秒';},500); render(ctx); }).catch(function(err){alert('无法使用麦克风，请检查浏览器权限。');}); }
+  function doStop(ctx) { if(!ctx||ctx.destroyed||!ctx.mediaRecorder)return; if(ctx.mediaRecorder.state!=='inactive'){ctx.mediaRecorder.stop();} if(ctx.timerId){clearInterval(ctx.timerId);ctx.timerId=null;} }
+  function doUpload(ctx) { if(!ctx||ctx.destroyed||!ctx.blob||ctx.blob.size===0){ctx.status='error';ctx._errorMsg='未找到录音文件，请重新录音。';render(ctx);return;} if(!ctx.submissionId){ctx.submissionId=(task510State?task510State.preSubmissionId:'')||'';} if(!ctx.submissionId){ctx.status='error';ctx._errorMsg='未生成提交编号，请返回重试。';render(ctx);return;} ctx.status='uploading';render(ctx); var blob=ctx.blob; initCloudBase().then(function(app){if(ctx.destroyed||ctx!==current)return;if(!app)throw new Error('云服务未连接');var ext=blob.type.indexOf('webm')!==-1?'webm':'webm';var cp='learning_assets/ECRL_MY_CHINESE/'+ctx.taskId+'/'+ctx.studentUid+'/audio_'+Date.now()+'.'+ext;return app.uploadFile({cloudPath:cp,filePath:blob}).then(function(r){if(ctx.destroyed||ctx!==current)return;if(!r||!r.fileID)throw new Error('未获取fileID');ctx.fileId=r.fileID;ctx.durationSeconds=ctx.durationSeconds||Math.round(blob.size/16000);var cb='_t510v11cfa'+Date.now();window[cb]=function(cres){if(ctx.destroyed||ctx!==current){delete window[cb];return;}if(cres&&cres.success){ctx.assetId=cres.assetId||'';ctx.status='uploaded';}else{ctx.status='error';ctx._errorMsg='登记录音失败：'+(cres?cres.error:'');}if(task510State&&task510State.taskId===ctx.taskId){task510State.audioFileId=ctx.fileId;task510State.audioAssetId=ctx.assetId;task510State.audioDuration=ctx.durationSeconds;}render(ctx);delete window[cb];};var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=confirm_asset_upload&submissionId='+encodeURIComponent(ctx.submissionId)+'&taskId='+ctx.taskId+'&studentUid='+encodeURIComponent(ctx.studentUid)+'&studentId='+encodeURIComponent(student?student.id:'')+'&fileId='+encodeURIComponent(r.fileID)+'&fileType=audio&mimeType='+encodeURIComponent(blob.type)+'&fileSize='+blob.size+'&durationSeconds='+ctx.durationSeconds+'&cloudPath='+encodeURIComponent(cp);document.head.appendChild(s);});}).catch(function(err){if(ctx.destroyed||ctx!==current)return;ctx.status='error';ctx._errorMsg=(err.message||'上传失败');render(ctx);}); }
+  function doRerecord(ctx) { if(!ctx||ctx.destroyed)return; if(ctx.status==='uploaded'){if(!confirm('当前录音已经上传。重新录音不会自动删除已上传文件，是否继续？'))return;} if(ctx.mediaRecorder&&ctx.mediaRecorder.state!=='inactive'){try{ctx.mediaRecorder.stop();}catch(e){}} if(ctx.stream){ctx.stream.getTracks().forEach(function(t){t.stop();});ctx.stream=null;} if(ctx.objectUrl){URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=null;} if(ctx.timerId){clearInterval(ctx.timerId);ctx.timerId=null;} ctx.mediaRecorder=null;ctx.chunks=[];ctx.blob=null;ctx.durationSeconds=0;ctx.fileId='';ctx.assetId='';ctx.status='idle';ctx._errorMsg=''; render(ctx); }
+  function mount(cfg) { destroy(); current=createContext(cfg); if(task510State&&task510State.taskId===current.taskId&&task510State.audioFileId){current.fileId=task510State.audioFileId;current.assetId=task510State.audioAssetId||'';current.status='uploaded';} if(current.rootElement)setupDelegation(current.rootElement,current); render(current); return current; }
+  function destroy() { if(current){if(current.mediaRecorder&&current.mediaRecorder.state!=='inactive'){try{current.mediaRecorder.stop();}catch(e){}}if(current.stream){current.stream.getTracks().forEach(function(t){t.stop();});current.stream=null;}if(current.objectUrl){URL.revokeObjectURL(current.objectUrl);current.objectUrl=null;}if(current.timerId){clearInterval(current.timerId);current.timerId=null;}current.mediaRecorder=null;current.chunks=[];current.blob=null;current.destroyed=true;if(current.rootElement)current.rootElement.innerHTML='';current=null;} }
+  return { mount:mount, destroy:destroy, getSnapshot:function(){return current?{contextId:current.contextId,taskId:current.taskId,status:current.status,destroyed:current.destroyed}:null;} };
+})();
+window.addEventListener('error', function(e) { var el = document.getElementById('loginBox'); if (el) el.insertAdjacentHTML('beforeend', '<div style="color:#dc2626;font-size:11px;padding:8px">错误：'+(e.message||'')+' (行'+(e.lineno||'')+')</div>'); });
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('studentLoginBtn');
+  if (!btn) { console.error('[LOGIN_INIT] not found'); return; }
+  btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); console.log('[LOGIN_BUTTON_CLICK_V14]'); login(); });
+  var pinEl = document.getElementById('loginPin');
+  if (pinEl) pinEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); login(); } });
+});
+</script></body></html>
