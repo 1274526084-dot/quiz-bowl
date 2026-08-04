@@ -103,11 +103,11 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <label>英文姓名（首次登录填写）</label><input id="studentName" placeholder="首次登录时填写英文姓名">
 <label>中文姓名（选填）</label><input id="chineseName" placeholder="首次登录时填写中文名">
 <div class="check-row"><input type="checkbox" id="consent"><span>我同意提交学习数据（仅用于教学与课题研究）</span></div>
-<button class="btn btn-primary" onclick="login()">确认进入</button>
-<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">测试账号 MY001/1001 · MY002/1002</p>
+<button class="btn btn-primary" id="studentLoginBtn" type="button">确认进入</button>
+<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">请使用教师分配的学生编号和个人口令登录</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜ECRL_STUDENT_PRODUCTION_V31_20260804｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -213,9 +213,26 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   </div>
 </div>
 
+<!-- ===== Task 5-10 Isolated Overlay ===== -->
+<div class="quiz-overlay" id="task510Overlay">
+  <div class="quiz-header">
+    <span class="qback" id="task510BackBtn" onclick="window.task510BackAction(event)" style="cursor:pointer">←</span>
+    <span class="qtitle" id="task510Title">任务加载中...</span>
+    <span class="qtimer" id="task510Timer"></span>
+  </div>
+  <div class="quiz-stepbar" id="task510Stepbar"></div>
+  <div class="quiz-body" id="task510Body"></div>
+  <div class="quiz-nav" id="task510Footer">
+    <button type="button" class="btn btn-outline btn-sm" id="task510PrevBtn" onclick="window.task510PrevAction(event)">上一页</button>
+    <span style="flex:1;text-align:center;font-size:12px;color:#94a3b8;align-self:center" id="task510Progress">1/4</span>
+    <button type="button" class="btn btn-primary btn-sm" id="task510NextBtn" onclick="window.task510NextAction(event)">下一页</button>
+    <button type="button" class="btn btn-submit" style="display:none" id="task510SubmitBtn" onclick="window.task510SubmitAction(event)">确认提交</button>
+  </div>
+</div>
+
 <!-- ===== Task 1 Results Overlay ===== -->
 <div class="quiz-overlay" id="resultOverlay">
-  <div class="quiz-header"><span class="qback" onclick="closeResult()">←</span><span class="qtitle">任务一：已完成</span></div>
+  <div class="quiz-header"><span class="qback" onclick="closeResult()">←</span><span class="qtitle" id="resultOverlayTitle">该任务已完成</span></div>
   <div class="quiz-body" id="resultBody"></div>
 </div>
 
@@ -226,6 +243,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
+console.log('ECRL_STUDENT_PRODUCTION_V31_20260804');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
@@ -556,16 +574,23 @@ function renderTasks(){
       h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#2563eb')+'">';
       h+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">📝</span><div style="flex:1"><div style="font-size:15px;font-weight:700">任务一：HSK三级阅读与书写练习</div><div style="font-size:11px;color:#64748b">阅读30题 + 书写10题 · HSK三级</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn;
       h+='<div style="font-size:10px;color:#cbd5e1;margin-top:4px">版本：TASK1-02</div></div>';
-    } else if (t.no >= 5 && t.no <= 10) {
-      // Tasks 5-10: test-only for now
-      var taskIdMap5 = {5:'TASK_CHINESE_MOVIES_05',6:'TASK_CHINESE_FOOD_1_06',7:'TASK_PAPER_CUTTING_07',8:'TASK_CHINESE_FOOD_2_08',9:'TASK_HSK3_TEST_2_09',10:'TASK_STUDY_LIFE_CHINA_10'};
+    } else if (t.no === 9) {
+      // Task 9: HSK3 Test 2 — separate flow
+      var task9Id = 'TASK_HSK3_TEST_2_09';
+      if (!isTestAccount()) { tag='tag-gray';txt='测试中'; btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>'; }
+      else if(!st){ tag='tag-gray';txt='未开始'; btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask9()">📝 开始测试</button>'; }
+      else if(st==='submitted'){ tag='tag-green';txt='已提交'; btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask1Result()">📊 查看结果</button>'; }
+      h+='<div class="section-card" style="border-left:4px solid '+(st==='submitted'?'#22c55e':'#f59e0b')+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:28px">'+t.icon+'</span><div style="flex:1"><div style="font-size:14px;font-weight:700">任务'+t.no+': '+t.title+'</div><div style="font-size:11px;color:#64748b">'+t.cat+'</div></div><span class="tag '+tag+'">'+txt+'</span></div>'+btn+'</div>';
+    } else if (t.no === 5 || t.no === 6 || t.no === 7 || t.no === 8 || t.no === 10) {
+      // Tasks 5-8,10: test-only, using isolated task510 overlay
+      var taskIdMap5 = {5:'TASK_CHINESE_MOVIES_05',6:'TASK_CHINESE_FOOD_1_06',7:'TASK_PAPER_CUTTING_07',8:'TASK_CHINESE_FOOD_2_08',10:'TASK_STUDY_LIFE_CHINA_10'};
       var task510Id = taskIdMap5[t.no];
       if (!isTestAccount()) {
         tag='tag-gray';txt='测试中';
         btn='<div style="font-size:11px;color:#94a3b8;margin-top:4px">⏳ 教师测试中，完成后开放</div>';
       } else if(!st){
         tag='tag-gray';txt='未开始';
-        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="startTask2to4(\''+task510Id+'\')">📝 开始测试</button>';
+        btn='<button class="btn btn-primary" style="margin-top:6px;font-size:12px;min-height:32px" onclick="openTask510(\''+task510Id+'\')">📝 开始测试</button>';
       } else if(st==='submitted'){
         tag='tag-green';txt='已提交';
         btn='<button class="btn btn-outline" style="margin-top:6px;font-size:12px;min-height:32px" onclick="viewTask2to4Result(\''+task510Id+'\')">📊 查看结果</button>';
@@ -1485,6 +1510,80 @@ function submitTask2to4() {
   doSubmit();
 }
 
+// ===== Tasks 5-10 Formal Submit =====
+var TASK510_SUBMIT_DRY_RUN = false;
+var TASK5_SUBMIT_DRY_RUN = false;
+
+function submitTask510Formal() {
+  var st = task510State; if (!st) return;
+  if (st.submitted) { alert('该任务已经提交，请勿重复提交。'); return; }
+  if (st._submitting) return;
+  var td = st.taskData;
+  var hasObj = td && (td.sections||[]).length > 0 && (td.sections[0].questions||[]).length > 0 && !td.noObjective;
+  var hasWriting = !(td && td.noWriting);
+  var hasAudio = !(td && td.noSpeaking);
+  var hasPhoto = td && td.hasPhotoUpload;
+  var answerCount = Object.keys(st.answers).length;
+  var qCount = td ? td.questionCount : 0;
+  var isMY001 = student && student.id === 'MY001';
+  var isTask5 = st.taskId === 'TASK_CHINESE_MOVIES_05';
+  var isTask6 = st.taskId === 'TASK_CHINESE_FOOD_1_06';
+  // Check objectives
+  if (hasObj && (answerCount < qCount)) { alert('请完成全部' + qCount + '道客观题后再提交。'); return; }
+  // Check writing
+  if (hasWriting && (!st.writingText || st.writingText.trim().length === 0)) { alert('请填写写作内容后再提交。'); return; }
+  // Check audio
+  if (hasAudio && !st.audioFileId) { alert('请先上传录音后再提交。'); return; }
+  // Check photo (Task 7)
+  if (hasPhoto && !st.imageFileId) {
+    if (!confirm('你还没有上传照片。可以先提交文字和录音，之后在结果页补交照片。\n\n点击"确定"继续提交。')) return;
+  }
+  // === Task 5 Dry-Run ===
+  if (isTask5 && isMY001 && TASK5_SUBMIT_DRY_RUN) {
+    var wLen = (st.writingText||'').replace(/\\s/g,'').length;
+    if (wLen < 60 || wLen > 90) { alert('写作字数需在60—90字范围内，当前：' + wLen + '字。'); return; }
+    if (!st.audioFileId || !st.audioAssetId) { alert('请先上传录音。'); return; }
+    if (!(st.audioDuration > 0)) { alert('录音时长异常。'); return; }
+    var snap = Task510AudioV10.getSnapshot();
+    if (snap && snap.taskId !== st.taskId && snap.status !== 'uploaded') { alert('当前录音不属于任务5，请重新进入任务5录音。'); return; }
+    var subId = st.preSubmissionId || '';
+    console.log('[TASK5_SUBMIT_PAYLOAD_CHECK]', { taskId: st.taskId, subId: (subId).substring(0,8), answerCount: answerCount, writingLength: wLen, hasAudioFileId: !!st.audioFileId, hasAudioAssetId: !!st.audioAssetId, audioDuration: st.audioDuration, hasImageFileId: false, dryRun: true });
+    alert('任务5提交参数验证通过，当前为测试模式，未写入数据库。\\n\\n任务：TASK_CHINESE_MOVIES_05\\n客观题：'+answerCount+'/6\\n写作：'+wLen+'字\\n录音：已关联');
+    return;
+  }
+  // Real submit gate: all students for Tasks 5/6/7/8/10
+  var isTask7 = st.taskId === 'TASK_PAPER_CUTTING_07';
+  var isTask8 = st.taskId === 'TASK_CHINESE_FOOD_2_08';
+  var isTask10 = st.taskId === 'TASK_STUDY_LIFE_CHINA_10';
+  // Production: open to all students
+  if (!confirm('确认提交当前任务？提交后不可修改。')) return;
+  // Real submit
+  st._submitting = true;
+  var subId = st.preSubmissionId || st.submissionId || '';
+  var params = 'action=submit_task2_4&taskId=' + st.taskId + '&studentUid=' + encodeURIComponent(student.uid) + '&studentId=' + encodeURIComponent(student.id) + '&answers=' + encodeURIComponent(JSON.stringify(st.answers)) + '&writingText=' + encodeURIComponent(st.writingText || '') + '&audioFileId=' + encodeURIComponent(st.audioFileId || '') + '&audioDuration=' + encodeURIComponent(st.audioDuration || 0) + '&imageFileId=' + encodeURIComponent(st.imageFileId || '') + '&imageAssetId=' + encodeURIComponent(st.imageAssetId || '');
+  var cb = '_st510_' + Date.now();
+  window[cb] = function(res) {
+    st._submitting = false;
+    if (res && res.success) {
+      st.submitted = true;
+      var TASK510_NOS = { 'TASK_CHINESE_MOVIES_05':5,'TASK_CHINESE_FOOD_1_06':6,'TASK_PAPER_CUTTING_07':7,'TASK_CHINESE_FOOD_2_08':8,'TASK_STUDY_LIFE_CHINA_10':10 };
+      var tno = TASK510_NOS[st.taskId] || 0;
+      if (tno) { taskStatuses[tno] = 'submitted'; saveS('taskStatuses', taskStatuses); }
+      res._isFreshSubmit = true;
+      showTask2to4Result(res);
+    } else if (res && res.error === 'already submitted') {
+      var tno2 = (st.taskId==='TASK_CHINESE_MOVIES_05'?5:st.taskId==='TASK_CHINESE_FOOD_1_06'?6:st.taskId==='TASK_PAPER_CUTTING_07'?7:st.taskId==='TASK_CHINESE_FOOD_2_08'?8:10);
+      if (tno2) { taskStatuses[tno2] = 'submitted'; saveS('taskStatuses', taskStatuses); }
+      alert('该任务已经提交，正在打开原任务结果。');
+      setTimeout(function() { viewTask2to4Result(st.taskId); }, 500);
+    } else { alert('提交失败：' + (res ? res.error : '网络错误')); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback=' + cb + '&' + params;
+  document.head.appendChild(s);
+}
+
 function viewTask2to4Result(taskId) {
   var cb = '_vr24_' + Date.now();
   window[cb] = function(res) {
@@ -1502,10 +1601,14 @@ function showTask2to4Result(data) {
   document.getElementById('quizOverlay').classList.remove('show');
   document.getElementById('resultOverlay').classList.add('show');
   document.getElementById('tabBar').style.display = 'none';
-  // Push history state for back button
+  // Dynamic title
+  var TASK_TITLES = { 'TASK_HSK3_RW_01':'任务一','TASK_L1_REVIEW_02':'任务二','TASK_L2_REVIEW_03':'任务三','TASK_SEAL_WORK_04':'任务四','TASK_CHINESE_MOVIES_05':'任务五：中国电影','TASK_CHINESE_FOOD_1_06':'任务六：我喜欢的中国菜（1）——菜名、做法和味道','TASK_PAPER_CUTTING_07':'任务七：我的剪纸作品','TASK_CHINESE_FOOD_2_08':'任务八：我喜欢的中国菜（2）——介绍一道中国菜','TASK_HSK3_TEST_2_09':'任务九：HSK三级测试（2）——阅读与书写','TASK_STUDY_LIFE_CHINA_10':'任务十：我的中国留学生活' };
+  var taskTitle = TASK_TITLES[data.taskId] || (data.taskId || '');
+  document.getElementById('resultOverlayTitle').textContent = (taskTitle || '该任务已完成');
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：TASK_SESSION_ROUTING_ISOLATION_FIX_V7_20260804</div></div>';
+  var isTask6 = data.taskId === 'TASK_CHINESE_FOOD_1_06';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：ECRL_STUDENT_PRODUCTION_V31_20260804</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
@@ -1522,8 +1625,8 @@ function showTask2to4Result(data) {
       html += '</div>';
     }
   }
-  // Subjective status
-  if (data.subjectiveStatus === 'pending_teacher_review') {
+  // Subjective status — skip for Task 6 (objective-only)
+  if (!isTask6 && data.subjectiveStatus === 'pending_teacher_review') {
     html += '<div class="section-card" style="background:#fffbeb"><div style="font-size:13px;color:#92400e">📝 写作和口语由教师评价，完成后可见。</div></div>';
   }
   if (data.writingText) {
@@ -1534,8 +1637,8 @@ function showTask2to4Result(data) {
     if (data.audioUrl) html += '<audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio>';
     else html += '<div style="font-size:12px;color:#94a3b8">录音已保存。教师可以播放。</div>';
     html += '</div>';
-  } else if (!data._isFreshSubmit && !data.audioFileId && isTestAccount()) {
-    // Supplement audio: only for EXISTING submissions without audio (not fresh submits)
+  } else if (!isTask6 && !data._isFreshSubmit && !data.audioFileId && isTestAccount()) {
+    // Supplement audio: only for EXISTING submissions without audio (not fresh submits), skip Task 6
     html += '<div class="section-card" style="border:2px dashed #f59e0b"><h4>🎙️ 补传口语录音</h4>';
     html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">你的文字和客观题已经提交，只需补充口语录音，不需要重新答题。</div>';
     html += '<div id="supplementRecorderUI"></div>';
@@ -1568,7 +1671,7 @@ function showTask2to4Result(data) {
     html += '</div>';
   }
   // Teacher review
-  if (data.teacherReview && data.teacherReview.isPublished) {
+  if (!isTask6 && data.teacherReview && data.teacherReview.isPublished) {
     var tr = data.teacherReview;
     html += '<div class="section-card" style="border-left:3px solid #22c55e"><h4>👩‍🏫 教师点评</h4>';
     html += '<div class="row"><span>发音</span><span class="val">' + (tr.scores.pronunciation||0) + '/5</span></div>';
@@ -2505,13 +2608,15 @@ function submitTask1() {
   quizState.timerActive = false;
   if (quizState.timerInterval) { clearInterval(quizState.timerInterval); quizState.timerInterval = null; }
 
+  var isTask9 = TASK1_ID === 'TASK_HSK3_TEST_2_09';
   var params = {
-    action: 'submit_course_task',
+    action: isTask9 ? 'submit_task9_hsk' : 'submit_course_task',
     taskId: TASK1_ID,
     studentUid: student.uid,
     studentId: student.id,
     attemptNo: 1,
     startedAt: quizState.startedAt,
+    apiVersion: isTask9 ? 'ECRL_STUDENT_PRODUCTION_V31_20260804' : '',
     answers: JSON.stringify(quizState.answers)
   };
 
@@ -2718,5 +2823,335 @@ window.addEventListener('popstate', function(e) {
   }
 });
 
-// (renderTasks handles Task 1 directly — no override needed)
+// ===== Task 5-10 Fully Isolated System =====
+console.log('TASK510_AUDIO_PHYSICAL_ISOLATION_V9_20260804');
+var task510State = null;
+var task510Token = 0;
+
+function disposeTask510() {
+  if (!task510State) return;
+  task510State.disposed = true;
+  Task510AudioV10.destroy();
+  task510State = null;
+  document.getElementById('task510Overlay').classList.remove('show');
+}
+
+function openTask510(taskId) {
+  disposeTask510();
+  task510Token++;
+  var tok = task510Token;
+  task510State = { token: tok, taskId: taskId, taskData: null, stepList: [], stepIndex: 0, answers: {}, writingText: '', preSubmissionId: 'tsk_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), audioFileId: '', audioAssetId: '', audioDuration: 0, imageFile: null, imageFileId: '', imageAssetId: '', photoUploading: false, submitted: false, disposed: false };
+
+  var ov = document.getElementById('task510Overlay');
+  ov.classList.add('show');
+  document.getElementById('tabBar').style.display = 'none';
+  document.getElementById('task510Title').textContent = '加载中...';
+  document.getElementById('task510Timer').textContent = '';
+  document.getElementById('task510Stepbar').innerHTML = '';
+  document.getElementById('task510Body').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
+
+  // Query existing submission first
+  var cbChk = '_t510chk' + Date.now();
+  window[cbChk] = function(r) {
+    if (!task510State || task510State.token !== tok) { delete window[cbChk]; return; }
+    if (r && r.success && r.submissionId) {
+      showTask2to4Result(r); // reuse result display
+    } else {
+      loadTask510Definition(taskId, tok);
+    }
+    delete window[cbChk];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback='+cbChk+'&action=get_task2_4_result&taskId='+taskId+'&studentUid='+encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function loadTask510Definition(taskId, tok) {
+  var cb = '_t510def' + Date.now();
+  window[cb] = function(r) {
+    if (!task510State || task510State.token !== tok) { delete window[cb]; return; }
+    if (r && r.success && r.task) {
+      if (r.task.taskId !== taskId) { alert('任务数据不匹配'); delete window[cb]; return; }
+      task510State.taskData = r.task;
+      document.getElementById('task510Title').textContent = r.task.title || '';
+      document.getElementById('task510Timer').textContent = (r.task.recommendedMinutes||'')+'分钟';
+      // Build step list
+      var td = r.task;
+      var hasObj = (td.sections||[]).length>0 && (td.sections[0].questions||[]).length>0 && !td.noObjective;
+      var hasW = !td.noWriting;
+      var hasA = !td.noSpeaking;
+      var hasP = td.hasPhotoUpload;
+      var sl = [];
+      if (hasObj) sl.push({label:'客观题',type:'objective'});
+      if (hasP) sl.push({label:'照片',type:'photo'});
+      if (hasW) sl.push({label:'写作',type:'writing'});
+      if (hasA) sl.push({label:'录音',type:'audio'});
+      sl.push({label:'提交',type:'review'});
+      task510State.stepList = sl;
+      renderTask510Step();
+    } else { if (task510State && task510State.token === tok) alert('加载任务失败'); }
+    delete window[cb];
+  };
+  var s = document.createElement('script');
+  s.src = API + '?callback='+cb+'&action=get_course_task&taskId='+taskId+'&studentUid='+encodeURIComponent(student.uid);
+  document.head.appendChild(s);
+}
+
+function renderTask510Step() {
+  var st = task510State; if (!st) return;
+  var sl = st.stepList; var i = st.stepIndex;
+  var ct = sl[i] ? sl[i].type : 'review';
+  var td = st.taskData;
+  var h = '';
+  // Step bar
+  h += '<div class="quiz-stepbar">';
+  for (var si=0;si<sl.length;si++) h += '<div class="step'+(si===i?' active':'')+'">'+(si+1)+'. '+sl[si].label+'</div>';
+  h += '</div>';
+
+  if (ct === 'objective' && td) {
+    var sec = td.sections[0];
+    var qScore = td.questionScore || 10;
+    h += '<div class="quiz-section-title">'+(sec.title||'客观题')+'</div>';
+    if (sec.instructions) h += '<div class="quiz-instructions">'+sec.instructions+'</div>';
+    (sec.questions||[]).forEach(function(q){
+      var sel = st.answers[q.id];
+      h += '<div class="quiz-qcard"><div class="qnum">第'+q.number+'题（'+qScore+'分）</div>';
+      h += '<div class="qtext">'+(q.text||q.stem||'')+'</div>';
+      if (q.options) q.options.forEach(function(o){
+        h += '<div class="qopt'+(sel===o.id?' sel':'')+'" data-qid="'+q.id+'" data-oid="'+o.id+'">'+o.id+'. '+o.text+'</div>';
+      });
+      if (q.words) { h += '<div style="font-size:13px;color:#64748b">词语：'+q.words.join('、')+'</div>'; h += '<input class="write-input" id="so_'+q.id+'" placeholder="请输入正确句子" value="'+(sel||'')+'">'; }
+      h += '</div>';
+    });
+  } else if (ct === 'writing') {
+    h += '<div class="quiz-section-title">📝 写作</div>';
+    if (td && td.writingPrompt) h += '<div class="quiz-instructions">'+td.writingPrompt+'</div>';
+    if (td && td.scaffold) h += renderScaffold(td);
+    h += '<textarea class="write-input" id="t510writing" style="min-height:150px" placeholder="在这里写作...">'+(st.writingText||'')+'</textarea>';
+    h += '<div style="font-size:11px;color:#94a3b8;margin-top:4px" id="t510charCount">当前字数：'+(st.writingText||'').length+'字</div>';
+  } else if (ct === 'audio') {
+    h += '<div class="quiz-section-title">🎙️ 口语录音</div>';
+    h += '<div class="quiz-instructions">请根据自己的实际情况进行介绍。最长5分钟，最大30MB。</div>';
+    if (td && td.scaffold) h += renderScaffold(td);
+    h += '<div id="t510RecorderUI" data-role="audio-component-root"></div>';
+  } else if (ct === 'photo') {
+    h += '<div class="quiz-section-title">📷 照片</div><div class="quiz-instructions">请选择并上传照片（jpg/png/webp，最大10MB）。</div>';
+    if (task510State.imageFileId) {
+      h += '<div style="color:#16a34a;font-weight:700;margin:6px 0">✅ 照片已上传云端</div>';
+    } else {
+      h += '<input type="file" accept="image/jpeg,image/png,image/webp" id="t510photoInput" style="display:none">';
+      h += '<button type="button" class="btn btn-outline" id="t510photoSelectBtn">📷 选择照片</button>';
+      h += '<div id="t510photoPreview" style="margin:8px 0"></div>';
+      if (task510State.imageFile) {
+        h += '<div style="font-size:11px;color:#64748b">已选择：' + task510State.imageFile.name + ' (' + (task510State.imageFile.size/1024).toFixed(1) + ' KB)</div>';
+        h += '<button type="button" class="btn btn-submit" id="t510photoUploadBtn">☁️ 上传照片</button>';
+        h += '<button type="button" class="btn btn-outline" id="t510photoReselectBtn">🔄 重新选择</button>';
+      }
+    }
+  } else {
+    // Review
+    var snap = Task510AudioV10.getSnapshot();
+    var aStat = st.audioFileId ? '✅ 已上传' : (snap && snap.taskId === st.taskId && snap.status === 'recorded' ? '⚠️ 已录制未上传' : '尚未录制');
+    h += '<div class="quiz-section-title">✅ 确认提交</div><div class="section-card">';
+    h += '<div class="row"><span>客观题已答</span><span class="val">'+Object.keys(st.answers).length+'/'+(td?td.questionCount:'?')+'</span></div>';
+    // Only show writing/audio for tasks that have them
+    if (!(td && td.noWriting)) h += '<div class="row"><span>写作</span><span class="val">'+(st.writingText&&st.writingText.length>0?'✅ 已填写':'未填写')+'</span></div>';
+    if (!(td && td.noSpeaking)) h += '<div class="row"><span>录音</span><span class="val">'+aStat+'</span></div>';
+    if (td && td.hasPhotoUpload) h += '<div class="row"><span>照片</span><span class="val">'+(st.imageFileId?'✅ 已上传':'📷 待补交')+'</span></div>';
+    h += '</div>';
+  }
+  document.getElementById('task510Body').innerHTML = h;
+
+  // Bind events
+  if (ct === 'objective') {
+    document.querySelectorAll('#task510Body .qopt').forEach(function(el){ el.addEventListener('click',function(){ var qid=el.dataset.qid,oid=el.dataset.oid; task510State.answers[qid]=oid; renderTask510Step(); }); });
+    document.querySelectorAll('#task510Body .write-input').forEach(function(el){ el.addEventListener('input',function(){ task510State.answers[el.id.replace('so_','')]=el.value; }); });
+  }
+  if (ct === 'writing') {
+    var ta = document.getElementById('t510writing');
+    if (ta) ta.addEventListener('input', function(){ task510State.writingText = ta.value; var cnt = document.getElementById('t510charCount'); if(cnt) cnt.textContent = '当前字数：'+ta.value.length+'字'; });
+  }
+  if (ct === 'audio') { setTimeout(function(){ renderTask510AudioStep(); }, 50); }
+  if (ct === 'photo') { bindTask510PhotoEvents(); }
+
+// ===== Task 5-10 Audio Step Renderer =====
+function renderTask510AudioStep() {
+  if (!task510State) return;
+  var st = task510State;
+  Task510AudioV10.destroy();
+  var body = document.getElementById('task510Body');
+  if (!body) return;
+  var audioRoot = document.createElement('div');
+  audioRoot.className = 'task510-audio-v10';
+  audioRoot.setAttribute('data-task-id', st.taskId);
+  body.appendChild(audioRoot);
+  var subId = st.preSubmissionId || '';
+  Task510AudioV10.mount({
+    taskId: st.taskId,
+    submissionId: subId,
+    studentUid: student ? student.uid : '',
+    sessionToken: st.token,
+    rootElement: audioRoot
+  });
+}
+  updateTask510Nav();
+}
+function bindTask510PhotoEvents() {
+  var pf2 = document.getElementById('t510photoInput');
+  var selBtn = document.getElementById('t510photoSelectBtn');
+  if (pf2 && selBtn) {
+    selBtn.onclick = function() { pf2.click(); };
+    pf2.onchange = function() {
+      if (pf2.files && pf2.files[0]) {
+        var file = pf2.files[0];
+        if (!file.type.match(/^image\//)) { alert('请选择JPG、PNG或WebP格式的图片。'); return; }
+        if (file.size > 10*1024*1024) { alert('图片超过10MB，请选择较小的文件。'); return; }
+        task510State.imageFile = file;
+        if (task510State._photoPreviewUrl) URL.revokeObjectURL(task510State._photoPreviewUrl);
+        task510State._photoPreviewUrl = URL.createObjectURL(file);
+        renderTask510Step();
+      }
+    };
+  }
+  var upBtn = document.getElementById('t510photoUploadBtn');
+  if (upBtn) upBtn.onclick = function() { uploadTask510Photo(); };
+  var reBtn = document.getElementById('t510photoReselectBtn');
+  if (reBtn) reBtn.onclick = function() { task510State.imageFile = null; if (task510State._photoPreviewUrl) { URL.revokeObjectURL(task510State._photoPreviewUrl); task510State._photoPreviewUrl = null; } renderTask510Step(); };
+  // Show existing preview
+  if (task510State._photoPreviewUrl) {
+    var pv2 = document.getElementById('t510photoPreview');
+    if (pv2) pv2.innerHTML = '<img src="'+task510State._photoPreviewUrl+'" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e2e8f0">';
+  }
+}
+function uploadTask510Photo() {
+  var st = task510State; if (!st) return;
+  var file = st.imageFile; if (!file) { alert('请先选择照片。'); return; }
+  if (st.taskId !== 'TASK_PAPER_CUTTING_07') { alert('仅任务7支持照片上传。'); return; }
+  if (file.size > 10*1024*1024) { alert('图片超过10MB。'); return; }
+  var subId = st.preSubmissionId || st.submissionId || '';
+  if (!subId) { alert('未生成任务提交编号，请返回重试。'); return; }
+  var upBtn = document.getElementById('t510photoUploadBtn');
+  if (upBtn) upBtn.disabled = true;
+  var statusEl = document.getElementById('t510photoPreview');
+  if (statusEl) statusEl.insertAdjacentHTML('beforeend', '<div style="color:#f59e0b;font-size:12px;margin-top:4px" id="t510photoStatus">⏳ 正在准备上传照片……</div>');
+  initCloudBase().then(function(app) {
+    if (!app) throw new Error('云服务未连接');
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var cp = 'learning_assets/ECRL_MY_CHINESE/TASK_PAPER_CUTTING_07/' + (student?student.uid:'') + '/photo_' + Date.now() + '.' + ext;
+    updatePhotoStatus('⏳ 正在上传照片文件……');
+    return app.uploadFile({ cloudPath: cp, filePath: file }).then(function(r) {
+      if (!r || !r.fileID) throw new Error('未获取fileID');
+      st.imageFileId = r.fileID;
+      updatePhotoStatus('⏳ 正在登记照片信息……');
+      var cb = '_t7pcf' + Date.now();
+      window[cb] = function(cres) {
+        if (cres && cres.success) { st.imageAssetId = cres.assetId || ''; updatePhotoStatus('<span style=\"color:#16a34a;font-weight:700\">✅ 照片上传成功</span>'); }
+        else { updatePhotoStatus('<span style=\"color:#dc2626\">登记失败：' + (cres?cres.error:'') + '</span>'); }
+        if (upBtn) upBtn.disabled = false; delete window[cb];
+      };
+      var s = document.createElement('script');
+      s.src = API + '?callback=' + cb + '&action=confirm_asset_upload&submissionId=' + encodeURIComponent(subId) + '&taskId=TASK_PAPER_CUTTING_07&studentUid=' + encodeURIComponent(student?student.uid:'') + '&studentId=' + encodeURIComponent(student?student.id:'') + '&fileId=' + encodeURIComponent(r.fileID) + '&fileType=image&mimeType=' + encodeURIComponent(file.type) + '&fileSize=' + file.size + '&cloudPath=' + encodeURIComponent(cp);
+      document.head.appendChild(s);
+    });
+  }).catch(function(err) {
+    updatePhotoStatus('<span style=\"color:#dc2626\">照片上传失败：' + (err.message || '') + '</span>');
+    if (upBtn) upBtn.disabled = false;
+  });
+}
+function updatePhotoStatus(msg) {
+  var el = document.getElementById('t510photoStatus');
+  if (el) el.innerHTML = msg;
+  else { var pv = document.getElementById('t510photoPreview'); if (pv) pv.insertAdjacentHTML('beforeend', '<div style=\"font-size:12px;margin-top:4px\" id=\"t510photoStatus\">' + msg + '</div>'); }
+}
+// ===== Static Navigation — inline onclick via window globals =====
+window.task510BackAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_BACK_ACTION_V15]', task510State ? task510State.taskId : null);
+  Task510AudioV10.destroy();
+  task510State = null;
+  document.getElementById('task510Overlay').classList.remove('show');
+  document.getElementById('tabBar').style.display = 'flex';
+  renderAll();
+};
+window.task510PrevAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_PREV_ACTION_V15]', task510State ? task510State.taskId : null, task510State ? task510State.stepIndex : null);
+  if (!task510State) return;
+  if (task510State.stepIndex <= 0) return;
+  saveTask510StepData();
+  task510State.stepIndex -= 1;
+  renderTask510Step();
+};
+window.task510NextAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  console.log('[TASK510_NEXT_ACTION_V15]', task510State ? task510State.taskId : null, task510State ? task510State.stepIndex : null);
+  if (!task510State) return;
+  if (!task510State.stepList || task510State.stepIndex >= task510State.stepList.length - 1) return;
+  saveTask510StepData();
+  task510State.stepIndex += 1;
+  renderTask510Step();
+};
+window.task510SubmitAction = function(event) {
+  if (event) { event.preventDefault(); event.stopPropagation(); }
+  submitTask510Formal();
+};
+
+function saveTask510StepData() {
+  if (!task510State) return;
+  var ta = document.getElementById('t510writing');
+  if (ta) task510State.writingText = ta.value;
+  // Save objective answers from current DOM
+  var opts = document.querySelectorAll('#task510Body .qopt.sel');
+  // Answers already stored in task510State.answers via click handlers
+}
+
+function updateTask510Nav() {
+  var st = task510State; if (!st) return;
+  var sl = st.stepList; var i = st.stepIndex; var total = sl.length;
+  var prev = document.getElementById('task510PrevBtn');
+  var next = document.getElementById('task510NextBtn');
+  var submit = document.getElementById('task510SubmitBtn');
+  var prog = document.getElementById('task510Progress');
+  if (prev) prev.style.display = i === 0 ? 'none' : '';
+  if (next) next.style.display = i >= total - 1 ? 'none' : '';
+  if (submit) submit.style.display = i >= total - 1 ? '' : 'none';
+  if (prog) prog.textContent = (i + 1) + '/' + total;
+}
+
+// ===== Task510AudioV11 — Event Delegation + Status Machine + Upload/Rerecord Fixes =====
+console.log('TASK510_AUDIO_UPLOAD_RERECORD_V11_20260804');
+var Task510AudioV10 = (function() {
+  var current = null, counter = 0;
+  function createContext(cfg) { counter++; return { contextId: counter, taskId: cfg.taskId, submissionId: cfg.submissionId || '', studentUid: cfg.studentUid || '', sessionToken: cfg.sessionToken || 0, mediaRecorder: null, stream: null, chunks: [], blob: null, objectUrl: null, startedAt: 0, durationSeconds: 0, timerId: null, fileId: '', assetId: '', status: 'idle', destroyed: false, rootElement: cfg.rootElement || null, _errorMsg: '' }; }
+  function render(ctx) {
+    if (!ctx || ctx.destroyed || !ctx.rootElement || !ctx.rootElement.isConnected) return; var root = ctx.rootElement; root.innerHTML = ''; root.className = 'task510-audio-v10'; root.setAttribute('data-task-id', ctx.taskId); root.style.cssText = 'text-align:center;padding:12px;background:#f8fafc;border-radius:10px;margin-top:8px';
+    var tEl = document.createElement('div'); tEl.setAttribute('data-role','timer'); tEl.style.cssText = 'font-size:24px;font-weight:900;color:#2563eb'; tEl.textContent = ctx.durationSeconds + '秒'; root.appendChild(tEl);
+    var sEl = document.createElement('div'); sEl.setAttribute('data-role','status-text'); sEl.style.cssText = 'font-size:13px;margin:4px 0'; root.appendChild(sEl);
+    function ab(text,action,cls) { var b=document.createElement('button'); b.type='button'; b.className=cls; b.textContent=text; b.setAttribute('data-action',action); b.style.margin='3px';b.style.fontSize='13px'; root.appendChild(b); }
+    var s=ctx.status;
+    if (s==='recording') { sEl.innerHTML='<span style="display:inline-block;width:12px;height:12px;background:#dc2626;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:6px"></span><span style="color:#dc2626;font-weight:700">正在录音</span>'; ab('停止录音','stop','btn btn-danger'); }
+    else if (s==='recorded') { if(ctx.objectUrl){ var a=document.createElement('audio');a.setAttribute('data-role','preview');a.controls=true;a.src=ctx.objectUrl;a.style.cssText='width:100%;max-width:300px;margin:4px 0';root.appendChild(a); } sEl.innerHTML='<span style="color:#16a34a">录音完成，可以试听</span>'; ab('试听','play','btn btn-outline'); ab('上传录音','upload','btn btn-submit'); ab('重新录音','rerecord','btn btn-outline'); }
+    else if (s==='uploading') { sEl.innerHTML='<span style="color:#f59e0b">正在上传录音，请稍候</span>'; }
+    else if (s==='uploaded') { sEl.innerHTML='<span style="color:#16a34a;font-weight:700">录音上传成功</span>'; if(ctx.objectUrl){ var a2=document.createElement('audio');a2.setAttribute('data-role','preview');a2.controls=true;a2.src=ctx.objectUrl;a2.style.cssText='width:100%;max-width:300px;margin:4px 0';root.appendChild(a2); } ab('试听','play','btn btn-outline'); ab('重新录音','rerecord','btn btn-outline'); }
+    else if (s==='error') { sEl.innerHTML='<span style="color:#dc2626">'+(ctx._errorMsg||'操作失败')+'</span>'; if(ctx.blob&&ctx.blob.size>0){ ab('重试上传','upload','btn btn-submit'); ab('重新录音','rerecord','btn btn-outline'); } else { ab('开始录音','start','btn btn-primary'); } }
+    else { sEl.textContent='尚未录音'; ab('开始录音','start','btn btn-primary'); var fi=document.createElement('input');fi.type='file';fi.accept='audio/*';fi.style.cssText='display:block;margin:6px auto;font-size:11px';fi.addEventListener('change',function(){if(fi.files&&fi.files[0]){var f=fi.files[0];ctx.blob=f;ctx.durationSeconds=0;ctx.status='recorded';if(ctx.objectUrl)URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=URL.createObjectURL(f);render(ctx);}});root.appendChild(fi); }
+    var dbg=document.createElement('div');dbg.setAttribute('data-role','debug-task-id');dbg.style.cssText='font-size:9px;color:#cbd5e1;margin-top:6px';dbg.textContent='V11 status:'+ctx.status+' ctx:'+ctx.contextId+' task:'+ctx.taskId+' sub:'+(ctx.submissionId||'').substring(0,8)+' blob:'+(ctx.blob?ctx.blob.size:0)+' fId:'+(ctx.fileId?'Y':'N')+' aId:'+(ctx.assetId?'Y':'N');root.appendChild(dbg);
+  }
+  function setupDelegation(root,ctx) { root.addEventListener('click',function(e){ var btn=e.target.closest('[data-action]'); if(!btn)return; var cur=current; if(!cur||cur.destroyed||cur!==ctx)return; e.preventDefault();e.stopPropagation(); var act=btn.getAttribute('data-action'); if(act==='start')doStart(cur); else if(act==='stop')doStop(cur); else if(act==='play'){if(cur.objectUrl){var a=new Audio(cur.objectUrl);a.play();}} else if(act==='upload')doUpload(cur); else if(act==='rerecord')doRerecord(cur); }); }
+  function doStart(ctx) { if(!ctx||ctx.destroyed)return; if(!task510State||ctx.taskId!==task510State.taskId)return; var allowed=['TASK_CHINESE_MOVIES_05','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_STUDY_LIFE_CHINA_10']; if(allowed.indexOf(ctx.taskId)===-1)return; navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){ if(ctx.destroyed||ctx!==current){stream.getTracks().forEach(function(t){t.stop();});return;} ctx.stream=stream;ctx.chunks=[];ctx.blob=null;ctx.durationSeconds=0;ctx.startedAt=Date.now();ctx.status='recording'; var mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'; ctx.mediaRecorder=new MediaRecorder(stream,{mimeType:mime}); ctx.mediaRecorder.ondataavailable=function(e){if(e.data.size>0&&!ctx.destroyed)ctx.chunks.push(e.data);}; ctx.mediaRecorder.onstop=function(){if(ctx.destroyed||ctx!==current)return;ctx.blob=new Blob(ctx.chunks,{type:mime});ctx.durationSeconds=Math.round((Date.now()-ctx.startedAt)/1000);if(ctx.stream){ctx.stream.getTracks().forEach(function(t){t.stop();});ctx.stream=null;}if(ctx.objectUrl)URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=URL.createObjectURL(ctx.blob);ctx.mediaRecorder=null;ctx.status='recorded';render(ctx);}; ctx.mediaRecorder.start(100); ctx.timerId=setInterval(function(){if(ctx.destroyed||ctx!==current||!ctx.mediaRecorder){clearInterval(ctx.timerId);return;}ctx.durationSeconds=Math.round((Date.now()-ctx.startedAt)/1000);var tel=ctx.rootElement?ctx.rootElement.querySelector('[data-role="timer"]'):null;if(tel)tel.textContent=ctx.durationSeconds+'秒';},500); render(ctx); }).catch(function(err){alert('无法使用麦克风，请检查浏览器权限。');}); }
+  function doStop(ctx) { if(!ctx||ctx.destroyed||!ctx.mediaRecorder)return; if(ctx.mediaRecorder.state!=='inactive'){ctx.mediaRecorder.stop();} if(ctx.timerId){clearInterval(ctx.timerId);ctx.timerId=null;} }
+  function doUpload(ctx) { if(!ctx||ctx.destroyed||!ctx.blob||ctx.blob.size===0){ctx.status='error';ctx._errorMsg='未找到录音文件，请重新录音。';render(ctx);return;} if(!ctx.submissionId){ctx.submissionId=(task510State?task510State.preSubmissionId:'')||'';} if(!ctx.submissionId){ctx.status='error';ctx._errorMsg='未生成提交编号，请返回重试。';render(ctx);return;} ctx.status='uploading';render(ctx); var blob=ctx.blob; initCloudBase().then(function(app){if(ctx.destroyed||ctx!==current)return;if(!app)throw new Error('云服务未连接');var ext=blob.type.indexOf('webm')!==-1?'webm':'webm';var cp='learning_assets/ECRL_MY_CHINESE/'+ctx.taskId+'/'+ctx.studentUid+'/audio_'+Date.now()+'.'+ext;return app.uploadFile({cloudPath:cp,filePath:blob}).then(function(r){if(ctx.destroyed||ctx!==current)return;if(!r||!r.fileID)throw new Error('未获取fileID');ctx.fileId=r.fileID;ctx.durationSeconds=ctx.durationSeconds||Math.round(blob.size/16000);var cb='_t510v11cfa'+Date.now();window[cb]=function(cres){if(ctx.destroyed||ctx!==current){delete window[cb];return;}if(cres&&cres.success){ctx.assetId=cres.assetId||'';ctx.status='uploaded';}else{ctx.status='error';ctx._errorMsg='登记录音失败：'+(cres?cres.error:'');}if(task510State&&task510State.taskId===ctx.taskId){task510State.audioFileId=ctx.fileId;task510State.audioAssetId=ctx.assetId;task510State.audioDuration=ctx.durationSeconds;}render(ctx);delete window[cb];};var s=document.createElement('script');s.src=API+'?callback='+cb+'&action=confirm_asset_upload&submissionId='+encodeURIComponent(ctx.submissionId)+'&taskId='+ctx.taskId+'&studentUid='+encodeURIComponent(ctx.studentUid)+'&studentId='+encodeURIComponent(student?student.id:'')+'&fileId='+encodeURIComponent(r.fileID)+'&fileType=audio&mimeType='+encodeURIComponent(blob.type)+'&fileSize='+blob.size+'&durationSeconds='+ctx.durationSeconds+'&cloudPath='+encodeURIComponent(cp);document.head.appendChild(s);});}).catch(function(err){if(ctx.destroyed||ctx!==current)return;ctx.status='error';ctx._errorMsg=(err.message||'上传失败');render(ctx);}); }
+  function doRerecord(ctx) { if(!ctx||ctx.destroyed)return; if(ctx.status==='uploaded'){if(!confirm('当前录音已经上传。重新录音不会自动删除已上传文件，是否继续？'))return;} if(ctx.mediaRecorder&&ctx.mediaRecorder.state!=='inactive'){try{ctx.mediaRecorder.stop();}catch(e){}} if(ctx.stream){ctx.stream.getTracks().forEach(function(t){t.stop();});ctx.stream=null;} if(ctx.objectUrl){URL.revokeObjectURL(ctx.objectUrl);ctx.objectUrl=null;} if(ctx.timerId){clearInterval(ctx.timerId);ctx.timerId=null;} ctx.mediaRecorder=null;ctx.chunks=[];ctx.blob=null;ctx.durationSeconds=0;ctx.fileId='';ctx.assetId='';ctx.status='idle';ctx._errorMsg=''; render(ctx); }
+  function mount(cfg) { destroy(); current=createContext(cfg); if(task510State&&task510State.taskId===current.taskId&&task510State.audioFileId){current.fileId=task510State.audioFileId;current.assetId=task510State.audioAssetId||'';current.status='uploaded';} if(current.rootElement)setupDelegation(current.rootElement,current); render(current); return current; }
+  function destroy() { if(current){if(current.mediaRecorder&&current.mediaRecorder.state!=='inactive'){try{current.mediaRecorder.stop();}catch(e){}}if(current.stream){current.stream.getTracks().forEach(function(t){t.stop();});current.stream=null;}if(current.objectUrl){URL.revokeObjectURL(current.objectUrl);current.objectUrl=null;}if(current.timerId){clearInterval(current.timerId);current.timerId=null;}current.mediaRecorder=null;current.chunks=[];current.blob=null;current.destroyed=true;if(current.rootElement)current.rootElement.innerHTML='';current=null;} }
+  return { mount:mount, destroy:destroy, getSnapshot:function(){return current?{contextId:current.contextId,taskId:current.taskId,status:current.status,destroyed:current.destroyed}:null;} };
+})();
+window.addEventListener('error', function(e) { var el = document.getElementById('loginBox'); if (el) el.insertAdjacentHTML('beforeend', '<div style="color:#dc2626;font-size:11px;padding:8px">错误：'+(e.message||'')+' (行'+(e.lineno||'')+')</div>'); });
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('studentLoginBtn');
+  if (!btn) { console.error('[LOGIN_INIT] not found'); return; }
+  btn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); console.log('[LOGIN_BUTTON_CLICK_V14]'); login(); });
+  var pinEl = document.getElementById('loginPin');
+  if (pinEl) pinEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); login(); } });
+});
 </script></body></html>

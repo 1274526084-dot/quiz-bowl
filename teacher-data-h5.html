@@ -448,13 +448,13 @@ function viewStudentAnswers(uid, name) {
     }
     delete window[cb];
   };
-  var isHSKTask = ctCurrentTask === 'TASK_HSK3_RW_01' || ctCurrentTask === 'TASK_HSK3_TEST_2_09';
-  var action = isHSKTask ? 'get_course_task_result' : 'get_task2_4_result';
+  var action = isHSKTaskId(ctCurrentTask) ? 'get_course_task_result' : 'get_task2_4_result';
   var s = document.createElement('script');
   s.src = API + '?callback=' + cb + '&action=' + action + '&taskId=' + ctCurrentTask + '&studentUid=' + encodeURIComponent(uid);
   document.head.appendChild(s);
 }
 
+function isHSKTaskId(taskId) { return taskId === 'TASK_HSK3_RW_01' || taskId === 'TASK_HSK3_TEST_2_09'; }
 var currentReviewContext = null;
 
 function showAnswerModal(data, name) {
@@ -468,8 +468,8 @@ function showAnswerModal(data, name) {
   };
   document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — ' + ctTaskLabel + ' 答卷';
   var html = '';
-  // Task 1: show reading/writing scores
-  if (isHSKTask) {
+  // Task 1/9: show HSK reading/writing scores
+  if (isHSKTaskId(ctCurrentTask || '')) {
     html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
     html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
     html += '阅读分：' + (data.readingScore || 0) + ' · ';
@@ -506,6 +506,8 @@ function showAnswerModal(data, name) {
     }
     if (data.audioUrl) html += '<div style="margin-bottom:8px"><b>录音：</b><br><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
     else if (data.audioFileId) html += '<div style="margin-bottom:8px"><b>录音：</b>已保存 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\'' + data.audioFileId + '\',this)">▶ 获取播放链接</button></div>';
+    // Teacher review: only for tasks with subjective content
+    if (ctCurrentTask !== 'TASK_CHINESE_FOOD_1_06') {
     // Teacher review form
     html += '<div style="border-top:2px solid #e2e8f0;padding-top:8px;margin-top:8px"><b>教师评价</b>';
     ['发音','词语','语法','逻辑','内容','流利'].forEach(function(dim, i) {
@@ -522,7 +524,8 @@ function showAnswerModal(data, name) {
     html += '<button class="btn btn-small btn-outline" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',false)">💾 保存</button>';
     html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
     html += '</div></div>';
-  }
+
+    }  }
   html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_PREVIEW_WINDOW_FIX_20260803</div>';
   document.getElementById('answerModalContent').innerHTML = html;
   window._teacherReviewData = data;
@@ -739,5 +742,5 @@ function exportAccountsViewCsv() {
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download='学生账号与数据情况_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
-console.log('TEACHER_PREVIEW_WINDOW_FIX_20260803');
+console.log('ECRL_TEACHER_PRODUCTION_V31_20260804');
 </script></body></html>
