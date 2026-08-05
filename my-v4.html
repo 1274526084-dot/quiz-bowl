@@ -1095,6 +1095,12 @@ function renderTask2to4Step(step) {
   if (currentStepType === 'objective') {
     // Objective questions
     var sec = td.sections[0];
+	      var qScore = Number(td.questionScore || 0);
+    if (!qScore && td.questionCount) {
+      qScore = Number(td.objectiveMaxScore || td.maxScore || 0) / Number(td.questionCount || 1);
+    }
+    if (!qScore || !isFinite(qScore)) qScore = 10;
+    qScore = Math.round(qScore * 100) / 100;
     html += '<div class="quiz-section-title">' + (sec.title || '客观题') + '</div>';
     if (sec.instructions) html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
     sec.questions.forEach(function(q) {
