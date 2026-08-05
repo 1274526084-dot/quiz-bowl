@@ -107,7 +107,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
 <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:6px">请使用教师分配的学生编号和个人口令登录</p>
 <p style="font-size:13px;color:#6366f1;text-align:center;margin-top:8px;cursor:pointer;font-weight:600" onclick="showRegister()">🆕 没有账号？创建新账号</p></div></div>
 
-<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804｜数据不可修改 · 不可提交</div>
+<div class="main" id="mainContent" style="display:none"><div class="preview-banner" id="previewBanner">🔍 教师只读预览｜ECRL_STUDENT_TASK234_EMPTY_HISTORY_FIX_V35_20260805｜数据不可修改 · 不可提交</div>
   <div class="info-bar"><span>👤 <b id="stuName"></b></span><button class="btn-small btn-outline" style="margin:0;padding:4px 10px;font-size:11px;min-height:26px" onclick="showSwitchModal()">切换</button></div>
 
   <!-- 首页 -->
@@ -243,7 +243,7 @@ body{font-family:-apple-system,'SF Pro Text','Helvetica Neue','Microsoft YaHei',
   onerror="window.__cloudbaseSdkLoadError = true;">
 </script>
 <script>
-console.log('ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804');
+console.log('ECRL_STUDENT_TASK234_EMPTY_HISTORY_FIX_V35_20260805');
 var cbsApp = null;
 var cbsDiag = { sdkLoaded: false, envInit: false, authDone: false, uid: '', errors: [] };
 var CBS_ENV_ID = 'cloudbase-d3gxxe4l88c3d5907';
@@ -1025,6 +1025,15 @@ function startTask2to4(taskId) {
   };
   var sCheck = document.createElement('script');
   sCheck.src = API + '?callback=' + cbCheck + '&action=get_task2_4_result&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  sCheck.onerror = function() {
+    if (!sessionValid(stoken)) return;
+    session.preSubmissionId = 'tsk_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    syncSessionToState(session);
+    document.getElementById('quizTitle').textContent = '加载中...';
+    document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:15px;color:#64748b">⏳ 正在加载任务……</div>';
+    fetchTask2to4Data(taskId, stoken);
+    delete window[cbCheck];
+  };
   document.head.appendChild(sCheck);
 }
 
@@ -1047,6 +1056,8 @@ function fetchTask2to4Data(taskId, stoken) {
   };
   var s = document.createElement('script');
   s.src = API + '?callback=' + cb + '&action=get_course_task&taskId=' + taskId + '&studentUid=' + encodeURIComponent(student.uid);
+  s.onerror = function() { if (sessionValid(stoken)) { alert('任务加载失败，请刷新后重试。'); document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:14px;color:#dc2626">任务加载失败，请刷新后重试。</div>'; } delete window[cb]; };
+  setTimeout(function() { if (window[cb]) { if (sessionValid(stoken)) { alert('任务加载超时，请检查网络后重试。'); document.getElementById('quizBody').innerHTML = '<div style="text-align:center;padding:40px;font-size:14px;color:#dc2626">任务加载超时，请检查网络后重试。</div>'; } delete window[cb]; } }, 15000);
   document.head.appendChild(s);
 }
 
@@ -1607,7 +1618,7 @@ function showTask2to4Result(data) {
   try { history.pushState({ page: 'task_result', taskId: data.taskId || '' }, '', window.location.href); } catch(e) {}
   var answered = (data.itemResults || []).length;
   var isTask6 = data.taskId === 'TASK_CHINESE_FOOD_1_06';
-  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804</div></div>';
+  var html = '<div class="result-header"><h3>✅ 该任务已完成</h3><div style="font-size:11px;color:#94a3b8">页面版本：ECRL_STUDENT_TASK234_EMPTY_HISTORY_FIX_V35_20260805</div></div>';
   if (data.objectiveScore != null && data.autoGraded) {
     var pct = data.objectiveTotalCount > 0 ? Math.round(data.objectiveCorrectCount / data.objectiveTotalCount * 100) : 0;
     html += '<div class="result-grid"><div class="result-item"><span class="rnum">' + data.objectiveScore + '/' + data.objectiveMaxScore + '</span><span class="rlbl">客观题得分</span></div><div class="result-item"><span class="rnum">' + (data.objectiveCorrectCount||0) + '/' + (data.objectiveTotalCount||0) + '</span><span class="rlbl">答对题数</span></div></div>';
@@ -2615,7 +2626,7 @@ function submitTask1() {
     studentId: student.id,
     attemptNo: 1,
     startedAt: quizState.startedAt,
-    apiVersion: isTask9 ? 'ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804' : '',
+    apiVersion: isTask9 ? 'ECRL_STUDENT_TASK234_EMPTY_HISTORY_FIX_V35_20260805' : '',
     answers: JSON.stringify(quizState.answers)
   };
 
