@@ -1049,8 +1049,10 @@ function fetchTask2to4Data(taskId, stoken) {
       s.taskData = res.task;
       syncSessionToState(s);
       document.getElementById('quizTitle').textContent = res.task.title || '';
-      document.getElementById('quizTimer').textContent = (res.task.recommendedMinutes || '') + '分钟';
-      renderTask2to4Step(0);
+document.getElementById('quizTimer').textContent = (res.task.recommendedMinutes || '') + '分钟';
+delete window[cb];
+renderTask2to4Step(0);
+return;
     } else { if (sessionValid(stoken)) alert('加载任务失败'); }
     delete window[cb];
   };
@@ -1104,6 +1106,8 @@ function renderTask2to4Step(step) {
     html += '<div class="quiz-section-title">' + (sec.title || '客观题') + '</div>';
     if (sec.instructions) html += '<div class="quiz-instructions">' + sec.instructions + '</div>';
     sec.questions.forEach(function(q) {
+		var qScore = Number(q.score || q.points || q.point || 10);
+if (!isFinite(qScore) || qScore <= 0) qScore = 10;
       var selected = task2to4State.answers[q.id];
       html += '<div class="quiz-qcard"><div class="qnum">第' + q.number + '题（' + qScore + '分）</div>';
       if (q.type === 'word_choice' || q.type === 'structure_choice' || q.type === 'choice') {
