@@ -24,6 +24,8 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
 .hsk-type{display:inline-block;padding:2px 6px;border-radius:6px;font-size:9px;font-weight:600;margin:1px}.hsk-type.bal{background:#eff6ff;color:#2563eb}.hsk-type.lis{background:#f0fdf4;color:#16a34a}.hsk-type.rea{background:#fef3c7;color:#d97706}.hsk-type.wri{background:#fdf2f8;color:#db2777}.hsk-type.weak{background:#fef2f2;color:#dc2626}
 .student-mgmt{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
 .import-panel{display:none;background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border:1.5px solid #e2e8f0}
+
+.export-hero{background:#fff;border:1.5px solid #dbeafe;border-radius:12px;padding:16px;margin-bottom:10px}.export-hero h3{font-size:16px;color:#1e293b;margin-bottom:6px}.export-hero p{font-size:11px;color:#64748b;line-height:1.7;margin-bottom:10px}.export-main{background:#2563eb;color:#fff;width:100%;font-size:14px;padding:14px}.export-note{font-size:10px;color:#64748b;background:#f8fafc;border-radius:8px;padding:8px;margin-top:8px;line-height:1.6}.evidence-ok{color:#16a34a;font-weight:700}.evidence-no{color:#94a3b8}.score-pill{display:inline-block;padding:2px 7px;border-radius:8px;background:#eff6ff;color:#2563eb;font-weight:700}.task-rule{font-size:11px;color:#475569;background:#f8fafc;border-radius:8px;padding:8px;line-height:1.7}
 </style>
 </head><body><div class="container" id="app">
 <div class="auth-box" id="authBox"><h3>🔐 教师验证</h3><input type="password" id="pwd" placeholder="口令"><button class="btn btn-auth" onclick="auth()">验证进入</button></div>
@@ -100,11 +102,18 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
 <div class="page" id="page-accounts"><div class="student-mgmt" style="display:block" id="acctPanel"></div></div>
 <div class="page" id="page-import"><div class="import-panel" style="display:block" id="importPanel"></div></div>
 <div class="page" id="page-export">
-  <div class="chart-card" style="margin-bottom:8px"><h4>导出选项</h4>
-    <button class="btn btn-outline" onclick="exportExcel()">📤 导出学习数据Excel</button>
-    <button class="btn btn-outline" onclick="exportAccountMap()">📋 导出账号映射表</button>
-    <button class="btn btn-outline" onclick="exportHskTemplate()">📝 导出HSK模板</button>
-    <button class="btn btn-outline" onclick="exportCourseTaskCsv()">📋 导出任务一CSV</button>
+  <div class="export-hero">
+    <h3>📥 任务1—10完整Excel</h3>
+    <p>一次导出正式学生的十项课程任务、客观题答题明细、写作、录音、作品照片、HSK基线和账号映射。主观学习证据按“已提交即满分”规则自动计分。</p>
+    <div class="toolbar" style="margin-bottom:8px"><select id="fullExportCategory" style="padding:9px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:12px"><option value="formal">正式学生</option><option value="test">测试账号</option><option value="all">全部账号</option></select></div>
+    <button class="btn export-main" id="fullExportBtn" onclick="exportAllTasksXlsx()">📥 一键导出任务1—10全部学生数据（.xlsx）</button>
+    <div class="export-note" id="fullExportStatus">Excel包含7个工作表：班级总览、任务1-10成绩总表、任务提交明细、客观题答题明细、学习材料、HSK基线、账号数据映射。</div>
+  </div>
+  <div class="chart-card" style="margin-bottom:8px"><h4>其他旧版导出</h4>
+    <button class="btn btn-outline" onclick="exportExcel()">📤 导出原始学习数据CSV</button>
+    <button class="btn btn-outline" onclick="exportAccountMap()">📋 导出账号映射CSV</button>
+    <button class="btn btn-outline" onclick="exportHskTemplate()">📝 导出HSK模板CSV</button>
+    <button class="btn btn-outline" onclick="exportCourseTaskCsv()">📋 导出当前任务CSV</button>
   </div>
 </div>
 <div class="page" id="page-coursetasks">
@@ -131,7 +140,7 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
   <div class="chart-card" style="margin-bottom:8px"><h4>⚠️ 最容易出错的5道题</h4><div id="ctTopErrors"></div></div>
   <div class="chart-card" style="margin-bottom:8px"><h4>📋 未提交学生</h4><div id="ctUnsubmitted"></div></div>
   <div class="toolbar"><input type="text" id="ctSearch" placeholder="搜索学生..." oninput="renderCourseTaskTable()"></div>
-  <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>已开始</th><th>已提交</th><th>阅读正确</th><th>阅读分</th><th>书写分</th><th>总分</th><th>用时</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="ctTbody"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>编号</th><th>英文名</th><th>中文名</th><th>状态</th><th>客观题</th><th>写作</th><th>录音</th><th>图片</th><th>综合分</th><th>百分制</th><th>提交时间</th><th>操作</th></tr></thead><tbody id="ctTbody"></tbody></table></div>
 </div>
 <div class="page" id="page-accounts_view">
   <div class="toolbar" style="margin-bottom:6px"><input type="text" id="avSearch" placeholder="搜索MY031/姓名/USER-..." oninput="renderAccountsView()" style="flex:1;max-width:200px"><button class="btn btn-small btn-outline" onclick="exportAccountsViewCsv()">📤 导出CSV</button></div>
@@ -153,6 +162,8 @@ table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-
 <script>
 var API='https://cloudbase-d3gxxe4l88c3d5907.service.tcloudbase.com/task4Api';
 var allData=[],assessmentData=[],studentsData=[],refreshTimer=null,activeTab='overview';
+function escHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function escJs(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ');}
 var FORMAL_SIDS=['MY004','MY005','MY006','MY007','MY008','MY009','MY010','MY011','MY012','MY013','MY014','MY015','MY016','MY017','MY018','MY019','MY020','MY021','MY022','MY023','MY024','MY025','MY026','MY027','MY028','MY029','MY030','MY031','MY032','MY033','MY034','MY035','MY036','MY037','MY038','MY039','MY040'];
 var TEST_SIDS=['MY001','MY002','MY003'];
 var stuMaster={};
@@ -241,7 +252,7 @@ function previewStudent(uid, sid){
   pw.document.write('<div style="font-family:sans-serif;text-align:center;padding:40px;font-size:15px;color:#64748b">正在生成教师只读预览，请稍候……</div>');
   var cb='_pv'+Date.now();window[cb]=function(res){
     if(res&&res.success){
-      var url='https://1274526084-dot.github.io/quiz-bowl/my-v4.html?teacherPreview=1&previewToken='+encodeURIComponent(res.previewToken)+'&previewVersion=ECRL_STUDENT_PRODUCTION_PREVIEW_FIX_V34_20260804&t='+Date.now();
+      var url='https://1274526084-dot.github.io/quiz-bowl/my-v4.html?teacherPreview=1&previewToken='+encodeURIComponent(res.previewToken)+'&previewVersion=PREVIEW_WINDOW_FIX_20260803&t='+Date.now();
       pw.location.replace(url);
     } else {
       pw.close();
@@ -335,7 +346,7 @@ var ctTaskLabel = '任务一';
 
 function switchCtTask(taskId) {
   ctCurrentTask = taskId;
-  var labels = { 'TASK_HSK3_RW_01': '任务一', 'TASK_L1_REVIEW_02': '任务二', 'TASK_L2_REVIEW_03': '任务三', 'TASK_SEAL_WORK_04': '任务四' };
+  var labels = { 'TASK_HSK3_RW_01':'任务一','TASK_L1_REVIEW_02':'任务二','TASK_L2_REVIEW_03':'任务三','TASK_SEAL_WORK_04':'任务四','TASK_CHINESE_MOVIES_05':'任务五','TASK_CHINESE_FOOD_1_06':'任务六','TASK_PAPER_CUTTING_07':'任务七','TASK_CHINESE_FOOD_2_08':'任务八','TASK_HSK3_TEST_2_09':'任务九','TASK_STUDY_LIFE_CHINA_10':'任务十' };
   ctTaskLabel = labels[taskId] || taskId;
   ['TASK_HSK3_RW_01','TASK_L1_REVIEW_02','TASK_L2_REVIEW_03','TASK_SEAL_WORK_04','TASK_CHINESE_MOVIES_05','TASK_CHINESE_FOOD_1_06','TASK_PAPER_CUTTING_07','TASK_CHINESE_FOOD_2_08','TASK_HSK3_TEST_2_09','TASK_STUDY_LIFE_CHINA_10'].forEach(function(tid) {
     var el = document.getElementById('ctTask' + { 'TASK_HSK3_RW_01': '1', 'TASK_L1_REVIEW_02': '2', 'TASK_L2_REVIEW_03': '3', 'TASK_SEAL_WORK_04': '4', 'TASK_CHINESE_MOVIES_05': '5', 'TASK_CHINESE_FOOD_1_06': '6', 'TASK_PAPER_CUTTING_07': '7', 'TASK_CHINESE_FOOD_2_08': '8', 'TASK_HSK3_TEST_2_09': '9', 'TASK_STUDY_LIFE_CHINA_10': '10' }[tid]);
@@ -357,9 +368,7 @@ function loadCourseTaskStats() {
   window[cb] = function(res) {
     if (res && res.success) {
       ctStatsData = res.stats;
-      // For Tasks 2-4, use task2_4_stats if available; fall back to generic stats
-      if (ctCurrentTask !== 'TASK_HSK3_RW_01' && res.task2_4) ctStatsData = res.task2_4;
-      else ctStatsData = res.stats;
+      ctStatsData = res.stats;
       renderCourseTaskStats();
       renderCourseTaskTable();
     } else {
@@ -374,68 +383,51 @@ function loadCourseTaskStats() {
 
 function fmtVal(v) { return (v != null && v !== '') ? v : '暂无'; }
 
-function renderCourseTaskStats() {
-  var st = ctStatsData;
-  if (!st) return;
-  var catLabel = ctCurrentFilter === 'formal' ? '正式学生' : (ctCurrentFilter === 'test' ? '测试账号' : '全部账号');
-  var r1 = '';
-  r1 += '<div class="stat-card blue"><span class="num">' + st.studentCount + '</span><span class="lbl">' + catLabel + '</span></div>';
-  r1 += '<div class="stat-card"><span class="num">' + st.startedCount + '</span><span class="lbl">已开始</span></div>';
-  r1 += '<div class="stat-card green"><span class="num">' + st.submittedCount + '</span><span class="lbl">已提交</span></div>';
-  r1 += '<div class="stat-card red"><span class="num">' + st.unsubmittedCount + '</span><span class="lbl">未提交</span></div>';
-  r1 += '<div class="stat-card amber"><span class="num">' + st.completionRate + '%</span><span class="lbl">完成率</span></div>';
-  document.getElementById('ctStatsRow').innerHTML = r1;
-  var r2 = '';
-  r2 += '<div class="stat-card blue"><span class="num">' + fmtVal(st.readingAvg) + '</span><span class="lbl">阅读平均分</span></div>';
-  r2 += '<div class="stat-card"><span class="num">' + fmtVal(st.writingAvg) + '</span><span class="lbl">书写平均分</span></div>';
-  r2 += '<div class="stat-card green"><span class="num">' + fmtVal(st.totalAvg) + '</span><span class="lbl">总分平均</span></div>';
-  r2 += '<div class="stat-card"><span class="num">' + fmtVal(st.totalMax) + '</span><span class="lbl">最高分</span></div>';
-  r2 += '<div class="stat-card red"><span class="num">' + fmtVal(st.totalMin) + '</span><span class="lbl">最低分</span></div>';
-  document.getElementById('ctStatsRow2').innerHTML = r2;
-  var durMin = st.avgDurationSeconds ? Math.floor(st.avgDurationSeconds / 60) : null;
-  var a = '<div style="font-size:12px;line-height:2">';
-  a += '<b>阅读部分正确率：</b>第一部分 ' + fmtVal(st.readingPart1Rate) + (st.readingPart1Rate != null ? '%' : '') + ' · 第二部分 ' + fmtVal(st.readingPart2Rate) + (st.readingPart2Rate != null ? '%' : '') + ' · 第三部分 ' + fmtVal(st.readingPart3Rate) + (st.readingPart3Rate != null ? '%' : '') + '<br>';
-  a += '<b>书写得分率：</b>完成句子 ' + fmtVal(st.writingPart1Rate) + (st.writingPart1Rate != null ? '%' : '') + ' · 填写汉字 ' + fmtVal(st.writingPart2Rate) + (st.writingPart2Rate != null ? '%' : '') + '<br>';
-  a += '<b>总分中位数：</b>' + fmtVal(st.totalMedian) + ' · <b>平均答题时间：</b>' + (durMin != null ? durMin + '分钟' : '暂无');
-  a += '</div>';
-  document.getElementById('ctAnalysis').innerHTML = a;
-  var te = '';
-  if (st.topErrors && st.topErrors.length > 0) {
-    st.topErrors.forEach(function(e) {
-      te += '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><b>' + e.questionId + '</b> — 正确率 ' + fmtVal(e.rate) + (e.rate != null ? '%' : '') + '（' + e.wrong + '人答错）</div>';
-    });
-  } else { te = '<div style="font-size:12px;color:#94a3b8">暂无数据</div>'; }
-  document.getElementById('ctTopErrors').innerHTML = te;
-  var us = '';
-  if (st.unsubmittedList && st.unsubmittedList.length > 0) {
-    st.unsubmittedList.forEach(function(s) {
-      us += '<span style="display:inline-block;background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:11px;margin:2px">' + s.studentId + ' ' + (s.chineseName || s.englishName || '') + '</span>';
-    });
-  } else { us = '<div style="font-size:12px;color:#16a34a">✅ 所有' + catLabel + '已提交</div>'; }
-  document.getElementById('ctUnsubmitted').innerHTML = us;
+function taskRuleText(taskId) {
+  var rules={
+    'TASK_HSK3_RW_01':'HSK阅读与书写自动评分，原始满分200分，同时换算百分制。',
+    'TASK_L1_REVIEW_02':'客观题60分 + 写作20分 + 录音20分；写作/录音存在即获得该项满分。',
+    'TASK_L2_REVIEW_03':'客观题60分 + 写作20分 + 录音20分；写作/录音存在即获得该项满分。',
+    'TASK_SEAL_WORK_04':'客观题60分 + 写作15分 + 录音15分 + 印章照片10分；材料存在即满分。',
+    'TASK_CHINESE_MOVIES_05':'客观题60分 + 写作20分 + 录音20分；材料存在即满分。',
+    'TASK_CHINESE_FOOD_1_06':'客观题满分60分，系统按真实答案自动评分，并换算百分制。',
+    'TASK_PAPER_CUTTING_07':'写作30分 + 录音30分 + 剪纸照片40分；材料存在即满分。',
+    'TASK_CHINESE_FOOD_2_08':'客观题60分 + 写作20分 + 录音20分；材料存在即满分。',
+    'TASK_HSK3_TEST_2_09':'HSK阅读与书写自动评分，原始满分200分，同时换算百分制。',
+    'TASK_STUDY_LIFE_CHINA_10':'客观题60分 + 写作20分 + 录音20分；材料存在即满分。'
+  }; return rules[taskId]||'';
 }
-
+function renderCourseTaskStats() {
+  var st=ctStatsData;if(!st)return;
+  var catLabel=ctCurrentFilter==='formal'?'正式学生':(ctCurrentFilter==='test'?'测试账号':'全部账号');
+  document.getElementById('ctStatsRow').innerHTML=
+    '<div class="stat-card blue"><span class="num">'+st.studentCount+'</span><span class="lbl">'+catLabel+'</span></div>'+ 
+    '<div class="stat-card green"><span class="num">'+st.submittedCount+'</span><span class="lbl">已提交</span></div>'+ 
+    '<div class="stat-card red"><span class="num">'+st.unsubmittedCount+'</span><span class="lbl">未提交</span></div>'+ 
+    '<div class="stat-card amber"><span class="num">'+st.completionRate+'%</span><span class="lbl">完成率</span></div>'+ 
+    '<div class="stat-card"><span class="num">'+fmtVal(st.totalAvg)+'</span><span class="lbl">平均百分制</span></div>';
+  document.getElementById('ctStatsRow2').innerHTML=
+    '<div class="stat-card blue"><span class="num">'+fmtVal(st.totalMax)+'</span><span class="lbl">最高百分制</span></div>'+ 
+    '<div class="stat-card"><span class="num">'+fmtVal(st.totalMin)+'</span><span class="lbl">最低百分制</span></div>'+ 
+    '<div class="stat-card"><span class="num">'+fmtVal(st.totalMedian)+'</span><span class="lbl">中位数</span></div>'+ 
+    '<div class="stat-card"><span class="num">'+(st.avgDurationSeconds?Math.floor(st.avgDurationSeconds/60)+'分':'暂无')+'</span><span class="lbl">平均用时</span></div>'+ 
+    '<div class="stat-card green"><span class="num">✓</span><span class="lbl">材料提交即满分</span></div>';
+  document.getElementById('ctAnalysis').innerHTML='<div class="task-rule"><b>'+escHtml(st.taskTitle||ctTaskLabel)+'</b><br>'+escHtml(taskRuleText(ctCurrentTask))+'<br><span style="color:#16a34a">写作、录音、作品图片不再等待教师逐项打分；检测到有效材料后自动计入该项满分。</span></div>';
+  var te='';(st.topErrors||[]).forEach(function(e){te+='<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f1f5f9"><b>'+escHtml(e.questionId)+'</b> — 正确率 '+fmtVal(e.rate)+(e.rate!=null?'%':'')+'（'+e.wrong+'人答错）</div>';});
+  document.getElementById('ctTopErrors').innerHTML=te||'<div style="font-size:12px;color:#94a3b8">本任务暂无可统计的客观题错题数据</div>';
+  var us='';(st.unsubmittedList||[]).forEach(function(s){us+='<span style="display:inline-block;background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:6px;font-size:11px;margin:2px">'+escHtml(s.studentId)+' '+escHtml(s.chineseName||s.englishName||'')+'</span>';});
+  document.getElementById('ctUnsubmitted').innerHTML=us||'<div style="font-size:12px;color:#16a34a">✅ 所有'+catLabel+'已提交</div>';
+}
+function evidenceCell(ok,score){if(score==null||score===0)return '—';return ok?'<span class="evidence-ok">✅ '+score+'分</span>':'<span class="evidence-no">未提交 0分</span>';}
 function renderCourseTaskTable() {
-  var search = (document.getElementById('ctSearch') ? document.getElementById('ctSearch').value : '').toLowerCase();
-  var rows = '';
-  var students = ctStatsData ? ctStatsData.studentTable : [];
-  students.forEach(function(stu) {
-    if (search && stu.studentId.toLowerCase().indexOf(search) === -1 && (stu.chineseName || '').indexOf(search) === -1 && (stu.englishName || '').toLowerCase().indexOf(search) === -1) return;
-    var isTest = stu.accountCategory === 'test';
-    var dur = stu.durationSeconds ? Math.floor(stu.durationSeconds / 60) + '分' : '—';
-    var subTime = stu.submittedAt ? stu.submittedAt.replace('T', ' ').slice(0, 19) : '—';
-    var statusTag = stu.hasSubmitted ? '<span style="color:#16a34a">✅</span>' : (stu.hasStarted ? '<span style="color:#f59e0b">进行中</span>' : '<span style="color:#94a3b8">未开始</span>');
-    var startTag = stu.hasStarted ? '✅' : '—';
-    var subTag = stu.hasSubmitted ? '✅' : '—';
-    var idDisplay = stu.studentId + (isTest ? ' <span style="color:#f59e0b;font-size:9px;font-weight:700">测试</span>' : '');
-    var ops = '';
-    if (stu.hasSubmitted) {
-      ops = '<button class="btn btn-small btn-outline" onclick="viewStudentAnswers(\'' + stu.studentUid + '\',\'' + (stu.englishName || stu.studentId) + '\')">📋 答卷</button> ';
-      ops += '<button class="btn btn-small" style="background:#fef2f2;color:#dc2626" onclick="resetStudentTask(\'' + stu.studentUid + '\',\'' + stu.studentId + '\')">🔄 重置</button>';
-    }
-    rows += '<tr><td>' + idDisplay + '</td><td class="name">' + (stu.englishName || '') + '</td><td>' + (stu.chineseName || '') + '</td><td>' + statusTag + '</td><td>' + startTag + '</td><td>' + subTag + '</td><td>' + (stu.readingCorrectCount != null ? stu.readingCorrectCount + '/30' : '—') + '</td><td>' + (stu.readingScore != null ? stu.readingScore : '—') + '</td><td>' + (stu.writingScore != null ? stu.writingScore : '—') + '</td><td><b>' + (stu.totalScore != null ? stu.totalScore : '—') + '</b></td><td>' + dur + '</td><td style="font-size:10px">' + subTime + '</td><td>' + ops + '</td></tr>';
+  var search=(document.getElementById('ctSearch')?document.getElementById('ctSearch').value:'').toLowerCase();var rows='';var students=ctStatsData?ctStatsData.studentTable:[];
+  students.forEach(function(stu){if(search&&stu.studentId.toLowerCase().indexOf(search)===-1&&(stu.chineseName||'').indexOf(search)===-1&&(stu.englishName||'').toLowerCase().indexOf(search)===-1)return;
+    var isTest=stu.accountCategory==='test';var status=stu.hasSubmitted?'<span class="evidence-ok">✅ 已提交</span>':'<span class="evidence-no">未提交</span>';var id=escHtml(stu.studentId)+(isTest?' <span style="color:#f59e0b;font-size:9px;font-weight:700">测试</span>':'');
+    var obj=stu.objectiveScore!=null?stu.objectiveScore+'/'+(stu.objectiveMaxScore||'—'):(stu.readingScore!=null?'HSK '+stu.finalScore+'/'+stu.finalMaxScore:'—');
+    var subTime=stu.submittedAt?stu.submittedAt.replace('T',' ').slice(0,19):'—';var ops=stu.hasSubmitted?'<button class="btn btn-small btn-outline" onclick="viewStudentAnswers(\''+stu.studentUid+'\',\''+escJs(stu.englishName||stu.studentId)+'\')">📋 查看</button> <button class="btn btn-small" style="background:#fef2f2;color:#dc2626" onclick="resetStudentTask(\''+stu.studentUid+'\',\''+stu.studentId+'\')">🔄 重置</button>':'';
+    rows+='<tr><td>'+id+'</td><td class="name">'+escHtml(stu.englishName||'')+'</td><td>'+escHtml(stu.chineseName||'')+'</td><td>'+status+'</td><td>'+obj+'</td><td>'+evidenceCell(stu.hasWriting,stu.writingEvidenceScore)+'</td><td>'+evidenceCell(stu.hasAudio,stu.audioEvidenceScore)+'</td><td>'+evidenceCell(stu.hasImage,stu.imageEvidenceScore)+'</td><td><b>'+(stu.finalScore!=null?stu.finalScore+'/'+stu.finalMaxScore:'—')+'</b></td><td>'+(stu.scorePercent!=null?'<span class="score-pill">'+stu.scorePercent+'</span>':'—')+'</td><td style="font-size:10px">'+subTime+'</td><td>'+ops+'</td></tr>';
   });
-  document.getElementById('ctTbody').innerHTML = rows || '<tr><td colspan="13" style="padding:12px;color:#94a3b8">加载中或暂无数据</td></tr>';
+  document.getElementById('ctTbody').innerHTML=rows||'<tr><td colspan="12" style="padding:12px;color:#94a3b8">暂无数据</td></tr>';
 }
 
 function viewStudentAnswers(uid, name) {
@@ -448,88 +440,29 @@ function viewStudentAnswers(uid, name) {
     }
     delete window[cb];
   };
-  var action = isHSKTaskId(ctCurrentTask) ? 'get_course_task_result' : 'get_task2_4_result';
+  var isHSKTask = ctCurrentTask === 'TASK_HSK3_RW_01' || ctCurrentTask === 'TASK_HSK3_TEST_2_09';
+  var action = isHSKTask ? 'get_course_task_result' : 'get_task2_4_result';
   var s = document.createElement('script');
   s.src = API + '?callback=' + cb + '&action=' + action + '&taskId=' + ctCurrentTask + '&studentUid=' + encodeURIComponent(uid);
   document.head.appendChild(s);
 }
 
-function isHSKTaskId(taskId) { return taskId === 'TASK_HSK3_RW_01' || taskId === 'TASK_HSK3_TEST_2_09'; }
 var currentReviewContext = null;
 
-function showAnswerModal(data, name) {
-  // Save full context for review saving
-  currentReviewContext = {
-    projectId: 'ECRL_MY_CHINESE',
-    studentId: data.studentId || '',
-    studentUid: data.studentUid || '',
-    taskId: ctCurrentTask,
-    submissionId: data.submissionId || ''
-  };
-  document.getElementById('answerModalTitle').textContent = (name || '学生') + ' — ' + ctTaskLabel + ' 答卷';
-  var html = '';
-  // Task 1/9: show HSK reading/writing scores
-  if (isHSKTaskId(ctCurrentTask || '')) {
-    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
-    html += '阅读正确：' + (data.readingCorrectCount || 0) + '/30 · ';
-    html += '阅读分：' + (data.readingScore || 0) + ' · ';
-    html += '书写分：' + (data.writingScore || 0) + ' · ';
-    html += '<b>总分：' + (data.totalScore || 0) + '/200</b>';
-    if (data.teacherAdjusted) html += ' <span style="color:#f59e0b">（教师已调整）</span>';
-    html += '</div>';
-    html += '<div style="max-height:50vh;overflow-y:auto"><table style="width:100%;font-size:11px"><thead><tr><th>题号</th><th>学生答案</th><th>正确答案</th><th>结果</th><th>得分</th></tr></thead><tbody>';
-    var itemResults = data.itemResults || [];
-    itemResults.forEach(function(ir) {
-      var mark = ir.isCorrect ? '✅' : '❌';
-      html += '<tr><td>' + ir.questionId + '</td><td>' + (ir.studentAnswer || '—') + '</td><td>' + ir.correctAnswer + '</td><td>' + mark + '</td><td>' + ir.itemScore + '/' + ir.itemMaxScore + '</td></tr>';
-    });
-    html += '</tbody></table></div>';
-  } else {
-    // Tasks 2-4: show writing, audio, image, review form
-    html += '<div style="font-size:12px;color:#64748b;margin-bottom:8px">';
-    html += '客观题：' + (data.objectiveScore || 0) + '/' + (data.objectiveMaxScore || 60);
-    html += '</div>';
-    if (data.writingText) html += '<div style="margin-bottom:8px"><b>写作：</b><div style="background:#f8fafc;padding:8px;border-radius:6px;font-size:12px;white-space:pre-wrap">' + data.writingText + '</div></div>';
-    if (ctCurrentTask === 'TASK_SEAL_WORK_04') {
-      if (data.imageFileId) {
-        html += '<div style="margin-bottom:8px"><b>印章照片：</b>';
-        if (data.imageUrl) {
-          html += '<br><img src="' + data.imageUrl + '" alt="学生印章作品" loading="lazy" style="max-width:100%;max-height:260px;border-radius:8px;cursor:pointer;border:1px solid #e2e8f0" onclick="openImagePreview(\'' + data.imageUrl + '\')">';
-          html += '<div style="font-size:10px;color:#94a3b8">点击图片查看大图 · ' + (data.imageSupplemented ? '补交' : '首次提交') + '</div>';
-        } else {
-          html += '✅ 已提交 <button class="btn btn-small btn-outline" onclick="loadImageForReview(\'' + data.imageFileId + '\',this)">🖼 获取照片</button>';
-        }
-        html += '</div>';
-      } else {
-        html += '<div style="margin-bottom:8px;color:#f59e0b"><b>印章照片：</b>📷 待补交</div>';
-      }
-    }
-    if (data.audioUrl) html += '<div style="margin-bottom:8px"><b>录音：</b><br><audio controls style="width:100%"><source src="' + data.audioUrl + '"></audio></div>';
-    else if (data.audioFileId) html += '<div style="margin-bottom:8px"><b>录音：</b>已保存 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\'' + data.audioFileId + '\',this)">▶ 获取播放链接</button></div>';
-    // Teacher review: only for tasks with subjective content
-    if (ctCurrentTask !== 'TASK_CHINESE_FOOD_1_06') {
-    // Teacher review form
-    html += '<div style="border-top:2px solid #e2e8f0;padding-top:8px;margin-top:8px"><b>教师评价</b>';
-    ['发音','词语','语法','逻辑','内容','流利'].forEach(function(dim, i) {
-      var keys = ['pronunciation','vocabulary','grammar','logic','content','fluency'];
-      html += '<div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="font-size:11px;width:40px">' + dim + '</span><select id="tScore' + i + '" style="font-size:11px">' + [1,2,3,4,5].map(function(v) { return '<option value="' + v + '">' + v + '</option>'; }).join('') + '</select></div>';
-    });
-    html += '<div style="margin:4px 0"><span style="font-size:11px">快捷标签：</span><br>';
-    ['发音清楚','内容完整','用了本课词语','用了目标句型','表达有条理','可以说得慢一些','注意声调','注意语序','可以增加例子'].forEach(function(tag) {
-      html += '<label style="font-size:10px;margin-right:4px"><input type="checkbox" class="tReviewTag" value="' + tag + '"> ' + tag + '</label>';
-    });
-    html += '</div>';
-    html += '<textarea id="tReviewComment" style="width:100%;height:40px;font-size:11px;margin:4px 0" placeholder="教师评语"></textarea>';
-    html += '<div style="display:flex;gap:4px;margin-top:4px">';
-    html += '<button class="btn btn-small btn-outline" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',false)">💾 保存</button>';
-    html += '<button class="btn btn-small" style="background:#16a34a;color:#fff" onclick="saveTeacherReview(\'' + (data.submissionId || '') + '\',true)">📢 保存并发布</button>';
-    html += '</div></div>';
-
-    }  }
-  html += '<div style="font-size:9px;color:#cbd5e1;text-align:center;margin-top:4px">TEACHER_PREVIEW_WINDOW_FIX_20260803</div>';
-  document.getElementById('answerModalContent').innerHTML = html;
-  window._teacherReviewData = data;
-  document.getElementById('answerModal').style.display = 'flex';
+function showAnswerModal(data,name){
+  currentReviewContext={projectId:'ECRL_MY_CHINESE',studentId:data.studentId||'',studentUid:data.studentUid||'',taskId:ctCurrentTask,submissionId:data.submissionId||''};
+  document.getElementById('answerModalTitle').textContent=(name||'学生')+' — '+ctTaskLabel+' 详情';
+  var isHSKTask=ctCurrentTask==='TASK_HSK3_RW_01'||ctCurrentTask==='TASK_HSK3_TEST_2_09';var html='';
+  if(isHSKTask){html+='<div class="task-rule">阅读正确：'+(data.readingCorrectCount||0)+'/30 · 阅读分：'+(data.readingScore||0)+' · 书写分：'+(data.writingScore||0)+' · <b>总分：'+(data.totalScore||0)+'/200</b></div>';
+    html+='<div style="max-height:50vh;overflow-y:auto;margin-top:8px"><table style="width:100%;font-size:11px"><thead><tr><th>题号</th><th>学生答案</th><th>正确答案</th><th>结果</th><th>得分</th></tr></thead><tbody>';
+    (data.itemResults||[]).forEach(function(ir){html+='<tr><td>'+escHtml(ir.questionId||ir.itemId||'')+'</td><td>'+escHtml(ir.studentAnswer||'—')+'</td><td>'+escHtml(typeof ir.correctAnswer==='object'?JSON.stringify(ir.correctAnswer):ir.correctAnswer||'')+'</td><td>'+(ir.isCorrect?'✅':'❌')+'</td><td>'+fmtVal(ir.itemScore!=null?ir.itemScore:ir.score)+'/'+fmtVal(ir.itemMaxScore!=null?ir.itemMaxScore:ir.maxScore)+'</td></tr>';});html+='</tbody></table></div>';
+  }else{
+    html+='<div class="task-rule"><b>自动证据评分：</b>客观题 '+fmtVal(data.objectiveScore)+'/'+fmtVal(data.objectiveMaxScore)+' · 写作 '+fmtVal(data.writingEvidenceScore)+'分 · 录音 '+fmtVal(data.audioEvidenceScore)+'分 · 图片 '+fmtVal(data.imageEvidenceScore)+'分<br><b>综合成绩：'+fmtVal(data.finalScore)+'/'+fmtVal(data.finalMaxScore)+'（'+fmtVal(data.scorePercent)+'分/百分制）</b><br><span style="color:#16a34a">规则：需要教师评价的材料，只要检测到已提交文件/文本，即获得该项满分。</span></div>';
+    if(data.writingText)html+='<div style="margin-top:8px"><b>📝 写作：</b><div style="background:#f8fafc;padding:8px;border-radius:6px;font-size:12px;white-space:pre-wrap">'+escHtml(data.writingText)+'</div></div>';else html+='<div style="margin-top:8px;color:#94a3b8">📝 写作：未提交</div>';
+    if(data.audioUrl)html+='<div style="margin-top:8px"><b>🎙️ 录音：</b> '+(data.audioDuration||0)+'秒<br><audio controls style="width:100%"><source src="'+escHtml(data.audioUrl)+'"></audio></div>';else if(data.audioFileId)html+='<div style="margin-top:8px"><b>🎙️ 录音：</b>✅ 已提交 <button class="btn btn-small btn-outline" onclick="loadAudioUrl(\''+escJs(data.audioFileId)+'\',this)">▶ 获取播放链接</button></div>';else html+='<div style="margin-top:8px;color:#94a3b8">🎙️ 录音：未提交</div>';
+    if(data.imageFileId){html+='<div style="margin-top:8px"><b>📷 作品图片：</b>✅ 已提交';if(data.imageUrl)html+='<br><img src="'+escHtml(data.imageUrl)+'" loading="lazy" style="max-width:100%;max-height:280px;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer" onclick="openImagePreview(\''+escJs(data.imageUrl)+'\')">';else html+=' <button class="btn btn-small btn-outline" onclick="loadImageForReview(\''+escJs(data.imageFileId)+'\',this)">🖼 获取图片</button>';html+='</div>';}else if((ctCurrentTask==='TASK_SEAL_WORK_04'||ctCurrentTask==='TASK_PAPER_CUTTING_07'))html+='<div style="margin-top:8px;color:#94a3b8">📷 作品图片：未提交</div>';
+  }
+  document.getElementById('answerModalContent').innerHTML=html;window._teacherReviewData=data;document.getElementById('answerModal').style.display='flex';
 }
 
 function loadAudioUrl(fileId, btn) {
@@ -616,7 +549,7 @@ function closeAnswerModal() {
 }
 
 function resetStudentTask(uid, sid) {
-  if (!confirm('确定重置 ' + sid + ' 的任务一？\n\n该学生可以重新作答。\n历史提交版本将被保留。')) return;
+  if (!confirm('确定重置 ' + sid + ' 的' + ctTaskLabel + '？\n\n该学生可以重新作答。\n历史提交版本将被保留。')) return;
   var cb = '_rst' + Date.now();
   window[cb] = function(res) {
     if (res && res.success) {
@@ -628,7 +561,7 @@ function resetStudentTask(uid, sid) {
     delete window[cb];
   };
   var s = document.createElement('script');
-  s.src = API + '?callback=' + cb + '&action=reset_course_task_attempt&taskId=TASK_HSK3_RW_01&studentUid=' + encodeURIComponent(uid);
+  s.src = API + '?callback=' + cb + '&action=reset_course_task_attempt&taskId=' + encodeURIComponent(ctCurrentTask) + '&studentUid=' + encodeURIComponent(uid);
   document.head.appendChild(s);
 }
 
@@ -641,7 +574,7 @@ function exportCourseTaskCsv() {
       delete window[cb2];
     };
     var s2 = document.createElement('script');
-    s2.src = API + '?callback=' + cb2 + '&action=get_course_task_stats&taskId=TASK_HSK3_RW_01&accountCategory=' + ctCurrentFilter;
+    s2.src = API + '?callback=' + cb2 + '&action=get_course_task_stats&taskId=' + encodeURIComponent(ctCurrentTask) + '&accountCategory=' + ctCurrentFilter;
     document.head.appendChild(s2);
     return;
   }
@@ -664,9 +597,26 @@ function doExportCsv() {
   var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '任务一成绩_' + ctCurrentFilter + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.download = ctTaskLabel + '_成绩_' + ctCurrentFilter + '_' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
 }
+
+
+// ===== Full Task 1-10 XLSX export (no external CDN) =====
+function xlsxXml(v){return String(v==null?'':v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function colName(n){var s='';while(n>0){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26);}return s;}
+function utf8(s){return new TextEncoder().encode(s);}
+var _crcTable=null;function crc32(bytes){if(!_crcTable){_crcTable=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);_crcTable[n]=c>>>0;}}var crc=0xFFFFFFFF;for(var i=0;i<bytes.length;i++)crc=_crcTable[(crc^bytes[i])&255]^(crc>>>8);return (crc^0xFFFFFFFF)>>>0;}
+function u16(a,v){a.push(v&255,(v>>>8)&255);}function u32(a,v){a.push(v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255);}
+function zipStore(files){var out=[],central=[],offset=0;files.forEach(function(f){var name=utf8(f.name),data=utf8(f.data),crc=crc32(data),local=[];u32(local,0x04034b50);u16(local,20);u16(local,0x0800);u16(local,0);u16(local,0);u16(local,0);u32(local,crc);u32(local,data.length);u32(local,data.length);u16(local,name.length);u16(local,0);var localBytes=new Uint8Array(local.length+name.length+data.length);localBytes.set(local,0);localBytes.set(name,local.length);localBytes.set(data,local.length+name.length);out.push(localBytes);var cen=[];u32(cen,0x02014b50);u16(cen,20);u16(cen,20);u16(cen,0x0800);u16(cen,0);u16(cen,0);u16(cen,0);u32(cen,crc);u32(cen,data.length);u32(cen,data.length);u16(cen,name.length);u16(cen,0);u16(cen,0);u16(cen,0);u16(cen,0);u32(cen,0);u32(cen,offset);var cb=new Uint8Array(cen.length+name.length);cb.set(cen,0);cb.set(name,cen.length);central.push(cb);offset+=localBytes.length;});var centralSize=central.reduce(function(a,b){return a+b.length;},0),end=[];u32(end,0x06054b50);u16(end,0);u16(end,0);u16(end,files.length);u16(end,files.length);u32(end,centralSize);u32(end,offset);u16(end,0);return new Blob(out.concat(central).concat([new Uint8Array(end)]),{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});}
+function sheetXml(rows){var maxCols=0,widths=[];rows.forEach(function(r){maxCols=Math.max(maxCols,r.length);r.forEach(function(v,i){var l=String(v==null?'':v).length;widths[i]=Math.min(45,Math.max(widths[i]||8,Math.min(l+2,45)));});});var cols='<cols>'+widths.map(function(w,i){return '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>';}).join('')+'</cols>';var body=rows.map(function(r,ri){var cells=r.map(function(v,ci){var ref=colName(ci+1)+(ri+1),style=ri===0?' s="1"':'';if(typeof v==='number'&&isFinite(v))return '<c r="'+ref+'"'+style+'><v>'+v+'</v></c>';var s=String(v==null?'':v);if(s.length>32767)s=s.slice(0,32767);return '<c r="'+ref+'" t="inlineStr"'+style+'><is><t xml:space="preserve">'+xlsxXml(s)+'</t></is></c>';}).join('');return '<row r="'+(ri+1)+'">'+cells+'</row>';}).join('');return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+cols+'<sheetData>'+body+'</sheetData><autoFilter ref="A1:'+colName(maxCols)+'1"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews></worksheet>';}
+function buildXlsx(sheets){var files=[],types=['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'];sheets.forEach(function(s,i){types.push('<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');});types.push('</Types>');files.push({name:'[Content_Types].xml',data:types.join('')});files.push({name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'});var wbSheets=sheets.map(function(s,i){return '<sheet name="'+xlsxXml(s.name.slice(0,31))+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>';}).join('');files.push({name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+wbSheets+'</sheets></workbook>'});var rels=sheets.map(function(s,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>';}).join('')+'<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>';files.push({name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rels+'</Relationships>'});files.push({name:'xl/styles.xml',data:'<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEBF7"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="1" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs></styleSheet>'});sheets.forEach(function(s,i){files.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:sheetXml(s.rows)});});return zipStore(files);}
+function taskShort(tid){var m={'TASK_HSK3_RW_01':'任务1','TASK_L1_REVIEW_02':'任务2','TASK_L2_REVIEW_03':'任务3','TASK_SEAL_WORK_04':'任务4','TASK_CHINESE_MOVIES_05':'任务5','TASK_CHINESE_FOOD_1_06':'任务6','TASK_PAPER_CUTTING_07':'任务7','TASK_CHINESE_FOOD_2_08':'任务8','TASK_HSK3_TEST_2_09':'任务9','TASK_STUDY_LIFE_CHINA_10':'任务10'};return m[tid]||tid;}
+function exportAllTasksXlsx(){var btn=document.getElementById('fullExportBtn'),status=document.getElementById('fullExportStatus'),cat=document.getElementById('fullExportCategory').value;btn.disabled=true;btn.textContent='⏳ 正在汇总任务1—10数据...';status.textContent='正在从云端读取学生、任务、写作、录音、照片及HSK基线，请稍候。';var cb='_fullxlsx'+Date.now(),done=false;window[cb]=function(res){done=true;try{if(!res||!res.success)throw new Error(res&&res.error?res.error:'接口返回失败');var sheets=buildFullExportSheets(res);var blob=buildXlsx(sheets);var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='马来西亚学生中文学习_任务1-10完整数据_'+new Date().toISOString().slice(0,10)+'.xlsx';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},3000);status.textContent='✅ 导出完成：'+(res.summary?res.summary.studentCount:'')+'名学生，'+(res.summary?res.summary.totalSubmitted:'')+'条任务提交。主观材料按“已提交即满分”计分。';}catch(e){status.textContent='❌ 导出失败：'+e.message;alert('导出失败：'+e.message);}btn.disabled=false;btn.textContent='📥 一键导出任务1—10全部学生数据（.xlsx）';delete window[cb];};var s=document.createElement('script');s.onerror=function(){if(done)return;done=true;status.textContent='❌ 云端接口加载失败，请确认task4Api已部署最新版。';btn.disabled=false;btn.textContent='📥 一键导出任务1—10全部学生数据（.xlsx）';delete window[cb];};s.src=API+'?callback='+cb+'&action=teacher_export_all_tasks&accountCategory='+encodeURIComponent(cat)+'&includeUrls=true&_='+Date.now();document.head.appendChild(s);setTimeout(function(){if(done)return;done=true;status.textContent='❌ 请求超时，请稍后重试。';btn.disabled=false;btn.textContent='📥 一键导出任务1—10全部学生数据（.xlsx）';try{s.remove();}catch(e){}delete window[cb];},45000);}
+function buildFullExportSheets(res){var students=res.students||[],order=res.taskOrder||[],rules=res.taskRules||{};var overview=[['学号','英文名','中文名','HSK基线总分'].concat(order.map(function(t){return taskShort(t);})).concat(['已完成任务数','任务完成率','写作提交数','录音提交数','图片提交数','十项任务平均百分制','最近提交时间'])];students.forEach(function(s){var row=[s.studentId,s.englishName,s.chineseName,s.baseline?s.baseline.totalScore:''];order.forEach(function(tid){var t=s.tasks&&s.tasks[tid];row.push(t?t.scorePercent:'');});row.push(s.completedTaskCount,s.completionRate,s.writingSubmitCount,s.audioSubmitCount,s.imageSubmitCount,s.averagePercent==null?'':s.averagePercent,s.lastSubmittedAt||'');overview.push(row);});
+var scoreHeader=['学号','英文名','中文名'];order.forEach(function(tid){var n=taskShort(tid);scoreHeader.push(n+'状态',n+'客观分',n+'写作证据分',n+'录音证据分',n+'图片证据分',n+'最终分',n+'满分',n+'百分制');});var scores=[scoreHeader];students.forEach(function(s){var r=[s.studentId,s.englishName,s.chineseName];order.forEach(function(tid){var t=s.tasks&&s.tasks[tid];if(!t){r=r.concat(['未提交','','','','','','','']);}else r=r.concat(['已提交',t.objectiveScore==null?'':t.objectiveScore,t.writingEvidenceScore||0,t.audioEvidenceScore||0,t.imageEvidenceScore||0,t.finalScore,t.finalMaxScore,t.scorePercent]);});scores.push(r);});
+var detail=[['学号','英文名','中文名','任务编号','任务名称','是否完成','客观正确数','客观题数','客观得分','客观满分','写作状态','写作得分','录音状态','录音时长(秒)','口语得分','图片状态','图片得分','最终成绩','满分','百分制','submissionId','attemptNo','提交时间']];var objective=[['学号','英文名','中文名','任务','题号','学生答案','正确答案','是否正确','得分','满分']];var materials=[['学号','英文名','中文名','任务','写作全文','写作是否提交','写作得分','录音是否提交','录音时长(秒)','录音文件链接','图片是否提交','图片链接','材料自动评分说明']];students.forEach(function(s){order.forEach(function(tid){var t=s.tasks&&s.tasks[tid],rule=rules[tid]||{};if(!t){detail.push([s.studentId,s.englishName,s.chineseName,taskShort(tid),rule.title||tid,'未提交','','','','','未提交',0,'未提交','',0,'未提交',0,'','','','','','']);return;}detail.push([s.studentId,s.englishName,s.chineseName,taskShort(tid),t.taskTitle,'已提交',t.objectiveCorrectCount==null?'':t.objectiveCorrectCount,t.objectiveTotalCount==null?'':t.objectiveTotalCount,t.objectiveScore==null?'':t.objectiveScore,t.objectiveMaxScore==null?'':t.objectiveMaxScore,t.hasWriting?'已提交':'未提交',t.writingEvidenceScore||0,t.hasAudio?'已提交':'未提交',t.audioDuration||0,t.audioEvidenceScore||0,t.hasImage?'已提交':'未提交',t.imageEvidenceScore||0,t.finalScore,t.finalMaxScore,t.scorePercent,t.submissionId,t.attemptNo,t.submittedAt]);(t.itemResults||[]).forEach(function(ir){objective.push([s.studentId,s.englishName,s.chineseName,taskShort(tid),ir.questionId||ir.itemId||'',typeof ir.studentAnswer==='object'?JSON.stringify(ir.studentAnswer):ir.studentAnswer||'',typeof ir.correctAnswer==='object'?JSON.stringify(ir.correctAnswer):ir.correctAnswer||'',ir.isCorrect?'正确':'错误',ir.itemScore!=null?ir.itemScore:(ir.score!=null?ir.score:''),ir.itemMaxScore!=null?ir.itemMaxScore:(ir.maxScore!=null?ir.maxScore:'')]);});if(t.writingText||t.hasAudio||t.hasImage){materials.push([s.studentId,s.englishName,s.chineseName,taskShort(tid),t.writingText||'',t.hasWriting?'是':'否',t.writingEvidenceScore||0,t.hasAudio?'是':'否',t.audioDuration||0,t.audioUrl||t.audioFileId||'',t.hasImage?'是':'否',t.imageUrl||t.imageFileId||'','按课程学习证据规则：已提交即满分。']);}});});
+var baseline=[['学号','英文名','中文名','HSK级别','听力','阅读','写作','总分','结果','考试日期']];students.forEach(function(s){var b=s.baseline||{};baseline.push([s.studentId,s.englishName,s.chineseName,'HSK3',b.listeningScore==null?'':b.listeningScore,b.readingScore==null?'':b.readingScore,b.writingScore==null?'':b.writingScore,b.totalScore==null?'':b.totalScore,b.passStatus==='pass'?'合格':(b.passStatus==='fail'?'未合格':''),b.examDate||'']);});var accounts=[['studentUid','studentId','英文名','中文名','账号状态','账号类别','原账号','原账号状态','迁移编号','归档数','完成进度']];students.forEach(function(s){accounts.push([s.studentUid,s.studentId,s.englishName,s.chineseName,s.accountStatus,s.accountCategory,s.sourceStudentId||'',s.sourceAccountStatus||'',s.migrationId||'',s.archiveCount||0,(s.completedTaskCount||0)+'/10']);});return[{name:'班级总览',rows:overview},{name:'任务1-10成绩总表',rows:scores},{name:'任务提交明细',rows:detail},{name:'客观题答题明细',rows:objective},{name:'学习材料',rows:materials},{name:'HSK基线',rows:baseline},{name:'账号数据映射',rows:accounts}];}
 
 // ===== Accounts View =====
 var avData = null;
@@ -719,7 +669,7 @@ function showAccountDetailModal(data) {
   var stu = data.student || {};
   var src = data.source;
   var tasks = data.tasks || {};
-  var tn = { 'TASK_HSK3_RW_01': '任务一', 'TASK_L1_REVIEW_02': '任务二', 'TASK_L2_REVIEW_03': '任务三', 'TASK_SEAL_WORK_04': '任务四' };
+  var tn={'TASK_HSK3_RW_01':'任务一','TASK_L1_REVIEW_02':'任务二','TASK_L2_REVIEW_03':'任务三','TASK_SEAL_WORK_04':'任务四','TASK_CHINESE_MOVIES_05':'任务五','TASK_CHINESE_FOOD_1_06':'任务六','TASK_PAPER_CUTTING_07':'任务七','TASK_CHINESE_FOOD_2_08':'任务八','TASK_HSK3_TEST_2_09':'任务九','TASK_STUDY_LIFE_CHINA_10':'任务十'};
   var h = '<div style="max-height:70vh;overflow-y:auto">';
   h += '<h4>' + (stu.chineseName||stu.englishName||'') + ' [' + stu.studentId + ']</h4>';
   h += '<div style="font-size:12px;line-height:1.8"><b>Uid:</b> ' + stu.studentUid + '<br><b>状态:</b> ' + (stu.accountStatus||'') + '<br><b>进度:</b> ' + (data.progress||'') + ' · <b>归档:</b> ' + (data.archiveCount||0) + '条</div>';
@@ -727,7 +677,7 @@ function showAccountDetailModal(data) {
   h += '<table style="width:100%;font-size:11px"><tr><th>任务</th><th>状态</th><th>成绩</th><th>写作</th><th>录音</th><th>图片</th><th>来源</th></tr>';
   Object.keys(tn).forEach(function(tid){
     var t = tasks[tid];
-    h += '<tr><td>' + tn[tid] + '</td><td>' + (t?'✅':'—') + '</td><td>' + (t&&t.objectiveScore!=null?t.objectiveScore+'/'+t.objectiveMaxScore:'—') + '</td><td>' + (t&&t.hasWriting?'✅':'—') + '</td><td>' + (t&&t.hasAudio?'✅':'—') + '</td><td>' + (t&&t.hasImage?'✅':'—') + '</td><td>' + (t&&t.migratedFrom?'<span style=\"color:#f59e0b\">迁入</span>':'自有') + '</td></tr>';
+    h += '<tr><td>'+tn[tid]+'</td><td>'+(t?'✅':'—')+'</td><td>'+(t&&t.finalScore!=null?t.finalScore+'/'+t.finalMaxScore+' ('+t.scorePercent+')':'—')+'</td><td>'+(t&&t.hasWriting?'✅ '+t.writingEvidenceScore:'—')+'</td><td>'+(t&&t.hasAudio?'✅ '+t.audioEvidenceScore:'—')+'</td><td>'+(t&&t.hasImage?'✅ '+t.imageEvidenceScore:'—')+'</td><td>'+(t&&t.migratedFromStudentId?'<span style="color:#f59e0b">迁入</span>':'自有')+'</td></tr>';
   });
   h += '</table></div>';
   document.getElementById('answerModalTitle').textContent = stu.studentId + ' 账号详情';
@@ -742,5 +692,5 @@ function exportAccountsViewCsv() {
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download='学生账号与数据情况_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
-console.log('ECRL_TEACHER_PRODUCTION_V31_20260804');
+console.log('TEACHER_PREVIEW_WINDOW_FIX_20260803');
 </script></body></html>
